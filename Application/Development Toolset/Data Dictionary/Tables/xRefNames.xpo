@@ -1,0 +1,84 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: DBT
+
+; Microsoft Dynamics AX Table : xRefNames unloaded
+; --------------------------------------------------------------------------------
+  TABLEVERSION 1
+  
+  TABLE #xRefNames
+    EnforceFKRelation 0
+    PROPERTIES
+      Name                #xRefNames
+      Label               #@SYS68405
+      TitleField1         #kind
+      TitleField2         #name
+      Systemtable         #Yes
+      ConfigurationKey    #SysDevelopmentMorphX
+      SecurityKey         #SysDevelopmentTables
+      AOSAuthorization    #CreateReadUpdateDelete
+      CacheLookup         #Found
+      CreateRecIdIndex    #Yes
+      SaveDataPerCompany  #No
+      SaveDataPerPartition #No
+      TableGroup          #Main
+      PrimaryIndex        #Key
+      ClusterIndex        #RecId
+      CreatedDateTime     #Yes
+      DEL_createdTime     #Yes
+      CreatedBy           #Yes
+      DeveloperDocumentation  #@SYS122909
+      Origin              #{2C090201-0000-1000-99E3-76664E616D65}
+      LegacyId            #513
+    ENDPROPERTIES
+    
+    FIELDS
+      FIELD #parentId
+        INT
+        PROPERTIES
+          Name                #parentId
+          HelpText            #@SYS71914
+          Table               #xRefNames
+          Origin              #{4BD2D552-765C-4DCD-813E-24BDA3CC9FC8}
+          LegacyId            #6
+          ExtendedDataType    #Counter
+        ENDPROPERTIES
+        
+      FIELD #xRefPathRecId
+        INT64
+        PROPERTIES
+          Name                #xRefPathRecId
+          HelpText            #@SYS68571
+          Table               #xRefNames
+          Origin              #{21740575-C0D9-455B-8866-835939B46DE0}
+          LegacyId            #8
+          ExtendedDataType    #xRefPathRecId
+        ENDPROPERTIES
+        
+    ENDFIELDS
+    GROUPS
+    ENDGROUPS
+    
+    INDICES
+    ENDINDICES
+    FULLTEXTINDICES
+    ENDFULLTEXTINDICES
+    REFERENCES
+    ENDREFERENCES
+    
+    DELETEACTIONS
+      #xRefReferences
+      PROPERTIES
+        Table               #xRefReferences
+        DeleteAction        #Cascade
+      ENDPROPERTIES
+      
+    ENDDELETEACTIONS
+    
+    METHODS
+    ENDMETHODS
+  ENDTABLE
+  
+
+***Element: END

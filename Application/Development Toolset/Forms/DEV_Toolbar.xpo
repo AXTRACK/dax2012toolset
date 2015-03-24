@@ -1,0 +1,3349 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #DEV_Toolbar
+  PROPERTIES
+    Name                #DEV_Toolbar
+    Origin              #{7EC4D81C-D775-43F0-8033-861FDD54A1B3}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #// This is Internal alpha - please email to for details MaximBel@microsoft.com
+      #public class FormRun extends ObjectRun
+      #{
+      #    // CONSTANTS
+      #    // ----------------------------------------------------------
+      #    #define.extensionButtonPrefix('DEV_Toolbar_')
+      #    #define.topmostFormTimeout(5) // sec
+      #    #define.windowsScanTimeout(100) // msec
+      #    // distance of cursor movement with pressed left button to begin drag and drop
+      #    #define.TabDragAndDropDistance(1)
+      #    // ----------------------------------------------------------
+      #    #task
+      #    #TreeNodeSysNodeType
+      #
+      #    // [hwnd] -> [Tab, TextBlock]
+      #    Map tabs;
+      #    int autosizes;
+      #    container oldWindows;
+      #    System.Windows.Controls.TabControl _ManagedHost_Control;
+      #    boolean inSelectionChange;
+      #    container titleMapping;
+      #    real desiredheight;
+      #    int  firstTicks;
+      #    UTCDateTime topmostFormTime;
+      #    boolean topmostFormInsideAx;
+      #    boolean inPause;
+      #
+      #    #AOT
+      #    #ResAppl
+      #    #WinAPI
+      #
+      #    System.Windows.ResourceDictionary resourceDictionary;
+      #    ObjectIdent topmostFormRun;
+      #    HWND        hwndTopmostFormRun;
+      #    HWND        MDICLient;
+      #    FileName    logFileName;
+      #    // === drag and drop ===
+      #    boolean isDragStarted;
+      #    real  dragX;
+      #    real  dragY;
+      #    System.Object possibleDrag;
+      #    #LOCALMACRO.FLAG_SQLTrace                    (1 << 8) #ENDMACRO
+      #
+      #    // >> DEV:MXK >>
+      #    #DEV_Toolset
+      #
+      #    HWND                            propertiesWindow;
+      #    Set                             breakpointSet;
+      #    //Set                             recentProjSet;
+      #    Map                             recentProjMap;
+      #
+      #    boolean                         isButtons;
+      #    boolean                         isSearchText;
+      #    boolean                         isFormsMenu;
+      #    boolean                         isExtensions;
+      #
+      #    Name                            lastValueDesignName;
+      #    UserId                          lastValueUserId;
+      #
+      #    #define.CurrentVersion(1)
+      #    #localmacro.CurrentList
+      #        isButtons,
+      #        isSearchText,
+      #        isFormsMenu,
+      #        isExtensions
+      #    #endmacro
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #addTab
+      #Struct addTab(int _image, str _name, str _text, HWND _tag)
+      #{
+      #    System.Windows.Controls.TabControl      tc;
+      #    System.Windows.Controls.TabItem         tabItem;
+      #    System.Windows.Controls.ItemCollection  items;
+      #    System.Windows.Controls.Image           image = new System.Windows.Controls.Image();
+      #    System.Windows.Controls.StackPanel      stackPanel = new System.Windows.Controls.StackPanel();
+      #    System.Windows.Controls.TextBlock       block = new System.Windows.Controls.TextBlock();
+      #    Image                                   i = new Image(_image);
+      #    System.IntPtr                           iptr = new System.IntPtr(i.exportBitmap());
+      #    System.Drawing.Bitmap                   drawingImage = System.Drawing.Image::FromHbitmap(iptr);
+      #    Struct                                  ret = new Struct(Types::Class, 'tabItem', Types::Class, 'block');
+      #    System.Windows.Media.Imaging.BitmapImage gdi2wpf(System.Drawing.Bitmap _drawing)
+      #    {
+      #        System.IO.MemoryStream  ms = new System.IO.MemoryStream();
+      #        System.IO.MemoryStream  ms2;
+      #        real x;
+      #        System.Windows.Media.Imaging.BitmapImage bImg = new System.Windows.Media.Imaging.BitmapImage();
+      #        _drawing.MakeTransparent();
+      #        _drawing.Save(ms, System.Drawing.Imaging.ImageFormat::get_Png());
+      #        ms2 = new System.IO.MemoryStream(ms.ToArray());
+      #        bImg.BeginInit();
+      #        bImg.set_StreamSource(ms2);
+      #        bImg.EndInit();
+      #        return bimg;
+      #    }
+      #    image.set_Source(gdi2wpf(drawingImage));
+      #    stackPanel.set_Orientation(System.Windows.Controls.Orientation::Horizontal);
+      #    stackPanel.AddChild(image);
+      #    block.AddText(_name);
+      #    block.set_ToolTip(_text);
+      #    stackPanel.AddChild(block);
+      #
+      #    tc = ManagedHost.control();
+      #
+      #    tabItem = new System.Windows.Controls.TabItem();
+      #    tabItem.set_Header(stackPanel);
+      #    tabItem.set_Tag(_tag);
+      #    if (DEV_Global::isEditor(0, _text) && resourceDictionary)
+      #    {
+      #        tabItem.set_Style(resourceDictionary.get_Item('EditorTabItem'));
+      #    }
+      #
+      #    items = tc.get_Items();
+      #    items.Add(tabItem);
+      #    ret.value('tabItem', tabItem);
+      #    ret.value('block', block);
+      #    this.tabItem_attachDragAndDropHandlers(tabitem);
+      #    tabItem.add_MouseUp(new ManagedEventHandler(this, 'onTabMouseUp'));
+      #    desiredHeight = tc.get_ActualHeight();
+      #
+      #    // >> DEV:MXK >>
+      #    tc.add_MouseUp(new ManagedEventHandler(this, 'onTCMouseUp'));
+      #
+      #    if (_image == #ImageProject)
+      #    {
+      #        items.Remove(tabItem);
+      #        items.Insert(0, tabItem);
+      #    }
+      #    else if (_image == 855) // Properties
+      #    {
+      #        items.Remove(tabItem);
+      #        items.Insert(0, tabItem);
+      #    }
+      #    else if (_image == 1078) // Compiler Output
+      #    {
+      #        items.Remove(tabItem);
+      #        items.Insert(0, tabItem);
+      #    }
+      #    // << DEV:MXK <<
+      #
+      #    return ret;
+      #}
+    ENDSOURCE
+    SOURCE #addTabs
+      #void addTabs(container _created)
+      #{
+      #    int             i;
+      #    Struct          tab;
+      #    hwnd            hwnd;
+      #    str             text;
+      #    int             image;
+      #    str             title;
+      #
+      #    if (! tabs)
+      #    {
+      #        tabs = new Map(Types::Integer, Types::Class);
+      #    }
+      #
+      #    for (i=1; i<=conLen(_created); i++)
+      #    {
+      #        [hwnd, text] = conPeek(_created, i);
+      #        // >> DEV:MXK >>
+      #        if (    DEV_UserParameters::findOrCreate().EnvFormCaption
+      #            &&  subStr(text, 1, strLen(DEV_Global::curEnv()) + 1) == DEV_Global::curEnv())
+      #        {
+      #            text = subStr(text, strLen(DEV_Global::curEnv()) + 5, strLen(text));
+      #        }
+      #        // << DEV:MXK <<
+      #        [title, image] = this.parseTitle(text);
+      #        // >> DEV:MXK >>
+      #        if (hwnd == propertiesWindow)
+      #        {
+      #            image = 855;
+      #            title = '';
+      #        }
+      #        else if (DEV_Global::isEditor(0, title))
+      #        {
+      #            image = (image == #ImageMacros) ? image : 408;
+      #            title = subStr(title, 1, strLen(title) - 9);
+      #        }
+      #        else if (DEV_Global::isUsedByTitle(0, title))
+      #        {
+      #            image = 3077;
+      #            title = subStr(title, strScan(title, ':', 1, maxInt()) + 2, maxInt());
+      #        }
+      #        else if (DEV_Global::isImportTitle(0, title))
+      #        {
+      #            image = 1098;
+      #            title = '';
+      #        }
+      #        else if (DEV_Global::isTableBrowser(0, title))
+      #        {
+      #            image = 2622;
+      #            title = subStr(title, 16, strLen(title) - 15);
+      #        }
+      #        else if (DEV_Global::isFindTitle(0, title))
+      #        {
+      #            image = 409;
+      #            title = '';
+      #        }
+      #        else if (DEV_Global::isCompiler(0, title))
+      #        {
+      #            image = 1078;
+      #            title = '';
+      #        }
+      #        else if (DEV_Global::isAOT(0, title))
+      #        {
+      #            title = 'AOT';
+      #        }
+      #        // << DEV:MXK <<
+      #
+      #        tab = this.addTab(image, title, text, hwnd);
+      #        tabs.insert(hwnd, tab);
+      #
+      #        // >> DEV:MXK >>
+      #        if (DEV_UserParameters::exist() && DEV_UserParameters::find().WMEnabled)
+      #        {
+      #            if (hwnd == propertiesWindow)
+      #            {
+      #                DEV_HKCommon::leftSideRight(hwnd);
+      #            }
+      #            else if (DEV_Global::isProjectRoot(0, text))
+      #            {
+      #                DEV_HKCommon::leftSideRight(hwnd);
+      #            }
+      #            else if (DEV_Global::isProjectTitle(0, text))
+      #            {
+      #                DEV_HKCommon::leftSideLeft(hwnd);
+      #            }
+      #            else if (DEV_Global::isEditor(0, text))
+      #            {
+      #                DEV_HKCommon::rightSideEditor(hwnd);
+      #            }
+      #            /*else if (image == 409) // Find
+      #            {
+      #                DEV_HKCommon::leftSideFind(hwnd);
+      #            }*/
+      #            else if (image == 878) // Comparison
+      #            {
+      #                DEV_HKCommon::leftSideCentre(hwnd);
+      #            }
+      #            else if (image == 3077) // Used by
+      #            {
+      #                DEV_HKCommon::leftSideCentre(hwnd);
+      #            }
+      #            else if (image == 927) // Message Window
+      #            {
+      #                this.hwnd_close(hwnd);
+      #            }
+      #            /*else if (image == 1078) // Compiler Output
+      #            {
+      #                DEV_HKCommon::rightSideCompiler();
+      #            }*/
+      #        }
+      #        // << DEV:MXK <<
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #autosize
+      #void autosize()
+      #{
+      #    int l,t,r,b;
+      #    int tabh = 120;
+      #    int w, h;
+      #
+      #    [l,t,r,b] = WinAPI::getWindowRect(this.hwnd());
+      #    w = r-l;
+      #    h = b-t;
+      #    h = desiredheight * 3;
+      #    WINAPI::setWindowPos(this.Hwnd(),0,0,
+      #        w, 36 * 2, true,false,
+      #              32 //#SWP_FRAMECHANGED
+      #              +
+      #              256 //#SWP_NOCOPYBITS
+      #          );
+      #}
+    ENDSOURCE
+    SOURCE #close
+      #// >> DEV:MXK >>
+      #public void close()
+      #{
+      #    SysGlobalCache                              cache       = infolog.workspaceCache();
+      #    ObjectIdent                                 objIdent    = infolog.workspaceCache().get(formstr(SysTaskRecorderToolbar), null, null);
+      #    Object                                      toolbarForm = objIdent ? objIdent.object() : null;
+      #
+      #    this.saveLast();
+      #
+      #    super();
+      #}
+      #// << DEV:MXK <<
+      #
+    ENDSOURCE
+    SOURCE #closeAfter
+      #private void closeAfter(System.Windows.Controls.TabItem _tabItem)
+      #{
+      #    System.Windows.Controls.ItemCollection items = _ManagedHost_Control.get_Items();
+      #    container hwnds;
+      #    int i;
+      #    int itemPos = items.IndexOf(_tabItem);
+      #    System.Windows.Controls.TabItem localItem;
+      #    Hwnd hwnd;
+      #    int size = items.get_Count();
+      #    for (i=itemPos + 1; i < size; i++)
+      #    {
+      #        localItem = items.get_Item(i);
+      #        hwnd = localItem.get_Tag();
+      #        hwnds += hwnd;
+      #    }
+      #    this.hwnds_close(hwnds);
+      #}
+    ENDSOURCE
+    SOURCE #closeAllExcept
+      #private void closeAllExcept(HWND _hwnd)
+      #{
+      #    #WinAPI
+      #    int i;
+      #    container all = this.getWindows();
+      #    HWND hwnd;
+      #    for (i=1; i<=conLen(all); i++)
+      #    {
+      #        hwnd = conPeek(conPeek(all, i), 1);
+      #        if (_hwnd != hwnd)
+      #        {
+      #            this.hwnd_close(hwnd);
+      #        }
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #con2map
+      #Map con2map(container _con)
+      #{
+      #    Map ret = new Map(Types::Integer, Types::String);
+      #    int i;
+      #    AnyType key;
+      #    AnyType value;
+      #    for (i=1; i<=conLen(_con); i++)
+      #    {
+      #        [key, value] = conPeek(_con, i);
+      #        ret.insert(key, value);
+      #    }
+      #    return ret;
+      #}
+    ENDSOURCE
+    SOURCE #con2str
+      #str con2str(container _con)
+      #{
+      #    str ret = '[';
+      #    int i;
+      #    for (i=1; i<=conLen(_con); i++)
+      #    {
+      #        if (i>1)
+      #            ret += ', ';
+      #        ret += element.toStr(conPeek(_con, i));
+      #    }
+      #    return ret + ']';
+      #}
+    ENDSOURCE
+    SOURCE #copyPathes
+      #void copyPathes(boolean _nameOnly = true)
+      #{
+      #    SysContextMenu  context     = this.sysContextMenu();
+      #    TreeNode        node        = context.first();
+      #    TextBuffer      buf         = new TextBuffer();
+      #    str             pathes;
+      #    // >> DEV:MXK >>
+      #    str getName()
+      #    {
+      #        str             st;
+      #
+      #        st = node.treeNodeName();
+      #
+      #        if (strFind(st, ':', 1, strLen(st)))
+      #        {
+      #            st = subStr(st, strFind(st, ':', 1, strLen(st)) + 1, strLen(st) - strFind(st, ':', 1, strLen(st)));
+      #            st = strrem(st, ']');
+      #        }
+      #
+      #        return st;
+      #    }
+      #    // << DEV:MXK <<
+      #
+      #    while (node)
+      #    {
+      #        if (pathes)
+      #        {
+      #            pathes += '\r\n';
+      #        }
+      #        pathes += _nameOnly ? /*node.treeNodeName()*/getName() : node.treeNodePath();
+      #        node = context.next();
+      #    }
+      #    buf.setText(pathes);
+      #    buf.toClipboard();
+      #}
+    ENDSOURCE
+    SOURCE #copyTitle
+      #private void copyTitle(HWND _hwnd)
+      #{
+      #    TextBuffer buf = new TextBuffer();
+      #    buf.appendText(WInApi::getWindowText(_hwnd));
+      #    buf.toClipboard();
+      #}
+    ENDSOURCE
+    SOURCE #currentSQLTrace
+      #public boolean currentSQLTrace(boolean _value=false)
+      #{
+      #    UserInfo userInfo;
+      #    ttsBegin;
+      #    userInfo.selectForUpdate(! prmisDefault(_value));
+      #    select userInfo where userInfo.id == curUserId();
+      #    if (! prmisDefault(_value))
+      #    {
+      #        if (_value)
+      #        {
+      #            userInfo.debugInfo = userInfo.debugInfo | #FLAG_SQLTrace;
+      #        }
+      #        else
+      #        {
+      #            userInfo.debugInfo = userInfo.debugInfo ^ #FLAG_SQLTrace;
+      #        }
+      #        userInfo.doUpdate();
+      #    }
+      #    ttsCommit;
+      #    if (! prmisDefault(_value))
+      #    {
+      #        userInfo.reread();
+      #        infolog.getUserSetup().setUserSetup(userinfo);
+      #        ttsBegin;
+      #        userInfo.selectForUpdate(true);
+      #        userInfo.write();
+      #        ttsCommit;
+      #    }
+      #    return (userInfo.debugInfo & #FLAG_SQLTrace) ? true : false;
+      #
+      #}
+    ENDSOURCE
+    SOURCE #currentTopMost
+      #private HWND currentTopMost()
+      #{
+      #    if (oldWindows)
+      #    {
+      #        return conPeek(conPeek(oldWindows, 1), 1);
+      #    }
+      #    return 0;
+      #}
+    ENDSOURCE
+    SOURCE #deleteTabs
+      #private void deleteTabs(container _deleted)
+      #{
+      #    int i;
+      #    Struct tab;
+      #    hwnd hwnd;
+      #    str text;
+      #    System.Windows.Controls.TabControl      tc = ManagedHost.control();
+      #    System.Windows.Controls.ItemCollection  items = tc.get_Items();
+      #    System.Windows.Controls.TabItem         tabItem;
+      #
+      #    TreeNode        treeNode; // DEV:MXK
+      #
+      #    for (i=1; i<=conLen(_deleted); i++)
+      #    {
+      #        [hwnd, text] = conPeek(_deleted, i);
+      #        tab = tabs.lookup(hwnd);
+      #        tabItem = tab.value('tabItem');
+      #        inSelectionChange = true;
+      #        items.Remove(tabItem);
+      #        inSelectionChange = false;
+      #        tabs.remove(hwnd);
+      #        // >> DEV:MXK >>
+      #        if (strStartsWith(text, 'Project '))
+      #        {
+      #            treeNode = TreeNode::findNode(#ProjectSharedPath + #AOTDelimiter + conPeek(str2con(text, ' '), 2));
+      #            treeNode = treeNode ? treeNode : TreeNode::findNode(#ProjectPrivatePath + #AOTDelimiter + conPeek(str2con(text, ' '), 2));
+      #
+      #            if (treeNode)
+      #            {
+      #                recentProjMap.insert(treeNode.treeNodePath(), 0);
+      #                //recentProjSet.add(treeNode.treeNodePath());
+      #            }
+      #        }
+      #        // << DEV:MXK <<
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #dsContextMenu
+      #SysContextMenu dsContextMenu()
+      #{
+      #    FormRun formRun = element.topmostFormRun();
+      #    FormDataSource ds;
+      #    SysContextMenu context;
+      #    if (formRun)
+      #    {
+      #        ds = formRun.dataSource();
+      #    }
+      #    context = ds ? SysContextMenuTreeNode::newPath(#TablesPath + #AOTDelimiter + tableID2Name(ds.table())) :
+      #                   element.sysContextMenu();
+      #
+      #    return context;
+      #}
+    ENDSOURCE
+    SOURCE #dump
+      #private void dump()
+      #{
+      #    System.Xml.XmlWriterSettings settings = new System.Xml.XmlWriterSettings();
+      #    System.Text.StringBuilder    strBuild;
+      #    System.Xml.XmlWriter xmlwrite;
+      #    settings.set_Indent(true);
+      #    settings.set_IndentChars('    ');
+      #    settings.set_NewLineOnAttributes(true);
+      #    strBuild = new System.Text.StringBuilder();
+      #    xmlwrite = System.Xml.XmlWriter::Create(strbuild, settings);
+      #    System.Windows.Markup.XamlWriter::Save(_ManagedHost_Control.get_Template(), xmlwrite);
+      #    info(strBuild.ToString());
+      #}
+    ENDSOURCE
+    SOURCE #enableLog
+      #void enableLog(str _fileName)
+      #{
+      #    logFileName = _fileName;
+      #}
+    ENDSOURCE
+    SOURCE #ensureIsShown
+      #private void ensureIsShown(HWND _hwnd)
+      #{
+      #    if (DEV_WinAPI::isIconic(_hwnd) || DEV_WinAPI::isZoomed(_hwnd))
+      #    {
+      #        WinAPI::showWindow(_hwnd, #SW_RESTORE);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #evalBuf
+      #// BP Deviation Documented
+      #private boolean evalBuf(str _text)
+      #{
+      #    if (strStartsWith(_text, '?'))
+      #    {
+      #        this.runCode('ret = ' + subStr(_text, 2, strLen(_text)) + ';');
+      #        return true;
+      #    }
+      #    return false;
+      #}
+    ENDSOURCE
+    SOURCE #extensionButtonClicked
+      #private void extensionButtonClicked(FormFunctionButtonControl _button)
+      #{
+      #    Args args = new Args();
+      #    args.parmObject(this.sysContextMenu());
+      #    _button.menufunction().run(args);
+      #}
+    ENDSOURCE
+    SOURCE #extensionContext
+      #// >> DEV:MXK >>
+      #private void extensionContext(FormFunctionButtonControl _button)
+      #{
+      #    Args args = new Args();
+      #    args.parmObject(this.sysContextMenu());
+      #    Box::info(_button.menufunction().helpText(), _button.menufunction().label() + ' plugin');
+      #// << DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #fitWindow
+      #private void fitWindow(HWND _hwnd)
+      #{
+      #    int x1, y1, x2, y2;
+      #    [x1, y1, x2, y2] = DEV_WinAPI::getClientRect(MDIClient);
+      #    this.ensureIsShown(_hwnd);
+      #    WinAPI::setWindowPos(_hwnd, 0, 0, x2-x1, y2-y1);
+      #}
+    ENDSOURCE
+    SOURCE #get2TopmostWindows
+      #private container get2TopmostWindows()
+      #{
+      #    HWND first, second;
+      #    first = WinAPI::FindWindowEx(MDIClient, 0, '','');
+      #    if (first)
+      #    {
+      #        second = WinAPI::FindWindowEx(MDIClient, first, '', '');
+      #    }
+      #    return [first, second];
+      #}
+    ENDSOURCE
+    SOURCE #getCurrentEditorPath
+      #str getCurrentEditorPath()
+      #{
+      #    str title = WinAPI::getWindowText(this.getCurrentHWND());
+      #    return subStr(title, 1, strLen(title) - strLen(#EditorSuffix));
+      #}
+    ENDSOURCE
+    SOURCE #getCurrentHWND
+      #HWND getCurrentHWND()
+      #{
+      #    HWND parent = WinAPI::getWindow(infolog.hWnd(), #GW_CHILD);
+      #    return WinAPI::FindWindowEx(parent, 0, '','');
+      #}
+    ENDSOURCE
+    SOURCE #getLast
+      #// >> DEV:MXK >>
+      #/// <summary>
+      #///    Loads the latest saved variable values for the current user in the form.
+      #/// </summary>
+      #private void getLast()
+      #{
+      #    container   lastValues  = xSysLastValue::getValue(  element.lastValueDataAreaId(),
+      #                                                        element.lastValueUserId(),
+      #                                                        element.lastValueType(),
+      #                                                        element.lastValueElementName());
+      #    Version     version     = conPeek(lastValues, 1);
+      #
+      #    switch (version)
+      #    {
+      #        case #CurrentVersion:
+      #            [version, #CurrentList] = lastValues;
+      #            break;
+      #
+      #        default:
+      #            break;
+      #    }
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #getMDIClientHWND
+      #HWND getMDIClientHWND()
+      #{
+      #    #define.MDIClientClass('MDIClient')
+      #    HWND parent = this.getWorkspaceHWND();
+      #    HWND h;
+      #    HWND first;
+      #    HWND ret;
+      #    for (h = WinAPI::FindWindowEx(parent, 0, '',''); h && h != first; h = WinAPI::FindWindowEx(parent, h, '', ''))
+      #    {
+      #        if (! first)
+      #            first = h;
+      #        if (DEV_WinAPI::getClassName(h)==#MDIClientClass)
+      #        {
+      #            ret = h;
+      #            break;
+      #        }
+      #    }
+      #    if (! ret)
+      #        throw error('MDIClient !found');
+      #    return ret;
+      #}
+    ENDSOURCE
+    SOURCE #getTabItemByHWND
+      #private System.Windows.Controls.TabItem getTabItemByHWND(HWND _hwnd)
+      #{
+      #    Struct item = tabs.lookup(_hwnd);
+      #    if (item)
+      #        return item.value('tabItem');
+      #    return null;
+      #}
+    ENDSOURCE
+    SOURCE #getWindows
+      #container getWindows()
+      #{
+      #    int h;
+      #    int first;
+      #    str text;
+      #    int parent;
+      #    #WinAPI
+      #    container ret;
+      #
+      #    //parent = WinAPI::getWindow(MDIClient, #GW_CHILD);
+      #    parent = MDIClient;
+      #    for (h = WinAPI::FindWindowEx(parent, 0, '',''); h && h != first; h = WinAPI::FindWindowEx(parent, h, '', ''))
+      #    {
+      #        if (! first)
+      #            first = h;
+      #        if (this.isWindowVisible(h))
+      #        {
+      #            text = WinAPI::getWindowText(h);
+      #            ret += [[h, text]];
+      #        }
+      #    }
+      #    return ret;
+      #}
+    ENDSOURCE
+    SOURCE #getWorkspaceHWND
+      #public HWND getWorkspaceHWND()
+      #{
+      #    HWND hwnd = this.hWnd();
+      #    while (hwnd && DEV_WinAPI::getClassName(hwnd) != 'AxMainFrame')
+      #    {
+      #        hwnd = DEV_WinAPI::getParent(hwnd);
+      #    }
+      #    return hwnd;
+      #}
+    ENDSOURCE
+    SOURCE #handler
+      #private ManagedEventHandler handler(str _name)
+      #{
+      #    return new ManagedEventHandler(this, _name);
+      #}
+    ENDSOURCE
+    SOURCE #hwnd_close
+      #private void hwnd_close(HWND _hwnd)
+      #{
+      #    DEV_WinAPI::closeWindow(_hwnd);
+      #
+      #    // >> DEV:MXK >>
+      #    if (appl.globalCache().isSet(classStr(EditorScripts), _hwnd))
+      #    {
+      #        appl.globalCache().remove(classStr(EditorScripts), _hwnd);
+      #    }
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #hwnds_close
+      #private void hwnds_close(container _hwnds)
+      #{
+      #    int i;
+      #    for (i=1; i<=conLen(_hwnds); i++)
+      #    {
+      #        this.hwnd_close(conPeek(_hwnds, i));
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #inEditor
+      #boolean inEditor()
+      #{
+      #    str title = WinAPI::getWindowText(this.getCurrentHWND());
+      #
+      #    return strEndsWith(title, #EditorSuffix) && TreeNode::findNode(this.getCurrentEditorPath());
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #public void init()
+      #{
+      #    System.Exception laste;
+      #    // >> DEV: MXK >>
+      #    boolean             isSecDevTool;
+      #    boolean             showButtons = true;
+      #
+      #    DEV_UserParameters  parameters = DEV_UserParameters::findOrCreate();
+      #
+      #    xSysLastValue::getLast(this);
+      #
+      #    breakpointSet   = DEV_Breakpoints::initPathSet();
+      #    //recentProjSet   = new Set(Types::String);   // TreeNodePath
+      #    recentProjMap   = new Map(Types::String, Types::Integer);
+      #
+      #    isSecDevTool    = TreeNode::findNode(#MenuItemsDisplayPath + #AOTDelimiter + 'SysSecRoleEntryPointDeveloper') != null;
+      #    if (parameters.HKEnabled)
+      #        showButtons = !parameters.HideHKButtons;
+      #    // << DEV: MXK <<
+      #
+      #    try
+      #    {
+      #            super();
+      #            MDIClient = this.getMDIClientHWND();
+      #            this.initTitleMapping();
+      #            _ManagedHost_Control = ManagedHost.control();
+      #            _ManagedHost_Control.add_SelectionChanged(this.handler('ManagedHost_SelectionChanged'));
+      #            _ManagedHost_Control.set_AllowDrop(true);
+      #            this.tabControl_attachDragAndDropHandlers(_ManagedHost_Control);
+      #            if (element.xamlResources())
+      #            {
+      #                this.loadTabTemplate();
+      #            }
+      #            _ManagedHost_Control.set_SelectedIndex(0);
+      #            element.timeoutHandler();
+      #            element.loadExtensionButtons();
+      #            element.initSQLTrace();
+      #
+      #    }
+      #    catch (Exception::CLRError)
+      #    {
+      #        laste = CLRInterop::getLastException();
+      #        throw error(laste.ToString());
+      #    }
+      #
+      #    // >> DEV:MXK >>
+      #    xInfo::getPropertiesWindow().Activate(PropWindowDisplayState::Show);
+      #    propertiesWindow = DEV_WinAPI::getTopWindow(DEV_WinAPI::mdiClient());
+      #    xInfo::getPropertiesWindow().Activate(PropWindowDisplayState::Hide);
+      #
+      #    if (propertiesWindow)
+      #    {
+      #        appl.globalCache().set(identifierStr(propertiesWindow), 0, propertiesWindow);
+      #    }
+      #
+      #    tileHorizontalBut.visible(showButtons);
+      #    //SysTreeHierarchyBrowser.visible(showButtons);
+      #    XRefReferencesUsedBy.visible(showButtons);
+      #    whereOverridenBut.visible(showButtons);
+      #    copyBut.visible(showButtons);
+      #    toggleSqlBut.visible(showButtons);
+      #    tableBrowserBut.visible(showButtons);
+      #    openApplicationObjectBut.visible(showButtons);
+      #    SysSecRoleEntryPointDeveloper.visible(isSecDevTool);
+      #
+      #    ButtonsGrp.visible(isButtons);
+      #    SearchText.visible(isSearchText);
+      #    FormsGrp.visible(isFormsMenu);
+      #    ExtensionGroup.visible(isExtensions);
+      #    // >> DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #initParmDefault
+      #// >> DEV:MXK >>
+      #public void initParmDefault()
+      #{
+      #    isButtons       = true;
+      #    isSearchText    = true;
+      #    isFormsMenu     = true;
+      #    isExtensions    = true;
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #initSQLTrace
+      #void initSQLTrace()
+      #{
+      #    toggleSQLBut.normalImage(element.currentSQLTrace() ? '7699' : '7639');
+      #}
+    ENDSOURCE
+    SOURCE #initTitleMapping
+      #// [System.IO.File]::ReadAllText('c:\0\test.txt')  -replace '(?ims)case.*?#([^:]+):.*?imageRes\s+=\s+#([^;]+);.*?break;', '[#$1, #$2],'
+      #private void initTitleMapping()
+      #{
+      #    titleMapping
+      #        =[
+      #        [#TablesPath, #ImageTables],
+      #        [#TableMapsPath, #ImageTableMaps],
+      #        [#ViewsPath, #ImageViews],
+      #        [#ExtendedDataTypesPath, #ImageEDTs],
+      #        [#BaseEnumsPath, #ImageBaseEnums],
+      #        [#LicenseCodesPath, #ImageLicenseCodes],
+      #        [#ConfigurationKeysPath, #ImageConfigurationKeys],
+      #        [#SecurityKeysPath, #ImageSecurityKeys],
+      #        [#TableCollectionsPath, #ImageTableCollections],
+      #        [#PerspectivesPath, #ImagePerspectiveList],
+      #        [#MacrosPath, #ImageMacros],
+      #        [#DataDictionaryPath, #ImageDataDictionary],
+      #        [#ClassesPath, #ImageClasses],
+      #        [#FormsPath, #ImageForms],
+      #        [#ReportsPath, #ImageReports],
+      #        [#ReportTemplatesPath, #ImageReportTemplates],
+      #        [#SectionTemplatesPath, #ImageSectionTemplates],
+      #        [#QueriesPath, #ImageQueries],
+      #        [#DataSetsPath, #ImageDataSets],
+      #        [#JobsPath, #ImageJobs],
+      #        [#MenusPath, #ImageMenus],
+      #        [#MenuItemsPath, #ImageMenuItems],
+      #        [#MenuItemsDisplayPath, #ImageMenuDisplayItems],
+      #        [#MenuItemsOutputPath, #ImageMenuOutputItems],
+      #        [#MenuItemsActionPath, #ImageMenuActionItems],
+      #        [#ReferencesPath, #ImageReferences],
+      #        [#ResourcesPath, #ImageResources],
+      #        [#WebPath, #ImageWeb],
+      #        [#WebFormsPath, #ImageWebForms],
+      #        [#WebMenusPath, #ImageWebMenus],
+      #        [#WebletItemsPath, #ImageMenuItems],
+      #        [#WebMenuItemsUrlPath, #ImageMenuItems],
+      #        [#WebMenuItemsActionPath, #ImageMenuItems],
+      #        [#WebContentItemsDisplayPath, #ImageMenuItems],
+      #        [#WebContentItemsOutputPath, #ImageMenuItems],
+      #        [#WebContentItemsManagedPath, #ImageMenuItems],
+      #        [#WebFilesPath, #ImageWebFiles],
+      #        [#WebWebPartsPath, #ImageWebWebParts],
+      #        //[#WebSiteDefinitionsPath, #ImageWebSiteDefinitions],
+      #        //[#WebSiteTemplatesPath, #ImageWebSiteTemplates],
+      #        [#WebPageDefinitionsPath, #ImageWebPageDefinitions],
+      #        [#WebStaticFilesPath, #ImageWebStaticFiles],
+      #        [#WebControlsPath, #ImageWebPageDefinitions],
+      #        [#WebListsPath, #ImageWebPageDefinitions],
+      #        [#WebModulesPath, #ImageWebModules],
+      #        [#HelpFilesPath, #imageHelpFiles],
+      #        [#WorkflowCategoriesPath, #ImageWorkflowCategoryList],
+      #        [#WorkflowApprovalTasksPath, #ImageWorkflowApprovalTaskList],
+      #        [#WorkflowTasksPath, #ImageWorkflowTaskList],
+      #        [#WorkflowAutomatedTasksPath, #ImageWorkflowTaskList],
+      #        [#WorkflowTypesPath, #ImageWorkflowTemplateList],
+      #        [#WorkflowApprovalTasksPath, #ImageWorkflowApprovalTaskList],
+      #        [#ServicesPath, #ImageAifServices],
+      #        [#SecCodePermissionsPath, #ImageReportLibraries],
+      #        //[#SecTasksPath, #ImageReportLibraries],
+      #
+      #        [#ReportLibrariesPath, #ImageReportLibraries],
+      #
+      #        [#SSRSReportsRootPath, #ImageReports],
+      #        [#SSRSReportsPath, #ImageReports],
+      #        [#ReportStyleTemplatesPath, #ImageSSRSReportStyleTemplates],
+      #        [#DatasourcesPath, #ImageSSRSReportDatasource],
+      #        [#ReportImagesPath, #ImageSSRSReportImages],
+      #        [#LayoutTemplatesPath, #ImageSSRSReportLayoutTemplate],
+      #        [#ListStyleTemplatesPath, #ImageSSRSReportListStyleTemplate],
+      #        [#MatrixStyleTemplatesPath, #ImageSSRSReportMatrixStyleTemplate],
+      #        [#TableStyleTemplatesPath, #ImageSSRSReportTableStyleTemplate],
+      #        [#PieChartStyleTemplatesPath, #ImageSSRSReportPiechartStyleTemplate],
+      #        [#XyChartStyleTemplatePath, #ImageSSRSReportXYChartStyleTemplate],
+      #        [#DocSetsPath, #imageHelpFiles],
+      #        ['Project ', #ImageProject],
+      #        ['Test project ', #ImageSysTestProject],
+      #        // >> DEV:MXK >>
+      #        ['Comparison:', 878],
+      #        ['Message window', 927],
+      #        ['\\Projects', #ImageProjects]
+      #        // << DEV:MXK <<
+      #        ];
+      #}
+    ENDSOURCE
+    SOURCE #isWindowVisible
+      #boolean isWindowVisible(int _handle)
+      #{
+      #    DLL         DLL             = new DLL('USER32');
+      #    DLLFunction isWindow        = new DLLFunction(DLL, 'IsWindowVisible');
+      #    int         dllRet;
+      #
+      #    isWindow.returns(ExtTypes::DWord);
+      #    isWindow.arg(ExtTypes::DWord);
+      #
+      #    dllRet = isWindow.call(_handle);
+      #
+      #    if (dllRet)
+      #        return true;
+      #
+      #    return false;
+      #}
+    ENDSOURCE
+    SOURCE #justSomeMagicCode
+      #private void justSomeMagicCode(System.Windows.Controls.TabItem _tabItem)
+      #{
+      #    int h = _tabItem.get_ActualHeight();
+      #    h = _ManagedHost_Control.get_ActualHeight();
+      #    element.design().heightValue(50);
+      #}
+    ENDSOURCE
+    SOURCE #lastValueDataAreaId
+      #// >> DEV:MXK >>
+      #dataAreaId lastValueDataAreaId()
+      #{
+      #    return '';
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #lastValueDesignName
+      #// >> DEV:MXK >>
+      #private identifiername lastValueDesignName()
+      #{
+      #    return lastValueDesignName;
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #lastValueElementName
+      #// >> DEV:MXK >>
+      #private identifiername lastValueElementName()
+      #{
+      #    return element.name();
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #lastValueType
+      #// >> DEV:MXK >>
+      #private UtilElementType lastValueType()
+      #{
+      #    return UtilElementType::Usersetup;
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #lastValueUserId
+      #// >> DEV:MXK >>
+      #private userId lastValueUserId()
+      #{
+      #    return lastValueUserId;
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #loadExtensionButton
+      #void loadExtensionButton(str _resourceName)
+      #{
+      #    FormFunctionButtonControl button = extensionGroup.addControl(FormControlType::MenuFunctionButton, _resourceName);
+      #    container types = [['Action', MenuItemType::Action],
+      #                       ['Display', MenuItemType::Display],
+      #                       ['Output', MenuItemType::Output]
+      #                      ];
+      #    void processResourceName()
+      #    {
+      #        str name = subStr(_resourceName, strLen(#extensionButtonPrefix) + 1, strLen(_resourceName));
+      #        int i;
+      #        MenuItemType type;
+      #        str prefix;
+      #        str itemName;
+      #        for (i=1; i<=conLen(types); i++)
+      #        {
+      #            [prefix, type] = conPeek(types, i);
+      #            prefix += '_';
+      #            if (strStartsWith(name, prefix))
+      #            {
+      #                button.menuItemType(type);
+      #                button.menuItemName(subStr(name, strLen(prefix)+1, strLen(name)));
+      #            }
+      #        }
+      #    }
+      #    processResourceName();
+      #    button.buttonDisplay(FormButtonDisplay::ImageOnly);
+      #    button.imageLocation(SysImageLocation::AOTResource);
+      #    button.normalImage(_resourceName);
+      #    button.border(FormButtonBorder::Flat);
+      #    button.registerOverrideMethod(identifierStr(clicked), identifierStr(extensionButtonClicked), this);
+      #    // >> DEV:MXK >>
+      #    button.registerOverrideMethod(identifierStr(context), identifierStr(extensionContext), this);
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #loadExtensionButtons
+      #void loadExtensionButtons()
+      #{
+      #    UtilElements ue;
+      #    while select ue group by name, recordType
+      #        where ue.recordType == UtilElementType::Resource
+      #              && ue.name like #extensionButtonPrefix + '*'
+      #    {
+      #        this.loadExtensionButton(ue.name);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #loadTabTemplate
+      #private void loadTabTemplate()
+      #{
+      #    System.IO.StringReader stringReader = new System.IO.StringReader(element.xamlResources());
+      #    System.Xml.XmlReader r = System.Xml.XmlReader::Create(stringReader);
+      #    System.Windows.ResourceDictionary resources = System.Windows.Markup.XamlReader::Load(r);
+      #    System.Windows.Controls.ControlTemplate template = resources.get_Item('ScrollableTabControl');
+      #    _ManagedHost_Control.set_Resources(resources);
+      #    _ManagedHost_Control.set_Template(template);
+      #    resourceDictionary = resources;
+      #}
+    ENDSOURCE
+    SOURCE #log
+      #void log(str _text)
+      #{
+      #    AsciiIO io;
+      #    if (logFileName)
+      #    {
+      #        io =new AsciiIO(logFileName, 'a');
+      #        io.writeRaw(
+      #            strFmt('%1: $2\r\n',
+      #                DateTimeUtil::toStr(
+      #                    DateTimeUtil::getSystemDateTime()
+      #                ),
+      #                _text
+      #            )
+      #        );
+      #        io = null;
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #lookup
+      #// >> DEV:MXK >>
+      #private boolean lookup(str _text)
+      #{
+      #    System.Text.RegularExpressions.Regex    regExFindCapital;
+      #    System.Text.RegularExpressions.Regex    regExIsCapital;
+      #    System.Text.RegularExpressions.Regex    regExCapitalMatch;
+      #    InteropPermission                       permission = new InteropPermission(InteropKind::ClrInterop);
+      #
+      #    Map                                     foundMap = new Map(Types::String, Types::String);
+      #    UtilElements                            utilElements;
+      #    MapEnumerator                           me;
+      #    TempStr                                 nameStartWith;
+      #    TempStr                                 name;
+      #    int                                     i;
+      #    int                                     j;
+      #    str                                     st1, st2;
+      #    boolean                                 found;
+      #
+      #    if (strStartsWith(_text, '~'))
+      #    {
+      #        if (strLen(_text) > 1 && strLen(_text) <= 4)
+      #        {
+      #            nameStartWith = subStr(_text, 2, 1) + '*';
+      #
+      #            permission.assert();
+      #            //BP Deviation documented
+      #            regExFindCapital = new System.Text.RegularExpressions.Regex(@'[^a-z]');
+      #
+      #            while select utilElements
+      #                //group by recordType
+      #                where       utilElements.name       like nameStartWith
+      #                        &&  utilElements.recordType == UtilElementType::Table
+      #                        &&  utilElements.parentId   == 0
+      #
+      #            {
+      #                name = utilElements.name;
+      #
+      #                if (strLen(_text) == 2)
+      #                {
+      #                    if (!regExFindCapital.IsMatch(subStr(name, 2, strLen(name)))) // No capital letter after first one
+      #                    {
+      #                        foundMap.insert(utilElements.name, utilElements.name);
+      #                    }
+      #                    continue;
+      #                }
+      #
+      #                found = false;
+      #                j = 3;
+      #
+      #                for (i = 2; i <= strLen(name); i++)
+      #                {
+      #                    st1 = subStr(name, i, 1);
+      #                    st2 = subStr(_text, j, 1);
+      #
+      #                    if (i == strLen(name) && st2 == '')
+      #                    {
+      #                        foundMap.insert(utilElements.name, utilElements.name);
+      #                    }
+      #
+      #                    regExIsCapital = new System.Text.RegularExpressions.Regex(@'[A-Z]');
+      #
+      #                    if (regExIsCapital.IsMatch(st1))
+      #                    {
+      #                        if (st2 == '') break;
+      #
+      #                        regExCapitalMatch = new System.Text.RegularExpressions.Regex(strFmt('[%1]', strUpr(st2)));
+      #
+      #                        if (regExCapitalMatch.IsMatch(st1))
+      #                        {
+      #                            j++;
+      #                        }
+      #                        else
+      #                        {
+      #                            break;
+      #                        }
+      #                    }
+      #                }
+      #            }
+      #
+      #            if (foundMap.elements())
+      #            {
+      #                if (foundMap.elements() == 1)
+      #                {
+      #                    me = foundMap.getEnumerator();
+      #                    me.moveNext();
+      #                    name = me.currentKey();
+      #                }
+      #                else
+      #                {
+      #                    name = pickList(foundMap, 'Table name', 'Select table');
+      #                }
+      #
+      #                if (name)
+      #                {
+      #                    select firstOnly utilElements
+      #                        where       utilElements.recordType == UtilElementType::Table
+      #                                &&  utilElements.name       == name
+      #                                &&  utilElements.parentId   == 0;
+      #                    this.openTreeNodePath(XUtilElements::getNodePath(utilElements));
+      #                }
+      #
+      #                return true;
+      #            }
+      #        }
+      #    }
+      #
+      #    return false;
+      #// << DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #makeFirst
+      #private void makeFirst(System.Windows.Controls.TabItem _tabItem)
+      #{
+      #    System.Windows.Controls.ItemCollection items = _ManagedHost_Control.get_Items();
+      #    items.Remove(_tabItem);
+      #    items.Insert(0, _tabItem);
+      #}
+    ENDSOURCE
+    SOURCE #ManagedHost_SelectionChanged
+      #void ManagedHost_SelectionChanged(System.Object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+      #{
+      #    /*
+      #    System.Windows.Controls.TabControl      tc;
+      #    System.Windows.Controls.TabItem         tabItem;
+      #    HWND hwnd;
+      #    if (! inSelectionChange)
+      #    {
+      #        inSelectionChange = true;
+      #        tc = ManagedHost.control();
+      #        tabItem = tc.get_SelectedItem();
+      #        hwnd = tabItem.get_Tag();
+      #        infolog.yield();
+      #        inSelectionChange = false;
+      #    }
+      #    */
+      #}
+      #
+    ENDSOURCE
+    SOURCE #map2con
+      #container map2con(Map _map)
+      #{
+      #    container       ret;
+      #    MapEnumerator   me = _map.getEnumerator();
+      #    while (me.moveNext())
+      #    {
+      #        ret += [[me.currentKey(), me.currentValue()]];
+      #    }
+      #    return ret;
+      #}
+    ENDSOURCE
+    SOURCE #mdiClient
+      #public HWND mdiClient()
+      #{
+      #    return MDICLient;
+      #}
+    ENDSOURCE
+    SOURCE #onTabMouseUp
+      #// BP Deviation Documented
+      #void onTabMouseUp(System.Object _sender, System.Windows.Input.MouseButtonEventArgs _args)
+      #{
+      #    System.Windows.Controls.TabItem tabItem = _sender as System.Windows.Controls.TabItem;
+      #    System.Windows.Input.MouseButton button = _args.get_ChangedButton();
+      #    Hwnd hwnd;
+      #    PopupMenu menu;
+      #    int closeAllExcept;
+      #    int copyTitle;
+      #    int makeFirst;
+      #    int fitWindow;
+      #    int closeAfter;
+      #    // >> DEV:MXK >>
+      #    int close;
+      #    int maximize;
+      #    int minimize;
+      #    int sendBack;
+      #    #define.WM_SETREDRAW(0xB)
+      #    // << DEV:MXK <<
+      #
+      #    hwnd = tabItem.get_Tag();
+      #    tabItem.Focus();
+      #
+      #    if (    hwnd    != this.currentTopMost()
+      #        &&  button  != System.Windows.Input.MouseButton::Left
+      #        // >> DEV:MXK >>
+      #        &&  button  != System.Windows.Input.MouseButton::Right
+      #        &&  button  != System.Windows.Input.MouseButton::Middle)
+      #        // << DEV:MXK <<
+      #    {
+      #        hwnd    = this.currentTopMost();
+      #        tabItem = this.getTabItemByHWND(hwnd);
+      #        this.setCurrent(hwnd);
+      #    }
+      #
+      #    if (button == System.Windows.Input.MouseButton::Middle)
+      #    {
+      #        this.hwnd_close(hwnd);
+      #    }
+      #
+      #    if (button == System.Windows.Input.MouseButton::Left)
+      #    {
+      #        //System.Windows.Controls.TabControl      tc;
+      #        //System.Windows.Controls.TabItem         tabItem;
+      #        //HWND hwnd;
+      #        if (! inSelectionChange)
+      #        {
+      #            inSelectionChange = true;
+      #            //tc = ManagedHost.control();
+      #            //tabItem = tc.get_SelectedItem();
+      #            //hwnd = tabItem.get_Tag();
+      #            //infolog.yield();
+      #            element.ensureIsShown(hwnd);
+      #            infolog.activateWindow(hwnd);
+      #            inSelectionChange = false;
+      #        }
+      #    }
+      #
+      #    if (button == System.Windows.Input.MouseButton::Right)
+      #    {
+      #        menu = new PopupMenu(element.hWnd());
+      #        // >> DEV:MXK >>
+      #        close           = menu.insertItem('Close');
+      #        sendBack        = menu.insertItem('Send back');
+      #        minimize        = menu.insertItem('Minimize');
+      #        maximize        = menu.insertItem('Maximize');
+      #        fitWindow       = menu.insertItem('Fit');
+      #        menu.insertBreak();
+      #        // << DEV:MXK <<
+      #        copyTitle       = menu.insertItem('Copy title');
+      #        //makeFirst       = menu.insertItem('First tab');
+      #        menu.insertBreak();
+      #        closeAllExcept  = menu.insertItem('Close all except this');
+      #        closeAfter      = menu.insertItem('Close after');
+      #        switch (menu.draw())
+      #        {
+      #            // >> DEV:MXK >>
+      #            case close:
+      #                this.hwnd_close(hwnd);
+      #                break;
+      #
+      #            case sendBack:
+      #                DEV_HKCommon::sendToBackground(hwnd);
+      #                break;
+      #
+      #            case minimize:
+      #                WinAPI::minimizeWindow(hwnd);
+      #                break;
+      #
+      #            case maximize:
+      #                WinAPI::maximizeWindow(hwnd);
+      #                break;
+      #            // << DEV:MXK <<
+      #            case closeAllExcept:
+      #                if (Box::confirm('Close tabs?'))
+      #                    this.closeAllExcept(hwnd);
+      #            break;
+      #
+      #            case copyTitle:
+      #                this.copyTitle(hwnd);
+      #            break;
+      #
+      #            case makeFirst:
+      #                this.makeFirst(tabItem);
+      #            break;
+      #
+      #            case fitWindow:
+      #                this.fitWindow(hwnd);
+      #            break;
+      #
+      #            case closeAfter:
+      #                this.closeAfter(tabItem);
+      #            break;
+      #        }
+      #        _args.set_Handled(true);
+      #    }
+      #}
+      #
+    ENDSOURCE
+    SOURCE #onTCMouseUp
+      #// >> DEV:MXK >>
+      #void onTCMouseUp(System.Object _sender, System.Windows.Input.MouseButtonEventArgs _args)
+      #{
+      #    System.Windows.Controls.TabControl      tc      = _sender as System.Windows.Controls.TabControl;
+      #    System.Windows.Controls.ItemCollection  items   = tc.get_Items();
+      #    System.Windows.Controls.TabItem         tabItem;
+      #    System.Windows.Input.MouseButton        button  = _args.get_ChangedButton();
+      #
+      #    PopupMenu       popupMenu;
+      #    Hwnd            hwnd;
+      #    TreeNode        treeNode;
+      #    int             i, j;
+      #    int             size = items.get_Count();
+      #    //SetEnumerator   se;
+      #    MapEnumerator   me;
+      #
+      #    if (button == System.Windows.Input.MouseButton::Right)
+      #    {
+      #        popupMenu = new PopupMenu(element.hWnd());
+      #
+      #        popupMenu.insertItem(WinAPI::isShiftButtonDown() ? 'Close window' : 'Activate window', false, true);
+      #        popupMenu.insertBreak();
+      #
+      #        for (i = 0; i < size; i++)
+      #        {
+      #            tabItem     = items.get_Item(i);
+      #            hwnd        = tabItem.get_Tag();
+      #            popupMenu.insertItem(WInApi::getWindowText(hwnd), false, false, 0, i + 10);
+      #        }
+      #
+      #        if (WinAPI::isShiftButtonDown())
+      #        {
+      #            popupMenu.insertBreak();
+      #            popupMenu.insertItem('Clear recent projects', false, false, 0, 300);
+      #        }
+      #        else
+      #        {
+      #            popupMenu.insertBreak();
+      #            popupMenu.insertItem('Recent projects', false, true);
+      #            popupMenu.insertBreak();
+      #
+      #            //se = recentProjSet.getEnumerator();
+      #            me = recentProjMap.getEnumerator();
+      #            i = 100;
+      #            while (me.moveNext())
+      #            {
+      #                i++;
+      #                popupMenu.insertItem(me.currentKey(), false, false, 0, i);
+      #            }
+      #        }
+      #
+      #        i = popupMenu.draw();
+      #
+      #        if (i > 0)
+      #        {
+      #            if (i == 300)
+      #            {
+      #                recentProjMap   = new Map(Types::String, Types::Integer);
+      #                //recentProjSet = new Set(Types::String);
+      #            }
+      #            else if (i > 100)
+      #            {
+      #                me.reset();
+      #                j = 100;
+      #                while (me.moveNext())
+      #                {
+      #                    j++;
+      #
+      #                    if (i == j)
+      #                    {
+      #                        treeNode = TreeNode::findNode(me.current());
+      #
+      #                        if (treeNode)
+      #                        {
+      #                            treeNode.AOTrun();
+      #                        }
+      #                    }
+      #                }
+      #            }
+      #            else
+      #            {
+      #                tabItem     = items.get_Item(i - 10);
+      #                hwnd        = tabItem.get_Tag();
+      #                //info(WinAPI::getWindowText(hwnd));
+      #
+      #                if (WinAPI::isShiftButtonDown())
+      #                {
+      #                    DEV_WinAPI::closeWindow(hwnd);
+      #                }
+      #                else
+      #                {
+      #                    WinAPI::setFocus(HWND);
+      #                }
+      #            }
+      #        }
+      #    }
+      #
+      #    _args.set_Handled(true);
+      #}
+      #// << DEV:MXK <<
+      #
+    ENDSOURCE
+    SOURCE #openApplicationObject
+      #void openApplicationObject()
+      #{
+      #    SysContextMenu  context = this.sysContextMenu();
+      #    TreeNode        node = context.first();
+      #    str             path;
+      #    TreeNode        applObject;
+      #    while (node)
+      #    {
+      #        path = node.treeNodePath();
+      #        path = SysTreeNode::applObjectPath(path);
+      #        applObject = TreeNode::findNode(path);
+      #        if (applObject)
+      #        {
+      #            applObject.AOTnewWindow();
+      #        }
+      #        node = context.next();
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #openApplObject
+      #boolean openApplObject(ClassName _name)
+      #{
+      #    Map list = new Map(Types::String, Types::String);
+      #    UtilElements ue;
+      #    str type;
+      #    UtilElementType recordType;
+      #    MapEnumerator e;
+      #    ;
+      #    while select recordType from ue group by recordType
+      #        where ue.name       == _name &&
+      #              ue.parentId   == 0
+      #
+      #    {
+      #        list.insert(enum2str(ue.recordType), enum2str(ue.recordType));
+      #    }
+      #    if (list.elements())
+      #    {
+      #        if (list.elements() == 1)
+      #        {
+      #            e = list.getEnumerator();
+      #            e.moveNext();
+      #            type = e.currentKey();
+      #        }
+      #        else
+      #        {
+      #            type = pickList(list, 'Type', 'Select element type');
+      #        }
+      #
+      #        if (type)
+      #        {
+      #            recordType = str2enum(UtilElementType::ActionTool, type);
+      #            select firstOnly ue
+      #                where ue.name       == _name &&
+      #                      ue.recordType == recordType &&
+      #                      ue.parentId   == 0;
+      #            this.openTreeNodePath(XUtilElements::getNodePath(ue));
+      #        }
+      #        return true;
+      #    }
+      #    return false;
+      #}
+    ENDSOURCE
+    SOURCE #openMethod
+      #boolean openMethod(str _method)
+      #{
+      #    str type, method;
+      #    str m = strLRTrim(_method);
+      #    boolean ret;
+      #    int i;
+      #    container pathPatterns = [
+      #        @'\Data Dictionary\Tables\%1\Methods\%2',
+      #        @'\Data Dictionary\Maps\%1\Methods\%2',
+      #        @'\Data Dictionary\Views\%1\Methods\%2',
+      #        @'\Classes\%1\%2'
+      #    ];
+      #    if (DEV_Global::regMatch(m, @'^\S+\.\S+$'))
+      #    {
+      #        [type, method] = str2con(m, '.', false);
+      #        for (i=1; i<=conLen(pathPatterns) && ! ret; i++)
+      #        {
+      #            ret = this.openTreeNodePath(strFmt(conPeek(pathPatterns, i), type, method));
+      #        }
+      #    }
+      #    return ret;
+      #}
+      #
+    ENDSOURCE
+    SOURCE #openStackTracePath
+      #boolean openStackTracePath(str _path)
+      #{
+      #    str template = @'^\s*\[[sc]\]\s+(.*)\s+(\d+)\s*$';
+      #    System.Text.RegularExpressions.Match m = System.Text.RegularExpressions.Regex::Match(_path, template);
+      #    System.Text.RegularExpressions.GroupCollection gs;
+      #    System.Text.RegularExpressions.Group g;
+      #    str path;
+      #    str lineAsTring;
+      #    int line;
+      #    if (m.get_Success())
+      #    {
+      #        gs = m.get_Groups();
+      #        g = gs.get_Item(1);
+      #        path = g.get_Value();
+      #        g = gs.get_Item(2);
+      #        lineAsTring = g.get_Value();
+      #        line = str2int(lineAsTring);
+      #        return this.openTreeNodePath(path, line);
+      #    }
+      #    return false;
+      #}
+    ENDSOURCE
+    SOURCE #openTreeNodePath
+      #boolean openTreeNodePath(str _path, int _line = 0)
+      #{
+      #    TreeNode node = TreeNode::findNode(_path);
+      #    ProjectNode project;
+      #    if (node)
+      #    {
+      #        if (SysTreeNode::hasSource(node) && !conFind([#NT_PROJECT_NODE], this.sysNodeType(node)) )
+      #            node.AOTedit(_line);
+      #        else
+      #        {
+      #            if (this.sysNodeType(node) == #NT_PROJECT_NODE)
+      #            {
+      #                project = node;
+      #                project.getRunNode()
+      #                       .AOTnewWindow();
+      #            }
+      #            else
+      #                node.AOTnewWindow();
+      #        }
+      #    }
+      #    return node ? true : false;
+      #}
+    ENDSOURCE
+    SOURCE #pack
+      #// >> DEV:MXK >>
+      #public container pack()
+      #{
+      #    return [#CurrentVersion, #CurrentList];
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #parseTitle
+      #container parseTitle(str _title)
+      #{
+      #    int i;
+      #    str possibleStart;
+      #    int image;
+      #    str ret;
+      #    str rightPart(str _s, int _start)
+      #    {
+      #        return subStr(_s, _start, strLen(_s) - _start + 1);
+      #    }
+      #    for (i = 1; i<=conLen(titleMapping); i++)
+      #    {
+      #        [possibleStart, image] = conPeek(titleMapping, i);
+      #        if (strStartsWith(_title, possibleStart))
+      #        {
+      #            ret = rightPart(_title, strLen(possibleStart)+1);
+      #            if (strStartsWith(ret, #AOTDelimiter))
+      #                ret = rightPart(ret, 2);
+      #            return [ret, image];
+      #        }
+      #    }
+      #    return [_title, #ImageAxapta];
+      #}
+    ENDSOURCE
+    SOURCE #pauseScan
+      #void pauseScan()
+      #{
+      #    inPause = true;
+      #}
+    ENDSOURCE
+    SOURCE #processSearchText
+      #boolean processSearchText()
+      #{
+      #    str value = searchText.text();
+      #
+      #    return
+      #        element.evalBuf(value) ||
+      #        element.runBuf(value) ||
+      #        // >> DEV:MXK >>
+      #        this.lookup(value) ||
+      #        // << DEV:MXK <<
+      #        this.openStackTracePath(value) ||
+      #        this.openTreeNodePath(value) ||
+      #        this.openMethod(value) ||
+      #        this.openApplObject(value);
+      #}
+    ENDSOURCE
+    SOURCE #processTopmostFormRun
+      #private void processTopmostFormRun(HWND _topmost)
+      #{
+      #    FormRun activeFormRun;
+      #    boolean isTopmostHWND(HWnd _hwnd)
+      #    {
+      #        return _hwnd == WinAPI::getForegroundWindow() ||
+      #               _hwnd == _topmost;
+      #    }
+      #    boolean topmostFormExpired()
+      #    {
+      #        return topmostFormInsideAx ||
+      #               (DateTimeUtil::getSystemDateTime()  > DateTimeUtil::addSeconds(topmostFormTime, #topmostFormTimeout));
+      #    }
+      #;
+      #    if (infolog.setLastActivatedForm())
+      #    {
+      #        activeFormRun=infolog.setLastActivatedForm().object();
+      #    }
+      #
+      #    if (activeFormRun && isTopmostHWND(activeFormRun.hWnd()))
+      #    {
+      #        topmostFormRun =new ObjectIdent(activeFormRun);
+      #        hwndTopmostFormRun = activeFormRun.hWnd();
+      #        topmostFormTime = DateTimeUtil::getSystemDateTime();
+      #        topmostFormInsideAx = hwndTopmostFormRun == _topmost;
+      #        if (topmostFormInsideAx)
+      #        {
+      #            this.log('topmost inside AX');
+      #        }
+      #        this.log('topmost');
+      #    }
+      #    else
+      #    {
+      #        if (this.topmostFormRun() &&
+      #            ! isTopmostHWND(hwndTopmostFormRun) &&
+      #            topmostFormExpired()
+      #            )
+      #        {
+      #            hwndTopmostFormRun = 0;
+      #            topmostFormRun=null;
+      #            this.log('topmost=0');
+      #        }
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #processWhereOverriden
+      #void processWhereOverriden()
+      #{
+      #    SysContextMenu context = this.sysContextMenu();
+      #    TreeNode node = context.first();
+      #    str pathes;
+      #    setPrefix('Where overriden');
+      #
+      #
+      #    while (node)
+      #    {
+      #        if (match(@'<\\Classes\\.*\\.*>', node.treeNodePath()))
+      #        {
+      #            pathes += '\r\n' + this.whereOverriden(node.AOTparent().treeNodeName(), node.treeNodeName());
+      #        }
+      #        node = context.next();
+      #    }
+      #    //element.showPathes(pathes);
+      #}
+    ENDSOURCE
+    SOURCE #processWindowsChanges
+      #private void processWindowsChanges()
+      #{
+      #    container currentWindows = this.getWindows();
+      #    container created, changed, deleted;
+      #    HWND      current;
+      #    HWND      topmost;
+      #    [created, changed, deleted, current] = element.windowsListDiff(oldWindows, currentWindows);
+      #    if (currentWindows)
+      #    {
+      #        topmost = conPeek(conPeek(currentWindows, 1), 1);
+      #    }
+      #    this.processTopmostFormRun(topmost);
+      #    this.refreshTabs(created, changed, deleted, current);
+      #    oldWindows = currentWindows;
+      #}
+    ENDSOURCE
+    SOURCE #refreshTabs
+      #void refreshTabs(container _created, container _changed, container _deleted, HWND _current)
+      #{
+      #    this.deleteTabs(_deleted);
+      #    this.updateTabs(_changed);
+      #    this.addTabs(_created);
+      #    this.setCurrent(_current);
+      #}
+    ENDSOURCE
+    SOURCE #run
+      #// >> DEV:MXK >>
+      #public void run()
+      #{
+      #    SysGlobalCache          cache = infolog.workspaceCache();
+      #
+      #    if (cache.isSet(this.name(), 'instance'))
+      #    {
+      #        cache.get(this.name(), 'instance', this).close();
+      #    }
+      #
+      #    cache.set(this.name(), 'instance', this);
+      #
+      #    super();
+      #
+      #    DEV_Global::showHint('Allows you to easily manage and navigate through the oppened windows within Development workspace\n' +
+      #                        'Various tools are integrated in the toolbar for an easy access.\n' +
+      #                        'Toolbar can be opened or reloaded via the Tools menu.\n' +
+      #                        'Another feature of the Toolbar is a window positioning.',
+      #                        this.name(),
+      #                        'Toolbar');
+      #}
+      #// << DEV:MXK <<
+      #
+    ENDSOURCE
+    SOURCE #runBuf
+      #// BP Deviation Documented
+      #private boolean runBuf(str _text)
+      #{
+      #    if (strStartsWith(_text, '!'))
+      #    {
+      #        this.runCode(subStr(_text, 2, strLen(_text)));
+      #        return true;
+      #    }
+      #    return false;
+      #}
+    ENDSOURCE
+    SOURCE #runCode
+      #private void runCode(str _text)
+      #{
+      #    XPPCompiler xpp = new XPPCompiler();
+      #    str src;
+      #    AnyType ret;
+      #    src = 'anyType f(Object _){ AnyType ret; '+
+      #        _text +
+      #        ' return ret; }';
+      #    if (xpp.compile(src))
+      #    {
+      #        ret = xpp.execute(this);
+      #        if (typeOf(ret)!= Types::AnyType)
+      #        {
+      #            info(this.toStr(ret));
+      #        }
+      #    }
+      #    else
+      #    {
+      #        warning(xpp.errorText());
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #runSysContextMenu
+      #void runSysContextMenu(str _name, MenuItemType _type, SysContextMenu _sysSontextMenu = this.sysContextMenu())
+      #{
+      #    Args args = new Args();
+      #    MenuFunction menuFunction = new MenuFunction(_name, _type);
+      #    args.parmObject(_sysSontextMenu);
+      #    menuFunction.run(args);
+      #}
+    ENDSOURCE
+    SOURCE #saveLast
+      #// >> DEV:MXK >>
+      #private void saveLast()
+      #{
+      #    container lastValues = [#CurrentVersion, #CurrentList];
+      #
+      #    xSysLastValue::putValue(lastValues,
+      #                            element.lastValueDataAreaId(),
+      #                            element.lastValueUserId(),
+      #                            element.lastValueType(),
+      #                            element.lastValueElementName());
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #selectedTabItemHWND
+      #HWND selectedTabItemHWND()
+      #{
+      #    HWND                            ret;
+      #    System.Windows.Controls.TabItem tabItem = _ManagedHost_Control.get_SelectedItem();
+      #
+      #    if (tabItem)
+      #        ret = tabItem.get_Tag();
+      #
+      #    return ret;
+      #}
+    ENDSOURCE
+    SOURCE #setCurrent
+      #private void setCurrent(HWND _hwnd)
+      #{
+      #    Struct tab;
+      #    System.Windows.Controls.TabItem         tabItem;
+      #    if (_hwnd)
+      #    {
+      #        tab = tabs.lookup(_hwnd);
+      #        tabItem = tab.value('tabItem');
+      #        tabItem.set_IsSelected(true);
+      #        tabItem.BringIntoView();
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #startScan
+      #void startScan()
+      #{
+      #    inPause = false;
+      #    this.timeoutHandler();
+      #}
+    ENDSOURCE
+    SOURCE #step
+      #void step()
+      #{
+      #    System.Exception laste;
+      #
+      #    try
+      #    {
+      #        element.processWindowsChanges();
+      #
+      #        if (autosizes < 2)
+      #        {
+      #            element.autoSize();
+      #            autosizes ++;
+      #        }
+      #    }
+      #    catch (Exception::CLRError)
+      #    {
+      #        laste = CLRInterop::getLastException();
+      #        throw error(laste.ToString());
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #sysContextMenu
+      #SysContextMenu sysContextMenu()
+      #{
+      #    FormRun formRun = element.topmostFormRun();
+      #    if (formRun)
+      #    {
+      #        return SysContextMenuTreeNode::newPath(@'\Forms\' + formRun.name());
+      #    }
+      #    else if (element.inEditor())
+      #    {
+      #        return SysContextMenuTreeNode::newPath(element.getCurrentEditorPath());
+      #    }
+      #    else
+      #    {
+      #        return new SysContextMenuAOT();
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #sysNodeType
+      #int sysNodeType(TreeNode _node)
+      #{
+      #    #if.WebReportsPath
+      #        return _node.sysNodeType();
+      #    #endif
+      #    #ifnot.WebReportsPath
+      #        return _node.treeNodeType().id();
+      #    #endif
+      #
+      #}
+    ENDSOURCE
+    SOURCE #tabControl_attachDragAndDropHandlers
+      #void tabControl_attachDragAndDropHandlers(System.Windows.Controls.TabControl _tabControl)
+      #{
+      #    ManagedEventHandler handler = this.handler('tabcontrol_DragEnter');
+      #    _tabControl.add_DragEnter(handler);
+      #    handler = this.handler('tabcontrol_Drop');
+      #    _tabControl.add_Drop(handler);
+      #
+      #}
+    ENDSOURCE
+    SOURCE #tabcontrol_DragEnter
+      #void tabcontrol_DragEnter(System.Object sender, System.Windows.DragEventArgs e)
+      #{
+      #    System.Windows.IDataObject data = e.get_Data();
+      #    System.Type type = System.Type::GetType('System.Windows.Controls.TabItem');
+      #    System.String[] formats = data.GetFormats();
+      #    str s;
+      #    int i;
+      #    int c = formats.get_Count();
+      #    for (i=0; i<c; i++)
+      #    {
+      #        s = formats.get_Item(i);
+      #    }
+      #    // If the dragged item is a TabItem, set the effect to move.
+      #    if (data.GetDataPresent('System.Windows.Controls.TabItem'))
+      #    {
+      #        e.set_Effects(System.Windows.DragDropEffects::Move);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #tabcontrol_Drop
+      #void tabcontrol_Drop(System.Object sender, System.Windows.DragEventArgs e)
+      #{
+      #    System.Windows.Controls.TabControl tabcontrol = sender as System.Windows.Controls.TabControl;
+      #    System.Windows.IDataObject data = e.get_Data();
+      #    System.Type type = System.Type::GetType('System.Windows.Controls.TabItem');
+      #    System.Object o = data.GetData('System.Windows.Controls.TabItem');
+      #    System.Windows.Controls.TabItem draggeditem = o as System.Windows.Controls.TabItem;
+      #    System.Windows.Controls.ItemCollection items = tabControl.get_Items();
+      #
+      #    // Get the dropped point relative to the TabControl.
+      #    System.Windows.Point droppedPoint = e.GetPosition(tabcontrol);
+      #    System.Windows.Controls.TabItem item;
+      #    System.Windows.Rect rect;
+      #    boolean wasSelected;
+      #    int cnt = items.get_Count();
+      #
+      #    // Try to find which TabItem contains the dropped point.
+      #    System.Windows.Media.GeneralTransform transform;
+      #    int idx = -1;
+      #    int i;
+      #    for (i = 0; i < cnt; i++)
+      #    {
+      #        o = items.get_Item(i);
+      #        item = o as System.Windows.Controls.TabItem;
+      #        transform = item.TransformToVisual(tabcontrol);
+      #        rect = new System.Windows.Rect(0, 0, item.get_ActualWidth(), item.get_ActualHeight());
+      #        rect = transform.TransformBounds(rect);
+      #        if (rect.Contains(droppedPoint))
+      #        {
+      #            if (! item.Equals(draggeditem))
+      #            {
+      #                idx = i;
+      #            }
+      #            break;
+      #        }
+      #    }
+      #
+      #    // If the TabItem that contains the dropped point is found, re-arrange the dragged
+      #    // TabItem to the index of the dropped TabItem.
+      #    if (idx != -1)
+      #    {
+      #        wasSelected = draggedItem.get_IsSelected();
+      #        items.Remove(draggeditem);
+      #        items.Insert(idx, draggeditem);
+      #        if (wasSelected)
+      #        {
+      #            draggedItem.set_IsSelected(true);
+      #        }
+      #    }
+      #    // Set the isDragStarted variable to false to indicate this drag&drop operation is
+      #    // completed.
+      #    isDragStarted = false;
+      #}
+    ENDSOURCE
+    SOURCE #tabItem_attachDragAndDropHandlers
+      #void tabItem_attachDragAndDropHandlers(System.Windows.Controls.TabItem _tabItem)
+      #{
+      #    ManagedEventHandler handler = this.handler('tabitem_QueryContinueDrag');
+      #    _tabItem.add_MouseMove(this.handler('tabitem_MouseMove'));
+      #    _tabItem.add_QueryContinueDrag(handler);
+      #}
+    ENDSOURCE
+    SOURCE #tabitem_MouseMove
+      #void tabitem_MouseMove(System.Object sender, System.Windows.Input.MouseEventArgs e)
+      #{
+      #    System.Windows.Controls.TabItem item;
+      #    System.Windows.Point  p;
+      #    real x;
+      #    real y;
+      #    if (! isDragStarted)
+      #    {
+      #        //If the Mouse left button is pressed and the dragging hasn't started,
+      #        // begin a drag&drop operation.
+      #        if (e.get_LeftButton() == System.Windows.Input.MouseButtonState::Pressed)
+      #        {
+      #            item = sender as System.Windows.Controls.TabItem;
+      #            if (possibleDrag)
+      #            {
+      #                item = possibleDrag as System.Windows.Controls.TabItem;
+      #            }
+      #            p = e.GetPosition(item);
+      #            x = p.get_X();
+      #            y = p.get_X();
+      #            if (possibleDrag && max(abs(x - dragX), abs(y - dragY)) > 1)
+      #            {
+      #                // Set the isDragStarted variable to true to indicate a new drag&drop operation is
+      #                // started.
+      #                isDragStarted = true;
+      #                System.Windows.DragDrop::DoDragDrop(item, item, System.Windows.DragDropEffects::Move);
+      #            }
+      #            else
+      #            {
+      #                dragX = x;
+      #                dragY = y;
+      #                possibleDrag = sender;
+      #            }
+      #        }
+      #        else
+      #        {
+      #            possibleDrag = null;
+      #        }
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #tabitem_QueryContinueDrag
+      # void tabitem_QueryContinueDrag(System.Object sender, System.Windows.QueryContinueDragEventArgs e)
+      #{
+      #    // If the Mouse left button is released, cancel the drag&drop operation.
+      #    if (System.Windows.Input.Mouse::get_LeftButton() == System.Windows.Input.MouseButtonState::Released)
+      #    {
+      #        e.set_Action(System.Windows.DragAction::Cancel);
+      #        isDragStarted = false;
+      #    }
+      #}
+      #
+    ENDSOURCE
+    SOURCE #task
+      #public int task(int _taskId)
+      #{
+      #    int ret;
+      #
+      #    ret = super(_taskId);
+      #    if (_taskID == #taskEnter)
+      #    {
+      #        this.processSearchText();
+      #    }
+      #
+      #    return ret;
+      #}
+    ENDSOURCE
+    SOURCE #timeoutHandler
+      #void timeoutHandler()
+      #{
+      #    // >> DEV:DEV_Toolbar_Action_DEV_Breakpoints >>
+      #    FormFunctionButtonControl   button;
+      #    int                         i;
+      #
+      #    for (i = 1; i <= extensionGroup.controlCount(); i++)
+      #    {
+      #        button = extensionGroup.controlNum(i);
+      #        if (button.name() == literalStr(DEV_Toolbar_Action_DEV_Breakpoints))
+      #        {
+      #            button.imageLocation(SysImageLocation::EmbeddedResource);
+      #            button.normalImage(DEV_Breakpoints::isInfoBreak(breakpointSet) ? '1097' : '7609');
+      #            break;
+      #        }
+      #    }
+      #    // << DEV:DEV_Toolbar_Action_DEV_Breakpoints <<
+      #
+      #    this.step();
+      #    if (! inPause)
+      #    {
+      #        this.setTimeOut(funcName(), #windowsScanTimeout);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #toggleSqlTrace
+      #void toggleSqlTrace()
+      #{
+      #
+      #    info('SQL tracing ' +
+      #        (
+      #            this.currentSQLTrace(! this.currentSQLTrace())
+      #            ?
+      #            'enabled':'disabled'
+      #         ));
+      #}
+    ENDSOURCE
+    SOURCE #topmostFormRun
+      #FormRun topmostFormRun()
+      #{
+      #    return topmostFormRun ? topmostFormRun.object() : null;
+      #}
+    ENDSOURCE
+    SOURCE #toStr
+      #str toStr(AnyType _value)
+      #{
+      #    Object o;
+      #    switch (typeOf(_value))
+      #    {
+      #        case Types::Container: return this.con2str(_value);
+      #        case Types::Class:
+      #            o = _value;
+      #            return o.toString();
+      #
+      #    }
+      #    return strFmt('%1', _value);
+      #}
+    ENDSOURCE
+    SOURCE #unpack
+      #// >> DEV:MXK >>
+      #public boolean unpack(container packedClass)
+      #{
+      #    Integer     version     = conPeek(packedClass, 1);
+      #
+      #    switch (version)
+      #    {
+      #        case #CurrentVersion :
+      #            [version, #CurrentList] = packedClass;
+      #            break;
+      #        default :
+      #            return false;
+      #    }
+      #
+      #    return true;
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #updateTabs
+      #private void updateTabs(container _updated)
+      #{
+      #    int i;
+      #    Struct tab;
+      #    hwnd hwnd;
+      #    str title;
+      #    int image;
+      #    str text;
+      #    System.Windows.Controls.TabControl      tc = ManagedHost.control();
+      #    System.Windows.Controls.ItemCollection  items = tc.get_Items();
+      #    System.Windows.Controls.TextBlock       block;
+      #
+      #    for (i=1; i<=conLen(_updated); i++)
+      #    {
+      #        [hwnd, text] = conPeek(_updated, i);
+      #        // >> DEV:MXK >>
+      #        if (hwnd == PropertiesWindow)
+      #        {
+      #            continue;
+      #        }
+      #        else if (strStartsWith(text, #AOTTitle))
+      #        {
+      #            text = 'AOT';
+      #        }
+      #        else if (DEV_Global::isFindTitle(0, title))
+      #        {
+      #            text = '';
+      #        }
+      #        else if (strStartsWith(title, #UsedByTitle))
+      #        {
+      #            image = 3077;
+      #            title = subStr(title, strScan(title, ':', 1, maxInt()) + 2, maxInt());
+      #        }
+      #        // << DEV:MXK <<
+      #        [title, image] = this.parseTitle(text);
+      #        tab = tabs.lookup(hwnd);
+      #
+      #        block = tab.value('block');
+      #        block.set_Text(title);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #whereOverriden
+      #str whereOverriden(str _className, str _methodName)
+      #{
+      #    SysDictClass dictClass =  new SysDictClass(className2ID(_className));
+      #    Enumerator i = dictClass.extendedBy().getEnumerator();
+      #    SysDictClass descendant;
+      #    str          path;
+      #    str ret = ' === ' + _className + '.' + _methodName + ': \r\n';
+      #    ;
+      #    setPrefix(_className + '.' + _methodName);
+      #    while (i.moveNext())
+      #    {
+      #        descendant = new SysDictClass(i.current());
+      #        path = descendant.path() + #AOTDelimiter + _methodName;
+      #        if (TreeNode::findNode(path))
+      #        {
+      #            //ret += path + '\r\n';
+      #            info(path, '', SysInfoAction_Editor::newLineColumn(path, 1));
+      #        }
+      #    }
+      #
+      #    return ret;
+      #}
+    ENDSOURCE
+    SOURCE #windows_tileHorizontal
+      #void windows_tileHorizontal()
+      #{
+      #    int x1, y1, x2, y2;
+      #    HWND first, second;
+      #    int middle;
+      #
+      #    [first, second]= this.get2TopmostWindows();
+      #    [x1, y1, x2, y2] = DEV_WinAPI::getClientRect(MDIClient);
+      #    middle = (x2 - x1) div 2;
+      #    if (first)
+      #    {
+      #        this.ensureIsShown(first);
+      #        WinAPI::setWindowPos(first, 0, 0, middle, (y2-y1));
+      #    }
+      #
+      #    if (second)
+      #    {
+      #        this.ensureIsShown(second);
+      #        WinAPI::setWindowPos(second, middle + 1, 0, x2-x1 - middle - 1, y2-y1);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #windowsListDiff
+      #// returns container [created, changed, deleted]
+      #container windowsListDiff(container _old, container _new)
+      #{
+      #    container created;
+      #    container changed;
+      #    container deleted;
+      #    container cur;
+      #    Map oldMap = this.con2map(_old);
+      #    int hWnd;
+      #    int i;
+      #    HWND current;
+      #    HWND oldCurrent;
+      #    HWND newCurrent;
+      #    for(i=1; i<=conLen(_new); i++)
+      #    {
+      #        cur = conPeek(_new, i);
+      #        hWnd = conPeek(cur, 1);
+      #        if (oldMap.exists(hWnd))
+      #        {
+      #            if (oldMap.lookup(hWnd) != conPeek(cur, 2))
+      #            {
+      #                changed += [cur];
+      #            }
+      #            oldMap.remove(hWnd);
+      #        }
+      #        else
+      #        {
+      #            created += [cur];
+      #        }
+      #    }
+      #    deleted = this.map2con(oldMap);
+      #
+      #    if (_old)
+      #    {
+      #        oldCurrent = conPeek(conPeek(_old, 1), 1);
+      #    }
+      #    if (_new)
+      #    {
+      #        newCurrent = conPeek(conPeek(_new, 1), 1);
+      #    }
+      #
+      #    //if (current != oldCurrent  || current!= this.selectedTabItemHWND() || firstTicks < 5)
+      #    if (newCurrent != oldCurrent || firstTicks < 5)
+      #    {
+      #        current = newCurrent;
+      #        firstTicks ++;
+      #    }
+      #    return [created, changed, deleted, current];
+      #}
+    ENDSOURCE
+    SOURCE #xamlResources
+      #str xamlResources()
+      #{
+      #    return
+      #    @'<ResourceDictionary
+      #        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      #        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      #        >
+      #    <ControlTemplate x:Key="ScrollViewerForTab" TargetType="{x:Type ScrollViewer}">
+      #            <Grid x:Name="Grid" Background="{TemplateBinding Background}">
+      #                <Grid.ColumnDefinitions>
+      #                    <ColumnDefinition Width="Auto"/>
+      #                    <ColumnDefinition Width="*"/>
+      #                    <ColumnDefinition Width="Auto"/>
+      #                </Grid.ColumnDefinitions>
+      #                <Grid.RowDefinitions>
+      #                    <RowDefinition Height="*"/>
+      #                    <RowDefinition Height="Auto"/>
+      #                </Grid.RowDefinitions>
+      #                <Rectangle x:Name="Corner" Fill="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Grid.Column="2" Grid.Row="1"/>
+      #                <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" Margin="{TemplateBinding Padding}" Grid.Column="1" Grid.Row="0" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
+      #CanContentScroll="{TemplateBinding CanContentScroll}" CanHorizontallyScroll="False" CanVerticallyScroll="False"/>
+      #                <RepeatButton Grid.Row="0" Grid.Column="0" Command="ScrollBar.PageLeftCommand" Content="&lt;" Background="{x:Null}"/>
+      #                <RepeatButton Grid.Row="0" Grid.Column="2" Command="ScrollBar.PageRightCommand" Content="&gt;" Background="{x:Null}"/>
+      #
+      #            </Grid>
+      #        </ControlTemplate>
+      #
+      #        <ControlTemplate x:Key="ScrollableTabControl" TargetType="{x:Type TabControl}">
+      #            <Grid ClipToBounds="true" SnapsToDevicePixels="true" KeyboardNavigation.TabNavigation="Local">
+      #                <Grid.ColumnDefinitions>
+      #                    <ColumnDefinition x:Name="ColumnDefinition0"/>
+      #                    <ColumnDefinition x:Name="ColumnDefinition1" Width="0"/>
+      #                </Grid.ColumnDefinitions>
+      #                <Grid.RowDefinitions>
+      #                    <RowDefinition x:Name="RowDefinition0" Height="Auto"/>
+      #                    <RowDefinition x:Name="RowDefinition1" Height="*"/>
+      #                </Grid.RowDefinitions>
+      #
+      #                <ScrollViewer Margin="2,2,2,0" Grid.Column="0" Grid.Row="0" Template="{DynamicResource ScrollViewerForTab}" VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Bottom" HorizontalScrollBarVisibility="Visible"
+      #Focusable="False">
+      #                    <StackPanel x:Name="HeaderPanel" IsItemsHost="true" Panel.ZIndex="1" KeyboardNavigation.TabIndex="1" Width="Auto" Height="Auto" Orientation="Horizontal" Margin="0,2,0,0"/>
+      #                </ScrollViewer>
+      #                <Border x:Name="ContentPanel" Grid.Column="0" Grid.Row="1" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+      #KeyboardNavigation.DirectionalNavigation="Contained" KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
+      #                    <ContentPresenter x:Name="PART_SelectedContentHost" Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" ContentSource="SelectedContent"/>
+      #                </Border>
+      #            </Grid>
+      #            <ControlTemplate.Triggers>
+      #                <Trigger Property="TabStripPlacement" Value="Bottom">
+      #                    <Setter Property="Grid.Row" TargetName="HeaderPanel" Value="1"/>
+      #                    <Setter Property="Grid.Row" TargetName="ContentPanel" Value="0"/>
+      #                    <Setter Property="Height" TargetName="RowDefinition0" Value="*"/>
+      #                    <Setter Property="Height" TargetName="RowDefinition1" Value="Auto"/>
+      #                    <Setter Property="Margin" TargetName="HeaderPanel" Value="2,0,2,2"/>
+      #                </Trigger>
+      #                <Trigger Property="TabStripPlacement" Value="Left">
+      #                    <Setter Property="Grid.Row" TargetName="HeaderPanel" Value="0"/>
+      #                    <Setter Property="Grid.Row" TargetName="ContentPanel" Value="0"/>
+      #                    <Setter Property="Grid.Column" TargetName="HeaderPanel" Value="0"/>
+      #                    <Setter Property="Grid.Column" TargetName="ContentPanel" Value="1"/>
+      #                    <Setter Property="Width" TargetName="ColumnDefinition0" Value="Auto"/>
+      #                    <Setter Property="Width" TargetName="ColumnDefinition1" Value="*"/>
+      #                    <Setter Property="Height" TargetName="RowDefinition0" Value="*"/>
+      #                    <Setter Property="Height" TargetName="RowDefinition1" Value="0"/>
+      #                    <Setter Property="Margin" TargetName="HeaderPanel" Value="2,2,0,2"/>
+      #                </Trigger>
+      #                <Trigger Property="TabStripPlacement" Value="Right">
+      #                    <Setter Property="Grid.Row" TargetName="HeaderPanel" Value="0"/>
+      #                    <Setter Property="Grid.Row" TargetName="ContentPanel" Value="0"/>
+      #                    <Setter Property="Grid.Column" TargetName="HeaderPanel" Value="1"/>
+      #                    <Setter Property="Grid.Column" TargetName="ContentPanel" Value="0"/>
+      #                    <Setter Property="Width" TargetName="ColumnDefinition0" Value="*"/>
+      #                    <Setter Property="Width" TargetName="ColumnDefinition1" Value="Auto"/>
+      #                    <Setter Property="Height" TargetName="RowDefinition0" Value="*"/>
+      #                    <Setter Property="Height" TargetName="RowDefinition1" Value="0"/>
+      #                    <Setter Property="Margin" TargetName="HeaderPanel" Value="0,2,2,2"/>
+      #                </Trigger>
+      #                <Trigger Property="IsEnabled" Value="false">
+      #                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+      #                </Trigger>
+      #            </ControlTemplate.Triggers>
+      #        </ControlTemplate>
+      #        <SolidColorBrush x:Key="TabControlNormalBorderBrush" Color="#8C8E94"/>
+      #        <SolidColorBrush x:Key="TabItemSelectedBackground" Color="#F9F9F9"/>
+      #        <SolidColorBrush x:Key="TabItemHotBorderBrush" Color="#3C7FB1"/>
+      #        <SolidColorBrush x:Key="TabItemDisabledBackground" Color="#F4F4F4"/>
+      #        <SolidColorBrush x:Key="TabItemDisabledBorderBrush" Color="#FFC9C7BA"/>
+      #        <LinearGradientBrush x:Key="EditorBackground" EndPoint="0,1" StartPoint="0,0">
+      #                        <GradientStop Color="LightSkyBlue" Offset="0"/>
+      #                        <GradientStop Color="White" Offset="0.75"/>
+      #        </LinearGradientBrush>
+      #        <LinearGradientBrush x:Key="EditorHotBackground" EndPoint="0,1" StartPoint="0,0">
+      #                        <GradientStop Color="LightSkyBlue" Offset="0"/>
+      #                        <GradientStop Color="White" Offset="1"/>
+      #        </LinearGradientBrush>
+      #        <SolidColorBrush x:Key="EditorSelectedBackground" Color="LightSkyBlue"/>
+      # '+@'
+      #        <Style x:Key="EditorTabItem" TargetType="{x:Type TabItem}">
+      #            <Setter Property="FocusVisualStyle" Value="{DynamicResource TabItemFocusVisual}"/>
+      #            <Setter Property="Foreground" Value="Black"/>
+      #            <Setter Property="Padding" Value="6,1,6,1"/>
+      #            <Setter Property="BorderBrush" Value="{StaticResource TabControlNormalBorderBrush}"/>
+      #            <Setter Property="Background" Value="Yellow"/>
+      #            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      #            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+      #            <Setter Property="Template">
+      #                <Setter.Value>
+      #                    <ControlTemplate TargetType="{x:Type TabItem}">
+      #                        <Grid SnapsToDevicePixels="true">
+      #                            <Border x:Name="Bd" Background="{StaticResource EditorBackground}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,1,1,0" Padding="{TemplateBinding Padding}">
+      #                                <ContentPresenter x:Name="Content" HorizontalAlignment="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" VerticalAlignment="{Binding VerticalContentAlignment,
+      #RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" ContentSource="Header" RecognizesAccessKey="True"/>
+      #                            </Border>
+      #                        </Grid>
+      #                        <ControlTemplate.Triggers>
+      #                            <Trigger Property="IsMouseOver" Value="true">
+      #                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource EditorHotBackground}"/>
+      #                            </Trigger>
+      #                            <Trigger Property="IsSelected" Value="true">
+      #                                <Setter Property="Panel.ZIndex" Value="1"/>
+      #                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource EditorSelectedBackground}"/>
+      #                            </Trigger>
+      #                            <MultiTrigger>
+      #                                <MultiTrigger.Conditions>
+      #                                    <Condition Property="IsSelected" Value="false"/>
+      #                                    <Condition Property="IsMouseOver" Value="true"/>
+      #                                </MultiTrigger.Conditions>
+      #                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource TabItemHotBorderBrush}"/>
+      #                            </MultiTrigger>
+      #                            <Trigger Property="TabStripPlacement" Value="Bottom">
+      #                                <Setter Property="BorderThickness" TargetName="Bd" Value="1,0,1,1"/>
+      #                            </Trigger>
+      #                            <Trigger Property="TabStripPlacement" Value="Left">
+      #                                <Setter Property="BorderThickness" TargetName="Bd" Value="1,1,0,1"/>
+      #                            </Trigger>
+      #                            <Trigger Property="TabStripPlacement" Value="Right">
+      #                                <Setter Property="BorderThickness" TargetName="Bd" Value="0,1,1,1"/>
+      #                            </Trigger>
+      #                            <MultiTrigger>
+      #                                <MultiTrigger.Conditions>
+      #                                    <Condition Property="IsSelected" Value="true"/>
+      #                                    <Condition Property="TabStripPlacement" Value="Top"/>
+      #                                </MultiTrigger.Conditions>
+      #                                <Setter Property="Margin" Value="-2,-2,-2,-1"/>
+      #                                <Setter Property="Margin" TargetName="Content" Value="0,0,0,1"/>
+      #                            </MultiTrigger>
+      #                            <MultiTrigger>
+      #                                <MultiTrigger.Conditions>
+      #                                    <Condition Property="IsSelected" Value="true"/>
+      #                                    <Condition Property="TabStripPlacement" Value="Bottom"/>
+      #                                </MultiTrigger.Conditions>
+      #                                <Setter Property="Margin" Value="-2,-1,-2,-2"/>
+      #                                <Setter Property="Margin" TargetName="Content" Value="0,1,0,0"/>
+      #                            </MultiTrigger>
+      #                            <MultiTrigger>
+      #                                <MultiTrigger.Conditions>
+      #                                    <Condition Property="IsSelected" Value="true"/>
+      #                                    <Condition Property="TabStripPlacement" Value="Left"/>
+      #                                </MultiTrigger.Conditions>
+      #                                <Setter Property="Margin" Value="-2,-2,-1,-2"/>
+      #                                <Setter Property="Margin" TargetName="Content" Value="0,0,1,0"/>
+      #                            </MultiTrigger>
+      #                            <MultiTrigger>
+      #                                <MultiTrigger.Conditions>
+      #                                    <Condition Property="IsSelected" Value="true"/>
+      #                                    <Condition Property="TabStripPlacement" Value="Right"/>
+      #                                </MultiTrigger.Conditions>
+      #                                <Setter Property="Margin" Value="-1,-2,-2,-2"/>
+      #                                <Setter Property="Margin" TargetName="Content" Value="1,0,0,0"/>
+      #                            </MultiTrigger>
+      #                            <Trigger Property="IsEnabled" Value="false">
+      #                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource TabItemDisabledBackground}"/>
+      #                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource TabItemDisabledBorderBrush}"/>
+      #                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+      #                            </Trigger>
+      #                        </ControlTemplate.Triggers>
+      #                    </ControlTemplate>
+      #                </Setter.Value>
+      #            </Setter>
+      #        </Style>
+      #    </ResourceDictionary>';
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Top                 #Top edge
+      Width               #Column width
+      Caption             #Tabaxoid
+      Frame               #None
+      WindowType          #Workspace
+      AllowDocking        #Yes
+      TopMargin           #0
+      BottomMargin        #0
+      LeftMargin          #0
+      RightMargin         #0
+      AllowUserSetup      #No
+      Scrollbars          #No
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL GROUP
+        PROPERTIES
+          Name                #ButtonsGrp
+          AutoDeclaration     #Yes
+          VerticalSpacing     #0
+          ElementPosition     #920350134
+          HierarchyParent     #Toolbar
+          FrameType           #None
+          TopMargin           #0
+          BottomMargin        #0
+          LeftMargin          #0
+          RightMargin         #0
+          ArrangeMethod       #Horizontal, flush right
+          Columnspace         #0
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #ExtensionGroup
+          AutoDeclaration     #Yes
+          VerticalSpacing     #0
+          ElementPosition     #1840700268
+          HierarchyParent     #Toolbar
+          FrameType           #None
+          BackgroundColor     #Menu background
+          TopMargin           #0
+          BottomMargin        #0
+          LeftMargin          #0
+          RightMargin         #0
+          ArrangeMethod       #Horizontal, flush right
+          Columnspace         #0
+          HideIfEmpty         #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #FormsGrp
+          AutoDeclaration     #Yes
+          VerticalSpacing     #0
+          ElementPosition     #1533916890
+          HierarchyParent     #Toolbar
+          FrameType           #None
+          TopMargin           #0
+          BottomMargin        #0
+          LeftMargin          #0
+          RightMargin         #0
+          ArrangeMethod       #Horizontal, flush right
+          Columnspace         #0
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Toolbar
+          Top                 #Top edge
+          VerticalSpacing     #0
+          ElementPosition     #715827882
+          FrameType           #None
+          TopMargin           #0
+          BottomMargin        #0
+          LeftMargin          #0
+          RightMargin         #0
+          ArrangeMethod       #Horizontal, flush right
+          Columnspace         #0
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MANAGEDHOST
+        PROPERTIES
+          Name                #ManagedHost
+          Top                 #Top edge
+          Width               #Column width
+          Height              #25
+          ElementPosition     #1431655764
+          TypeName            #System.Windows.Controls.TabControl
+          AssemblyName        #PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #context
+            #// >> DEV:MXK >>
+            #public void context()
+            #{
+            #    //super();
+            #// << DEV:MXK <<
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #batchJobBtn
+          AutoDeclaration     #Yes
+          VerticalSpacing     #0
+          SecurityKey         #AdminInquiries
+          ElementPosition     #1288490187
+          HierarchyParent     #FormsGrp
+          Text                #@SYS105729
+          ButtonDisplay       #Image only
+          NormalImage         #3038
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+          ShowShortCut        #No
+          BackStyle           #Transparent
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    new MenuFunction(menuitemdisplaystr(BatchJob), MenuItemType::Display).run(new Args());
+            #// << DEV:MXK <<
+            #}
+          ENDSOURCE
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+          SOURCE #toolTip
+            #public str toolTip()
+            #{
+            #    return this.text();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #separatorBtn1
+          Width               #3
+          Enabled             #No
+          ElementPosition     #1994091957
+          HierarchyParent     #ButtonsGrp
+          Text                #|
+          ButtonDisplay       #Image only
+          NormalImage         #3100
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+          ShowShortCut        #No
+          BackStyle           #Transparent
+          ForegroundColor     #
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #separatorBtn2
+          Width               #3
+          Enabled             #No
+          ElementPosition     #1717986916
+          HierarchyParent     #FormsGrp
+          Text                #|
+          ButtonDisplay       #Image only
+          NormalImage         #3100
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+          ShowShortCut        #No
+          BackStyle           #Transparent
+          ForegroundColor     #
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #SetupBtn
+          AutoDeclaration     #Yes
+          Width               #10
+          VerticalSpacing     #0
+          ElementPosition     #613566756
+          HierarchyParent     #Toolbar
+          Text                #Toolbars
+          ButtonDisplay       #Image only
+          NormalImage         #3400
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+          ShowShortCut        #No
+          ForegroundColor     #
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    super();
+            #
+            #    setupBtn.context();
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+          SOURCE #context
+            #// >> DEV:MXK >>
+            #public void context()
+            #{
+            #    #WinAPI
+            #
+            #    int         selectedMenu;
+            #
+            #    PopupMenu   master          = new PopupMenu(element.hWnd());
+            #    PopupMenu   slave1          = new PopupMenu(element.hWnd(), master);
+            #    PopupMenu   slave2          = new PopupMenu(element.hWnd(), master);
+            #    PopupMenu   empty           = new PopupMenu(element.hWnd(), master);
+            #
+            #    int         buttonsItem     = master.insertItem('Tools',          buttonsGrp.visible());
+            #    int         searchTextItem  = master.insertItem('Search',           searchText.visible());
+            #    int         formsMenuItem   = master.insertItem('Forms',            FormsGrp.visible());
+            #    int         extensionItem   = master.insertItem('Extensions',       ExtensionGroup.visible());
+            #
+            #    int         breakItem       = master.insertBreak();
+            #
+            #    int         allTollsItem    = master.insertItem('Show all');
+            #
+            #    int         breakItem2      = master.insertBreak();
+            #
+            #    int         closeTabaxItem  = master.insertItem('Close Toolbar');
+            #
+            #    selectedMenu = master.draw();
+            #
+            #    switch (selectedMenu)
+            #    {
+            #        case -1:
+            #            break;
+            #
+            #        case buttonsItem :
+            #            isButtons = !isButtons;
+            #            ButtonsGrp.visible(isButtons);
+            #            break;
+            #
+            #        case searchTextItem :
+            #            isSearchText = !isSearchText;
+            #            SearchText.visible(isSearchText);
+            #            break;
+            #
+            #        case formsMenuItem :
+            #            isFormsMenu = !isFormsMenu;
+            #            FormsGrp.visible(isFormsMenu);
+            #            break;
+            #
+            #        case extensionItem :
+            #            isExtensions = !isExtensions;
+            #            ExtensionGroup.visible(isExtensions);
+            #            break;
+            #
+            #        case allTollsItem :
+            #            isButtons       = true;
+            #            isSearchText    = true;
+            #            isFormsMenu     = true;
+            #            isExtensions    = true;
+            #
+            #            ButtonsGrp.visible(isButtons);
+            #            SearchText.visible(isSearchText);
+            #            FormsGrp.visible(isFormsMenu);
+            #            ExtensionGroup.visible(isExtensions);
+            #            break;
+            #
+            #        case closeTabaxItem :
+            #            element.close();
+            #            break;
+            #
+            #        default:
+            #            break;
+            #    }
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #usersOnlineBtn
+          AutoDeclaration     #Yes
+          VerticalSpacing     #0
+          SecurityKey         #AdminDaily
+          ElementPosition     #858993458
+          HierarchyParent     #FormsGrp
+          Text                #User online
+          ButtonDisplay       #Image only
+          NormalImage         #7723
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+          ShowShortCut        #No
+          BackStyle           #Transparent
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    new MenuFunction(menuitemdisplaystr(SysUsersOnline), MenuItemType::Display).run(new Args());
+            #// << DEV:MXK <<
+            #}
+          ENDSOURCE
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+          SOURCE #toolTip
+            #public str toolTip()
+            #{
+            #    return this.text();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #copyBut
+          AutoDeclaration     #Yes
+          HelpText            #Copy selected pathes to clipboard
+          ElementPosition     #920350134
+          HierarchyParent     #ButtonsGrp
+          ButtonDisplay       #Image only
+          NormalImage         #1023
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    element.copyPathes(!WinAPI::isShiftButtonDown());
+            #}
+          ENDSOURCE
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+          SOURCE #toolTip
+            #public str toolTip()
+            #{
+            #    return this.helpText();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #DEV_WebSafeColors
+          HelpText            #Allows to select color and copy related code to clipboard
+          ElementPosition     #1840700268
+          HierarchyParent     #ButtonsGrp
+          ButtonDisplay       #Image only
+          NormalImage         #7714
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+          MenuItemName        #DEV_WebSafeColors
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+          SOURCE #toolTip
+            #public str toolTip()
+            #{
+            #    return this.helpText();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #DEV_xRefSearch
+          HelpText            #Serach for an icon references in the entry points
+          ElementPosition     #1687308579
+          HierarchyParent     #ButtonsGrp
+          ButtonDisplay       #Image only
+          NormalImage         #11337
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+          MenuItemName        #DEV_xRefSearch
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+          SOURCE #toolTip
+            #public str toolTip()
+            #{
+            #    return this.helpText();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #openApplicationObjectBut
+          AutoDeclaration     #Yes
+          HelpText            #Opens application object related to current treenode
+          ElementPosition     #1380525201
+          HierarchyParent     #ButtonsGrp
+          ButtonDisplay       #Image only
+          NormalImage         #1014
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    element.openApplicationObject();
+            #}
+          ENDSOURCE
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+          SOURCE #toolTip
+            #public str toolTip()
+            #{
+            #    return this.helpText();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #SysSecRoleEntryPointDeveloper
+          AutoDeclaration     #Yes
+          HelpText            #@SDT246
+          ElementPosition     #1533916890
+          HierarchyParent     #ButtonsGrp
+          ButtonDisplay       #Image only
+          NormalImage         #908
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    /*DEV_Global::runSysContextMenu(  menuitemDisplayStr(SysSecRoleEntryPointDeveloper),
+            #                                    MenuItemType::Display,
+            #                                    this);*/
+            #    runBuf(     'void runSecurityDevTool(Object _caller) {'
+            #            +   'DEV_Global::runSysContextMenu(  menuitemDisplayStr(SysSecRoleEntryPointDeveloper),'
+            #            +   'MenuItemType::Display,'
+            #            +   '_caller);}', this);
+            #// << DEV:MXK <<
+            #}
+          ENDSOURCE
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+          SOURCE #toolTip
+            #public str toolTip()
+            #{
+            #    return this.helpText();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #SysTreeHierarchyBrowser
+          AutoDeclaration     #Yes
+          VerticalSpacing     #0
+          ElementPosition     #460175067
+          HierarchyParent     #ButtonsGrp
+          Text                #Hierarchy
+          ButtonDisplay       #Image only
+          NormalImage         #1304
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+          MenuItemName        #SysTypeHierarchyBrowser
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    #if.WebReportsPath
+            #        element.runSysContextMenu(menuItemDisplayStr(SysTreeHierarchyBrowser), MenuItemType::Display);
+            #    #endif
+            #    #ifnot.WebReportsPath
+            #        element.runSysContextMenu(menuItemDisplayStr(SysTypeHierarchyBrowser), MenuItemType::Display);
+            #    #endif
+            #}
+          ENDSOURCE
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+          SOURCE #toolTip
+            #public str toolTip()
+            #{
+            #    return this.text();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #tableBrowserBut
+          AutoDeclaration     #Yes
+          ElementPosition     #1227133512
+          HierarchyParent     #ButtonsGrp
+          ButtonDisplay       #Image only
+          NormalImage         #2622
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+          MenuItemName        #SysTableBrowser
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    element.runSysContextMenu(menuItemDisplayStr(SysTableBrowser), MenuItemType::Display,
+            #                              element.dsContextMenu());
+            #}
+          ENDSOURCE
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+          SOURCE #toolTip
+            #public str toolTip()
+            #{
+            #    return this.helpText();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #tileHorizontalBut
+          AutoDeclaration     #Yes
+          HelpText            #Places two windows side-by-side
+          ElementPosition     #306783378
+          HierarchyParent     #ButtonsGrp
+          Text                #Align windows
+          ButtonDisplay       #Image only
+          NormalImage         #867
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    element.windows_tileHorizontal();
+            #}
+          ENDSOURCE
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+          SOURCE #toolTip
+            #public str toolTip()
+            #{
+            #    return this.helpText();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #toggleSqlBut
+          AutoDeclaration     #Yes
+          HelpText            #Toggle SQL tracer
+          ElementPosition     #1073741823
+          HierarchyParent     #ButtonsGrp
+          ButtonDisplay       #Image only
+          NormalImage         #7639
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    element.toggleSqlTrace();
+            #    this.normalImage(element.currentSQLTrace() ? '7699' : '7639');
+            #}
+          ENDSOURCE
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+          SOURCE #toolTip
+            #public str toolTip()
+            #{
+            #    return this.helpText();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #whereOverridenBut
+          AutoDeclaration     #Yes
+          HelpText            #Where selected method is overriden
+          ElementPosition     #766958445
+          HierarchyParent     #ButtonsGrp
+          Text                #Where overriden
+          ButtonDisplay       #Image only
+          NormalImage         #1306
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    element.processWhereOverriden();
+            #}
+          ENDSOURCE
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+          SOURCE #toolTip
+            #public str toolTip()
+            #{
+            #    return this.helpText();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #XRefReferencesUsedBy
+          AutoDeclaration     #Yes
+          ElementPosition     #613566756
+          HierarchyParent     #ButtonsGrp
+          Text                #Where used
+          ButtonDisplay       #Image only
+          NormalImage         #3077
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+          MenuItemName        #XRefReferencesUsedBy
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    element.runSysContextMenu(menuItemDisplayStr(XRefReferencesUsedBy), MenuItemType::Display);
+            #}
+          ENDSOURCE
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+          SOURCE #toolTip
+            #public str toolTip()
+            #{
+            #    return this.text();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SearchText
+          AutoDeclaration     #Yes
+          ElementPosition     #1227133512
+          HierarchyParent     #Toolbar
+          DisplayLength       #20
+          ShowLabel           #No
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #toolTip
+            #public str toolTip()
+            #{
+            #    return this.text();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: END

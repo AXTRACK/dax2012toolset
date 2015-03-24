@@ -1,0 +1,1162 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_FormDiggerContextMenu unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_FormDiggerContextMenu
+    PROPERTIES
+      Name                #DEV_FormDiggerContextMenu
+      Extends             #SysContextMenu
+      RunOn               #Client
+      Origin              #{7C2C7956-E2B6-4F32-9763-91504FD41BBB}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #buildEDTSubMenu
+        #// >> DEV:MXK >>
+        #public PopupMenu buildEDTSubMenu(int windowHdl, PopupMenu _parent = null)
+        #{
+        #    PopupMenu       parent, submenu;
+        #    TreeNode        treeNode;
+        #    TreeNodeName    extendsEDT;
+        #    str             properties;
+        #    int             i;
+        #
+        #    if (_parent)
+        #    {
+        #        parent = _parent;
+        #        submenu = new PopupMenu(windowHdl, parent);
+        #    }
+        #    else
+        #    {
+        #        parent = new PopupMenu(windowHdl);
+        #        submenu = parent;
+        #    }
+        #
+        #    treeNode    =   TreeNode::findNode(#ExtendedDataTypesPath   + #AOTDelimiter + formDiggerTmpData.EDT)
+        #                ?   TreeNode::findNode(#ExtendedDataTypesPath   + #AOTDelimiter + formDiggerTmpData.EDT)
+        #                :   TreeNode::findNode(#SystemTypesPath         + #AOTDelimiter + formDiggerTmpData.EDT);
+        #
+        #    if (treeNode)
+        #    {
+        #        properties          = treeNode.AOTgetProperties();
+        #        subMenuEDTChoice    = new Map(Types::Integer, Types::String);
+        #
+        #        while (hasProperty(properties, #PropertyExtends) && findProperty(properties, #PropertyExtends))
+        #        {
+        #            i++;
+        #            extendsEDT = findProperty(properties, #PropertyExtends);
+        #
+        #            treeNode    =   TreeNode::findNode(#ExtendedDataTypesPath   + #AOTDelimiter + extendsEDT)
+        #                        ?   TreeNode::findNode(#ExtendedDataTypesPath   + #AOTDelimiter + extendsEDT)
+        #                        :   TreeNode::findNode(#SystemTypesPath         + #AOTDelimiter + extendsEDT);
+        #
+        #            if (!treeNode)
+        #                break;
+        #
+        #            properties = treeNode.AOTgetProperties();
+        #
+        #            subMenuEDTChoice.insert(submenu.insertItem(strRep('>', i) + strFmt('%1 (%2)', extendsEDT, extendedTypeId2pname(extendedTypeName2Id(extendsEDT)))),
+        #                                    treeNode.treeNodePath());
+        #        }
+        #    }
+        #    return submenu;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #buildEnumSubMenu
+        #// >> DEV:MXK >>
+        #public PopupMenu buildEnumSubMenu(int windowHdl, PopupMenu _parent = null)
+        #{
+        #    PopupMenu       parent, submenu;
+        #    DictEnum        dictEnum;
+        #    Counter         row;
+        #    Counter         col;
+        #    str             value;
+        #
+        #    int             maxColumns      = 4;
+        #    int             staticRows      = 2;
+        #    int             itemsPerColumn;
+        #    int             dynamicRows;
+        #
+        #
+        #    void setCaption(str _txt)
+        #    {
+        #        submenu.insertItem(_txt, false, true);
+        #        submenu.insertBreak();
+        #    }
+        #
+        #    dictEnum            = new DictEnum(enumName2Id(formDiggerTmpData.Enum));
+        #    subMenuEnumChoice   = new Map(Types::Integer, Types::String);
+        #    itemsPerColumn      = dictEnum.values() + staticRows < #maxSubMenuColumns ? dictEnum.values() + staticRows : #maxSubMenuColumns;
+        #    dynamicRows         = itemsPerColumn - 2;
+        #
+        #    if (_parent)
+        #    {
+        #        parent = _parent;
+        #        submenu = new PopupMenu(windowHdl, parent, itemsPerColumn, maxColumns);
+        #    }
+        #    else
+        #    {
+        #        parent = new PopupMenu(windowHdl, parent, itemsPerColumn, maxColumns);
+        #        submenu = parent;
+        #    }
+        #
+        #    for (col = 1; col < maxColumns; col++)
+        #    {
+        #        switch (col)
+        #        {
+        #            case 1:
+        #                setCaption("@SYS41043"); // Value
+        #                break;
+        #            case 2:
+        #                setCaption("@SYS31438"); // Name
+        #                break;
+        #            case 3:
+        #                setCaption("@SYS25058"); // Label
+        #                break;
+        #        }
+        #
+        #        for (row = 0; row < dictEnum.values(); row++)
+        #        {
+        #            switch (col)
+        #            {
+        #                case 1:
+        #                    value = strFmt('%1', dictEnum.index2Value(row));
+        #                    break;
+        #                case 2:
+        #                    value = strFmt('%1', dictEnum.index2Symbol(row));
+        #                    break;
+        #                case 3:
+        #                    value = strFmt('%1', dictEnum.index2Label(row));
+        #                    break;
+        #            }
+        #
+        #            subMenuEnumChoice.insert(   submenu.insertItem(value),
+        #                                        strFmt('%1::%2', formDiggerTmpData.Enum, dictEnum.index2Symbol(row)));
+        #
+        #            if (row == dynamicRows - 2 && dictEnum.values() > dynamicRows)
+        #            {
+        #                submenu.insertItem('...');
+        #                break;
+        #            }
+        #        }
+        #    }
+        #
+        #    return submenu;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #buildLeftColumns
+        #// >> DEV:MXK >>
+        #void buildLeftColumns(PopupMenu _popupMenu)
+        #{
+        #    if (isDeveloper && !DEV_UserParameters::findOrCreate().DisableHints)
+        #    {
+        #        _popupMenu.insertItem('COPY', false, true);
+        #        _popupMenu.insertBreak();
+        #    }
+        #
+        #    if (formDiggerTmpData.Name)
+        #        _popupMenu.insertItem("@SYS25058", false, false, 0, #CopyLabel); // Label
+        #
+        #    _popupMenu.insertItem("@SYS13403", false, false, 0, #CopyForm); // Form
+        #
+        #    if (formDiggerTmpData.CtrlName)
+        #        _popupMenu.insertItem('Control', false, false, 0, #CopyControl);
+        #
+        #    if (formDiggerTmpData.FieldMethodName)
+        #    {
+        #        _popupMenu.insertItem("@SYS40151", false, false, 0, #CopyTable); // Table
+        #
+        #        if (baseTable)
+        #            _popupMenu.insertItem('Base table', false, false, 0, #CopyBaseTable);
+        #
+        #        if (formDiggerTmpData.DataSourceTable)
+        #        {
+        #            _popupMenu.insertItem(formDiggerTmpData.IsMethod ? "@SYS38470" : "@SYS8498", false, false, 0, #CopyFieldMethod); // Method | Field
+        #        }
+        #        else
+        #        {
+        #            _popupMenu.insertItem("@SYS38470", false, false, 0, #CopyFieldMethod); // Method
+        #        }
+        #    }
+        #
+        #    if (formDiggerTmpData.EDT)
+        #    {
+        #        _popupMenu.insertItem('EDT', false, false, 0, #CopyEDT);
+        #
+        #        if (baseEDT)
+        #            _popupMenu.insertItem('Base EDT', false, false, 0, #CopyBaseEDT);
+        #    }
+        #
+        #    if (formDiggerTmpData.Enum)
+        #    {
+        #        _popupMenu.insertItem('Enum', false, false, 0, #CopyEnum);
+        #        _popupMenu.insertItem("@SYS74963", false, false, 0, #CopyEnumElements); // Elements
+        #    }
+        #
+        #    if (callerName)
+        #        _popupMenu.insertItem('Caller', false, false, 0, #CopyCaller);
+        #
+        #    if (menuItemName)
+        #        _popupMenu.insertItem("@SYS28739", false, false, 0, #CopyMenuItem); // Menu item
+        #
+        #    _popupMenu.insertItem("@SYS7406", false, false, 0, #CopyPath); // Path
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #calcColumns
+        #// >> DEV:MXK >>
+        #private int calcColumns()
+        #{
+        #    TreeNode        treeNode;
+        #    str             properties;
+        #    int             ret = 4 - (DEV_UserParameters::findOrCreate().DisableHints ? 2 : 0);
+        #
+        #    if (formDiggerTmpData.Name)
+        #        ret++;
+        #
+        #    if (formDiggerTmpData.CtrlName)
+        #        ret++;
+        #
+        #    if (formDiggerTmpData.DataSourceTable)
+        #    {
+        #        ret++;
+        #
+        #        treeNode    =   TreeNode::findNode(#TablesPath          + #AOTDelimiter + formDiggerTmpData.DataSourceTable)
+        #                    ?   TreeNode::findNode(#TablesPath          + #AOTDelimiter + formDiggerTmpData.DataSourceTable)
+        #                    :   TreeNode::findNode(#SystemTablesPath    + #AOTDelimiter + formDiggerTmpData.DataSourceTable);
+        #
+        #        if (treeNode)
+        #        {
+        #            properties = treeNode.AOTgetProperties();
+        #
+        #            if (hasProperty(properties, #PropertyStringSize))
+        #                strSize = findProperty(properties, #PropertyStringSize);
+        #
+        #            if (hasProperty(properties, #PropertyExtends))
+        #            {
+        #                baseTable = findProperty(properties, #PropertyExtends);
+        #
+        #                if (baseTable)
+        #                    ret++;
+        #            }
+        #        }
+        #    }
+        #
+        #    if (formDiggerTmpData.FieldMethodName)
+        #        ret++;
+        #
+        #    if (formDiggerTmpData.EDT)
+        #    {
+        #        treeNode    =   TreeNode::findNode(#ExtendedDataTypesPath   + #AOTDelimiter + formDiggerTmpData.EDT)
+        #                    ?   TreeNode::findNode(#ExtendedDataTypesPath   + #AOTDelimiter + formDiggerTmpData.EDT)
+        #                    :   TreeNode::findNode(#SystemTypesPath         + #AOTDelimiter + formDiggerTmpData.EDT);
+        #
+        #        if (treeNode)
+        #        {
+        #            properties = treeNode.AOTgetProperties();
+        #
+        #            ret++;
+        #
+        #            if (hasProperty(properties, #PropertyExtends))
+        #            {
+        #                baseEDT = findProperty(properties, #PropertyExtends);
+        #
+        #                if (baseEDT)
+        #                    ret++;
+        #            }
+        #        }
+        #    }
+        #
+        #    if (formDiggerTmpData.Enum)
+        #        ret += 2;
+        #
+        #    // Search caller info
+        #    this.determineCallerInfo(formDigger.parmCallerFormRun().args().caller());
+        #
+        #    if (callerName)
+        #        ret++;
+        #
+        #    if (menuItemName)
+        #        ret++;
+        #
+        #    return ret;
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class DEV_FormDiggerContextMenu extends SysContextMenu
+        #{
+        #    #AOT
+        #    #File
+        #    #Properties
+        #    #ResAppl
+        #    #DEV_Toolset
+        #
+        #    FormRun                 formRun;
+        #    DEV_FormDigger          formDigger;
+        #
+        #    DEV_FormDiggerTmpData   formDiggerTmpData;
+        #
+        #    // >> DEV:MXK >>
+        #    TreeNodeName            callerName;
+        #    TreeNodePath            callerPath;
+        #
+        #    MenuItemName            menuItemName;
+        #    TreeNodePath            menuItemPath;
+        #    Map                     subMenuEDTChoice;
+        #    Map                     subMenuEnumChoice;
+        #    TextBuffer              textBuffer;
+        #    boolean                 isDeveloper;
+        #    int                     choice;
+        #
+        #    TreeNodeName            baseEDT;
+        #    str                     strSize;
+        #    TreeNodeName            baseTable;
+        #
+        #    #define.CopyLabel       (1)
+        #    #define.CopyForm        (2)
+        #    #define.CopyControl     (3)
+        #    #define.CopyTable       (4)
+        #    #define.CopyBaseTable   (5)
+        #    #define.CopyFieldMethod (6)
+        #    #define.CopyEDT         (7)
+        #    #define.CopyBaseEDT     (8)
+        #    #define.CopyEnum        (9)
+        #    #define.CopyEnumElements(10)
+        #    #define.CopyCaller      (11)
+        #    #define.CopyMenuItem    (12)
+        #    #define.CopyPath        (13)
+        #
+        #    #define.OpenLabel       (21)
+        #    #define.OpenForm        (22)
+        #    #define.OpenControl     (23)
+        #    #define.OpenTable       (24)
+        #    #define.OpenBaseTable   (25)
+        #    #define.OpenFieldMethod (26)
+        #    #define.OpenEDT         (27)
+        #    #define.OpenEnum        (29)
+        #    #define.OpenCaller      (31)
+        #    #define.OpenMenuItem    (32)
+        #    #define.OpenProperties  (33)
+        #    // << DEV:MXK <<
+        #}
+        #
+      ENDSOURCE
+      SOURCE #copyToClipboard
+        #// >> DEV:MXK >>
+        #public void copyToClipboard(str _textToCopy, boolean _append = WinAPI::isShiftButtonDown())
+        #{
+        #    if (_append)
+        #    {
+        #        textBuffer.appendText(_textToCopy + '\n');
+        #    }
+        #    else
+        #    {
+        #        textBuffer.setText(_textToCopy);
+        #    }
+        #
+        #    textBuffer.toClipboard();
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #determineCallerInfo
+        #// >> DEV:MXK >>
+        #public void determineCallerInfo(Object caller)
+        #{
+        #    callerName      = '';
+        #    callerPath      = '';
+        #    menuItemName    = '';
+        #    menuItemPath    = '';
+        #
+        #    if (caller)
+        #    {
+        #        switch (true)
+        #        {
+        #            case SysDictClass::isEqualOrSuperclass(classidget(caller), classnum(SysSetupFormRun)):
+        #                callerName   = caller.name();
+        #                callerPath   = #formsPath;
+        #                break;
+        #            case SysDictClass::isEqualOrSuperclass(classidget(caller), classnum(RunBase)):
+        #                callerName   = classId2Name(classidget(caller.runBase()));
+        #                callerPath   = #classesPath;
+        #                break;
+        #            case SysDictClass::isEqualOrSuperclass(classidget(caller), classnum(DialogRunbase)):
+        #                switch (true)
+        #                {
+        #                    case SysDictClass::isEqualOrSuperclass(classidget(caller.runBase()), classnum(RunbaseReportStd)):
+        #                        caller       = caller.runBase();
+        #                        callerName   = caller.lastValueElementName();
+        #                        callerPath   = #reportsPath;
+        #                        break;
+        #                    default:
+        #                        callerName   = classId2Name(classidget(caller.runBase()));
+        #                        callerPath   = #classesPath;
+        #                        break;
+        #                }
+        #                break;
+        #            case SysDictClass::isEqualOrSuperclass(classidget(caller), classnum(ReportRun)):
+        #                callerName   = caller.name();
+        #                callerPath   = #reportsPath;
+        #                break;
+        #            case SysDictClass::isEqualOrSuperclass(classidget(caller), classnum(QueryRun)):
+        #                callerName   = caller.name();
+        #                callerPath   = #queriesPath;
+        #                break;
+        #            default:
+        #                callerName   = classId2Name(classidget(caller));
+        #                callerPath   = #classesPath;
+        #                break;
+        #        }
+        #
+        #        if (callerName)
+        #        {
+        #            callerPath += #FilePathDelimiter + callerName;
+        #        }
+        #
+        #        menuItemName    = formDigger.parmCallerFormRun().args().menuItemName();
+        #
+        #        if (menuItemName)
+        #        {
+        #            menuItemPath = #MenuItemsPath + #FilePathDelimiter + enum2str(formDigger.parmCallerFormRun().args().menuItemType()) + #AOTDelimiter + menuItemName;
+        #        }
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #findFieldNode
+        #// >> DEV:MXK >>
+        #TreeNode findFieldNode()
+        #{
+        #    TreeNode        treeNode;
+        #    TreeNodePath    treeNodePath;
+        #
+        #    //try to find method on Data Source
+        #    treeNodePath = strFmt(#TablesPath + #AOTDelimiter + #FieldPath,
+        #                            formDiggerTmpData.DataSourceTable,
+        #                            formDiggerTmpData.FieldMethodName);
+        #
+        #    treeNode = TreeNode::findNode(treeNodePath);
+        #
+        #    return treeNode;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #findMethodNode
+        #TreeNode findMethodNode()
+        #{
+        #    TreeNode        treeNode;
+        #    TreeNodePath    treeNodePath;
+        #
+        #    //try to find method on Data Source
+        #    treeNodePath = strFmt(#FormsPath + #AOTDelimiter + #DataSourceMethodPath,
+        #                            formDigger.parmCallerFormRun().name(),
+        #                            formDiggerTmpData.DataSourceName,
+        #                            formDiggerTmpData.FieldMethodName);
+        #
+        #    treeNode = TreeNode::findNode(treeNodePath);
+        #
+        #    //try to find method on Table
+        #    if (!treeNode)
+        #    {
+        #        treeNodePath = strFmt(#TablesPath + #AOTDelimiter + #MethodPath,
+        #                        formDiggerTmpData.DataSourceTable,
+        #                        formDiggerTmpData.FieldMethodName);
+        #
+        #        treeNode = TreeNode::findNode(treeNodePath);
+        #    }
+        #
+        #    //try to find method on Table
+        #    if (!treeNode)
+        #    {
+        #        treeNodePath = strFmt(#FormsPath + #AOTDelimiter + #MethodPath,
+        #                        formDigger.parmCallerFormRun().name(),
+        #                        formDiggerTmpData.FieldMethodName);
+        #
+        #        treeNode = TreeNode::findNode(treeNodePath);
+        #    }
+        #
+        #    return treeNode;
+        #}
+      ENDSOURCE
+      SOURCE #findViewNode
+        #// >> DEV:MXK >>
+        #TreeNode findViewNode()
+        #{
+        #    TreeNode        treeNode;
+        #    TreeNodePath    treeNodePath;
+        #
+        #    //try to find field on View
+        #    treeNodePath = strFmt(#ViewsPath + #AOTDelimiter + #FieldPath,
+        #                            formDiggerTmpData.DataSourceTable,
+        #                            formDiggerTmpData.FieldMethodName);
+        #
+        #    treeNode = TreeNode::findNode(treeNodePath);
+        #
+        #    return treeNode;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #first
+        #TreeNode first()
+        #{
+        #
+        #    return this.nodeAtIdx();
+        #}
+      ENDSOURCE
+      SOURCE #fixOpenNewWindow
+        #void fixOpenNewWindow()
+        #{
+        #    UserInfo    userInfo;
+        #
+        #    #define.SHOWTOOLBAR_LARGE(0x0002)
+        #
+        #    select firstOnly userInfo
+        #       where userInfo.Id == curuserid();
+        #
+        #    if (!userInfo.RecId)
+        #        return;
+        #
+        #    if (bittest(userInfo.ShowToolbar, #SHOWTOOLBAR_LARGE))
+        #        userInfo.ShowToolbar = bitreset(userInfo.ShowToolbar, #SHOWTOOLBAR_LARGE);
+        #    else
+        #        userInfo.ShowToolbar = bitset(userInfo.ShowToolbar, #SHOWTOOLBAR_LARGE);
+        #
+        #    infolog.getUserSetup().setUserSetup(userInfo);
+        #
+        #    if (bittest(userInfo.ShowToolbar, #SHOWTOOLBAR_LARGE))
+        #        userInfo.ShowToolbar = bitreset(userInfo.ShowToolbar, #SHOWTOOLBAR_LARGE);
+        #    else
+        #        userInfo.ShowToolbar = bitset(userInfo.ShowToolbar, #SHOWTOOLBAR_LARGE);
+        #
+        #
+        #    infolog.getUserSetup().setUserSetup(userInfo);
+        #
+        #    return;
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #protected void new( DEV_FormDigger          _formDigger,
+        #                    DEV_FormDiggerTmpData   _formDiggerTmpData  = null)
+        #{
+        #    // >> DEV:MXK >>
+        #    if (!_formDigger)
+        #    {
+        #        error(error::missingParameter(this));
+        #    }
+        #
+        #    isDeveloper = isDeveloper();
+        #    textBuffer  = new TextBuffer();
+        #    // << DEV:MXK <<
+        #
+        #    formDigger        = _formDigger;
+        #    formDiggerTmpData = _formDiggerTmpData;
+        #
+        #    super();
+        #}
+      ENDSOURCE
+      SOURCE #next
+        #TreeNode next()
+        #{
+        #    return null;
+        #}
+      ENDSOURCE
+      SOURCE #nodeAtIdx
+        #private TreeNode nodeAtIdx()
+        #{
+        #    int             selectedControlId;
+        #    TreeNode        selectedNode;
+        #
+        #    selectedNode =  SysFormRun::ctrlId2treeNode(formDigger.parmCallerFormRun(), selectedControlId);
+        #
+        #    return selectedNode;
+        #}
+      ENDSOURCE
+      SOURCE #onContext
+        #// >> DEV:MXK >>
+        #void onContext(FormControl _formControl)
+        #{
+        #    PopupMenu       popupMenu      = new PopupMenu(_formControl.hWnd(), null, this.calcColumns());
+        #    PopupMenu       subEnumMenu, subEDTMenu;
+        #    DictEnum        dictEnum;
+        #
+        #    this.buildLeftColumns(popupMenu);
+        #
+        #    if (isDeveloper && !DEV_UserParameters::findOrCreate().DisableHints)
+        #    {
+        #        popupMenu.insertItem("OPEN", false, true);
+        #        popupMenu.insertBreak();
+        #    }
+        #
+        #    if (formDiggerTmpData.Name)
+        #    {
+        #        popupMenu.insertItem(strFmt("%1", formDiggerTmpData.Name), false, false, 0, #OpenLabel);
+        #    }
+        #
+        #    popupMenu.insertItem(strFmt("%1", formDigger.parmCallerFormRun().name()), false, false, 0, #OpenForm);
+        #
+        #    if (formDiggerTmpData.CtrlName)
+        #    {
+        #        popupMenu.insertItem(strFmt("%1", formDiggerTmpData.CtrlName), false, false, 0, #OpenControl);
+        #    }
+        #
+        #    if (formDiggerTmpData.FieldMethodName)
+        #    {
+        #        popupMenu.insertItem(   strFmt( "%1 (%2)",
+        #                                        formDiggerTmpData.DataSourceTable,
+        #                                        tableId2pname(tableName2id(formDiggerTmpData.DataSourceTable))),
+        #                                false, false, 0, #OpenTable);
+        #
+        #        if (baseTable)
+        #            popupMenu.insertItem(   strFmt( "%1 (%2)",
+        #                                        baseTable,
+        #                                        tableId2pname(tableName2id(baseTable))),
+        #                                    false, false, 0, #OpenBaseTable);
+        #
+        #        if (formDiggerTmpData.DataSourceTable)
+        #        {
+        #            popupMenu.insertItem(   strFmt( "%1",
+        #                                            formDiggerTmpData.FieldMethodName + (formDiggerTmpData.IsMethod ? '()' : '')),
+        #                                    false, false, 0, #OpenFieldMethod);
+        #        }
+        #        else
+        #        {
+        #            popupMenu.insertItem(strFmt("%1%2()", formDiggerTmpData.FieldMethodName), false, false, 0, #OpenFieldMethod);
+        #        }
+        #    }
+        #
+        #    if (formDiggerTmpData.EDT)
+        #    {
+        #        popupMenu.insertItem(   strFmt( "%1 (%2) %3",
+        #                                        formDiggerTmpData.EDT,
+        #                                        extendedTypeId2pname(extendedTypeName2Id(formDiggerTmpData.EDT)),
+        #                                        (   strSize
+        #                                            ? '[' + strSize + ']'
+        #                                            : '')),
+        #                                false, false, 0, #OpenEDT);
+        #
+        #        if (baseEDT)
+        #        {
+        #            subEDTMenu  = this.buildEDTSubMenu(_formControl.hWnd(), popupMenu);
+        #            popupMenu.insertPopupMenu(baseEDT, subEDTMenu);
+        #        }
+        #    }
+        #
+        #    if (formDiggerTmpData.Enum)
+        #    {
+        #        popupMenu.insertItem(   strFmt("%1 (%2)", formDiggerTmpData.Enum, enumId2pname(enumName2Id(formDiggerTmpData.Enum))),
+        #                                false, false, 0, #OpenEnum);
+        #        subEnumMenu     = this.buildEnumSubMenu(_formControl.hWnd(), popupMenu);
+        #        dictEnum        = new DictEnum(enumName2Id(formDiggerTmpData.Enum));
+        #
+        #        popupMenu.insertPopupMenu(strFmt('[%1]', dictEnum.values()), subEnumMenu);
+        #    }
+        #
+        #    if (callerName)
+        #    {
+        #        popupMenu.insertItem(strFmt("%1", callerName), false, false, 0, #OpenCaller);
+        #    }
+        #
+        #    if (menuItemName)
+        #    {
+        #        popupMenu.insertItem(strFmt("%1", menuItemName), false, false, 0, #OpenMenuItem);
+        #    }
+        #
+        #    // Extended subMenu info
+        #    if (isDeveloper && formDiggerTmpData.CtrlName)
+        #    {
+        #        popupMenu.insertItem("@SYS10344", false, false, 0, #OpenProperties); // Properties
+        #    }
+        #    else
+        #    {
+        #        popupMenu.insertItem('');
+        #    }
+        #
+        #    choice = popupMenu.draw();
+        #
+        #    if (!this.runMenu(choice, this))
+        #    {
+        #        switch (choice)
+        #        {
+        #            case #CopyLabel:
+        #            case #OpenLabel:
+        #                this.onContext_Label();
+        #                break;
+        #            case #CopyBaseEDT:
+        #                this.copyToClipboard(baseEDT);
+        #                break;
+        #            case #CopyEnumElements:
+        #                this.onContext_EnumExtends();
+        #                break;
+        #            case #CopyPath:
+        #                this.onContext_CopyPath();
+        #                break;
+        #            case #CopyForm:
+        #            case #OpenForm:
+        #                this.onContext_Form();
+        #                break;
+        #            case #CopyControl:
+        #            case #OpenControl:
+        #                this.onContext_FormControl();
+        #                break;
+        #            case #CopyTable:
+        #            case #OpenTable:
+        #                this.onContext_TableBrowser();
+        #                break;
+        #            case #CopyBaseTable:
+        #            case #OpenBaseTable:
+        #                this.onContext_TableBrowser(baseTable);
+        #                break;
+        #            case #CopyFieldMethod:
+        #            case #OpenFieldMethod:
+        #                this.onContext_TableField();
+        #                break;
+        #            case #CopyEDT:
+        #            case #OpenEDT:
+        #                this.onContext_EDT();
+        #                break;
+        #            case #CopyEnum:
+        #            case #OpenEnum:
+        #                this.onContext_Enum();
+        #                break;
+        #            case #CopyCaller:
+        #            case #OpenCaller:
+        #                this.onContext_Caller();
+        #                break;
+        #            case #CopyMenuItem:
+        #            case #OpenMenuItem:
+        #                this.onContext_MenuItem();
+        #                break;
+        #            case #OpenProperties:
+        #                this.onContext_ShowProperties();
+        #                break;
+        #            default:
+        #                if (    isDeveloper
+        #                    &&  subMenuEDTChoice
+        #                    &&  subMenuEDTChoice.elements()
+        #                    &&  subMenuEDTChoice.keySet().in(choice))
+        #                {
+        #                    DEV_AOTNodeExpander::expandNode(TreeNode::findNode(subMenuEDTChoice.lookup(choice)));
+        #                }
+        #                else if (subMenuEnumChoice && subMenuEnumChoice.elements() && subMenuEnumChoice.keySet().in(choice))
+        #                {
+        #                    this.copyToClipboard(subMenuEnumChoice.lookup(choice));
+        #                }
+        #        }
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #onContext_Caller
+        #// >> DEV:MXK >>
+        #void onContext_Caller()
+        #{
+        #    TreeNode        treeNode;
+        #
+        #    if (this.shouldCopyToClipboard())
+        #    {
+        #        this.copyToClipboard(callerPath);
+        #    }
+        #    else
+        #    {
+        #        treeNode = TreeNode::findNode(callerPath);
+        #
+        #        if (treeNode)
+        #            treeNode.AOTnewWindow();
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #onContext_CopyPath
+        #void onContext_CopyPath()
+        #{
+        #    container               ctrlIdCon;
+        #    DEV_FormDiggerTmpData   tmpDataBuff;
+        #    FormControl             formControl;
+        #    str                     pathFormat;
+        #    str                     path;
+        #
+        #    tmpDataBuff.data(DEV_FormDiggerTmpData::find(formDiggerTmpData.Id, formDigger.parmFormDiggerTmpData()));
+        #
+        #    while (tmpDataBuff.Id)
+        #    {
+        #        ctrlIdCon += [tmpDataBuff.Id];
+        #
+        #        tmpDataBuff.data(DEV_FormDiggerTmpData::find(tmpDataBuff.ParentId, formDigger.parmFormDiggerTmpData()));
+        #    }
+        #
+        #    // add form name
+        #    // FormControlType::Image is used as default format for form name
+        #    pathFormat = DEV_FormDigger::getPathFormat(FormControlType::Image);
+        #
+        #    if (pathFormat)
+        #    {
+        #        path += strFmt(pathFormat, formDigger.parmCallerFormRun().form().design().caption());
+        #    }
+        #
+        #    while (conlen(ctrlIdCon))
+        #    {
+        #        //read container in reverse order;
+        #        formControl = formDigger.parmCallerFormRun().control(conPeek(ctrlIdCon, conlen(ctrlIdCon)));
+        #
+        #        if (formControl && formControl.labelText())
+        #        {
+        #            pathFormat = DEV_FormDigger::getPathFormat(SysFormRun::controlType(classIdGet(formControl)));
+        #
+        #            if (pathFormat)
+        #            {
+        #                path += formDigger.parmFmtDelimiter();
+        #                path += strFmt(pathFormat,  formControl.labelText());
+        #            }
+        #            else
+        #            {
+        #                // FormControlType::StaticText is used as default format for any field
+        #                pathFormat = DEV_FormDigger::getPathFormat(FormControlType::StaticText);
+        #
+        #                if (pathFormat)
+        #                {
+        #                    path += formDigger.parmFmtDelimiter();
+        #                    path += strFmt(pathFormat,  formControl.labelText());
+        #                }
+        #            }
+        #        }
+        #
+        #        ctrlIdCon = condel(ctrlIdCon, conlen(ctrlIdCon), 1);
+        #    }
+        #
+        #    if (path)
+        #        this.copyToClipboard(path);
+        #}
+      ENDSOURCE
+      SOURCE #onContext_EDT
+        #// >> DEV:MXK >>
+        #void onContext_EDT()
+        #{
+        #    TreeNode        treeNode;
+        #
+        #    if (this.shouldCopyToClipboard())
+        #    {
+        #        this.copyToClipboard(formDiggerTmpData.EDT);
+        #    }
+        #    else
+        #    {
+        #        treeNode    = TreeNode::findNode(#ExtendedDataTypesPath + #AOTDelimiter + formDiggerTmpData.EDT);
+        #        treeNode    = treeNode ? treeNode : TreeNode::findNode(#SystemTypesPath + #AOTDelimiter + formDiggerTmpData.EDT);
+        #
+        #        if (treeNode)
+        #            treeNode.AOTnewWindow();
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #onContext_Enum
+        #// >> DEV:MXK >>
+        #void onContext_Enum()
+        #{
+        #    TreeNode        treeNode;
+        #
+        #    if (this.shouldCopyToClipboard())
+        #    {
+        #        this.copyToClipboard(formDiggerTmpData.Enum);
+        #    }
+        #    else
+        #    {
+        #        treeNode    = TreeNode::findNode(#BaseEnumsPath + #AOTDelimiter + formDiggerTmpData.Enum);
+        #        treeNode    = treeNode ? treeNode : TreeNode::findNode(#SystemEnumsPath + #AOTDelimiter + formDiggerTmpData.Enum);
+        #
+        #        if (treeNode)
+        #            treeNode.AOTnewWindow();
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #onContext_EnumExtends
+        #// >> DEV:MXK >>
+        #void onContext_EnumExtends()
+        #{
+        #    DictEnum        dictEnum;
+        #    Counter         counter;
+        #
+        #    dictEnum = new DictEnum(enumName2Id(formDiggerTmpData.Enum));
+        #
+        #    this.copyToClipboard('');
+        #
+        #    for (counter = 0; counter < dictEnum.values(); counter++)
+        #    {
+        #        if (WinAPI::isControlButtonDown())
+        #        {
+        #            this.copyToClipboard(strFmt('\t\tcase %1::%2:\n\t\t\tbreak;', formDiggerTmpData.Enum, dictEnum.index2Symbol(counter)), true);
+        #        }
+        #        else if (WinAPI::isShiftButtonDown())
+        #        {
+        #            this.copyToClipboard(strFmt('%1::%2 // %3', formDiggerTmpData.Enum, dictEnum.index2Symbol(counter), dictEnum.index2Label(counter)), true);
+        #        }
+        #        else
+        #        {
+        #            this.copyToClipboard(strFmt('%1::%2', formDiggerTmpData.Enum, dictEnum.index2Symbol(counter)), true);
+        #        }
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #onContext_Form
+        #// >> DEV:MXK >>
+        #void onContext_Form()
+        #{
+        #    TreeNode        treeNode;
+        #
+        #    if (this.shouldCopyToClipboard())
+        #    {
+        #        this.copyToClipboard(formDigger.parmCallerFormRun().name());
+        #    }
+        #    else
+        #    {
+        #        treeNode = treeNode::findNode(#FormsPath + #AOTDelimiter + formDigger.parmCallerFormRun().name());
+        #
+        #        if (treeNode)
+        #            treeNode.AOTnewWindow();
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #onContext_FormControl
+        #// >> DEV:MXK >>
+        #void onContext_FormControl()
+        #{
+        #    TreeNode        treeNode;
+        #
+        #    if (this.shouldCopyToClipboard())
+        #    {
+        #        this.copyToClipboard(formDiggerTmpData.CtrlName);
+        #    }
+        #    else
+        #    {
+        #        treeNode = DEV_FormDigger::ctrlId2TreeNode(formDigger.parmCallerFormRun(), formDiggerTmpData.Id);
+        #
+        #        if (treeNode)
+        #            DEV_AOTNodeExpander::expandNode(treeNode);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #onContext_Label
+        #// >> DEV:MXK >>
+        #void onContext_Label()
+        #{
+        #    Args                args;
+        #    Object              sysLabelSearchObject;
+        #    FormRun             sysLabelSearchFormRun;
+        #    FormStringControl   fsc;
+        #    FormButtonControl   fbc;
+        #
+        #    if (this.shouldCopyToClipboard())
+        #    {
+        #        this.copyToClipboard(formDiggerTmpData.Name);
+        #    }
+        #    else
+        #    {
+        #        args                    = new Args(formstr(SysLabelSearch));
+        #        args.caller(this);
+        #        sysLabelSearchFormRun   = classFactory.formRunClass(args);
+        #        sysLabelSearchFormRun.init();
+        #        sysLabelSearchFormRun.run();
+        #
+        #        // Set the text to find
+        #        /*fsc = sysLabelSearchFormRun.design().controlName(identifierStr(SearchString));
+        #        fsc.setFocus();
+        #        fsc.pasteText(formDiggerTmpData.Name);
+        #
+        #        // Launch the search process
+        #        fbc = sysLabelSearchFormRun.design().controlName(identifierStr(FindNow));
+        #        fbc.clicked();*/
+        #
+        #        sysLabelSearchObject = sysLabelSearchFormRun;
+        #        sysLabelSearchObject.labelSearch(formDiggerTmpData.Name, true);
+        #
+        #        sysLabelSearchFormRun.detach();
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #onContext_MenuItem
+        #// >> DEV:MXK >>
+        #void onContext_MenuItem()
+        #{
+        #    TreeNode        treeNode;
+        #
+        #    if (this.shouldCopyToClipboard())
+        #    {
+        #        this.copyToClipboard(menuItemPath);
+        #    }
+        #    else
+        #    {
+        #        treeNode = TreeNode::findNode(menuItemPath);
+        #
+        #        if (treeNode)
+        #            treeNode.AOTnewWindow();
+        #    }
+        #}
+        #
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #onContext_ShowProperties
+        #void onContext_ShowProperties()
+        #{
+        #    TreeNode        treeNode;
+        #    HWND            hwnd;
+        #
+        #    if (isDeveloper)
+        #    {
+        #        treeNode = DEV_FormDigger::ctrlId2TreeNode(formDigger.parmCallerFormRun(), formDiggerTmpData.Id);
+        #
+        #        if (treeNode)
+        #        {
+        #            hwnd = treeNode.AOTnewWindow();
+        #            DEV_WinAPI::closeWindow(hwnd);
+        #            treeNode.AOTshowProperties();
+        #        }
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #onContext_TableBrowser
+        #// >> DEV:MXK >>
+        #void onContext_TableBrowser(TableName _tableName = formDiggerTmpData.DataSourceTable)
+        #{
+        #    TreeNode        treeNode;
+        #    TreeNodePath    treeNodePath;
+        #    HWND            hwnd;
+        #
+        #    if (this.shouldCopyToClipboard())
+        #    {
+        #        this.copyToClipboard(strFmt("%1", _tableName));
+        #    }
+        #    else
+        #    {
+        #        treeNodePath    = #SystemTablesPath + #AOTDelimiter + _tableName;
+        #        treeNode        = TreeNode::findNode(treeNodePath);
+        #
+        #        if (!treeNode)
+        #        {
+        #            treeNodePath    = #TablesPath + #AOTDelimiter + _tableName;
+        #            treeNode        = TreeNode::findNode(treeNodePath);
+        #        }
+        #
+        #        if (treeNode)
+        #        {
+        #            hwnd = treeNode.AOTnewWindow();
+        #            DEV_HKAOT::tableBrowser(new LastAOTSelection().first());
+        #            DEV_WinAPI::closeWindow(hwnd);
+        #        }
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #onContext_TableField
+        #// >> DEV:MXK >>
+        #void onContext_TableField()
+        #{
+        #    TreeNode        treeNode;
+        #    TreeNodePath    treeNodePath;
+        #
+        #    if (this.shouldCopyToClipboard())
+        #    {
+        #        this.copyToClipboard(strFmt("%1.%2", formDiggerTmpData.DataSourceTable, formDiggerTmpData.FieldMethodName));
+        #    }
+        #    else
+        #    {
+        #        treeNode = DEV_FormDigger::ctrlId2TreeNode(formDigger.parmCallerFormRun(), formDiggerTmpData.Id);
+        #        treeNodePath = #SystemTablesPath + #AOTDelimiter + formDiggerTmpData.DataSourceTable + #AOTDelimiter + formDiggerTmpData.FieldMethodName;
+        #
+        #        if (TreeNode::findNode(treeNodePath))
+        #        {
+        #            treeNode = TreeNode::findNode(treeNodePath);
+        #        }
+        #        else if (formDiggerTmpData.IsMethod)
+        #        {
+        #            treeNode = this.findMethodNode();
+        #            treeNode.AOTedit();
+        #        }
+        #        else
+        #        {
+        #            treeNode = this.findFieldNode();
+        #        }
+        #
+        #        if (!treeNode) // View
+        #        {
+        #            treeNode = this.findViewNode();
+        #        }
+        #
+        #        DEV_AOTNodeExpander::expandNode(treeNode);
+        #    }
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #openNewWindow
+        #void openNewWindow(TreeNode _treeNode)
+        #{
+        #    if (_treeNode)
+        #    {
+        #        _treeNode.AOTnewWindow();
+        #
+        #        if (!_treeNode.AOTfirstChild() && formDigger.parmFixNewWindow())
+        #            this.fixOpenNewWindow();
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #parmFormDiggerTmpData
+        #public DEV_FormDiggerTmpData parmFormDiggerTmpData(DEV_FormDiggerTmpData _formDiggerTmpData = formDiggerTmpData)
+        #{
+        #    formDiggerTmpData = _formDiggerTmpData;
+        #
+        #    return formDiggerTmpData;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #selectionCount
+        #int selectionCount()
+        #{
+        #    return 1;
+        #}
+      ENDSOURCE
+      SOURCE #shouldCopyToClipboard
+        #// >> DEV:MXK >>
+        #public boolean shouldCopyToClipboard()
+        #{
+        #    return     !isDeveloper
+        #            ||  WinAPI::isShiftButtonDown()
+        #            ||  choice == #CopyLabel
+        #            ||  choice == #CopyForm
+        #            ||  choice == #CopyControl
+        #            ||  choice == #CopyTable
+        #            ||  choice == #CopyBaseTable
+        #            ||  choice == #CopyFieldMethod
+        #            ||  choice == #CopyEDT
+        #            ||  choice == #CopyBaseEDT
+        #            ||  choice == #CopyEnum
+        #            ||  choice == #CopyEnumElements
+        #            ||  choice == #CopyCaller
+        #            ||  choice == #CopyMenuItem
+        #            ||  choice == #CopyPath;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #construct
+        #public static DEV_FormDiggerContextMenu construct(DEV_FormDigger _formDigger, DEV_FormDiggerTmpData _formDiggerTmpData = null)
+        #{
+        #    return new DEV_FormDiggerContextMenu(_formDigger, _formDiggerTmpData);
+        #}
+        #
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

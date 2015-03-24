@@ -1,0 +1,64 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysTreeNodeNameCopyToClipboard unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysTreeNodeNameCopyToClipboard
+    PROPERTIES
+      Name                #SysTreeNodeNameCopyToClipboard
+      Origin              #{2D1E10FC-0000-1000-8D30-20B32BD9CA89}
+      LegacyId            #4348
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #runsysContextMenu
+        #void runsysContextMenu(SysContextMenu _sysContextMenu)
+        #{
+        #    TreeNode    aNode = _sysContextMenu.first();
+        #
+        #    TextBuffer  textBuffer = new TextBuffer();
+        #    int         lines;
+        #    // >> DEV:MXK >>
+        #    str         st;
+        #
+        #    while (aNode)
+        #    {
+        #        st = aNode.treeNodeName();
+        #
+        #        // Remove additional info from the Name like "Tab:Tab" => "Tab"
+        #        if (strFind(st, ':', 1, strLen(st)))
+        #        {
+        #            st = substr(st, strFind(st, ':', 1, strlen(st)) + 1, strlen(st) - strFind(st, ':', 1, strlen(st)));
+        #            st = strrem(st, ']');
+        #        }
+        #
+        #        // Remove additional info from the Name like "Currency(Currency)" => "Currency"
+        #        if (strFind(st, '(', 1, strlen(st)))
+        #        {
+        #            st = substr(st, 1, strFind(st, '(', 1, strlen(st) + 1) - 1);
+        #        }
+        #    // << DEV:MXK <<
+        #
+        #        if (lines)
+        #            textBuffer.appendText('\n');
+        #
+        #        // >> DEV:MXK >>
+        #        //textBuffer.appendText(aNode.treeNodeName());
+        #        textBuffer.appendText(st);
+        #        // << DEV:MXK <<
+        #
+        #        lines++;
+        #        aNode = _sysContextMenu.next();
+        #    }
+        #    if (lines)
+        #        textBuffer.toClipboard();
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

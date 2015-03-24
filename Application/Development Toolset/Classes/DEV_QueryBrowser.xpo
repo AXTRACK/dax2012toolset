@@ -1,0 +1,239 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_QueryBrowser unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_QueryBrowser
+    PROPERTIES
+      Name                #DEV_QueryBrowser
+      Origin              #{E461D2A7-609E-4396-94DF-A91525F7E9C1}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class DEV_QueryBrowser
+        #{
+        #    #DEFINE.FormWidth(750)//500
+        #    #DEFINE.FormHeight(450)//300
+        #}
+      ENDSOURCE
+      SOURCE #run
+        #public void run(Query query)
+        #{
+        #    TableId                         tableId;
+        #    DictTable                       dictTable;
+        #    Object                          formRun;
+        #
+        #    FieldId                         fieldId;
+        #    FieldId                         fieldIdExt;
+        #    DictField                       dictField;
+        #
+        #    Form                            tableBrowser;
+        #    FormBuildDesign                 formBuildDesign;
+        #    FormBuildDataSource             formBuildDataSource;
+        #    FormBuildGridControl            formBuildGridControl;
+        #    FormBuildControl                formBuildField;
+        #
+        #    FormControl                     formControl;
+        #    FormBuildStringControl          formBuildStringControl;
+        #    Object                          formBuildControl;
+        #
+        #    FormGridControl                 formGridControl;
+        #    int                             idx;
+        #
+        #    Args                            args;
+        #    Args                            browserArgs;
+        #
+        #    int                             cnt;
+        #    int                             dsIdx;
+        #    int                             i, j;
+        #
+        #    container                       cGrayFields;
+        #    #DictField
+        #    ;
+        #
+        #    browserArgs     = new Args();
+        #    browserArgs.name(formStr(DEV_QueryBrowser));
+        #    formRun         = classFactory.formRunClass(browserArgs);
+        #    tableBrowser    = formRun.form();
+        #
+        #    formBuildDesign = tableBrowser.design();
+        #    formBuildDesign.caption(
+        #        "@SYS13579" + (query.name()?(': '+query.name()):''));
+        #    formBuildDesign.widthMode(-1);
+        #    formBuildDesign.widthValue(#FormWidth);
+        #    formBuildDesign.heightMode(-1);
+        #    formBuildDesign.heightValue(#FormHeight);
+        #
+        #    cnt = query.dataSourceCount();
+        #
+        #    for (dsIdx = 1; dsIdx <= cnt; dsIdx++)
+        #    {
+        #        tableId         = query.dataSourceNo(dsIdx).table();
+        #        dictTable       = new DictTable(tableId);
+        #
+        #        if(dsIdx == 1)
+        #        {
+        #            formBuildDataSource = tableBrowser.dataSource(dsIdx);
+        #            formBuildDataSource.name(dictTable.name());
+        #            formBuildDataSource.table(tableId);
+        #
+        #            formBuildGridControl = formBuildDesign.addControl(FormControlType::GRID,'Grid');
+        #            formBuildGridControl.dataSource(dictTable.name());
+        #            formBuildGridControl.widthMode(1);
+        #            formBuildGridControl.heightMode(1);
+        #            formBuildGridControl.visible(true);
+        #            idx = formBuildGridControl.id();
+        #        }
+        #        else
+        #        {
+        #            formBuildDataSource = tableBrowser.addDataSource(dictTable.name());
+        #            formBuildDataSource.table(tableId);
+        #        }
+        #
+        #        for (i=1; i<=dictTable.fieldCnt(); i++)
+        #        {
+        #            fieldId = dictTable.fieldCnt2Id(i);
+        #            dictField = new DictField(dictTable.id(), fieldId);
+        #
+        #            if (bitTest(dictField.flags(), #DBF_STORE))
+        #            {
+        #                for(j = 1;j <= dictField.arraySize(); j++)
+        #                {
+        #                    fieldIdExt = fieldId2Ext(fieldId, j);
+        #
+        #                    if (dictField.baseType() != Types::CONTAINER)
+        #                    {
+        #                        formBuildField = formBuildGridControl.addDataField(formBuildDataSource.id(), fieldIdExt);
+        #                        formControl = formBuildDesign.control(formBuildField.id());
+        #                        formControl.helpText(
+        #                            formBuildDataSource.name() + '.' + fieldId2Name(formBuildDataSource.table(), fieldIdExt) +
+        #                            ' ['+ fieldId2pName(formBuildDataSource.table(), fieldIdExt) + ']');
+        #                    }
+        #
+        #                    if (dictField.baseType() == Types::STRING ||
+        #                        dictField.baseType() == Types::RSTRING ||
+        #                        dictField.baseType() == Types::VARSTRING)
+        #                    {
+        #                        formBuildStringControl = formBuildField;
+        #
+        #                        formBuildStringControl.displayHeightMode(0);
+        #                        formBuildStringControl.displayHeightValue(1);
+        #                        formBuildStringControl.label(dictField.name());
+        #                    }
+        #                    else
+        #                    {
+        #                        if (dictField.baseType() != Types::CONTAINER)
+        #                        {
+        #                            formBuildControl = formBuildField;
+        #                            if (formBuildControl)
+        #                            {
+        #                                formBuildControl.label(dictField.name());
+        #                            }
+        #                        }
+        #                        else
+        #                        {
+        #                            formBuildControl = formBuildGridControl.addControl(FormControlType::STRING,'TableBrowserContainer');
+        #                            formBuildControl.datasource(formBuildDataSource.id());
+        #                            formBuildControl.dataField(fieldId2Ext(fieldId,j));
+        #                            formBuildControl.label(dictField.name());
+        #                            //formBuildControl.helpText(dictField.label());
+        #
+        #                            formBuildControl.helpText(
+        #                                formBuildDataSource.name() + '.' + fieldId2Name(formBuildDataSource.table(), fieldIdExt) +
+        #                                ' ['+ fieldId2pName(formBuildDataSource.table(), fieldIdExt) + ']');
+        #
+        #                            formBuildControl.displayLengthMode(0);
+        #                            formBuildControl.displayLengthValue(5);
+        #                            formBuildControl.lookupButton(2);
+        #                        }
+        #                    }
+        #
+        #                    if(!(dsIdx mod 2))
+        #                        cGrayFields += formControl.id();
+        #                }
+        #            }
+        #        }
+        #    }
+        #
+        #    args = new Args();
+        #    args.object(tableBrowser);
+        #    formRun = classFactory.formRunClass(args);
+        #
+        #    formRun.init();
+        #    formRun.parmQuery(query);
+        #    formRun.parmGrayFields(cGrayFields);
+        #    formRun.run();
+        #
+        #    formGridControl = formRun.control(idx);
+        #    formGridControl.setFocus();
+        #
+        #    formRun.detach();
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #client static void main(Args _args)
+        #{
+        #    boolean isRunFromTabax()
+        #    {
+        #        return _args.caller()
+        #               &&
+        #               classIdGet(_args.caller())==classNum(SysSetupFormRun)
+        #               &&
+        #               _args.caller().name()=='Tabax';
+        #    }
+        #
+        #    void processContext(SysContextMenu _context)
+        #    {
+        #        TreeNode node = _context.first();
+        #        Query query = DEV_QueryBrowser::treeNode2Query(node);
+        #        if(query)
+        #            new DEV_QueryBrowser().run(query);
+        #    }
+        #
+        #    void processTabax()
+        #    {
+        #        FormRun currentFormRun = _args.caller().currentFormRun();
+        #        FormDataSource ds;
+        #        if (currentFormRun)
+        #            ds = currentFormRun.dataSource();
+        #        if (ds)
+        #            new DEV_QueryBrowser().run(ds.query());
+        #        else
+        #            processContext(_args.caller().currentSysContextMenu());
+        #    }
+        #;
+        #    if (isRunFromTabax())
+        #        processTabax();
+        #    else if (SysContextMenu::startedFrom(_args))
+        #        processContext(_args.parmObject());
+        #}
+        #
+        #
+      ENDSOURCE
+      SOURCE #treeNode2Query
+        #static Query treeNode2Query(TreeNode treeNode)
+        #{
+        #    #TreeNodeSysNodeType
+        #    Query       query;
+        #
+        #    if (treeNode.treeNodeType().id() == #NT_QE)                 //Query node
+        #    {
+        #        query = new Query(treeNode.treeNodeName());
+        #    }
+        #    else
+        #    {
+        #        query = null;
+        #    }
+        #
+        #    return query;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

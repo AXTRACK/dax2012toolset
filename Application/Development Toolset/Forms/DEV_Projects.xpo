@@ -1,0 +1,1051 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #DEV_Projects
+  PROPERTIES
+    Name                #DEV_Projects
+    Origin              #{FFFBB639-D5A2-47D4-89B6-DB828E99AF2C}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #// >> DEV:MXK >>
+      #public class FormRun extends ObjectRun
+      #{
+      #    #WinAPI
+      #    #KeyPressed
+      #    #AotExport
+      #    #File
+      #    #DEV_Toolset
+      #
+      #    int                             lastPosFrom;
+      #    int                             lastPosTo;
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #checkDeleted
+      #public void checkDeleted()
+      #{
+      #    UtilElements            utilElements;
+      #    DEV_Projects            projectTable;
+      #    container               c;
+      #
+      #    ttsBegin;
+      #    while select forUpdate projectTable
+      #        notExists join utilElements
+      #            where       utilElements.UtilLevel  >= UtilEntryLevel::var
+      #                    &&  utilElements.RecordType == UtilElementType::SharedProject
+      #                    &&  utilElements.Name       == projectTable.Name
+      #    {
+      #        c += projectTable.Name;
+      #
+      #        projectTable.delete();
+      #    }
+      #    ttsCommit;
+      #
+      #    if (conLen(c))
+      #    {
+      #        info(strFmt('Next nonexists projects were deleted: %1', con2Str(c)));
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #exportPrj
+      #public void exportPrj(Name _prjName)
+      #{
+      #    ProjectListNode         projectListNode;
+      #    ProjectNode             projectNode;
+      #    FileName                fileName;
+      #    FilePath                folderPath;
+      #    int                     flag = (#export | #expKeepIds | #expLayer | #expLables);
+      #
+      #    projectListNode = SysTreeNode::getSharedProject();
+      #    projectNode = projectListNode.AOTfindChild(_prjName);
+      #
+      #    if (projectNode)
+      #    {
+      #        new InteropPermission(InteropKind::ClrInterop).assert();
+      #
+      #        folderPath  = System.IO.Path::GetTempPath();
+      #        folderPath += #FilePathDelimiter + projectNode.AOTname() + #FilePathDelimiter;
+      #
+      #        if (!System.IO.Directory::Exists(folderPath))
+      #        {
+      #            System.IO.Directory::CreateDirectory(folderPath);
+      #        }
+      #
+      #        fileName = folderPath + projectNode.AOTname() + #xpo;
+      #
+      #        projectNode.treeNodeExport(fileName, flag);
+      #        WinAPI::shellExecute(folderPath);
+      #        CodeAccessPermission::revertAssert();
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #fillTable
+      #public void fillTable()
+      #{
+      #    UtilElements            utilElements;
+      #    DEV_Projects            projects;
+      #    TreeNodeName            name;
+      #    TempStr                 st;
+      #    container               con;
+      #
+      #    while select utilElements
+      #        where       utilElements.UtilLevel  >= UtilEntryLevel::var
+      #                &&  utilElements.RecordType == UtilElementType::SharedProject
+      #    {
+      #        if (DEV_Projects::exist(utilElements.Name))
+      #        {
+      #            ttsbegin;
+      #
+      #            projects = DEV_Projects::find(utilElements.Name, true);
+      #
+      #            if (    projects.EndDateTime    != utilElements.ModifiedDateTime
+      #                ||  projects.Layer          != utilElements.utilLevel)
+      #            {
+      #                projects.EndDateTime    = utilElements.ModifiedDateTime;
+      #                projects.Layer          = utilElements.utilLevel;
+      #                projects.update();
+      #            }
+      #
+      #            ttscommit;
+      #        }
+      #        else
+      #        {
+      #            projects.clear();
+      #            projects.initValue();
+      #
+      #            projects.Name           = utilElements.Name;
+      #            //projects.Description    = utilElements.Name;
+      #            projects.Layer          = utilElements.utilLevel;
+      #            projects.StartDateTime  = utilElements.CreatedDateTime;
+      #            projects.UserCreated    = utilElements.createdBy;
+      #            projects.UserModified   = utilElements.modifiedBy;
+      #
+      #            if (    utilElements.ModifiedDateTime
+      #                &&  utilElements.ModifiedDateTime > utilElements.CreatedDateTime)
+      #            {
+      #                projects.EndDateTime    = utilElements.ModifiedDateTime;
+      #            }
+      #            else
+      #            {
+      #                projects.EndDateTime    = utilElements.CreatedDateTime;
+      #            }
+      #
+      #            name  = projects.Name;
+      #
+      #            if (strStartsWith(name, DEV_UserParameters::findOrCreate().ProjectPrefix))
+      #            {
+      #                con         = str2con(name, '_');
+      #                st          = conPeek(con, 2);
+      #                projects.Id = strRem(st, 'ABCDEFGHIJKLMNOPQRSTVUWXYZ_abcdefghijklmnopqrstvuwxyz');
+      #            }
+      #
+      #            if (projects.Id == '')
+      #            {
+      #                projects.Num = strRem(name, 'ABCDEFGHIJKLMNOPQRSTVUWXYZ_abcdefghijklmnopqrstvuwxyz');
+      #            }
+      #
+      #            projects.insert();
+      #        }
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #public void init()
+      #{
+      #    super();
+      #
+      #    ObjectsNotInVC.visible(SysVersionControlParameters::isVCSEnabled());
+      #
+      #    element.fillTable();
+      #
+      #    element.checkDeleted();
+      #
+      #    this.installMessageProc(#WM_KEYDOWN, NameFilter.hWnd(), identifierstr(onEventKeyDown));
+      #
+      #    OpenStartup.enabled(DEV_Global::getStartupProject() != '');
+      #}
+    ENDSOURCE
+    SOURCE #onEventKeyDown
+      # void onEventKeyDown(   anyType _a     = '',
+      #                        anyType _b     = '',
+      #                        anyType _vkKey = '',
+      #                        anyType _d     = '',
+      #                        anyType _e     = '',
+      #                        anyType _f     = '')
+      #{
+      #    switch (_vkKey)
+      #    {
+      #        case #arrowUp:
+      #            DEV_Projects_ds.prev();
+      #            break;
+      #        case #arrowDown:
+      #            DEV_Projects_ds.next();
+      #            break;
+      #        case #return:
+      #            OpenProject.clicked();
+      #            this.close();
+      #            break;
+      #        default:
+      #            break;
+      #    }
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #DEV_Projects
+          Table               #DEV_Projects
+          Index               #NumIdx
+          AllowCreate         #No
+          AllowDelete         #No
+          StartPosition       #Last
+          InsertAtEnd         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #displayOption
+          #public void displayOption(Common _record, FormRowDisplayOption _options)
+          #{
+          #    DEV_Projects      projectTable = _record;
+          #
+          #    super(_record, _options);
+          #
+          #    if (projectTable.Name == DEV_Global::getStartupProject())
+          #    {
+          #        _options.backColor(WinAPI::rgb2int(192, 255, 192));
+          #    }
+          #    else
+          #    {
+          #        _options.backColor(WinAPI::rgb2int(255, 255, 255));
+          #    }
+          #    /*switch (projectTable.Status)
+          #    {
+          #        case DEV_PMProjStatus::Created:
+          #            _options.backColor(WinAPI::rgb2int(192, 192, 192));
+          #        break;
+          #
+          #        case DEV_PMProjStatus::Scheduled:
+          #            _options.backColor(WinAPI::rgb2int(192, 192, 192));
+          #        break;
+          #
+          #        case DEV_PMProjStatus::InProcess:
+          #            _options.backColor(WinAPI::rgb2int(255, 192, 192));
+          #        break;
+          #
+          #        case DEV_PMProjStatus::Test:
+          #            _options.backColor(WinAPI::rgb2int(192, 255, 192));
+          #        break;
+          #
+          #        case DEV_PMProjStatus::Completed:
+          #            _options.backColor(WinAPI::rgb2int(255, 255, 255));
+          #        break;
+          #
+          #        default:
+          #            _options.backColor(WinAPI::rgb2int(255, 255, 255));
+          #    }*/
+          #}
+        ENDSOURCE
+        SOURCE #executeQuery
+          #public void executeQuery()
+          #{
+          #    Query                                       q;
+          #    QueryBuildDataSource                        qbds;
+          #    QueryBuildRange                             qbr;
+          #
+          #    q       = this.query();
+          #    qbds    = q.dataSourceNo(1);
+          #    qbr     = SysQuery::findOrCreateRange(qbds, fieldNum(DEV_Projects, Id));
+          #
+          #    if (showAll.value())
+          #    {
+          #        qbds.clearRange(qbr.field());
+          #    }
+          #    else
+          #    {
+          #        qbr.value(SysQuery::valueNotEmptyString());
+          #    }
+          #
+          #    qbr     = SysQuery::findOrCreateRange(qbds, fieldNum(DEV_Projects, Name));
+          #
+          #    if (NameFilter.text())
+          #    {
+          #        qbr.value("*" + NameFilter.text() + "*");
+          #    }
+          #    else
+          #    {
+          #        qbds.clearRange(qbr.field());
+          #    }
+          #
+          #    qbr     = SysQuery::findOrCreateRange(qbds, fieldNum(DEV_Projects, Layer));
+          #
+          #    if (AboveLayer.value())
+          #    {
+          #        qbr.value(SysQuery::range(currentAOLayer(), UtilEntryLevel::usp));
+          #    }
+          #    else
+          #    {
+          #        qbds.clearRange(qbr.field());
+          #    }
+          #
+          #    super();
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Width               #Column width
+      Height              #Column height
+      Caption             #Projects
+      TitleDatasource     #DEV_Projects
+      HideToolbar         #Yes
+      SetCompany          #No
+      StatusBarStyle      #Simple
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL ACTIONPANE
+        PROPERTIES
+          Name                #ActionPane
+          ElementPosition     #429496729
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIONPANETAB
+        PROPERTIES
+          Name                #ActionPaneTab
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPane
+          Caption             #@SYS114879
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroup
+          ElementPosition     #1717986916
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroupCreate
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPaneTab
+          Caption             #@SYS112171
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroupExport
+          ElementPosition     #1789569705
+          HierarchyParent     #ActionPaneTab
+          Caption             #@SYS26056
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroupProjects
+          ElementPosition     #715827882
+          HierarchyParent     #ActionPaneTab
+          Caption             #@SYS50498
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroupStartup
+          ElementPosition     #1073741823
+          HierarchyParent     #ActionPaneTab
+          Caption             #@SYS26960
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #Grid
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          HierarchyParent     #Overview
+          DataSource          #DEV_Projects
+          DataGroup           #Overview
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Filters
+          Width               #Column width
+          ElementPosition     #858993458
+          FrameType           #None
+          Columns             #3
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Group
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          HierarchyParent     #General
+          DataSource          #DEV_Projects
+          DataGroup           #General
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TAB
+        PROPERTIES
+          Name                #Tab
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1288490187
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #General
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1610612733
+          HierarchyParent     #Tab
+          Caption             #General
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #Overview
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1073741822
+          HierarchyParent     #Tab
+          Caption             #Overview
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #ExportSelected
+          HelpText            #Export selected projects
+          ElementPosition     #1073741822
+          HierarchyParent     #ButtonGroupExport
+          Text                #@SYS24159
+          ButtonDisplay       #Text & Image left
+          NormalImage         #11157
+          ImageLocation       #EmbeddedResource
+          MultiSelect         #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    #WinAPI
+            #    #KeyPressed
+            #
+            #    DEV_Projects    record = DEV_Projects_ds.getFirst(true) as DEV_Projects;
+            #
+            #    if (Box::confirm('Export selected projects?'))
+            #    while (record)
+            #    {
+            #        element.exportPrj(record.Name);
+            #        record = DEV_Projects_ds.getNext() as DEV_Projects;
+            #    }
+            #}
+            #
+            #
+            #
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #ObjectsNotInVC
+          AutoDeclaration     #Yes
+          HelpText            #Create project with objects not in Version control
+          ElementPosition     #1610612733
+          HierarchyParent     #ButtonGroupCreate
+          Text                #Not in VC
+          ButtonDisplay       #Text & Image left
+          NormalImage         #12303
+          ImageLocation       #EmbeddedResource
+          MultiSelect         #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    DEV_CreateNewProject::objectsNotInTFS();
+            #}
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #OpenProject
+          AutoDeclaration     #Yes
+          HelpText            #Open project in AOT
+          ElementPosition     #1073741822
+          HierarchyParent     #ButtonGroupProjects
+          Text                #@SYS80095
+          ButtonDisplay       #Text & Image left
+          NormalImage         #12383
+          ImageLocation       #EmbeddedResource
+          Big                 #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    ProjectNode         projNode;
+            #    TreeNode            projTreeNode;
+            #
+            #    super();
+            #
+            #    projTreeNode    = SysTreeNode::getSharedProject();
+            #    projNode        = projTreeNode.AOTfindChild(DEV_Projects.Name);
+            #
+            #    if (projNode)
+            #    {
+            #        projNode.AOTrun();
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #OpenStartup
+          AutoDeclaration     #Yes
+          HelpText            #Open project in AOT
+          ElementPosition     #1073741822
+          HierarchyParent     #ButtonGroupStartup
+          Text                #@SYS80095
+          ButtonDisplay       #Text & Image left
+          NormalImage         #12383
+          ImageLocation       #EmbeddedResource
+          Big                 #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    super();
+            #
+            #    DEV_HKCommon::openDefaultProject();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #Refresh
+          HelpText            #Refresh project list
+          ElementPosition     #1610612733
+          HierarchyParent     #ButtonGroupProjects
+          Text                #Refresh
+          ButtonDisplay       #Text & Image left
+          NormalImage         #1088
+          ImageLocation       #EmbeddedResource
+          MultiSelect         #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    element.init();
+            #
+            #    super();
+            #
+            #    element.checkDeleted();
+            #    DEV_Projects_ds.executeQuery();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #SetStartup
+          HelpText            #Set as default project
+          ElementPosition     #1610612733
+          HierarchyParent     #ButtonGroupStartup
+          Text                #Set startup
+          ButtonDisplay       #Text & Image left
+          NormalImage         #10484
+          ImageLocation       #EmbeddedResource
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    UserInfo        userInfo;
+            #
+            #    ttsBegin;
+            #
+            #    select firstOnly forUpdate userInfo
+            #        where userInfo.id == curUserId();
+            #
+            #    userInfo.startupProject = DEV_Projects.Name;
+            #
+            #    userInfo.update();
+            #
+            #    ttsCommit;
+            #
+            #    OpenStartup.enabled(DEV_Global::getStartupProject() != '');
+            #
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #AboveLayer
+          AutoDeclaration     #Yes
+          ElementPosition     #1717986916
+          HierarchyParent     #Filters
+          Value               #1
+          Label               #Current layer and above
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    DEV_Projects_ds.executeQuery();
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #ShowAll
+          AutoDeclaration     #Yes
+          ElementPosition     #1288490187
+          HierarchyParent     #Filters
+          Value               #1
+          Label               #@SYS68052
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    DEV_Projects_ds.executeQuery();
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #Grid_Layer
+          ElementPosition     #390451572
+          HierarchyParent     #Grid
+          DataSource          #DEV_Projects
+          DataField           #Layer
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #DEV_CreateNewProject
+          ElementPosition     #1073741822
+          HierarchyParent     #ButtonGroupCreate
+          Text                #@SYS50124
+          ButtonDisplay       #Text & Image left
+          MultiSelect         #Yes
+          Big                 #Yes
+          MenuItemType        #Action
+          MenuItemName        #DEV_CreateNewProject
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    super();
+            #
+            #    DEV_Projects_ds.executeQuery();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #DEV_ExportChanges
+          HelpText            #Export all projects changed within date range
+          ElementPosition     #1610612733
+          HierarchyParent     #ButtonGroupExport
+          Text                #@SYS24771
+          ButtonDisplay       #Text & Image left
+          MultiSelect         #Yes
+          MenuItemType        #Action
+          MenuItemName        #DEV_ExportChanges
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Grid_Description
+          ElementPosition     #1171354716
+          HierarchyParent     #Grid
+          DataSource          #DEV_Projects
+          DataField           #Description
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Grid_Id
+          ElementPosition     #585677358
+          HierarchyParent     #Grid
+          DataSource          #DEV_Projects
+          DataField           #Id
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Grid_Name
+          ElementPosition     #976128930
+          HierarchyParent     #Grid
+          DataSource          #DEV_Projects
+          DataField           #Name
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #mouseDblClick
+            #public int mouseDblClick(int _x, int _y, int _button, boolean _Ctrl, boolean _Shift)
+            #{
+            #    int ret;
+            #
+            #    ret = super(_x, _y, _button, _Ctrl, _Shift);
+            #
+            #    OpenProject.clicked();
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Grid_Num
+          ElementPosition     #780903144
+          HierarchyParent     #Grid
+          DataSource          #DEV_Projects
+          DataField           #Num
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Grid_UserCreated
+          ElementPosition     #1757032074
+          HierarchyParent     #Grid
+          DataSource          #DEV_Projects
+          DataField           #UserCreated
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Grid_UserModified
+          ElementPosition     #1952257860
+          HierarchyParent     #Grid
+          DataSource          #DEV_Projects
+          DataField           #UserModified
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #NameFilter
+          AutoDeclaration     #Yes
+          ElementPosition     #858993458
+          HierarchyParent     #Filters
+          LookupButton        #Never
+          Label               #@SYS60181
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #enter
+            #public void enter()
+            #{
+            #    super();
+            #    this.setSelection(lastPosFrom, lastPosTo);
+            #}
+          ENDSOURCE
+          SOURCE #lookup
+            #public void lookup()
+            #{
+            #//   super();
+            #
+            #    NameFilter.text('');
+            #    DEV_Projects_ds.executeQuery();
+            #}
+          ENDSOURCE
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    DEV_Projects_ds.executeQuery();
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+          SOURCE #textChange
+            #public void textChange()
+            #{
+            #    super();
+            #
+            #    [lastPosFrom, lastPosTo] = this.getSelection();
+            #
+            #    DEV_Projects_ds.executeQuery();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL UTCDATETIMEEDIT
+        PROPERTIES
+          Name                #Grid_EndDateTime
+          ElementPosition     #1561806288
+          HierarchyParent     #Grid
+          DataSource          #DEV_Projects
+          DataField           #EndDateTime
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL UTCDATETIMEEDIT
+        PROPERTIES
+          Name                #Grid_StartDateTime
+          ElementPosition     #1366580502
+          HierarchyParent     #Grid
+          DataSource          #DEV_Projects
+          DataField           #StartDateTime
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: END

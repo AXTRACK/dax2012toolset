@@ -1,0 +1,206 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: xRefUpdateIL unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #xRefUpdateIL
+    PROPERTIES
+      Name                #xRefUpdateIL
+      Extends             #RunBaseBatch
+      RunOn               #Server
+      Origin              #{9DD092F1-A0DF-4BE4-BD77-601CCD18519B}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #/// <summary>
+        #/// The <c>xRefUpdateIL</c> class handles cross references generation in IL mode.
+        #/// </summary>
+        #/// This is a framework class. Customizing this class may cause problems with future upgrades to the software.
+        #class xRefUpdateIL extends RunBaseBatch
+        #{
+        #    boolean fullTree;
+        #    boolean selective;
+        #    boolean updateTableRelation;
+        #    container nodePathList;
+        #    // >> DEV:MXK >>
+        #    boolean updateProjects;
+        #    // << DEV:MXK <<
+        #
+        #    #define.CurrentVersion(1)
+        #
+        #    #LOCALMACRO.CurrentList
+        #    fullTree,
+        #    selective,
+        #    updateTableRelation,
+        #    nodePathList,
+        #    updateProjects // DEV:MXK
+        #    #ENDMACRO
+        #}
+      ENDSOURCE
+      SOURCE #setUpdateProjects
+        #// >> DEV:MXK >>
+        #/// <summary>
+        #/// Sets the state that controls whether the cross-reference generation should include updates to projects.
+        #/// </summary>
+        #/// <returns>
+        #/// True if projects cross-references has to be included; otherwise false.
+        #/// </returns>
+        #public void setUpdateProjects(boolean _updateProjects)
+        #{
+        #    updateProjects = _updateProjects;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #unpack
+        #/// <summary>
+        #/// Unpacks the container that has the cross-reference settings to be used when information is updated.
+        #/// </summary>
+        #/// <param name="packedClass">
+        #/// container with the member variables.
+        #/// </param>
+        #/// <returns>
+        #/// True if the unpack is successful; otherwise false.
+        #/// </returns>
+        #public boolean unpack(container packedClass)
+        #{
+        #    Version version = RunBase::getVersion(packedClass);
+        #    switch (version)
+        #    {
+        #        case #CurrentVersion:
+        #            fullTree = conPeek(packedClass,2);
+        #            selective = conPeek(packedClass,3);
+        #            updateTableRelation = conPeek(packedClass,4);
+        #            nodePathList = conPeek(packedClass,5);
+        #            updateProjects      = conPeek(packedClass, 6);  // DEV:MXK
+        #            break;
+        #        default:
+        #            return false;
+        #    }
+        #
+        #    return true;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #updateAll
+        #/// <summary>
+        #/// Updates the cross-reference for the entire AOT.
+        #/// </summary>
+        #/// <remarks>
+        #/// This method runs only as .NET CIL.
+        #/// </remarks>
+        #public void updateAll()
+        #{
+        #    xRefUpdate xRefUpdate = new xRefUpdate();
+        #    ;
+        #    setPrefix(xRefUpdate.caption());
+        #    appl.globalCache().set(classStr(xRefUpdate), '', xRefUpdate);
+        #
+        #    xRefUpdate.aosClientMode(Session::aosClientMode());
+        #
+        #    xRefUpdate.setFullTree(fullTree);
+        #    xRefUpdate.setSelective(selective);
+        #    xRefUpdate.setUpdateTableRelation(updateTableRelation);
+        #    xRefUpdate.setUpdateProjects(updateProjects); // DEV:MXK
+        #    xRefUpdate.run();
+        #
+        #    appl.globalCache().remove(classStr(xRefUpdate), '');
+        #}
+      ENDSOURCE
+      SOURCE #updateAllXref
+        #/// <summary>
+        #/// Starts a batch job that updates the cross-reference information for the entire AOT.
+        #/// </summary>
+        #/// <param name="fullTree">
+        #/// true if to generate cross-reference for the complete AOT tree, false otherwise.
+        #/// </param>
+        #/// <param name="selective">
+        #/// true if cross-reference information has to be generated for selective nodes, false otherwise.
+        #/// </param>
+        #/// <param name="updateTableRelation">
+        #/// True means the cross-reference run must also update the table relation information.
+        #/// </param>
+        #/// <returns>
+        #/// The ID of the batch job.
+        #/// </returns>
+        #/// <remarks>
+        #/// Start the batch job to run the xref for complete AOT.
+        #/// </remarks>
+        #public static int64 updateAllXref(boolean fullTree, boolean selective, boolean updateTableRelation,
+        #                                  boolean _updateProjects = false) // DEV:MXK
+        #{
+        #    BatchHeader batHeader;
+        #    BatchInfo batInfo;
+        #    xRefUpdateIL rbbTask;
+        #    str sParmCaption = 'Update xref for complete AOT';
+        #    int64 batchId;
+        #    ;
+        #
+        #    rbbTask = new xRefUpdateIL();
+        #    batInfo = rbbTask.batchInfo();
+        #    batInfo.parmCaption(sParmCaption);
+        #    batInfo.parmGroupId(""); // The "Empty batch group".
+        #    rbbTask.setFullTree(fullTree);
+        #    rbbTask.setSelective(selective);
+        #    rbbTask.setUpdateTableRelation(updateTableRelation);
+        #    rbbTask.setNodePath(conNull());
+        #    rbbTask.setUpdateProjects(_updateProjects); // DEV:MXK
+        #    batHeader = BatchHeader::construct();
+        #    batHeader.addTask(rbbTask);
+        #    batHeader.save();
+        #    batchId = batHeader.parmBatchHeaderId();
+        #
+        #    xApplication::checkForNewBatchJobs();
+        #
+        #    return batchId;
+        #}
+      ENDSOURCE
+      SOURCE #updateAotNodeXref
+        #/// <summary>
+        #/// Updates the cross-reference information for a selected list of AOT nodes.
+        #/// </summary>
+        #/// <param name="_nodePathList">
+        #/// A container that has the AOT node paths under which cross-reference information is to be updated.
+        #/// </param>
+        #/// <returns>
+        #/// The ID of the batch job.
+        #/// </returns>
+        #public static int64 updateAotNodeXref(container _nodePathList)
+        #{
+        #    BatchHeader batHeader;
+        #    BatchInfo batInfo;
+        #    xRefUpdateIL rbbTask;
+        #    str sParmCaption = 'Update xRef for Nodes';
+        #    int64 batchId;
+        #
+        #    rbbTask = new xRefUpdateIL();
+        #
+        #    batInfo = rbbTask.batchInfo();
+        #    batInfo.parmCaption(sParmCaption);
+        #    batInfo.parmGroupId(""); // The "Empty batch group".
+        #    batInfo.parmRetriesOnFailure(0);
+        #
+        #    rbbTask.setFullTree(false);
+        #    rbbTask.setSelective(false);
+        #    rbbTask.setUpdateTableRelation(false);
+        #    rbbTask.setNodePath(_nodePathList);
+        #    rbbTask.setUpdateProjects(false); // DEV:MXK
+        #
+        #    batHeader = BatchHeader::construct();
+        #    batHeader.addTask(rbbTask);
+        #    batHeader.save();
+        #    batchId = batHeader.parmBatchHeaderId();
+        #
+        #    xApplication::checkForNewBatchJobs();
+        #
+        #    return batchId;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

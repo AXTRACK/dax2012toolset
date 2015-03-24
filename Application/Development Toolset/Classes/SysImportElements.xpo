@@ -1,0 +1,343 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysImportElements unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysImportElements
+    PROPERTIES
+      Name                #SysImportElements
+      RunOn               #Client
+      Origin              #{2D110667-0000-1000-B009-857A6ACD878B}
+      LegacyId            #1639
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #DEV_CompareNodes
+        #// >> DEV:MXK >>
+        #public boolean DEV_CompareNodes(FormTreeControl _formTreeControl, FormTreeItem _formTreeItem)
+        #{
+        #    TreeNode                        treeNodeAOT;
+        #    TreeNode                        treeNodeImport  = null;
+        #    int                             exportId;
+        #    int                             flag            = (#impGetCompareNode + #impKeepIds);
+        #    boolean                         ret;
+        #
+        #    if (_formTreeItem &&
+        #        _formTreeItem.stateBold())
+        #    {
+        #        select firstonly tmpImportAot
+        #            where tmpImportAot.TreeNodePath == _formTreeItem.data();
+        #
+        #        if (tmpImportAot)
+        #        {
+        #            treeNodeAOT = infolog.findNode(tmpImportAot.TreeNodePath);
+        #            if (treeNodeAot)
+        #            {
+        #                ret = true;
+        #                exportId        = infolog.startImport(filename, flag);
+        #                if (!exportId)
+        #                {
+        #                    throw error('Unable to import node');
+        #                }
+        #
+        #                treeNodeImport  = infolog.getImportedNode(
+        #                                        exportId,
+        #                                        tmpImportAot.UtilFileType,
+        #                                        tmpImportAot.UtilElementType,
+        #                                        tmpImportAot.treeNodeName,
+        #                                        tmpImportAot.FilePos,
+        #                                        flag);
+        #                ret = SysCompare::silentCompare(SysTreeNode::newTreenode(treeNodeAOT), SysTreeNode::newTreenode(treeNodeImport));
+        #
+        #                infolog.endImport(exportId, 1);
+        #            }
+        #        }
+        #    }
+        #
+        #    return ret;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #DEV_DeleteEqualObjects
+        #// >> DEV:MXK >>
+        #public void DEV_DeleteEqualObjects(FormTreeControl _ftc)
+        #{
+        #    FormTreeControl             treeControl = _ftc;
+        #    FormTreeItem                treeItem;
+        #    Set                         itemIdxSet = new Set(Types::Integer);
+        #
+        #    void deleteNodeWithEmptyParents(FormTreeItem  _treeItem)
+        #    {
+        #        TreeItemIdx         idx = _treeItem.idx();
+        #        TreeItemIdx         childIdx;
+        #        boolean             parentIsEmpty;
+        #
+        #        itemIdxSet.add(idx);
+        #
+        #        while select forUpdate firstonly tmpImportAot
+        #            where tmpImportAot.TreeNodePath == _treeItem.data()
+        #        {
+        #            tmpImportAot.Import = false;
+        #            tmpImportAot.update();
+        #        }
+        #
+        #        parentIsEmpty = true;
+        #        childIdx = treeControl.getChild(treeControl.getParent(idx));
+        #
+        #        while (childIdx)
+        #        {
+        #            if (!itemIdxSet.in(childIdx))
+        #            {
+        #                parentIsEmpty = false;
+        #                break;
+        #            }
+        #            childIdx = treeControl.getNextSibling(childIdx);
+        #        }
+        #        if (parentIsEmpty)
+        #            deleteNodeWithEmptyParents(treeControl.getItem(treeControl.getParent(idx)));
+        #    }
+        #
+        #    itemIdxSet = new Set(Types::Integer);
+        #
+        #    treeItem = treeControl.getItem(treeControl.getRoot());
+        #
+        #    if (treeItem)
+        #    {
+        #        SysFormTreeControl::expandTree(treeControl, treeItem.idx());
+        #        while (treeItem)
+        #        {
+        #            if (! strFind(treeItem.data(), '\\', strLen(treeItem.data()), -1))
+        #            {
+        #                if (this.DEV_CompareNodes(treeControl, treeItem))
+        #                    deleteNodeWithEmptyParents(treeItem);
+        #
+        #            }
+        #            treeItem = treeControl.getItem(treeControl.getNextVisible(treeItem.idx()));
+        #        }
+        #        SysFormTreeControl::deleteTreeItem(treeControl, itemIdxSet);
+        #    }
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #DEV_MarkDifferentObjects
+        #// >> DEV:MXK >>
+        #public void DEV_MarkDifferentObjects(FormTreeControl _ftc)
+        #{
+        #    FormTreeControl             t = _ftc;
+        #    FormTreeItem                i;
+        #    boolean                     res;
+        #
+        #    i = t.getItem(t.getRoot());
+        #
+        #    if (!i)
+        #        return;
+        #
+        #    SysFormTreeControl::expandTree(t, i.idx());
+        #
+        #    while (i)
+        #    {
+        #        if (! strFind(i.data(), '\\', strLen(i.data()), -1))
+        #        {
+        #            res = this.DEV_CompareNodes(t, i);
+        #
+        #            if (res)
+        #                SysFormTreeControl::deselectedTreeItem_checkBox(t, i.idx());
+        #            else
+        #                SysFormTreeControl::selectedTreeItem_checkBox(t, i.idx());
+        #
+        #            while select forUpdate firstonly tmpImportAot
+        #                where tmpImportAot.TreeNodePath == i.data()
+        #            {
+        #                tmpImportAot.Import = ! res;
+        #                tmpImportAot.update();
+        #            }
+        #        }
+        #        else
+        #            SysFormTreeControl::deselectedTreeItem_checkBox(t, i.idx());
+        #        i = t.getItem(t.getNextVisible(i.idx()));
+        #    }
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #importElements
+        #// AOSrunmode::Client
+        #private boolean importElements(int _exportId, int _defaultFlag)
+        #{
+        #    MapEnumerator   mapEnum = importSequenceMap.getEnumerator();
+        #    TreeNodePath    likePath, currentPath;
+        #    int             flag, status;
+        #    boolean         viewsImportedOnce = false;
+        #    RecId           syncLogRecId;
+        #
+        #    while (mapEnum.moveNext())
+        #    {
+        #        currentPath = mapEnum.currentValue();
+        #        likePath = this.buildLikePath(currentPath);
+        #
+        #        flag = _defaultFlag;
+        #        if (currentPath==#ViewsPath)
+        #        {
+        #            if (viewsImportedOnce)
+        #            {
+        #                flag = #impReImporting; //reimport view which has a query dependency
+        #            }
+        #            else
+        #            {
+        #                viewsImportedOnce = true;
+        #            }
+        #        }
+        #
+        #        while select forupdate tmpImportAot
+        #            index TypePathIdx
+        #            where tmpImportAot.Import
+        #               && tmpImportAot.TreeNodePath like likePath
+        #        {
+        #            switch (tmpImportAot.UtilFileType)
+        #            {
+        #                case UtilFileType::KernelHelp:
+        #                    throw error(strFmt("@SYS316904",tmpImportAot.TreeNodeName));
+        #            }
+        #            status = infolog.importElement(_exportId, tmpImportAot.UtilFileType, tmpImportAot.UtilElementType, tmpImportAot.TreeNodeName, tmpImportAot.FilePos, flag);
+        #
+        #            // only add when importing, not in case of re-importing.
+        #            if (!(flag & #impReImporting) && addAsProcessedToVcs && versionControl.parmTreeNodePath2SyncLog().exists(tmpImportAot.TreeNodePath))
+        #            {
+        #                // get syncLog record Id and add to processed entries
+        #                syncLogRecId = versionControl.parmTreeNodePath2SyncLog().lookup(tmpImportAot.TreeNodePath);
+        #
+        #                if (syncLogRecId)
+        #                {
+        #                    versionControl.addProcessedSyncElement(syncLogRecId);
+        #                }
+        #            }
+        #
+        #            if (status & #ImpStopped)
+        #            {
+        #                return false;
+        #            }
+        #            else if (!(status & #ImpReImport))
+        #            {
+        #                // Import of element succeeded - no need to import again
+        #                tmpImportAot.Import = false;
+        #                tmpImportAot.update();
+        #            }
+        #
+        #            // >> DEV >>
+        #            switch (tmpImportAot.UtilElementType)
+        #            {
+        #                case UtilElementType::SharedProject :
+        #                    SysTreeNode::getSharedProject().AOTfindChild(SysTreeNode::pathName(tmpImportAot.TreeNodePath)).AOTrun();
+        #                    break;
+        #
+        #                case UtilElementType::PrivateProject :
+        #                    SysTreeNode::getPrivateProject().AOTfindChild(SysTreeNode::pathName(tmpImportAot.TreeNodePath)).AOTrun();
+        #                    break;
+        #            }
+        #            // << DEV <<
+        #        }
+        #    }
+        #
+        #    return true;
+        #}
+      ENDSOURCE
+      SOURCE #DEV_CheckOutObjects
+        #// >> DEV:MXK >>
+        #static public void DEV_CheckOutObjects(FormTreeControl _ftc)
+        #{
+        #    FormTreeControl             ftc = _ftc;
+        #    FormTreeItem                treeItem;
+        #
+        #    TreeNode                    treeNode;
+        #
+        #    treeItem = ftc.getItem(ftc.getRoot());
+        #
+        #    if (!treeItem)
+        #        return;
+        #
+        #    SysFormTreeControl::expandTree(ftc, treeItem.idx());
+        #
+        #    while (treeItem)
+        #    {
+        #        if (!   strFind(treeItem.data(), '\\', strLen(treeItem.data()), -1)
+        #            &&  treeItem.stateSelected())
+        #        {
+        #            treeNode = TreeNode::findNode(treeItem.data());
+        #
+        #            if (treeNode && !versioncontrol.checkOut(treeNode))
+        #            {
+        #                versioncontrol.create(treeNode);
+        #            }
+        #        }
+        #
+        #        treeItem = ftc.getItem(ftc.getNextVisible(treeItem.idx()));
+        #    }
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #DEV_OpenObject
+        #// >> DEV:MXK >>
+        #static public void DEV_OpenObject(FormTreeControl _ftc)
+        #{
+        #    FormTreeControl                     ftc = _ftc;
+        #    FormTreeItem                        treeItem;
+        #    TreeNode                            treeNode;
+        #
+        #    treeItem = ftc.getItem(ftc.getRoot());
+        #
+        #    if (!treeItem)
+        #        return;
+        #
+        #    SysFormTreeControl::expandTree(ftc, treeItem.idx());
+        #
+        #    while (treeItem)
+        #    {
+        #        if (!   strEndsWith(treeItem.data(), '\\')
+        #            &&  treeItem.stateSelected())
+        #        {
+        #            switch (SysTreeNode::path2ApplObjectType(treeItem.data()))
+        #            {
+        #                case UtilElementType::SharedProject :
+        #                    treeNode = SysTreeNode::getSharedProject().AOTfindChild(SysTreeNode::pathName(treeItem.data()));
+        #
+        #                    if (treeNode)
+        #                    {
+        #                        treeNode.AOTrun();
+        #                    }
+        #                    break;
+        #
+        #                case UtilElementType::PrivateProject :
+        #                    treeNode = SysTreeNode::getPrivateProject().AOTfindChild(SysTreeNode::pathName(treeItem.data()));
+        #
+        #                    if (treeNode)
+        #                    {
+        #                        treeNode.AOTrun();
+        #                    }
+        #                    break;
+        #
+        #                default :
+        #                    treeNode = TreeNode::findNode(treeItem.data());
+        #
+        #                    if (treeNode)
+        #                    {
+        #                        treeNode.AOTnewWindow();
+        #                    }
+        #            }
+        #        }
+        #
+        #        treeItem = ftc.getItem(ftc.getNextVisible(treeItem.idx()));
+        #    }
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

@@ -1,0 +1,716 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_HKEditor unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_HKEditor
+    PROPERTIES
+      Name                #DEV_HKEditor
+      Origin              #{65B4528B-B411-4FBB-9B78-D9B5732B164A}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class DEV_HKEditor
+        #{
+        #    #AOT
+        #    #DEV_Toolset
+        #
+        #    #define.ThisClassCache('AXGoToDeclarationXRefClass')
+        #    #define.ParamsCache('AXGoToDeclarationXRefParams')
+        #    #define.GoBackParamsCache('AXGoBackParams')
+        #    #define.SaveLocationParamsCache('AXSaveLocationParams')
+        #
+        #    #if.ReferencesPath
+        #        #define.AX4OrAX5
+        #    #endif
+        #}
+      ENDSOURCE
+      SOURCE #aot2project
+        #public static void aot2project(Editor _e)
+        #{
+        #    DEV_HKProject::newAddElement(_e.path());
+        #}
+      ENDSOURCE
+      SOURCE #comment
+        #// >> DEV:MXK >>
+        #public static void comment( Editor  _e,
+        #                            boolean _short = false)
+        #{
+        #    int                         startLine       = _e.selectionStartLine();
+        #    int                         endLine         = _e.selectionEndLine();
+        #    int                         selectedLines   = endLine - startLine;
+        #    int                         endChar;
+        #    int                         i;
+        #    int                         lineIndent;
+        #    int                         indent;
+        #
+        #    _e.unmark();
+        #
+        #    // Single line comment
+        #    if (selectedLines <= 0 && startLine > 1)
+        #    {
+        #        _e.gotoLine(startLine);
+        #        endChar = strLen(_e.currentLine()) + 1;
+        #        _e.gotoCol(endChar);
+        #
+        #        DEV_HKEditor::commentLine(_e, false, _short);
+        #    }
+        #    // Header comment
+        #    else if (selectedLines <= 0 && startLine == 1)
+        #    {
+        #        _e.gotoLine(1);
+        #        _e.gotoCol(1);
+        #
+        #        DEV_HKEditor::commentLine(_e, true, _short);
+        #    }
+        #    // Block comment
+        #    else
+        #    {
+        #        for (i = startLine; i <= endLine; i++)
+        #        {
+        #            _e.gotoLine(i);
+        #            lineIndent  = strNFind(_e.currentLine(), " ", 1, strLen(_e.currentLine()));
+        #            lineIndent  = startLine > 1 && lineIndent < 5 ? 5 : lineIndent;
+        #            indent      =   (indent > 0 && indent < lineIndent) || lineIndent == 0
+        #                        ?   indent : lineIndent;
+        #        }
+        #
+        #        _e.gotoLine(startline);
+        #
+        #        DEV_HKEditor::commentStart(_e, indent - 1, _short);
+        #
+        #        _e.gotoLine(endline + 1);
+        #        endChar = strLen(_e.currentLine()) + 1;
+        #        _e.gotoCol(endChar);
+        #        _e.insertLines('\n');
+        #
+        #        DEV_HKEditor::commentEnd(_e, indent - 1, _short);
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #commentEnd
+        #// >> DEV:MXK >>
+        #public static void commentEnd(  Editor  _e,
+        #                                int     _indent,
+        #                                boolean _short = false)
+        #{
+        #    DEV_UserParameters          parameters      = DEV_UserParameters::findOrCreate();
+        #
+        #    if (_short)
+        #    {
+        #        _e.insertString(strFmt( strRep(' ', _indent) + parameters.ShortCommentEndFmt,
+        #                                parameters.ShortCommentFreeTxt,
+        #                                strUpr(parameters.ShortCommentDeveloperAlias ? parameters.ShortCommentDeveloperAlias : curUserId())));
+        #    }
+        #    else
+        #    {
+        #        _e.insertString(strFmt( strRep(' ', _indent) + parameters.CommentEndFmt,
+        #                                parameters.CommentFreeTxt,
+        #                                strUpr(parameters.CommentDeveloperAlias ? parameters.CommentDeveloperAlias : curUserId()),
+        #                                DEV_HKEditor::getCommentDate(),
+        #                                DEV_Global::getStartupProject()));
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #commentLine
+        #// >> DEV:MXK >>
+        #public static void commentLine( Editor  _e,
+        #                                boolean _isHeader   = false,
+        #                                boolean _short      = false)
+        #{
+        #    DEV_UserParameters          parameters      = DEV_UserParameters::findOrCreate();
+        #
+        #    if (_short)
+        #    {
+        #        _e.insertString(strFmt( (_isHeader ? '' : ' ') + parameters.ShortCommentLineFmt + (_isHeader ? '\n' : ''),
+        #                                parameters.ShortCommentFreeTxt,
+        #                                strUpr(parameters.ShortCommentDeveloperAlias ? parameters.ShortCommentDeveloperAlias : curUserId())));
+        #    }
+        #    else
+        #    {
+        #        _e.insertString(strFmt( (_isHeader ? '' : ' ') + parameters.CommentLineFmt + (_isHeader ? '\n' : ''),
+        #                                parameters.CommentFreeTxt,
+        #                                strUpr(parameters.CommentDeveloperAlias ? parameters.CommentDeveloperAlias : curUserId()),
+        #                                DEV_HKEditor::getCommentDate(),
+        #                                DEV_Global::getStartupProject()));
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #commentStart
+        #// >> DEV:MXK >>
+        #public static void commentStart(Editor  _e,
+        #                                int     _indent,
+        #                                boolean _short  = false)
+        #{
+        #    DEV_UserParameters          parameters      = DEV_UserParameters::findOrCreate();
+        #
+        #    if (_short)
+        #    {
+        #        _e.insertString(strFmt( strRep(' ', _indent) + parameters.ShortCommentStartFmt + '\n',
+        #                                parameters.ShortCommentFreeTxt,
+        #                                strUpr(parameters.ShortCommentDeveloperAlias ? parameters.ShortCommentDeveloperAlias : curUserId())));
+        #    }
+        #    else
+        #    {
+        #        _e.insertString(strFmt( strRep(' ', _indent) + parameters.CommentStartFmt + '\n',
+        #                                parameters.CommentFreeTxt,
+        #                                strUpr(parameters.CommentDeveloperAlias ? parameters.CommentDeveloperAlias : curUserId()),
+        #                                DEV_HKEditor::getCommentDate(),
+        #                                DEV_Global::getStartupProject()));
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #findObject
+        #// >> DEV:MXK >>
+        #public static TreeNode findObject(Editor _e)
+        #{
+        #    TreeNode            treeNode    = TreeNode::findNode(_e.path());
+        #    xRefTmpReferences   xRefTmpReferences;
+        #    Column              nCol        = _e.columnNo() + 1;
+        #    Line                nLine       = _e.currentLineNo() + 1;
+        #    str                 macroName;
+        #    str                 nodePath;
+        #    str                 curPath     = _e.path();
+        #    str                 st;
+        #    int                 pos;
+        #    boolean             isJob;
+        #
+        #    if (!treeNode)
+        #        return null;
+        #
+        #    treeNode.AOTmakeXref(1);
+        #
+        #    xRefTmpReferences = xRefCreate::makeTmp(appl.lastxRef());
+        #
+        #    select firstonly xRefTmpReferences
+        #        order by Column desc
+        #        where       xRefTmpReferences.line    == nLine
+        #                &&  xRefTmpReferences.Column  <= nCol;
+        #
+        #    if (strScan(curPath, #JobsPath + #AOTDelimiter, 1, strLen(curPath)))
+        #    {
+        #        //Workaround for jobs behaviour in the AX2012
+        #        SysUtil::editPathLogicalPos(curPath, nLine, nCol);
+        #        isJob = true;
+        #    }
+        #
+        #    if (!xRefTmpReferences)
+        #    {
+        #        if (isJob)
+        #            return null;
+        #
+        #        st          = strLRTrim(_e.getLine());
+        #        pos         = strScan('#', st, 1, strLen(st)) + 1;
+        #        macroName   = subStr(st, pos + 1, strLen(st) - pos);
+        #
+        #        if (macroName)
+        #        {
+        #            treeNode = TreeNode::findNode(#MacrosPath + #AOTDelimiter + macroName);
+        #        }
+        #    }
+        #    else
+        #    {
+        #        nodePath = xRefTmpReferences.calcPath();
+        #
+        #        if (nodePath)
+        #            treeNode = TreeNode::findNode(nodePath);
+        #    }
+        #
+        #    return treeNode;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #findSelected
+        #// >> DEV:MXK >>
+        #public static void findSelected(Editor _e)
+        #{
+        #    TreeNode    treeNode;
+        #    FreeText    selectedText;
+        #
+        #    selectedText = DEV_HKEditor::getSelectedText(_e);
+        #
+        #    if (selectedText)
+        #    {
+        #        // Find the currently open method node
+        #        treeNode = TreeNode::findNode(_e.path());
+        #
+        #        if (treeNode)
+        #        {
+        #            // Find the parrent node of the method
+        #            treeNode = TreeNode::findNode(xUtilElements::getNodePathRough(xUtilElements::parentElement(xUtilElements::findTreeNode(treeNode))));
+        #
+        #            if (treeNode)
+        #            {
+        #                DEV_Global::findAOTText(treeNode, selectedText);
+        #            }
+        #        }
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #formatCode
+        #public static void formatCode(Editor _e)
+        #{
+        #    DEV_EditorFormat::FormatToColumnLayout(_e);
+        #}
+      ENDSOURCE
+      SOURCE #getCommentDate
+        #// >> DEV:MXK >>
+        #public static TempStr getCommentDate()
+        #{
+        #    return datetime2str(DateTimeUtil::getSystemDateTime(), 123);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #getSelectedText
+        #// >> DEV:MXK >>
+        #public static FreeText getSelectedText(Editor _e)
+        #{
+        #    str 1       curSymbol;
+        #    int         iCopyFrom;
+        #    int         iCopyTo;
+        #    FreeText    selectedLine;
+        #
+        #    if (_e.markMode() != MarkMode::NoMark && _e.selectionStartCol() != _e.selectionEndCol())
+        #    {
+        #        selectedLine = strLRTrim(subStr(_e.currentLine(), _e.selectionStartCol(), _e.selectionEndCol() - _e.selectionStartCol()));
+        #    }
+        #    else
+        #    {
+        #        selectedLine = _e.currentLine();
+        #        for (iCopyFrom = _e.columnNo()+1; iCopyFrom >= 0; iCopyFrom--)
+        #        {
+        #            curSymbol = subStr(selectedLine, iCopyFrom, 1);
+        #            if (!strAlpha(curSymbol) && curSymbol != '_')
+        #                break;
+        #        }
+        #        for (iCopyTo = _e.columnNo()+1; iCopyTo <= strLen(selectedLine); iCopyTo++)
+        #        {
+        #            curSymbol = subStr(selectedLine, iCopyTo, 1);
+        #            if (!strAlpha(curSymbol) && curSymbol != '_')
+        #                break;
+        #        }
+        #        selectedLine = (iCopyFrom < iCopyTo) ? subStr(selectedLine, iCopyFrom + 1, iCopyTo - iCopyFrom - 1) : '';
+        #    }
+        #    return selectedLine;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #goBack
+        #public static void goBack(Editor e)
+        #{
+        #    SysGlobalCache      globalCache;
+        #    Column              editorColumn;
+        #    Line                editorLine;
+        #    TreeNodePath        methodNodePath;
+        #    TreeNode            treeNode;
+        #
+        #    globalCache = infolog.globalCache();
+        #
+        #    if (globalCache)
+        #    {
+        #        [methodNodePath, editorLine, editorColumn] = globalCache.get(#GoBackParamsCache, #GoBackParamsCache, conNull());
+        #        treeNode = TreeNode::findNode(methodNodePath);
+        #
+        #        if (treeNode)
+        #        {
+        #            #if.AX4OrAX5
+        #                 treeNode.AOTedit(editorLine, editorColumn);
+        #            #endif
+        #
+        #            globalCache.clear(#GoBackParamsCache);
+        #        }
+        #        else
+        #        {
+        #            [methodNodePath, editorLine, editorColumn] = globalCache.get(#SaveLocationParamsCache, #SaveLocationParamsCache, conNull());
+        #            treeNode = TreeNode::findNode(methodNodePath);
+        #
+        #            if (treeNode)
+        #            {
+        #                #if.AX4OrAX5
+        #                     treeNode.AOTedit(editorLine, editorColumn);
+        #                #endif
+        #            }
+        #        }
+        #    }
+        #
+        #    return;
+        #}
+      ENDSOURCE
+      SOURCE #goToDeclaration
+        #// BP Deviation Documented
+        #public static void goToDeclaration(Editor _e)
+        #{
+        #    //Parameters section >>
+        #    #define.PrintClassHierarchy(0) //1 - Print current class hierarchy in the infolog during search; 0 - Othewise; Default = 0
+        #    #define.SaveGoBackPosition(1) //1 - Save current cursor position in the Infolog's cache for using in AXGoBack script; 0 - Othewise; Default = 1
+        #    //<< Parameters section
+        #
+        #    #if.AX4OrAX5
+        #        xRefTmpReferences   tmpXRefUse;
+        #    #endif
+        #
+        #    #ifnot.AX4OrAX5
+        #        TmpxRefReferences   tmpXRefUse;
+        #        SysGlobalCache      globalCache;
+        #    #endif
+        #
+        #    #define.ClassDeclMethodPath('\\classDeclaration')
+        #    #define.MethodsNodePath('\\Methods')
+        #    #define.ClassHierarchyDivider(' -> ')
+        #    #define.ClassHierarchyLabel('Classes: ')
+        #    #define.NothingIsFoundMessage('Nothing is found.')
+        #    #define.IncorrectCallMessage('Incorrect call.')
+        #
+        #    TreeNode            treeNode;
+        #    TreeNodePath        curDeclMethodNodePath; //Path of current declaration method candidate
+        #    Column              editorColumn;
+        #    Line                editorLine;
+        #    xRefName            xRefName;
+        #    TreeNodeName        rootNodeName;
+        #    TreeNodePath        methodNodePath; //Initial method path
+        #
+        #    str                 classHierarchy;
+        #
+        #    // >> getElementNameFromPath >>
+        #    str getElementNameFromPath(TreeNodePath     _treeNodePath)
+        #    {
+        #        int secondBackSlashPos;
+        #        int thirdBackSlashPos;
+        #
+        #        secondBackSlashPos = strfind(_treeNodePath, #AOTDelimiter, 2, strLen(_treeNodePath) - 1);
+        #        thirdBackSlashPos = strfind(_treeNodePath, #AOTDelimiter, secondBackSlashPos + 1, strLen(_treeNodePath) - secondBackSlashPos);
+        #
+        #        return subStr(_treeNodePath, secondBackSlashPos + 1, thirdBackSlashPos - secondBackSlashPos - 1);
+        #    }
+        #    // << getElementNameFromPath <<
+        #
+        #    // >> searchForDeclaration >>
+        #    boolean searchForDeclaration(TreeNodePath   _treeNodePath)
+        #    {
+        #        #if.AX4OrAX5
+        #            xRefTmpReferences   tmpXRefDeclaration;
+        #        #endif
+        #
+        #        #ifnot.AX4OrAX5
+        #             TmpxRefReferences   tmpXRefDeclaration;
+        #        #endif
+        #
+        #        treeNode = TreeNode::findNode(_treeNodePath);
+        #
+        #        if (treeNode)
+        #        {
+        #            treeNode.AOTmakeXref(1);
+        #
+        #            if (!tmpXRefUse)
+        #            {
+        #                //The tmpXRefUse is init only one time (only for original method node path)
+        #                tmpXRefUse = xRefCreate::makeTmp(xInfo::releaseVersion() >= '6.2' ? appl.lastxRef() : infolog.lastxRef());
+        #
+        #                select firstonly tmpXRefUse
+        #                    order by Column desc
+        #                    where tmpXRefUse.line == editorLine
+        #                        && tmpXRefUse.Column <= editorColumn;
+        #
+        #                if (tmpXRefUse)
+        #                {
+        #                    xRefName = tmpXRefUse.name;
+        #                }
+        #            }
+        #
+        #            if (xRefName)
+        #            {
+        #                tmpXRefDeclaration = xRefCreate::makeTmp(xInfo::releaseVersion() >= '6.2' ? appl.lastxRef() : infolog.lastxRef());
+        #
+        #                select firstonly tmpXRefDeclaration
+        #                    where tmpXRefDeclaration.Reference == XRefReference::Declaration
+        #                        && tmpXRefDeclaration.name == xRefName;
+        #
+        #                if (tmpXRefDeclaration)
+        #                {
+        #                    if (classHierarchy && #PrintClassHierarchy)
+        #                    {
+        #                        info(classHierarchy);
+        #                    }
+        #
+        #                    if (#SaveGoBackPosition)
+        #                    {
+        #                        infolog.globalCache().set(#GoBackParamsCache, #GoBackParamsCache, [methodNodePath, editorLine, editorColumn]);
+        #                    }
+        #
+        #                    #if.AX4OrAX5
+        #                        infolog.globalCache().set(#SaveLocationParamsCache, #SaveLocationParamsCache, [methodNodePath, editorLine, editorColumn]);// DEV:MXK
+        #                        treeNode.AOTedit(tmpXRefDeclaration.line, tmpXRefDeclaration.Column);
+        #                    #endif
+        #
+        #                    #ifnot.AX4OrAX5
+        #                        infolog.globalCache().set(#ThisClassCache, #ThisClassCache, this);
+        #                        infolog.globalCache().set(#ParamsCache, #ParamsCache, [_treeNodePath, tmpXRefDeclaration.line, tmpXRefDeclaration.Column]);
+        #                        infolog.addTimeOut(this, methodstr(EditorScripts, aaAXGoToDeclarationXRef), 10, false);
+        #                    #endif
+        #
+        #                    return true;
+        #                }
+        #            }
+        #        }
+        #
+        #        return false;
+        #    }
+        #    // << searchForDeclaration <<
+        #
+        #    // >> checkParentClassesDeclMethods >>
+        #    boolean checkParentClassesDeclMethods(TreeNodePath _curClassDeclMethodNodePath)
+        #    {
+        #        #if.AX4OrAX5
+        #            xRefTmpReferences   tmpXRefDeclaration;
+        #        #endif
+        #
+        #        #ifnot.AX4OrAX5
+        #            TmpxRefReferences   tmpXRefDeclaration;
+        #        #endif
+        #
+        #        if (!classHierarchy)
+        #        {
+        #            classHierarchy = #ClassHierarchyLabel + getElementNameFromPath(_curClassDeclMethodNodePath);
+        #        }
+        #
+        #        treeNode = TreeNode::findNode(_curClassDeclMethodNodePath);
+        #        treeNode.AOTmakeXref(1);
+        #        tmpXRefDeclaration = xRefCreate::makeTmp(xInfo::releaseVersion() >= '6.2' ? appl.lastxRef() : infolog.lastxRef());
+        #
+        #        select firstonly tmpXRefDeclaration
+        #        where
+        #            tmpXRefDeclaration.Kind == xRefKind::Class
+        #            && tmpXRefDeclaration.Reference == XRefReference::Definition
+        #            && tmpXRefDeclaration.ParentName;
+        #
+        #        if (tmpXRefDeclaration)
+        #        {
+        #            //Parent class was found
+        #            classHierarchy        += #ClassHierarchyDivider + tmpXRefDeclaration.ParentName;
+        #
+        #            curDeclMethodNodePath = #ClassesPath + #AOTDelimiter + tmpXRefDeclaration.ParentName + #ClassDeclMethodPath;
+        #
+        #            if (searchForDeclaration(curDeclMethodNodePath))
+        #            {
+        #                return true;
+        #            }
+        #            else
+        #            {
+        #                return checkParentClassesDeclMethods(curDeclMethodNodePath);
+        #            }
+        #        }
+        #        else
+        #        {
+        #            return false;
+        #        }
+        #    }
+        #    // << checkParentClassesDeclMethods <<
+        #
+        #    #ifnot.AX4OrAX5
+        #        //Asynchronous call of AOTedit method for AX 3 (solution of the lost focus issue)
+        #        if (!e)
+        #        {
+        #            globalCache = infolog.globalCache();
+        #            if (globalCache)
+        #            {
+        #                infolog.globalCache().set(#SaveLocationParamsCache, #SaveLocationParamsCache, [methodNodePath, editorLine, editorColumn]);// DEV:MXK
+        #                [curDeclMethodNodePath, editorLine, editorColumn] = globalCache.get(#ParamsCache, #ParamsCache, conNull());
+        #                TreeNode::findNode(curDeclMethodNodePath).AOTedit(editorLine, editorColumn);
+        #                globalCache.clear(#ThisClassCache);
+        #                globalCache.clear(#ParamsCache);
+        #            }
+        #            return;
+        #        }
+        #    #endif
+        #
+        #    //Init
+        #    editorLine      = _e.currentLineNo() + 1;
+        #    editorColumn    = _e.ColumnNo() + 1;
+        #    methodNodePath  = _e.path();
+        #
+        #    curDeclMethodNodePath = methodNodePath;
+        #
+        #    //Search in declaration block of the method itself
+        #    if (searchForDeclaration(curDeclMethodNodePath))
+        #    {
+        #        return;
+        #    }
+        #    else
+        #    {
+        #        if (!xRefName)
+        #        {
+        #            //Incorrect call
+        #            //info(#IncorrectCallMessage);
+        #            return;
+        #        }
+        #    }
+        #
+        #    if (strscan(curDeclMethodNodePath, #ClassesPath, 1, strLen(curDeclMethodNodePath)))
+        #        rootNodeName = #ClassesPath;
+        #    else
+        #        if (strscan(curDeclMethodNodePath, #FormsPath, 1, strLen(curDeclMethodNodePath)))
+        #            rootNodeName = #FormsPath;
+        #        else
+        #            if (strscan(curDeclMethodNodePath, #ReportsPath, 1, strLen(curDeclMethodNodePath)))
+        #                rootNodeName = #ReportsPath;
+        #
+        #    if (rootNodeName)
+        #    {
+        #        //Search in classDeclaration method of the current class/form/report
+        #        switch (rootNodeName)
+        #        {
+        #            case #ClassesPath:
+        #                treeNode              = treeNode.AOTparent();
+        #                curDeclMethodNodePath = treeNode.treeNodePath() + #ClassDeclMethodPath;
+        #                break;
+        #            case #FormsPath:
+        #            case #ReportsPath:
+        #                while (treeNode.treeNodePath() != rootNodeName
+        #                )
+        #                {
+        #                    curDeclMethodNodePath = treeNode.treeNodePath();
+        #                    treeNode              = treeNode.AOTparent();
+        #                }
+        #
+        #                curDeclMethodNodePath += #MethodsNodePath + #ClassDeclMethodPath;
+        #                break;
+        #        }
+        #
+        #        if (searchForDeclaration(curDeclMethodNodePath))
+        #        {
+        #            return;
+        #        }
+        #    }
+        #
+        #    if (strscan(curDeclMethodNodePath, #ClassesPath, 1, strLen(curDeclMethodNodePath)))
+        #    {
+        #        //Search in classDeclaration method of all parents of the current class
+        #        if (checkParentClassesDeclMethods(curDeclMethodNodePath))
+        #        {
+        #            return;
+        #        }
+        #    }
+        #
+        #    //info(#NothingIsFoundMessage);
+        #
+        #    return;
+        #}
+      ENDSOURCE
+      SOURCE #newWindow
+        #// >> DEV:MXK >>
+        #public static void newWindow(Editor _e)
+        #{
+        #    TreeNode    treeNode = TreeNode::findNode(_e.path());
+        #
+        #    if (treeNode)
+        #    {
+        #        DEV_AOTNodeExpander::expandNode(treeNode);
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #openObject
+        #// >> DEV:MXK >>
+        #public static void openObject(Editor _e)
+        #{
+        #    TreeNode            treeNode    = DEV_HKEditor::findObject(_e);
+        #
+        #    if (treeNode)
+        #    {
+        #        if (strStartsWith(treeNode.treeNodePath(), #MacrosPath + #AOTDelimiter))
+        #        {
+        #            treeNode.AOTedit();
+        #        }
+        #        else
+        #        {
+        #            DEV_AOTNodeExpander::expandNode(treeNode);
+        #        }
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #shortComment
+        #// >> DEV:MXK >>
+        #public static void shortComment(Editor _e)
+        #{
+        #    DEV_HKEditor::comment(_e, true);
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #showObjectProperty
+        #// >> DEV:MXK >>
+        #public static void showObjectProperty(Editor _e)
+        #{
+        #    TreeNode    treeNode;
+        #
+        #    treeNode    = DEV_HKEditor::findObject(_e);
+        #
+        #    if (treeNode)
+        #    {
+        #        treeNode.AOTshowProperties();
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #showProperty
+        #// >> DEV:MXK >>
+        #public static void showProperty(Editor _e)
+        #{
+        #    TreeNode    treeNode;
+        #
+        #    // Find the currently open method node
+        #    treeNode    = TreeNode::findNode(_e.path());
+        #    treeNode    = DEV_HKProject::treeNode2ParentNode(treeNode);
+        #
+        #    if (treeNode)
+        #    {
+        #        treeNode.AOTshowProperties();
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #tableBrowser
+        #public static void tableBrowser(Editor _e)
+        #{
+        #    TreeNode            treeNode = TreeNode::findNode(_e.path());
+        #    xRefTmpReferences   tmpxRefReferences;
+        #    Column              nCol  = _e.columnNo() + 1;
+        #    Line                nLine = _e.currentLineNo() + 1;
+        #
+        #    if (!treeNode)
+        #        return;
+        #
+        #    treeNode.AOTmakeXref(1);
+        #    tmpxRefReferences = xRefCreate::makeTmp(xInfo::releaseVersion() >= '6.2' ? appl.lastxRef() : infolog.lastxRef());
+        #
+        #    select firstonly tmpxRefReferences
+        #        order by Column desc
+        #        where tmpxRefReferences.line == nLine &&
+        #              tmpxRefReferences.Column <= nCol;
+        #
+        #    if (!tmpxRefReferences)
+        #        return;
+        #
+        #    treeNode = TreeNode::findNode(tmpxRefReferences.calcPath());
+        #
+        #    if (treeNode)
+        #    {
+        #        DEV_HKAOT::tableBrowser(treeNode);
+        #    }
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

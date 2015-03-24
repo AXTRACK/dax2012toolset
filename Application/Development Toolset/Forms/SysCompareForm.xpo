@@ -1,0 +1,413 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #SysCompareForm
+  PROPERTIES
+    Name                #SysCompareForm
+    Origin              #{0B0E0000-0000-1000-598A-54B974672872}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #close
+      #public void close()
+      #{
+      #    // >> DEV:MXK >>
+      #    xSysLastValue::putValue([AutoStart.value(),
+      #                            ExpendTree.value(),
+      #                            HideOption.value(),
+      #                            LayerOption.selection(),
+      #                            CustomLayer1.selection(),
+      #                            CustomLayer2.selection()],
+      #                            '',
+      #                            curUserId(),
+      #                            UtilElementType::Class,
+      #                            this.name());
+      #    // << DEV:MXK <<
+      #    _sysCompare = null;
+      #    super();
+      #}
+    ENDSOURCE
+    SOURCE #DEV_SetWindow
+      #// >> DEV:MXK >>
+      #void DEV_SetWindow()
+      #{
+      #    int                                 x1, y1, x2, y2;
+      #
+      #    if (DEV_UserParameters::exist() && DEV_UserParameters::find().WMEnabled)
+      #    {
+      #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+      #
+      #        WinApi::setWindowPos(this.hWnd(), 100, 50, x2 - x1, y2 - y1);
+      #        element.design().width(1400);
+      #        element.design().height(y2 - y1 - 100);
+      #    }
+      #// << DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #void init()
+      #{
+      #    boolean useGreen = false;
+      #    // >> DEV:MXK >>
+      #    container       lastValues;
+      #
+      #    super();
+      #
+      #    lastValues = xSysLastValue::getValue('', curUserId(), UtilElementType::Class, this.name());
+      #
+      #    AutoStart.value(conPeek(lastValues, 1));
+      #    ExpendTree.value(conPeek(lastValues, 2));
+      #    HideOption.value(conPeek(lastValues, 3));
+      #    LayerOption.selection(conPeek(lastValues, 4));
+      #    CustomLayer1.selection(conPeek(lastValues, 5));
+      #    CustomLayer2.selection(conPeek(lastValues, 6));
+      #    // >> DEV:MXK <<
+      #
+      #    html.prefColumnSize(600,400);
+      #    combobox1.prefColumnSize(400,100);
+      #
+      #    _sysCompare = element.args().caller();
+      #
+      #    if (_sysCompare && _sysCompare.parmContext())
+      #    {
+      #        if (_sysCompare.parmContext() is SysCodeCoverageCompareContext)
+      #        {
+      #            useGreen = true;
+      #        }
+      #    }
+      #    //
+      #    // Set height of html controls to match height of comboBox controls
+      #    //
+      #    redHtmlGroup.height(comboBox1.heightValue());
+      #    blueHtmlGroup.height(comboBox2.heightValue());
+      #
+      #    //
+      #    // Create gradients for red and blue / green indicators
+      #    //
+      #    this.createGradientIndicator(htmlRed, @'#FF0000', @'#FF9999');
+      #
+      #    if (useGreen)
+      #    {
+      #        this.createGradientIndicator(htmlBlue, @'#00FF00', @'#99FF99');
+      #    }
+      #    else
+      #    {
+      #        this.createGradientIndicator(htmlBlue, @'#2222FF', @'#9999FF');
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #run
+      #void run()
+      #{
+      #    _formSplitter = new SysFormSplitter_X(split, tree);
+      #    super();
+      #
+      #    compareButton.setFocus();
+      #
+      #    // >> DEV:MXK >>
+      #    if (DEV_UserParameters::findOrCreate().WMEnabled)
+      #        DEV_HKCommon::leftSideCompare(this.hWnd());
+      #
+      #    DEV_Global::showHint('You can speed up comparison by selecting relevant options on the Advanced TabPage.',
+      #                        this.name(),
+      #                        'Comparison');
+      #
+      #    LayerOption.selectionChange();
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+  ENDOBJECTBANK
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    CONTAINER
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Criteria
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #1073741822
+          HierarchyParent     #Form
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #HTMLGrp
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1879048190
+          HierarchyParent     #data
+          FrameType           #Sunken 3D
+          TopMargin           #2
+          BottomMargin        #2
+          LeftMargin          #2
+          RightMargin         #2
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #AdvancedTab
+          Width               #Column width
+          ElementPosition     #1610612734
+          HierarchyParent     #Tab
+          Caption             #@SYS23466
+          Columns             #6
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+              #0
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON #CompareButton
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #
+            #    super();
+            #
+            #    if (_sysCompare)
+            #    {
+            #        animate.play();
+            #        element.setTimeOut(identifierStr(animateStop), 100, true);
+            #        _sysCompare.startCompare();
+            #
+            #        // >> DEV:MXK >>
+            #        if (HideOption.value())
+            #        {
+            #            Criteria.frameOptionButton(3);
+            #            Criteria.optionValue(0);
+            #            Criteria.caption(ComboBox1.valueStr() + ' vs ' + ComboBox2.valueStr());
+            #        }
+            #        if (ExpendTree.value())
+            #        {
+            #            SysFormTreeControl::expandTree(Tree, Tree.getRoot());
+            #        }
+            #        element.DEV_SetWindow();
+            #        // << DEV:MXK <<
+            #    }
+            #}
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #AutoStart
+          AutoDeclaration     #Yes
+          ElementPosition     #1561806288
+          HierarchyParent     #AdvancedTab
+          Label               #Autostart
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #CaseSensitive
+          ElementPosition     #1366580502
+          HierarchyParent     #AdvancedTab
+          Label               #@SYS29119
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #ExpendTree
+          AutoDeclaration     #Yes
+          ElementPosition     #1659419181
+          HierarchyParent     #AdvancedTab
+          Label               #Expend tree
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #HideOption
+          AutoDeclaration     #Yes
+          ElementPosition     #1757032074
+          HierarchyParent     #AdvancedTab
+          Label               #Hide options
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #LineNumbers
+          ElementPosition     #1464193395
+          HierarchyParent     #AdvancedTab
+          Label               #@SYS50868
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #SuppressName
+          Visible             #No
+          ElementPosition     #1171354716
+          HierarchyParent     #AdvancedTab
+          Value               #1
+          Label               #@SYS50867
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #SuppressWhiteSpace
+          ElementPosition     #1268967609
+          HierarchyParent     #AdvancedTab
+          Value               #1
+          Label               #@SYS29108
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #CustomLayer1
+          AutoDeclaration     #Yes
+          ElementPosition     #1952257860
+          HierarchyParent     #AdvancedTab
+          Label               #@SYS97216
+          EnumType            #UtilEntryLevel
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #CustomLayer2
+          AutoDeclaration     #Yes
+          ElementPosition     #2049870753
+          HierarchyParent     #AdvancedTab
+          Label               #@SYS97216
+          EnumType            #UtilEntryLevel
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #LayerOption
+          AutoDeclaration     #Yes
+          ElementPosition     #1854644967
+          HierarchyParent     #AdvancedTab
+          EnumType            #DEV_CompareMode
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #selectionChange
+            #// >> DEV:MXK >>
+            #public int selectionChange()
+            #{
+            #    int         ret;
+            #
+            #    ret = super();
+            #
+            #    CustomLayer1.enabled(   this.selection() == DEV_CompareMode::Custom
+            #                        ||  this.selection() == DEV_CompareMode::CustomVsTop
+            #                        ||  this.selection() == DEV_CompareMode::CustomVsBottom);
+            #    CustomLayer2.enabled(this.selection() == DEV_CompareMode::Custom);
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TREE
+        PROPERTIES
+          Name                #Tree
+          Width               #300
+          Height              #Column height
+          ElementPosition     #1073741822
+          HierarchyParent     #data
+          LinesAtRoot         #No
+          SingleSelection     #No
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #selectionChanged
+            #// >> DEV:MXK >>
+            #public void selectionChanged(FormTreeItem _OldItem, FormTreeItem _NewItem, FormTreeSelect _how)
+            #{
+            #    #WinAPI
+            #
+            #    super(_OldItem, _NewItem, _how);
+            #
+            #    WinAPI::showScrollbar(WinAPI::getForegroundWindow(), #SB_BOTH, true);
+            #    WinAPI::showScrollbar(WinAPI::getForegroundWindow(), #SB_BOTH, false);
+            #// << DEV:MXK <<
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+  ENDPERMISSIONS
+  
+ENDFORM
+
+
+***Element: END

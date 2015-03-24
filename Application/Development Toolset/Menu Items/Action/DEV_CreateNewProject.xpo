@@ -1,0 +1,28 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FTM
+
+; Microsoft Dynamics AX MENUITEM : DEV_CreateNewProject unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  MENUITEM #DEV_CreateNewProject
+    Type: 3
+    PROPERTIES
+      Name                #DEV_CreateNewProject
+      Label               #Create/update project
+      HelpText            #Create new project or hold Alt key to update selected project.
+      ObjectType          #Class
+      Object              #DEV_CreateNewProject
+      RunOn               #Client
+      SecurityKey         #SysDevelopment
+      NormalImage         #7853
+      ImageLocation       #EmbeddedResource
+      Origin              #{9D96B3BF-E5EC-4E47-BAAC-7E64AF9F27EF}
+    ENDPROPERTIES
+    
+  ENDMENUITEM
+  
+
+***Element: END

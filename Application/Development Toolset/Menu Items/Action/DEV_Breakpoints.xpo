@@ -1,0 +1,26 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FTM
+
+; Microsoft Dynamics AX MENUITEM : DEV_Breakpoints unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  MENUITEM #DEV_Breakpoints
+    Type: 3
+    PROPERTIES
+      Name                #DEV_Breakpoints
+      Label               #Set breakpoints
+      HelpText            #Set/remove infolog and Box breakpoints.
+      ObjectType          #Class
+      Object              #DEV_Breakpoints
+      NormalImage         #1097
+      ImageLocation       #EmbeddedResource
+      Origin              #{DF471BDF-D9AF-42F7-A32C-6352E4F7ADBF}
+    ENDPROPERTIES
+    
+  ENDMENUITEM
+  
+
+***Element: END

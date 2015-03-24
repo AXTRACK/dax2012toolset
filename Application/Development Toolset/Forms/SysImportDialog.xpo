@@ -1,0 +1,601 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #SysImportDialog
+  PROPERTIES
+    Name                #SysImportDialog
+    Origin              #{47D4564C-6428-444E-9082-5FE1CDFFC808}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #class FormRun extends ObjectRun
+      #{
+      #    ImageListAppl_Aot               imageListAot;
+      #    ImageListAppl_checkbox          imageListState;
+      #    SysImportElementsForm           sysImportElementsForm;
+      #    QueryBuildRange                 importRange;
+      #    container                       lastFiles;
+      #    boolean                         called;
+      #    FormDataObject                  replaceWithLabel;
+      #    boolean                         examinedFile;
+      #
+      #    #resAppl
+      #    #define.FOCUS_CHECKBOX(64)
+      #    #define.FOCUS_FIELD(4)
+      #
+      #    #FormListControl
+      #
+      #    #define.nodeDocumentation(0)
+      #
+      #    #define.currentVersion(1)
+      #    #define.currentList(lastFiles)
+      #
+      #    #define.tempFiles(5)
+      #    #define.expImpFileExtension('xpo')
+      #
+      #
+      #    // >> DEV:MXK >>
+      #    #DEV_Toolset
+      #
+      #    SysImportElements                   sysImportElements;
+      #
+      #    boolean                             expended;
+      #    boolean                             loaded;
+      #    boolean                             canOpen;
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #fileNameLookupInitialPath
+      #str fileNameLookupInitialPath()
+      #{
+      #    #WinApi
+      #    Filename                path;
+      #    Filename                name;
+      #    Filename                ext;
+      #    // >> DEV:MXK >>
+      #    #File
+      #
+      #    path = DEV_UserParameters::findOrCreate().ImportFilePath;
+      #
+      #    if (path && WinAPI::pathExists(path))
+      #    {
+      #        path += #FilePathDelimiter;
+      #    }
+      #
+      #    if (!path || !WinAPI::pathExists(path))
+      #    {
+      #    // << DEV:MXK <<
+      #        [path, name, ext] = fileNameSplit(this.getFileName());
+      #
+      #        if (!path)
+      #        {
+      #            if (conLen(lastFiles))
+      #            {
+      #                [path, name, ext] = fileNameSplit(conPeek(lastFiles,1));
+      #            }
+      #
+      #            if (!path)
+      #            {
+      #                path = WinAPI::getFolderPath(#CSIDL_Personal);
+      #            }
+      #        }
+      #    }
+      #
+      #    return path;
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #void init()
+      #{
+      #    super();
+      #
+      #    sysImportElementsForm = new SysImportElementsForm();
+      #
+      #    imageListAot          = new ImageListAppl_Aot();
+      #    imageListState        = new ImageListAppl_checkbox();
+      #
+      #    aotTree.setImagelist(imageListAot.imageList());
+      #    aotTree.setStateImagelist(imageListState.imageList());
+      #
+      #    languageTree.setStateImagelist(imageListState.imageList());
+      #    DEV_CheckoutObjects.visible(SysVersionControlParameters::isVCSEnabled()); // DEV:MXK
+      #}
+    ENDSOURCE
+    SOURCE #newFile
+      #public void newFile()
+      #{
+      #    Map             languageMap = new Map(Types::String, Types::String);
+      #    Map             statusMap   = new Map(Types::String, Types::Enum);
+      #    SetIterator     setIterator;
+      #    Filename        filenameSelected = this.getFileName();
+      #    // >> DEV:MXK >>
+      #    int             x1, y1, x2, y2;
+      #    ;
+      #    [x1, y1, x2, y2] = DEV_WinApi::getClientRect();
+      #    // << DEV:MXK <<
+      #    this.lock();
+      #    examinedFile = false;
+      #
+      #    this.updateBox(filenameSelected);
+      #    if (tabGrp.enableChilds())
+      #    {
+      #        try
+      #        {
+      #            sysImportElementsForm.newFile(this.getFileName());
+      #            sysImportElementsForm.buildTree(aotTree);
+      #
+      #            setIterator = new SetIterator(Set::create(sysImportElementsForm.getLanguagePack()));
+      #            setIterator.begin();
+      #            while (setIterator.more())
+      #            {
+      #                languageMap.insert(LanguageTable::languageId2Description(setIterator.value()), setIterator.value());
+      #                statusMap.insert(setIterator.value(), true);
+      #                setIterator.next();
+      #            }
+      #            LanguageTable::buildSelectLanguageTree(languageTree, statusMap, languageMap);
+      #
+      #            tmpImportAot.setTmpData(sysImportElementsForm.getTmpImportAot());
+      #            tmpImportAotLabel.setTmpData(sysImportElementsForm.getTmpImportAotLabel());
+      #            tmpImportLabel.setTmpData(sysImportElementsForm.getTmpImportLabel());
+      #            tmpImportLabel_ds.executeQuery();
+      #            examinedFile = true;
+      #        }
+      #        catch
+      #        {
+      #            aotTree.deleteAll();
+      #        }
+      #    }
+      #
+      #    import.enabled(true);
+      #    called = false;
+      #    //>> DEV:MXK >>
+      #    SysFormTreeControl::expandTree(aotTree, aotTree.getRoot());
+      #
+      #    if (expended)
+      #    {
+      #        if (DEV_UserParameters::exist() && DEV_UserParameters::find().WMEnabled)
+      #        {
+      #            WinApi::setWindowPos(this.hWnd(), #AOTWidth, 0, (x2 - x1)/2, y2 - y1 - 40);
+      #            element.design().width(600);
+      #            element.design().height(y2 - y1 - 40);
+      #        }
+      #        //TopGrp.frameOptionButton(3);
+      #        //TopGrp.caption(FileName.valueStr());
+      #        AOTTree.select(AOTTree.getRoot());
+      #    }
+      #
+      #    sysImportElements = new SysImportElements();
+      #
+      #    // Set the filename.
+      #    sysImportElements.newFile(this.getFileName());
+      #    //<< DEV:MXK <<
+      #
+      #    this.unLock();
+      #}
+    ENDSOURCE
+    SOURCE #run
+      #void run()
+      #{
+      #    ;
+      #    xSysLastValue::getLast(element);
+      #
+      #    labelModuleId.text(sysImportElementsForm.getDefaultLabelModuleId());
+      #    element.updateBox('');
+      #    this.importActionChanged(importActionRbtn.selection());
+      #
+      #    super();
+      #
+      #    Browse.clicked(); // >> DEV:MXK
+      #
+      #    element.enableLabel(false);
+      #    fileName.setFocus();
+      #
+      #    // >> DEV:MXK >>
+      #    DEV_Global::showHint('On the existing objects a context menu is available.\n' +
+      #                        'Mouse double click on the node will open the node.\n' +
+      #                        'If VC is enabled you would be able to checkout selected nodes.\n' +
+      #                        'You can mark different objects or remove equal ones.',
+      #                        this.name(),
+      #                        'Import');
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #task
+      #public int task(int _taskId)
+      #{
+      #    int ret;
+      #    // >> DEV:MXK >>
+      #    #Task
+      #
+      #    if (    _taskId == #taskEsc
+      #        &&  loaded  == true)
+      #    {
+      #        return 0;
+      #    }
+      #    // << DEV:MXK <<
+      #
+      #    ret = super(_taskId);
+      #
+      #    return ret;
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+  ENDOBJECTBANK
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    CONTAINER
+      CONTROL GROUP #TabGrp
+        METHODS
+          SOURCE #clicked
+            #public void clicked()
+            #{
+            #    super();
+            #
+            #    // >> DEV:MXK >>
+            #    loaded = true;
+            #    // << DEV:MXK <<
+            #
+            #    element.lock();
+            #    if (this.enableChilds())
+            #    {
+            #        tabGrp.frameType(FormFrameType::Edged3D);
+            #
+            #        if (!examinedFile)
+            #        {
+            #            element.newFile();
+            #        }
+            #
+            #        // >> DEV:MXK >>
+            #        DEV_OpenButton.visible(true);
+            #        // << DEV:MXK <<
+            #    }
+            #    else
+            #    {
+            #        tabGrp.frameType(FormFrameType::Edged3DLine);
+            #        // >> DEV:MXK >>
+            #        DEV_OpenButton.visible(false);
+            #        // << DEV:MXK <<
+            #    }
+            #    tab.visible(this.enableChilds());
+            #    html.prefColumnSize(0,100);
+            #    element.importActionChanged(importActionRbtn.selection());
+            #    element.resetSize();
+            #    element.arrange();
+            #    element.unLock();
+            #
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #Browse
+          AutoDeclaration     #Yes
+          Left                #Right edge
+          HelpText            #@SYS74496
+          ElementPosition     #1610612734
+          HierarchyParent     #TopMainGrp
+          Text                #@SYS28927
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #DEV_CheckoutObjects
+          AutoDeclaration     #Yes
+          Left                #Center
+          HelpText            #Check-out all selected objects
+          ElementPosition     #894784850
+          HierarchyParent     #AOTButtonGroup
+          Text                #@SYS59211
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    if (TabGrp.enableChilds() && Box::confirm('Checkout all selected nodes?'))
+            #    {
+            #        SysImportElements::DEV_CheckOutObjects(AOTtree);
+            #    }
+            #}
+            #// << DEV:MXK <<
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #DEV_DeleteEqualObjects
+          AutoDeclaration     #Yes
+          Left                #Center
+          HelpText            #Remove equal nodes from the import tree
+          ElementPosition     #715827880
+          HierarchyParent     #AOTButtonGroup
+          Text                #Remove equal
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    if (TabGrp.enableChilds())
+            #    {
+            #        sysImportElements.DEV_DeleteEqualObjects(AOTtree);
+            #        tmpImportLabel_ds.executeQuery();
+            #    }
+            #}
+            #// << DEV:MXK <<
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #DEV_MarkDifferentObjects
+          AutoDeclaration     #Yes
+          Left                #Center
+          HelpText            #Mark only nodes that are different
+          ElementPosition     #536870910
+          HierarchyParent     #AOTButtonGroup
+          Text                #Mark different
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    if (TabGrp.enableChilds())
+            #    {
+            #        sysImportElements.DEV_MarkDifferentObjects(AOTtree);
+            #        tmpImportLabel_ds.executeQuery();
+            #    }
+            #}
+            #// << DEV:MXK <<
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #DEV_OpenButton
+          AutoDeclaration     #Yes
+          Left                #Center
+          HelpText            #Open selected object in AOT.
+          ElementPosition     #357913940
+          HierarchyParent     #AOTButtonGroup
+          Text                #Open
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    if (TabGrp.enableChilds())
+            #    {
+            #        SysImportElements::DEV_OpenObject(AOTtree);
+            #    }
+            #
+            #    super();
+            #}
+            #// << DEV:MXK <<
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX #FileName
+        METHODS
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    if (!called)
+            #    {
+            #        if (tabGrp.enableChilds())
+            #        {
+            #            //
+            #            // Wait for tree control to by populated
+            #            //
+            #
+            #            import.enabled(false);
+            #            element.setTimeOut(identifierStr(newFile), 500, true);
+            #            called = true;
+            #        }
+            #        else
+            #        {
+            #            element.newFile();
+            #        }
+            #        // >> DEV:MXK >>
+            #        if (TabGrp.optionValue() == 0 && FileName.valueStr() != '')
+            #        {
+            #            TabGrp.clicked();
+            #        }
+            #        // << DEV:MXK <<
+            #    }
+            #
+            #    element.redraw();
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TREE
+        PROPERTIES
+          Name                #AOTTree
+          Width               #Column width
+          Height              #Column height
+          HelpText            #@SYS69910
+          ElementPosition     #1073741822
+          HierarchyParent     #AotTab
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #expanding
+            #public boolean expanding(int _idx, FormTreeExpand _action, anytype _data)
+            #{
+            #    boolean ret;
+            #    ;
+            #    sysImportElementsForm.expandTree(this, this.getItem(_idx));
+            #    ret = super(_idx, _action, _data);
+            #
+            #    // >> DEV:MXK >>
+            #    switch(_action)
+            #    {
+            #        case FormTreeExpand::Expand:
+            #            expended = true;
+            #            break;
+            #        case FormTreeExpand::Collapse:
+            #            expended = false;
+            #            break;
+            #    }
+            #    // << DEV:MXK <<
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+          SOURCE #mouseDblClick
+            #int mouseDblClick(int x, int y, int button, boolean ctrl, boolean shift)
+            #{
+            #    int             ret;
+            #    int             idx;
+            #    int             focus;
+            #    FormTreeItem    formTreeItem;
+            #
+            #    ret = super(x, y, button, ctrl, shift);
+            #
+            #    [idx, focus] = this.hitTest(x, y);
+            #
+            #    if (focus & #FOCUS_FIELD && this.getItem(idx))
+            #    {
+            #        formTreeItem = this.getItem(idx);
+            #
+            #        if (canOpen) CompareButton.clicked(); // >> DEV:MXK <<
+            #        element.mouseClick(this, formTreeItem);
+            #    }
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+          SOURCE #selectionChanged
+            #public void selectionChanged(FormTreeItem _oldItem, FormTreeItem _newItem, FormTreeSelect _how)
+            #{
+            #    // >> DEV:MXK >>
+            #    FormTreeItem                        treeitem        = aotTree.getItem(aotTree.getFirstSelected());
+            #    TreeNodePath                        treeNodePath    = treeitem.data();
+            #    TreeNode                            treenodeInAot   = TreeNode::findNode(treeNodePath);
+            #
+            #    canOpen = !strEndsWith(treeNodePath, '\\') &&  treenodeInAot;
+            #
+            #    DEV_OpenButton.enabled(canOpen);
+            #    // << DEV:MXK <<
+            #
+            #    super(_oldItem, _newItem, _how);
+            #
+            #    if (_newItem && _newItem.stateBold())
+            #    {
+            #        compareButton.enabled(true);
+            #    }
+            #    else
+            #    {
+            #        compareButton.enabled(false);
+            #    }
+            #}
+          ENDSOURCE
+          SOURCE #showContextMenu
+            #// >> DEV:MXK
+            #public int showContextMenu(int _menuHandle)
+            #{
+            #    FormTreeItem                        treeitem        = aotTree.getItem(aotTree.getFirstSelected());
+            #    TreeNodePath                        treeNodePath    = treeitem.data();
+            #    TreeNode                            treeNode        = TreeNode::findNode(treeNodePath);
+            #
+            #    PopupMenu                           popupMenu   = new PopupMenu(infolog.hWnd());
+            #    int                                 open;
+            #    int                                 compare;
+            #    int                                 property;
+            #
+            #/*    int ret;
+            #
+            #    ret = super(_menuHandle);
+            #
+            #    return ret;    */
+            #
+            #    if ( canOpen)
+            #    {
+            #        open    = popupMenu.insertItem("@SYS80095", false, false);
+            #
+            #        if (treeitem.stateBold())
+            #        {
+            #            compare = popupMenu.insertItem("@SYS4735", false, false);
+            #        }
+            #
+            #        property = popupMenu.insertItem("@SYS10344", false, false);
+            #
+            #        switch (popupMenu.draw())
+            #        {
+            #            case open:
+            #                DEV_OpenButton.clicked();
+            #                break;
+            #
+            #            case compare:
+            #                CompareButton.clicked();
+            #                break;
+            #
+            #            case property:
+            #                if (treeNode)
+            #                {
+            #                    treeNode.AOTshowProperties();
+            #                }
+            #                break;
+            #        }
+            #    }
+            #
+            #    return false;
+            #}
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+  ENDPERMISSIONS
+  
+ENDFORM
+
+
+***Element: END

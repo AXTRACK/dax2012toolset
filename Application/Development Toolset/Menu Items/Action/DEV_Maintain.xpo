@@ -1,0 +1,27 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FTM
+
+; Microsoft Dynamics AX MENUITEM : DEV_Maintain unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  MENUITEM #DEV_Maintain
+    Type: 3
+    PROPERTIES
+      Name                #DEV_Maintain
+      Label               #@SYS73307
+      HelpText            #Allow to run application maintenance tasks.
+      ObjectType          #Class
+      Object              #DEV_Maintain
+      RunOn               #Client
+      NormalImage         #7729
+      ImageLocation       #EmbeddedResource
+      Origin              #{85F0DB0E-CBC1-42FF-B665-0D72EF116D71}
+    ENDPROPERTIES
+    
+  ENDMENUITEM
+  
+
+***Element: END

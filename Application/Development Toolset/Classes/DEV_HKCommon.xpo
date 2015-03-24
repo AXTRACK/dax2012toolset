@@ -1,0 +1,771 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_HKCommon unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_HKCommon
+    PROPERTIES
+      Name                #DEV_HKCommon
+      Origin              #{6D64CBD9-5A34-4E22-9E47-2A4D961A50CE}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class DEV_HKCommon
+        #{
+        #    #AOT
+        #    #WinAPI
+        #    // >> DEV:MXK >>
+        #    #DEV_Toolset
+        #    #KeyPressed
+        #
+        #    #localmacro.var
+        #        // BP Deviation Documented
+        #        int                                 x1, y1, x2, y2;
+        #        int                                 a, b, c, d;
+        #        int                                 mid;
+        #        boolean                             is2d    = DEV_WinAPI::isTwoDisplays();
+        #        int                                 delta   = DEV_WinAPI::getDelta();
+        #
+        #        if (    DEV_UserParameters::find().WMEnabled == NoYes::No
+        #            &&  DEV_Global::isDevWorkspace())
+        #        {
+        #            return;
+        #        }
+        #    #endmacro
+        #    // << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #bottomSide
+        #public static void bottomSide(hWnd _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    [x1, y1, x2, y2] = DEV_WinAPI::prepareToSide(_hWnd);
+        #
+        #    WinAPI::setWindowPos(_hWnd, 0, (y2-y1) / 2 + 1, x2 - x1, (y2 - y1) / 2 - 2);
+        #}
+      ENDSOURCE
+      SOURCE #closeTopWindow
+        #// >> DEV:MXK >>
+        #public static void closeTopWindow()
+        #{
+        #    HWND                    hwnd = DEV_WinAPI::getTopWindow(DEV_WinAPI::mdiClient());
+        #
+        #    DEV_WinAPI::closeWindow(hwnd);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #fieldDigger
+        #// >> DEV:MXK >>
+        #public static void fieldDigger()
+        #{
+        #    // Harcoded in \Classes\DEV_FormDigger\handleSysSetupFormRunTaskPost
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #fitWindow
+        #public static void fitWindow(HWND _hwnd)
+        #{
+        #    #var
+        #
+        #    [x1, y1, x2, y2] = DEV_WinAPI::getClientRect(DEV_WinAPI::mdiClient());
+        #    DEV_WinAPI::ensureIsShown(_hwnd);
+        #    WinAPI::setWindowPos(_hwnd, 0, 0, x2 - x1, y2 - y1);
+        #}
+      ENDSOURCE
+      SOURCE #fitWorkspaceWindow
+        #public static void fitWorkspaceWindow(HWND _hwnd)
+        #{
+        #    #var
+        #
+        #    [x1, y1] = DEV_WinAPI::getSystemMetrics();
+        #    //info(con2Str([x1, y1]));
+        #    WinAPI::setWindowPos(_hwnd, 0, 0, x1, y1 - 25, true);
+        #}
+      ENDSOURCE
+      SOURCE #formDigger
+        #// >> DEV:MXK >>
+        #public static void formDigger()
+        #{
+        #    // Harcoded in \Classes\DEV_FormDigger\handleSysSetupFormRunTaskPost
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #handleInfoOnEventGoingIdlePost
+        #// >> DEV:MXK >>
+        #/// <summary>
+        #/// Post event handler for the onEventGoingIdle method of <c>Info</c>
+        #/// </summary>
+        #/// <param name="_args">
+        #/// Event arguments
+        #/// </param>
+        #public static void handleInfoOnEventGoingIdlePost(XppPrePostArgs _args)
+        #{
+        #    if (    WinAPI::getForegroundWindow() == infolog.hWnd()
+        #        &&  DEV_Global::isDevWorkspace()
+        #        &&  infolog.globalCache().isSet(classStr(Info), 'Error') == false)
+        #    {
+        #        try
+        #        {
+        #            if (    DEV_UserParameters::exist()
+        #                &&  (   DEV_UserParameters::find().HKEnabled
+        #                    ||  DEV_WinAPI::getAsyncKeyState(#F10)))
+        #            {
+        #                // >> HK framework >>
+        #                DEV_HKManager::startHKManager().run(false);
+        #                // << HK framework <<
+        #            }
+        #        }
+        #        catch (Exception::Error)
+        #        {
+        #            if (DEV_UserParameters::find().DisableOnError)
+        #            {
+        #                info('Hotkey functionality has been disabled due to error.');
+        #                infolog.globalCache().set(classStr(Info), 'Error', true);
+        #            }
+        #        }
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #handleInfoWorkspaceWindowCreatedPost
+        #// >> DEV:MXK >>
+        #/// <summary>
+        #/// Post event handler for the workspaceWindowCreated method of <c>Info</c>
+        #/// </summary>
+        #/// <param name="_args">
+        #/// Event arguments
+        #/// </param>
+        #public static void handleInfoWorkspaceWindowCreatedPost(XppPrePostArgs _args)
+        #{
+        #    DEV_UserParameters      parameters      = DEV_UserParameters::findOrCreate();
+        #
+        #    MenuFunction            mf;
+        #    Args                    args            = new Args();
+        #
+        #    HWND                    hWnd            = _args.getArgNum(1);
+        #    TempStr                 caption         = DEV_Global::curEnv() + ' - ';
+        #    TempStr                 st              = WinAPI::getWindowText(hWnd);
+        #    SysSQLSystemInfo        systemInfo      = SysSQLSystemInfo::construct();
+        #    int                     i;
+        #
+        #    if (isDeveloper() && !WinAPI::isShiftButtonDown())
+        #    {
+        #        if (DEV_Global::isDevWorkspace())
+        #        {
+        #            if (parameters.TBEnabled)
+        #            {
+        #                mf = new MenuFunction(menuitemDisplayStr(DEV_Toolbar), MenuItemType::Display);
+        #                mf.run(args);
+        #            }
+        #
+        #            DEV_Global::setStatusBar();
+        #            DEV_HKCommon::fitWorkspaceWindow(hWnd);
+        #            DEV_StartupForm::startupInfoRun();
+        #        }
+        #        else if (   parameters.OpenDevWorkspace
+        #                &&  conLen(infolog.getWorkspaceList()) == 1)
+        #        {
+        #            infolog.createDevelopmentWorkspaceWindow();
+        #        }
+        #    }
+        #
+        #    if (parameters.EnvMainCaption && parameters.EnvName)
+        #    {
+        #        i           = strfind(st, '[', 1, strLen(st));
+        #        caption    += subStr(st, i, strLen(st) - i + 1) +
+        #                                    strFmt(@' - %1@%2 : %3',    systemInfo.getloginDatabase(),
+        #                                                                systemInfo.getLoginServer(),
+        #                                                                Infolog.currentAOLayer());
+        #
+        #        WinAPI::setWindowText(hWnd, caption);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #leftSideCentre
+        #// >> DEV:MXK >>
+        #// Positioning window to the left side of the screen in the center
+        #public static void leftSideCentre(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (is2d && _hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [a, b, c, d]        = WinAPI::getWindowRect(_hWnd);
+        #
+        #        [x1, y1, x2, y2]    = DEV_WinAPI::prepareToSide(_hWnd);
+        #        mid = (x2 - x1) / (is2d ? 2 : 1);
+        #        WinAPI::setWindowPos(_hWnd, (mid - c + a) / 2 - delta, (y2 - y1 - d + b) / 2, 0, 0, false, true);
+        #
+        #        delta = DEV_WinAPI::getDelta();
+        #
+        #        [x1, y1, x2, y2]    = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, (mid - c + a) / 2 + delta, (y2 - y1 - d + b) / 2, 0, 0, false, true);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #leftSideCompare
+        #// >> DEV:MXK >>
+        #// Set pos of Comparison window
+        #public static void leftSideCompare(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (is2d && _hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [x1, y1, x2, y2] = DEV_WinAPI::prepareToSide(_hWnd);
+        #        WinAPI::setWindowPos(_hWnd, 200, 30, (x2 - x1) / (is2d ? 2 : 1) - 400, 145);
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, 200, 30, (x2 - x1) / (is2d ? 2 : 1) - 400, 145);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #leftSideCompiler
+        #// >> DEV:MXK >>
+        #// Set pos of Compiler window to the left screen
+        #public static void leftSideCompiler(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (is2d && _hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, 50, y2 - 300, (x2 - x1) / (is2d ? 2 : 1) - 100, 300);
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, 50, y2 - 300, (x2 - x1) / (is2d ? 2 : 1) - 100, 300);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #leftSideEditor
+        #// >> DEV:MXK >>
+        #// Set pos of Editor
+        #public static void leftSideEditor(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (is2d && _hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, 180, 30, (x2 - x1) / (is2d ? 2 : 1) - 300, y2 - y1 - 130);
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, 180, 30, (x2 - x1) / (is2d ? 2 : 1) - 300, y2 - y1 - 130);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #leftSideFind
+        #// >> DEV:MXK >>
+        #// Set pos of Find
+        #public static void leftSideFind(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (is2d && _hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [x1, y1, x2, y2] = DEV_WinAPI::prepareToSide(_hWnd);
+        #        WinAPI::setWindowPos(_hWnd, 200, 30, (x2 - x1) / (is2d ? 2 : 1) - 400, 230);
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, 200, 30, (x2 - x1) / (is2d ? 2 : 1) - 400, 230);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #leftSideFull
+        #// >> DEV:MXK >>
+        #// Positioning window to the left half side of the screen
+        #public static void leftSideFull(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (is2d && _hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [x1, y1, x2, y2] = DEV_WinAPI::prepareToSide(_hWnd);
+        #        WinAPI::setWindowPos(_hWnd, 0, 0, (x2 - x1) / (is2d ? 2 : 1) + delta, y2 - y1);
+        #
+        #        delta = DEV_WinAPI::getDelta();
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, 0, 0, (x2 - x1) / (is2d ? 2 : 1) + delta, y2 - y1);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #leftSideLeft
+        #// >> DEV:MXK >>
+        #public static void leftSideLeft(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (_hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        WinAPI::sendMessageEx(_hWnd, #WM_SYSCOMMAND, #SC_RESTORE, 0);
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, 0, 0, #AOTWidth, y2 - y1);
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, 0, 0, #AOTWidth, y2 - y1);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #leftSideLeftNext
+        #// >> DEV:MXK >>
+        #public static void leftSideLeftNext(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (_hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        WinAPI::sendMessageEx(_hWnd, #WM_SYSCOMMAND, #SC_RESTORE, 0);
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, #AOTWidth, 0, #AOTWidth, y2 - y1);
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, #AOTWidth, 0, #AOTWidth, y2 - y1);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #leftSideRight
+        #// >> DEV:MXK >>
+        #public static void leftSideRight(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (_hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [x1, y1, x2, y2] = DEV_WinAPI::prepareToSide(_hWnd);
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - #AOTWidth + delta, 0, #AOTWidth, y2 - y1);
+        #
+        #        delta = DEV_WinAPI::getDelta();
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - #AOTWidth + delta, 0, #AOTWidth, y2 - y1);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #leftSideRightBefore
+        #// >> DEV:MXK >>
+        #public static void leftSideRightBefore(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (_hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [x1, y1, x2, y2] = DEV_WinAPI::prepareToSide(_hWnd);
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - 2 * #AOTWidth + delta, 0, #AOTWidth, y2 - y1);
+        #
+        #        delta = DEV_WinAPI::getDelta();
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - 2 * #AOTWidth + delta, 0, #AOTWidth, y2 - y1);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #leftSideRightID
+        #// >> DEV:MXK >>
+        #// Set pos of Import dialog
+        #public static void leftSideRightID(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (_hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [x1, y1, x2, y2] = DEV_WinAPI::prepareToSide(_hWnd);
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - 800 + delta, 0, (x2 - x1) / (is2d ? 2 : 1) + delta, y2 - y1 - 43);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #leftSideSmart
+        #// >> DEV:MXK >>
+        #public static void leftSideSmart(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    str             title = WinAPI::getWindowText(_hWnd);
+        #
+        #    if (DEV_Global::isEditor(0, title))
+        #    {
+        #        DEV_HKCommon::leftSideEditor(_hWnd);
+        #    }
+        #    else if (   DEV_Global::isAOT(0, title)
+        #            ||  DEV_Global::isProjectTitle(0, title)
+        #            ||  DEV_Global::isPropertyWindow(_hWnd))
+        #    {
+        #        DEV_HKCommon::leftSideLeft(_hWnd);
+        #    }
+        #    else if (DEV_Global::isTableBrowser(0, title))
+        #    {
+        #        DEV_HKCommon::leftSideTB(_hWnd);
+        #    }
+        #    else if (DEV_Global::isCompiler(0, title))
+        #    {
+        #        DEV_HKCommon::leftSideCompiler(_hWnd);
+        #    }
+        #    else
+        #    {
+        #        DEV_HKCommon::leftSideCentre(_hWnd);
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #leftSideTB
+        #// >> DEV:MXK >>
+        #// Set pos of Table Browser to the left screen
+        #public static void leftSideTB(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (is2d && _hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, 100, 150, (x2 - x1) / (is2d ? 2 : 1) - 200, y2 - y1 - 330);
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, 100, 150, (x2 - x1) / (is2d ? 2 : 1) - 200, y2 - y1 - 330);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #newWindow
+        #public static void newWindow()
+        #{
+        #    SysContextMenu              context;
+        #    TreeNode                    node;
+        #    str                         path;
+        #    FormRun                     formRun = DEV_Global::lastActiveForm();
+        #    Object                      caller;
+        #
+        #    HWND                        topWindow;
+        #
+        #    TreeNodePath getCallerPath()
+        #    {
+        #        TreeNodePath ret;
+        #        switch (true)
+        #        {
+        #            case SysdictClass::isEqualOrSuperClass(classidget(caller), classNum(SysSetupFormRun)):
+        #                ret = #formsPath+#AOTDelimiter+caller.name();
+        #            case SysdictClass::isEqualOrSuperClass(classidget(caller), classNum(RunBase)):
+        #                ret = #classesPath+#AOTDelimiter+classId2Name(classIdGet(caller.runBase()));
+        #            case SysdictClass::isEqualOrSuperClass(classidget(caller), classNum(DialogRunBase)):
+        #                ret = #classesPath + #AOTDelimiter + classId2Name(classIdGet(caller.runBase()));
+        #            case SysdictClass::isEqualOrSuperClass(classidget(caller), classNum(Dialog)):
+        #                ret = #classesPath + #AOTDelimiter + classId2Name(classIdGet(caller.caller()));
+        #            case SysdictClass::isEqualOrSuperClass(classidget(caller), classNum(ReportRun)):
+        #                ret = #reportsPath + #AOTDelimiter + caller.name();
+        #            case SysdictClass::isEqualOrSuperClass(classidget(caller), classNum(QueryRun)):
+        #                ret = #queriesPath + #AOTDelimiter + caller.name();
+        #            default:
+        #                ret = #classesPath + #AOTDelimiter + classId2Name(classIdGet(caller));
+        #        }
+        #        return ret;
+        #    }
+        #
+        #    if (    formRun
+        #        &&  DEV_WinAPI::getTopWindow(DEV_WinAPI::mdiClient()) == formRun.hWnd())
+        #    {
+        #        node = TreeNode::findNode(#FormsPath + #AOTDelimiter + formRun.name());
+        #    }
+        #    else if (   formRun
+        #            &&  DEV_WinAPI::getTopWindow(DEV_WinAPI::mdiClient()) == formRun.hWnd()
+        #            &&  formRun.args()
+        #            &&  formRun.args().caller())
+        #    {
+        #        caller = formRun.args().caller();
+        #
+        #        node = TreeNode::findNode(getCallerPath());
+        #    }
+        #    else
+        #    {
+        #        topWindow = DEV_WinAPI::getTopWindow(DEV_WinAPI::mdiClient());
+        #
+        #        if (    topWindow
+        #            &&  DEV_Global::isEditor(topWindow))
+        #        {
+        #            // >> DEV:MXK >>
+        #            //node = DEV_WinAPI::getCurMethod(topWindow);
+        #            //node = TreeNode::findNode(subStr(WinAPI::getWindowText(topWindow), 1, strLen(WinAPI::getWindowText(topWindow)) - strLen(#editorSuffix)));
+        #            node = TreeNode::findNode(DEV_Global::editorPath(topWindow));
+        #            // << DEV:MXK <<
+        #        }
+        #
+        #        if (node)
+        #        {
+        #            context = new SysContextMenuTreeNode(node);
+        #        }
+        #        else
+        #        {
+        #            context = new SysContextMenuAOT();
+        #        }
+        #
+        #        if (context)
+        #        {
+        #            node = context.first();
+        #        }
+        #
+        #        if (strStartsWith(node.treeNodePath(), #JobsPath))
+        #        {
+        #            TreeNode::findNode(#JobsPath).AOTnewWindow();
+        #        }
+        #        else if (strStartsWith(node.treeNodePath(), #MacrosPath))
+        #        {
+        #            TreeNode::findNode(#MacrosPath).AOTnewWindow();
+        #        }
+        #        else if (node)
+        #        {
+        #            while (node)
+        #            {
+        #                path = SysTreeNode::applObjectPath(node.treeNodePath());
+        #
+        #                if (path)
+        #                {
+        #                    node = TreeNode::findNode(path);
+        #
+        #                    if (node)
+        #                    {
+        #                        node.AOTnewWindow();
+        #                    }
+        #                }
+        #
+        #                node = context.next();
+        #            }
+        #        }
+        #        /*else if (formRun)
+        #        {
+        #            TreeNode::findNode(@'\Forms\' + formRun.name()).AOTnewWindow();
+        #        }*/
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #openDefaultProject
+        #public static void openDefaultProject()
+        #{
+        #    ProjectListNode projectListNode;
+        #    ProjectNode     projectNode;
+        #    UserInfo        userInfo;
+        #
+        #    select firstonly startupProject from userInfo
+        #        where userInfo.Id == curuserid();
+        #
+        #    projectListNode = infolog.projectRootNode().AOTfirstChild();    // private projects
+        #    projectNode     = projectListNode.AOTfindChild(userInfo.startupProject);
+        #
+        #    if (!projectNode)
+        #    {
+        #        projectListNode = projectListNode.AOTnextSibling();         // shared projects
+        #        projectNode     = projectListNode.AOTfindChild(userInfo.startupProject);
+        #    }
+        #
+        #    if (projectNode)
+        #    {
+        #        projectNode.AOTrun();
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #rightSideCentre
+        #// >> DEV:MXK >>
+        #// Positioning window to the right side of the screen in the center
+        #public static void rightSideCentre(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (is2d && _hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [a, b, c, d]        = WinAPI::getWindowRect(_hWnd);
+        #
+        #        [x1, y1, x2, y2]    = DEV_WinAPI::prepareToSide(_hWnd);
+        #        mid = (x2 - x1) / (is2d ? 2 : 1);
+        #        WinAPI::setWindowPos(_hWnd, mid + (mid - c + a) / 2 + delta, (y2 - y1 - d + b) / 2, 0, 0, false, true);
+        #
+        #        delta = DEV_WinAPI::getDelta();
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, mid + (mid - c + a) / 2 + delta, (y2 - y1 - d + b) / 2, 0, 0, false, true);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #rightSideCompiler
+        #// >> DEV:MXK >>
+        #// Set pos of Compiler window to the right screen
+        #public static void rightSideCompiler(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (is2d && _hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / 2 + 50, y2 - 300, (x2 - x1) / 2 - 100, 300);
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / 2 + 50, y2 - 300, (x2 - x1) / 2 - 100, 300);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #rightSideEditor
+        #// >> DEV:MXK >>
+        #// Set pos of Editor
+        #public static void rightSideEditor(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (is2d && _hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) + 130, 30, (x2 - x1) - ((x2 - x1) / (is2d ? 2 : 1) + 1) - 300, y2 - y1 - 130);
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) + 130, 30, (x2 - x1) - ((x2 - x1) / (is2d ? 2 : 1) + 1) - 300, y2 - y1 - 130);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #rightSideFull
+        #// >> DEV:MXK >>
+        #// Positioning window to the right half side of the screen
+        #public static void rightSideFull(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    // Set window pos
+        #    if (is2d && _hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) + delta, 0, (x2 - x1) - ((x2 - x1) / (is2d ? 2 : 1) + delta), y2 - y1);
+        #
+        #        delta = DEV_WinAPI::getDelta();
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) + delta, 0, (x2 - x1) - ((x2 - x1) / (is2d ? 2 : 1) + delta), y2 - y1);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #rightSideLeft
+        #// >> DEV:MXK >>
+        #public static void rightSideLeft(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (_hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - (is2d ? 0 : #AOTWidth) + delta, 0, #AOTWidth, y2 - y1);
+        #
+        #        delta = DEV_WinAPI::getDelta();
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - (is2d ? 0 : #AOTWidth) + delta, 0, #AOTWidth, y2 - y1);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #rightSideRight
+        #// >> DEV:MXK >>
+        #public static void rightSideRight(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (_hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, x2 - #AOTWidth, 0, #AOTWidth, y2 - y1);
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, x2 - #AOTWidth, 0, #AOTWidth, y2 - y1);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #rightSideSmart
+        #// >> DEV:MXK >>
+        #public static void rightSideSmart(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    str             title = WinAPI::getWindowText(_hWnd);
+        #
+        #    if (DEV_Global::isEditor(0, title))
+        #    {
+        #        DEV_HKCommon::rightSideEditor(_hWnd);
+        #    }
+        #    else if (   DEV_Global::isAOT(0, title)
+        #            ||  DEV_Global::isProjectTitle(0, title)
+        #            ||  DEV_Global::isPropertyWindow(_hWnd))
+        #    {
+        #        DEV_HKCommon::leftSideLeftNext(_hWnd);
+        #    }
+        #    else if (DEV_Global::isTableBrowser(0, title))
+        #    {
+        #        DEV_HKCommon::rightSideTB(_hWnd);
+        #    }
+        #    else if (DEV_Global::isCompiler(0, title))
+        #    {
+        #        DEV_HKCommon::rightSideCompiler(_hWnd);
+        #    }
+        #    else
+        #    {
+        #        DEV_HKCommon::rightSideCentre(_hWnd);
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #rightSideTB
+        #// >> DEV:MXK >>
+        #// Set pos of Table Browser to the right screen
+        #public static void rightSideTB(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    if (is2d && _hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) + 100, 150, (x2 - x1) - ((x2 - x1) / (is2d ? 2 : 1) + 1) - 200, y2 - y1 - 330);
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) + 100, 150, (x2 - x1) - ((x2 - x1) / (is2d ? 2 : 1) + 1) - 200, y2 - y1 - 330);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #sendToBackground
+        #// >> DEV:MXK >>
+        #public static void sendToBackground(HWND _hWnd = DEV_WinAPI::getTopWindow(DEV_WinAPI::mdiClient()))
+        #{
+        #    if (_hWnd)
+        #    {
+        #        DEV_WinAPI::setWindowPos(_hWnd, #HWND_BOTTOM, 0, 0, 0, 0, #SWP_NOMOVE + #SWP_NOSIZE);
+        #        WinAPI::bringWindowToTop(DEV_WinAPI::getTopWindow(DEV_WinAPI::mdiClient()));
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #topSide
+        #public static void topSide(HWND _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    [x1, y1, x2, y2] = DEV_WinAPI::prepareToSide(_hWnd);
+        #
+        #    WinAPI::setWindowPos(_hWnd, 0, 0, x2-x1, (y2-y1) / 2);
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

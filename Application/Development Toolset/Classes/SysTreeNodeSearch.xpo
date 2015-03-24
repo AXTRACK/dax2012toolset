@@ -1,0 +1,284 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysTreeNodeSearch unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysTreeNodeSearch
+    PROPERTIES
+      Name                #SysTreeNodeSearch
+      Origin              #{2D11113B-0000-1000-00DD-8192D61A4C38}
+      LegacyId            #4411
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #isNodeInRange
+        #/*
+        #    this method is called every time a potential node is found by the search engine
+        #*/
+        #boolean isNodeInRange(  TreeNode    _treeNode,
+        #                        // >> DEV:MXK >>
+        #                        NoYesId     _matchCase      = NoYes::No,
+        #                        NoYesId     _matchWholeWord = NoYes::No)
+        #                        // << DEV:MXK <<
+        #{
+        #    str             source;
+        #    DocNode         treeNodeWithSource;
+        #    SysApplicationObjectPathInfo pathInfo;
+        #    int             subItem;
+        #
+        #    #Properties
+        #    UtilElements    utilElements;
+        #    SysPropertyName sysPropertyName;
+        #
+        #    #define.NullValueCheckForEnum(false) // In this context, it makes no sense to check if an enum is NULL.
+        #
+        #    // >> DEV:MXK >>
+        #    System.Text.RegularExpressions.Regex    regex;
+        #    System.Text.RegularExpressions.Match    regMatch;
+        #    // << DEV:MXK <<
+        #
+        #    if (_treeNode.treeNodeType().isUtilElement() &&
+        #        (_treeNode.utilElement().RecordType == UtilElementType::PrivateProject ||
+        #         _treeNode.utilElement().RecordType == UtilElementType::SharedProject))
+        #    {
+        #        return false;
+        #    }
+        #
+        #    if (SysTreeNode::hasSource(_treeNode))
+        #        treeNodeWithSource = _treeNode;
+        #
+        #    if (onlyMethods)  // methods only (i.e. treeNodes with source only)
+        #    {
+        #        if (!treeNodeWithSource)
+        #            return false;
+        #        if (includeEmpty == false && treeNodeWithSource.AOTgetSource() == '')
+        #            return false;
+        #    }
+        #
+        #    // >> DEV:MXK >>
+        #    if (_matchCase || _matchWholeWord)
+        #    {
+        #        regex       = new System.Text.RegularExpressions.Regex(_matchWholeWord ? '\\b' + named + '\\b' : named);
+        #        regMatch    = regex.Match(_treeNode.treeNodeName());
+        #
+        #        if (!regMatch.get_Success())
+        #        {
+        #            return false;
+        #        }
+        #    }
+        #    // << DEV:MXK <<
+        #    else if (!match(named,_treeNode.treeNodeName()))
+        #        return false;
+        #
+        #    if (treeNodeWithSource && containingText)
+        #    {
+        #        source = treeNodeWithSource.AOTgetSource();
+        #        // >> DEV:MXK >>
+        #        if (_matchCase || _matchWholeWord)
+        #        {
+        #            regex       = new System.Text.RegularExpressions.Regex(_matchWholeWord ? '\\b' + containingText + '\\b' : containingText);
+        #            regMatch    = regex.Match(source);
+        #
+        #            if (!regMatch.get_Success())
+        #            {
+        #                return false;
+        #            }
+        #        }
+        #        // << DEV:MXK <<
+        #        else if (!match(containingText,source))
+        #            return false;
+        #    }
+        #
+        #    if (!treeNodeWithSource && containingText)
+        #    {
+        #        source = _treeNode.AOTgetProperties();
+        #        // >> DEV:MXK >>
+        #        if (_matchCase || _matchWholeWord)
+        #        {
+        #            regex       = new System.Text.RegularExpressions.Regex(_matchWholeWord ? '\\b' + containingText + '\\b' : containingText);
+        #            regMatch    = regex.Match(source);
+        #
+        #            if (!regMatch.get_Success())
+        #            {
+        #                return false;
+        #            }
+        #        }
+        #        // << DEV:MXK <<
+        #        else if (!match(containingText,source))
+        #            return false;
+        #    }
+        #
+        #    if (dateRange)
+        #    {
+        #        pathInfo = new SysApplicationObjectPathInfo(_treeNode.treeNodePath(), applObjectCache);
+        #        if (!inRange(dateRange,pathInfo.utilElementsLight().ModifiedDateTime))
+        #            return false;
+        #    }
+        #
+        #    if (byRange)
+        #    {
+        #        if (!pathInfo)
+        #            pathInfo = new SysApplicationObjectPathInfo(_treeNode.treeNodePath(), applObjectCache);
+        #        if (!inRange(byRange,pathInfo.utilElementsLight().ModifiedBy))
+        #            return false;
+        #    }
+        #
+        #    if (applObjectTypeRange)
+        #    {
+        #        if (!pathInfo)
+        #            pathInfo = new SysApplicationObjectPathInfo(_treeNode.treeNodePath(), applObjectCache);
+        #        if (!inRange(applObjectTypeRange,pathInfo.utilElementsLight().RecordType))
+        #            return false;
+        #    }
+        #
+        #    if (applObjectLayerRange)
+        #    {
+        #        if (!this.isLayerInRange(_treeNode))
+        #            return false;
+        #    }
+        #
+        #    if (runModeRange)
+        #    {
+        #        if (!pathInfo)
+        #            pathInfo = new SysApplicationObjectPathInfo(_treeNode.treeNodePath(), applObjectCache);
+        #        if (!inRange(runModeRange,pathInfo.runMode(), #NullValueCheckForEnum))
+        #            return false;
+        #    }
+        #
+        #    if (treeNodeWithSource && sizeRange)
+        #    {
+        #        if (!pathInfo)
+        #            pathInfo = new SysApplicationObjectPathInfo(treeNodeWithSource.treeNodePath(), applObjectCache);
+        #        if (!inRange(sizeRange,pathInfo.sourceSize()))
+        #            return false;
+        #    }
+        #
+        #    if (filterMethod)
+        #    {
+        #        if (treeNodeWithSource)
+        #        {
+        #            source = treeNodeWithSource.AOTgetSource();
+        #        }
+        #
+        #        if (!pathInfo)
+        #            pathInfo = new SysApplicationObjectPathInfo(_treeNode.treeNodePath(), applObjectCache);
+        #
+        #        if (!runBuf(strfmt('boolean FilterMethod(str _treeNodeName, str _treeNodeSource, XRefPath _path, ClassRunMode _runMode) { %1 }',
+        #                                        filterMethod),
+        #                                                _treeNode.treeNodeName(),
+        #                                                source,
+        #                                                _treeNode.treeNodePath(),
+        #                                                pathInfo.runMode()))
+        #            return false;
+        #    }
+        #
+        #    if (!onlyMethods)  // all nodes
+        #    {
+        #        select firstonly selectedProperties;
+        #        if (selectedProperties)     // only if any properties are selected, a match must exist. If no selected, all are passed
+        #        {
+        #            // only include entry if and only if any of the selected properties exists ... ?!
+        #            subItem=0;
+        #            while select selectedProperties
+        #            {
+        #                switch (selectedProperties.Property)
+        #                {
+        #                    case #propertyID :
+        #                        subItem++;
+        #                        if (!match(selectedProperties.Criteria, int2str(_treeNode.applObjectId())))
+        #                        {
+        #                            return false;
+        #                        }
+        #                        break;
+        #
+        #                    case #propertyCreatedBy :
+        #                        subItem++;
+        #                        utilElements = xUtilElements::findTreeNode(_treeNode);
+        #                        if (!match(selectedProperties.Criteria, utilElements.CreatedBy))
+        #                        {
+        #                            return false;
+        #                        }
+        #                        break;
+        #
+        #                    case #propertyCreatedDateTime :
+        #                        subItem++;
+        #                        utilElements = xUtilElements::findTreeNode(_treeNode);
+        #                        if (!match(selectedProperties.Criteria, datetime2str(utilElements.CreatedDateTime, DateFlags::FormatAll)))
+        #                        {
+        #                            return false;
+        #                        }
+        #                        break;
+        #
+        #                    case #propertyModifiedBy, #propertyChangedBy :
+        #                        subItem++;
+        #                        utilElements = xUtilElements::findTreeNode(_treeNode);
+        #                        if (!match(selectedProperties.Criteria, utilElements.ModifiedBy))
+        #                        {
+        #                            return false;
+        #                        }
+        #                        break;
+        #
+        #                    case #propertyModifiedDateTime :
+        #                        subItem++;
+        #                        utilElements = xUtilElements::findTreeNode(_treeNode);
+        #                        if (!match(selectedProperties.Criteria, datetime2str(utilElements.ModifiedDateTime, DateFlags::None)))
+        #                        {
+        #                            return false;
+        #                        }
+        #                        break;
+        #
+        #                    case 'Model' :
+        #                        subItem++;
+        #                        if (!_treeNode.treeNodeType().isModelElement() ||
+        #                            !_treeNode.AOTIsPersisted() ||
+        #                            !match(selectedProperties.Criteria, SysModelStore::displayName(_treeNode.AOTGetModel())))
+        #                        {
+        #                            return false;
+        #                        }
+        #                        break;
+        #
+        #                    default:
+        #                        sysPropertyName = selectedProperties.Property;
+        #
+        #                        if (match('<TableCreated', selectedProperties.Property) ||
+        #                            match('<TableModified', selectedProperties.Property))
+        #                        {
+        #                            sysPropertyName = strdel(sysPropertyName, 1, 5); // Remove prefix Table
+        #                        }
+        #
+        #                        if (findPropertyPos(_treeNode.AOTgetProperties(), sysPropertyName))
+        #                        {
+        #                            subItem++;
+        #                            if (selectedProperties.Criteria &&
+        #                                !match(selectedProperties.Criteria,findProperty(_treeNode.AOTgetProperties(), sysPropertyName)))
+        #                            {
+        #                                return false;
+        #                            }
+        #                        }
+        #
+        #                        break;
+        #                }
+        #
+        #            }
+        #            if (!subItem)
+        #                return false;
+        #        }
+        #    }
+        #
+        #    /*
+        #        Item found
+        #    */
+        #
+        #    hits++;
+        #
+        #    return true;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

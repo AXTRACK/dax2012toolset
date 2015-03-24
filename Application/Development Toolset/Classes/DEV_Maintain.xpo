@@ -1,0 +1,824 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_Maintain unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_Maintain
+    PROPERTIES
+      Name                #DEV_Maintain
+      Extends             #RunBase
+      Origin              #{202F401E-2E85-4812-9D92-DE8DE0E9AFD6}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #caption
+        #// >> DEV:MXK >>
+        #public ClassDescription caption()
+        #{
+        #    return "@SYS73307";
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #// >> DEV:MXK >>
+        #// DEV Utility: Class to perform Application Compilation,  CIL generation, Cross Reference update, DB Synchronization in one go. Useful for a weekly maintenance.
+        #// AX 2012 R2 RU7
+        #class DEV_Maintain extends RunBase
+        #{
+        #    #DEV_Toolset
+        #
+        #    Dialog              dialog;
+        #    DialogGroup         dialogGrp;
+        #
+        #    NoYesId             compileAll;
+        #    NoYesId             compileCIL;
+        #    NoYesId             updateCrossRef;
+        #    NoYesId             syncDB;
+        #    NoYesId             flushCache;
+        #    NoYesId             maintainIndexes;
+        #
+        #    DialogField         dlgSelectNoneAll;
+        #    DialogField         dlgCompileAll;
+        #    DialogField         dlgCompileCIL;
+        #    DialogField         dlgUpdateCrossRef;
+        #    DialogField         dlgSyncDB;
+        #    DialogField         dlgFlushCache;
+        #    DialogField         dlgMaintainIndexes;
+        #
+        #    #define.CurrentVersion(1)
+        #    #localmacro.CurrentList
+        #        compileAll,
+        #        compileCIL,
+        #        updateCrossRef,
+        #        syncDB,
+        #        flushCache,
+        #        maintainIndexes
+        #    #endmacro
+        #
+        #    #define.selectNoneAll('selectNoneAll')
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #compileAll
+        #// >> DEV:MXK >>
+        #private void compileAll()
+        #{
+        #    setprefix("@SYS53249");
+        #
+        #    // Compile All
+        #    infolog.messageWin().activate();
+        #
+        #    SysCompileAll::flushClient();
+        #    SysCompileAll::compile();
+        #
+        #    SysCheckList::finished(classnum(SysCheckListItem_Compile));
+        #    SysCheckList::finished(classnum(SysCheckListItem_CompileUpgrade));
+        #    SysCheckList::finished(className2Id(classStr(SysCheckListItem_CompileServ)));
+        #    SysCheckList::finished(classnum(SysCheckListItem_SysUpdateCodeCompilInit));
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #compileCIL
+        #// >> DEV:MXK >>
+        #private void compileCIL()
+        #{
+        #    setprefix("@SYS329556");
+        #
+        #    // Compile Full CIL
+        #    SysCompileIL::generateIL();
+        #
+        #    SysCheckList::finished(classnum(SysCheckListItem_CILGeneration));
+        #    SysCheckList::finished(classnum(SysCheckListItem_CILGenerationInit));
+        #    SysCheckList::finished(className2Id(classStr(SysCheckListItem_CILGenerationServ)));
+        #    SysCheckList::finished(classnum(SysCheckListItem_SysUpdateCodeCILInit));
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #dbSynchronize
+        #// >> DEV:MXK >>
+        #private void dbSynchronize()
+        #{
+        #    setprefix("@SYS22807");
+        #
+        #    appl.dbSynchronize(0, false);
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #dialog
+        #// >> DEV:MXK >>
+        #// BP Deviation Documented
+        #public Object dialog()
+        #{
+        #    FormBuildControl    setupGroupControl;
+        #
+        #    dialog = super();
+        #
+        #    dialog.alwaysOnTop(true);
+        #    dialog.windowType(FormWindowType::Standard);
+        #    dialogGrp = dialog.addGroup("@SYS7764");
+        #
+        #    setupGroupControl = dialog.formBuildDesign().control(dialogGrp.formBuildGroup().id());
+        #
+        #    dialog.customFieldName_RU(#selectNoneAll);
+        #    dlgSelectNoneAll    = dialog.addField(extendedTypeStr(NoYesId), "@SYS152644"); // Select all
+        #    dlgFlushCache       = dialog.addField(extendedTypeStr(NoYesId), 'Clear cache');
+        #    dlgCompileAll       = dialog.addField(extendedTypeStr(NoYesId), "@SYS53249"); // Compile application
+        #    dlgCompileCIL       = dialog.addField(extendedTypeStr(NoYesId), "@SYS329556"); // Generate CIL from X++
+        #    dlgUpdateCrossRef   = dialog.addField(extendedTypeStr(NoYesId), 'Update cross-references');
+        #    dlgSyncDB           = dialog.addField(extendedTypeStr(NoYesId), "@SYS22807"); // Synchronise database
+        #    dlgMaintainIndexes  = dialog.addField(extendedTypeStr(NoYesId), 'Maintain indexes', 'Synch DB & update indexes.');
+        #
+        #    dialog.allowUpdateOnSelectCtrl(true);
+        #    dialog.allowControlMethodOverload_RU(true);
+        #
+        #    this.dialogSelectCtrl();
+        #
+        #    return dialog;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #flushCache
+        #// >> DEV:MXK >>
+        #private void flushCache()
+        #{
+        #    Args        args    = new Args(this);
+        #
+        #    setprefix("@SYP4312535");
+        #
+        #    xSession::removeAOC();
+        #
+        #    SysFlushAOD::main(args);
+        #    SysFlushData::main(args);
+        #    SysFlushDictionary::main(args);
+        #    //SysFlushReportServer::main(args);
+        #
+        #    SysTreeNode::refreshAll();
+        #
+        #    xSession::updateAOC();
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #getFromDialog
+        #// >> DEV:MXK >>
+        #public boolean getFromDialog()
+        #{
+        #    compileAll      = dlgCompileAll.value();
+        #    compileCIL      = dlgCompileCIL.value();
+        #    updateCrossRef  = dlgUpdateCrossRef.value();
+        #    syncDB          = dlgSyncDB.value();
+        #    flushCache      = dlgFlushCache.value();
+        #    maintainIndexes = dlgMaintainIndexes.value();
+        #
+        #    return true;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #lastValueDataAreaId
+        #// >> DEV:MXK >>
+        #public DataAreaId lastValueDataAreaId()
+        #{
+        #    DataAreaId ret;
+        #
+        #    //ret = super();
+        #
+        #    return ret;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #// >> DEV:MXK >>
+        #protected void new()
+        #{
+        #    super();
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #pack
+        #// >> DEV:MXK >>
+        #public container pack()
+        #{
+        #    return [#CurrentVersion, #CurrentList];
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #putToDialog
+        #// >> DEV:MXK >>
+        #protected void putToDialog()
+        #{
+        #    super();
+        #
+        #    dlgCompileAll.value(compileAll);
+        #    dlgCompileCIL.value(compileCIL);
+        #    dlgUpdateCrossRef.value(updateCrossRef);
+        #    dlgSyncDB.value(syncDB);
+        #    dlgFlushCache.value(flushCache);
+        #    dlgMaintainIndexes.value(maintainIndexes);
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #run
+        #// >> DEV:MXK >>
+        #public void run()
+        #{
+        #    super();
+        #
+        #    if (flushCache)
+        #    {
+        #        this.flushCache();
+        #    }
+        #
+        #    // Compile
+        #    if (compileAll)
+        #    {
+        #        this.compileAll();
+        #    }
+        #
+        #    if (updateCrossRef)
+        #    {
+        #        this.updateCrossRef();
+        #    }
+        #
+        #    // Generate IL code
+        #    if (compileCIL)
+        #    {
+        #        this.compileCIL();
+        #    }
+        #
+        #    // Synchronize
+        #    if (syncDB && !maintainIndexes)
+        #    {
+        #        this.dbSynchronize();
+        #    }
+        #
+        #    if (maintainIndexes)
+        #    {
+        #        DEV_Maintain::maintainIndexes();
+        #        WinAPI::shellExecute(strFmt('"%1" %2', DEV_Global::clientPath(),
+        #                            '-StartupCmd=Synchronize -lazyclassloading -lazytableloading -minimize'));
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #selectNoneAll_clicked
+        #public void selectNoneAll_clicked()
+        #{
+        #    Object  control = dialog.formRun().controlCallingMethod();
+        #
+        #    control.clicked(); //super
+        #
+        #    if (dlgSelectNoneAll.value())
+        #    {
+        #        dlgCompileAll.value(NoYes::Yes);
+        #        dlgCompileCIL.value(NoYes::Yes);
+        #        dlgUpdateCrossRef.value(NoYes::Yes);
+        #        dlgSyncDB.value(NoYes::Yes);
+        #        dlgFlushCache.value(NoYes::Yes);
+        #        dlgMaintainIndexes.value(NoYes::Yes);
+        #        control.label("@SYS57284");
+        #    }
+        #    else
+        #    {
+        #        dlgCompileAll.value(NoYes::No);
+        #        dlgCompileCIL.value(NoYes::No);
+        #        dlgUpdateCrossRef.value(NoYes::No);
+        #        dlgSyncDB.value(NoYes::No);
+        #        dlgFlushCache.value(NoYes::No);
+        #        dlgMaintainIndexes.value(NoYes::No);
+        #        control.label("@SYS152644");
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #unpack
+        #// >> DEV:MXK >>
+        #boolean unpack(container _packedClass)
+        #{
+        #    Integer     version     = RunBase::getVersion(_packedClass);
+        #
+        #    switch (version)
+        #    {
+        #        case #CurrentVersion:
+        #            [version, #CurrentList] = _packedClass;
+        #            break;
+        #        default:
+        #            return false;
+        #    }
+        #
+        #    return true;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #updateCrossRef
+        #// >> DEV:MXK >>
+        #private void updateCrossRef()
+        #{
+        #    #AviFiles
+        #
+        #    xRefUpdate xRefUpdate = new xRefUpdate();
+        #    int64 batchid;
+        #    xRefDialogUpdate xRefDialogUpdate;
+        #
+        #    // Update All CrossReferences
+        #    setprefix(xRefUpdate.caption());
+        #
+        #    appl.globalCache().set(classstr(xRefUpdate), '', xRefUpdate);
+        #
+        #    xRefUpdate.aosClientMode(Session::aosClientMode());
+        #
+        #    // Clean the table used for updating the progress bar
+        #    ttsBegin;
+        #    delete_from xRefDialogUpdate;
+        #    xRefDialogUpdate.Path = '';
+        #    xRefDialogUpdate.insert();
+        #    ttsCommit;
+        #
+        #    xRefUpdate.progressInit("@SYS3947",3,#AviFileDel);
+        #    xRefUpdate::truncateXrefTables(xRefUpdate.parmProgress());
+        #    xRefUpdate.progressInit(strfmt("@SYS25755",TreeNode::rootNode().treeNodePath()),0,#AviFileCopy);
+        #    batchid = xRefUpdateIL::updateAllXref(true, false, true, true);
+        #    xRefUpdate::updateProgressBar(xRefUpdate,batchid,30*1000);
+        #    new xRefTableRelationUpdate().run();
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #construct
+        #// >> DEV:MXK >>
+        #public static DEV_Maintain construct()
+        #{
+        #    return new DEV_Maintain();
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #getRefKind
+        #// >> DEV:MXK >>
+        #public static xRefKind getRefKind(TreeNode _treeNode)
+        #{
+        #    xRefKind        ret;
+        #
+        #    if (_treeNode.treeNodeType().isUtilElement())
+        #    switch (_treeNode.utilElement().recordType)
+        #    {
+        #        case UtilElementType::ActionTool:
+        #            ret = xRefKind::MenuItemAction;
+        #            break;
+        #
+        #        case UtilElementType::DisplayTool:
+        #            ret = xRefKind::MenuItemDisplay;
+        #            break;
+        #
+        #        case UtilElementType::OutputTool:
+        #            ret = xRefKind::MenuItemOutput;
+        #            break;
+        #
+        #        case UtilElementType::Class:
+        #            ret = xRefKind::Class;
+        #            break;
+        #
+        #        case UtilElementType::Cue:
+        #            ret = xRefKind::Cue;
+        #            break;
+        #
+        #        case UtilElementType::DataSet:
+        #            ret = xRefKind::DataSet;
+        #            break;
+        #
+        #        case UtilElementType::Enum:
+        #            ret = xRefKind::Enum;
+        #            break;
+        #
+        #        case UtilElementType::ExtendedType:
+        #            ret = xRefKind::ExtendedType;
+        #            break;
+        #
+        #        case UtilElementType::Form:
+        #            ret = xRefKind::Form;
+        #            break;
+        #
+        #        case UtilElementType::FormPart:
+        #            ret = xRefKind::FormPart;
+        #            break;
+        #
+        #        case UtilElementType::InfoPart:
+        #            ret = xRefKind::InfoPart;
+        #            break;
+        #
+        #        case UtilElementType::Job:
+        #            ret = xRefKind::Job;
+        #            break;
+        #
+        #        case UtilElementType::LicenseCode:
+        #            ret = xRefKind::LicenseCode;
+        #            break;
+        #
+        #        case UtilElementType::Menu:
+        #            ret = xRefKind::Menu;
+        #            break;
+        #
+        #        case UtilElementType::Query:
+        #            ret = xRefKind::Query;
+        #            break;
+        #
+        #        case UtilElementType::Report:
+        #            ret = xRefKind::Report;
+        #            break;
+        #
+        #        case UtilElementType::SecCodePermission:
+        #            ret = xRefKind::CodePermission;
+        #            break;
+        #
+        #        case UtilElementType::SecDuty:
+        #            ret = xRefKind::Duty;
+        #            break;
+        #
+        #        case UtilElementType::SecPolicy:
+        #            ret = xRefKind::Policy;
+        #            break;
+        #
+        #        case UtilElementType::SecPrivilege:
+        #            ret = xRefKind::Privilege;
+        #            break;
+        #
+        #        case UtilElementType::SecProcessCycle:
+        #            ret = xRefKind::ProcessCycle;
+        #            break;
+        #
+        #        case UtilElementType::SecRole:
+        #            ret = xRefKind::Role;
+        #            break;
+        #
+        #        case UtilElementType::SecurityKey:
+        #            ret = xRefKind::SecurityKey;
+        #            break;
+        #
+        #        case UtilElementType::Service:
+        #            ret = xRefKind::Service;
+        #            break;
+        #
+        #        case UtilElementType::ServiceGroup:
+        #            ret = xRefKind::ServiceGroup;
+        #            break;
+        #
+        #        case UtilElementType::SSRSReport:
+        #            ret = xRefKind::SSRSReport;
+        #            break;
+        #
+        #        case UtilElementType::SSRSReportLayoutTemplate:
+        #            ret = xRefKind::SSRSReportLayoutTemplate;
+        #            break;
+        #
+        #        case UtilElementType::SSRSReportListStyleTemplate:
+        #            ret = xRefKind::SSRSReportListStyleTemplate;
+        #            break;
+        #
+        #        case UtilElementType::SSRSReportMatrixStyleTemplate:
+        #            ret = xRefKind::SSRSReportMatrixStyleTemplate;
+        #            break;
+        #
+        #        case UtilElementType::SSRSReportPieChartStyleTemplate:
+        #            ret = xRefKind::SSRSReportPieChartStyleTemplate;
+        #            break;
+        #
+        #        case UtilElementType::SSRSReportTableStyleTemplate:
+        #            ret = xRefKind::SSRSReportTableStyleTemplate;
+        #            break;
+        #
+        #        case UtilElementType::SSRSReportXYChartStyleTemplate:
+        #            ret = xRefKind::SSRSReportXYChartStyleTemplate;
+        #            break;
+        #
+        #        case UtilElementType::Table:
+        #            ret = xRefKind::Table;
+        #            break;
+        #
+        #        case UtilElementType::TableMap:
+        #            ret = xRefKind::Map;
+        #            break;
+        #
+        #        case UtilElementType::VSProject_AXModel:
+        #            ret = xRefKind::VsProjectAxModeling;
+        #            break;
+        #
+        #        case UtilElementType::VSProject_CSharp:
+        #            ret = xRefKind::VsProjectCsharp;
+        #            break;
+        #
+        #        case UtilElementType::VSProject_VB:
+        #            ret = xRefKind::VsProjectVisualBasic;
+        #            break;
+        #
+        #        case UtilElementType::VSProject_Web:
+        #            ret = xRefKind::VsProjectWebApplication;
+        #            break;
+        #
+        #        case UtilElementType::VSProject_Analysis:
+        #            ret = xRefKind::VsProjectAnalysisServices;
+        #            break;
+        #
+        #        case UtilElementType::WebActionItem:
+        #            ret = xRefKind::WebActionItem;
+        #            break;
+        #
+        #        case UtilElementType::WebDisplayContentItem:
+        #            ret = xRefKind::WebDisplayContentItem;
+        #            break;
+        #
+        #        case UtilElementType::WebControl:
+        #            ret = xRefKind::WebControl;
+        #            break;
+        #
+        #        case UtilElementType::WebForm:
+        #            ret = xRefKind::WebForm;
+        #            break;
+        #
+        #        case UtilElementType::WebManagedContentItem:
+        #            ret = xRefKind::WebManagedContentItem;
+        #            break;
+        #
+        #        case UtilElementType::WebMenu:
+        #            ret = xRefKind::WebMenu;
+        #            break;
+        #
+        #        case UtilElementType::WebModule:
+        #            ret = xRefKind::WebModule;
+        #            break;
+        #
+        #        case UtilElementType::WebOutputContentItem:
+        #            ret = xRefKind::WebOutputContentItem;
+        #            break;
+        #
+        #        case UtilElementType::WebPageDef:
+        #            ret = xRefKind::WebPageDef;
+        #            break;
+        #
+        #        case UtilElementType::WebStaticFile:
+        #            ret = xRefKind::WebStaticFile;
+        #            break;
+        #
+        #        case UtilElementType::WebUrlItem:
+        #            ret = xRefKind::WebUrlItem;
+        #            break;
+        #
+        #        case UtilElementType::ConfigurationKey:
+        #            ret = xRefKind::ConfigurationKey;
+        #            break;
+        #
+        #        case UtilElementType::CueGroup:
+        #            ret = xRefKind::CueGroup;
+        #            break;
+        #
+        #        case UtilElementType::ViewQuery:
+        #        case UtilElementType::TableCollection:
+        #        case UtilElementType::Perspective:
+        #        case UtilElementType::Macro:
+        #        case UtilElementType::ReportTemplate:
+        #        case UtilElementType::ReportLibrary:
+        #        case UtilElementType::WorkflowApproval:
+        #        case UtilElementType::WorkflowAutomatedTask:
+        #        case UtilElementType::WorkflowCategory:
+        #        case UtilElementType::WorkflowDueDateProvider:
+        #        case UtilElementType::WorkflowHierarchyProvider:
+        #        case UtilElementType::WorkflowParticipantProvider:
+        #        case UtilElementType::WorkflowQueueProvider:
+        #        case UtilElementType::WorkflowTask:
+        #        case UtilElementType::WorkflowType:
+        #        case UtilElementType::Resource:
+        #        case UtilElementType::LabelFile:
+        #        case UtilElementType::Reference:
+        #        case UtilElementType::DocSet:
+        #            ret = xRefKind::Nil;
+        #            break;
+        #
+        #        default:
+        #            ret = xRefKind::Nil;
+        #    }
+        #
+        #    return ret;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #main
+        #// >> DEV:MXK >>
+        #public static void main(Args args)
+        #{
+        #    DEV_Maintain        maintain = DEV_Maintain::construct();
+        #
+        #    if (isDeveloper())
+        #    {
+        #        if (maintain.prompt())
+        #        {
+        #            maintain.run();
+        #        }
+        #    }
+        #    else
+        #    {
+        #        throw error("@SYS322185");
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #maintainIndexes
+        #static server void maintainIndexes()
+        #{
+        #    UserConnection                  userConnection;
+        #    Statement                       statement;
+        #    SysSQLSystemInfo                systemInfo =  SysSQLSystemInfo::construct();
+        #    str                             sqlStatement;
+        #    str                             sqlQuery =
+        #    @"
+        #    USE %1
+        #
+        #    SET nocount ON;
+        #
+        #    DECLARE @objectid INT;
+        #    DECLARE @indexid INT;
+        #    DECLARE @partitioncount BIGINT;
+        #    DECLARE @schemaname NVARCHAR(130);
+        #    DECLARE @objectname NVARCHAR(130);
+        #    DECLARE @indexname NVARCHAR(130);
+        #    DECLARE @partitionnum BIGINT;
+        #    DECLARE @partitions BIGINT;
+        #    DECLARE @frag FLOAT;
+        #    DECLARE @command NVARCHAR(4000);
+        #
+        #    -- Conditionally select tables and indexes from the sys.dm_db_index_physical_stats function
+        #    -- and convert object and index IDs to names.
+        #    SELECT OBJECT_ID                    AS objectid,
+        #            INDEX_ID                     AS indexid,
+        #            PARTITION_NUMBER             AS partitionnum,
+        #            AVG_FRAGMENTATION_IN_PERCENT AS frag
+        #    INTO   #work_to_do
+        #    FROM   sys.DM_DB_INDEX_PHYSICAL_STATS (DB_ID(), NULL, NULL, NULL, 'LIMITED')
+        #    WHERE  AVG_FRAGMENTATION_IN_PERCENT > 10.0
+        #            AND INDEX_ID > 0;
+        #
+        #    -- Declare the cursor for the list of partitions to be processed.
+        #    DECLARE partitions CURSOR FOR
+        #        SELECT *
+        #        FROM   #work_to_do;
+        #
+        #    -- Open the cursor.
+        #    OPEN partitions;
+        #
+        #    -- Loop through the partitions.
+        #    WHILE ( 1 = 1 )
+        #        BEGIN;
+        #            FETCH next FROM partitions INTO @objectid, @indexid, @partitionnum, @frag;
+        #
+        #            IF @@FETCH_STATUS < 0
+        #            BREAK;
+        #
+        #            SELECT @objectname = QUOTENAME(o.NAME),
+        #                    @schemaname = QUOTENAME(s.NAME)
+        #            FROM   sys.OBJECTS AS o
+        #                    JOIN sys.SCHEMAS AS s
+        #                    ON s.SCHEMA_ID = o.SCHEMA_ID
+        #            WHERE  o.OBJECT_ID = @objectid;
+        #
+        #            SELECT @indexname = QUOTENAME(NAME)
+        #            FROM   sys.INDEXES
+        #            WHERE  OBJECT_ID = @objectid
+        #                    AND INDEX_ID = @indexid;
+        #
+        #            SELECT @partitioncount = COUNT (*)
+        #            FROM   sys.PARTITIONS
+        #            WHERE  OBJECT_ID = @objectid
+        #                    AND INDEX_ID = @indexid;
+        #
+        #            -- 30 is an arbitrary decision point at which to switch between reorganizing and rebuilding.
+        #            IF @frag < 30.0
+        #            SET @command = N'ALTER INDEX ' + @indexname + N' ON '
+        #                            + @schemaname + N'.' + @objectname + N' REORGANIZE';
+        #
+        #            IF @frag >= 30.0
+        #            SET @command = N'ALTER INDEX ' + @indexname + N' ON '
+        #                            + @schemaname + N'.' + @objectname
+        #                            + N' REBUILD WITH(ONLINE = ON, MAXDOP = 8)';
+        #
+        #            IF @partitioncount > 1
+        #            SET @command = @command + N' PARTITION='
+        #                            + CAST(@partitionnum AS NVARCHAR(10));
+        #
+        #            EXEC (@command);
+        #
+        #            PRINT N'Executed: ' + @command;
+        #        END;
+        #
+        #    -- Close and deallocate the cursor.
+        #    CLOSE partitions;
+        #
+        #    DEALLOCATE partitions;
+        #
+        #    -- Drop the temporary table.
+        #    DROP TABLE #work_to_do;";
+        #
+        #    try
+        #    {
+        #        userConnection  = new UserConnection();
+        #        statement       = userConnection.createStatement();
+        #
+        #        sqlStatement    = strFmt(sqlQuery, systemInfo.getloginDatabase());
+        #        new SqlStatementExecutePermission(sqlStatement).assert();
+        #        statement.executeUpdate(sqlStatement);
+        #        CodeAccessPermission::revertAssert();
+        #
+        #        sqlStatement    = strFmt(sqlQuery, systemInfo.getloginDatabase()  + '_model');
+        #        new SqlStatementExecutePermission(sqlStatement).assert();
+        #        statement.executeUpdate(sqlStatement);
+        #        CodeAccessPermission::revertAssert();
+        #    }
+        #    catch
+        #    {
+        #        if (    statement
+        #            &&  statement.getLastErrorText())
+        #        {
+        #            throw error(statement.getLastErrorText());
+        #        }
+        #        throw error(funcName());
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #updateProjectCrossRef
+        #// >> DEV:MXK >>
+        #public static void updateProjectCrossRef()
+        #{
+        #    TreeNode        tnRoot, tnProject;
+        #    ProjectNode     projectNode;
+        #
+        #    xRefPaths       refPaths;
+        #
+        #    tnRoot = SysTreeNode::getSharedProject();
+        #
+        #    if (tnRoot)
+        #    {
+        #        tnProject = tnRoot.AOTfirstChild();
+        #
+        #        while (tnProject)
+        #        {
+        #            projectNode = tnProject;
+        #
+        #            if (TreeNode::findNode(tnProject.treeNodePath()))
+        #            {
+        #                refPaths = xRefPaths::findOrInsert(tnProject.treeNodePath());
+        #                DEV_Maintain::updateProjectNodes(projectNode.loadForInspection(), refPaths.RecId);
+        #            }
+        #
+        #            tnProject = tnProject.AOTnextSibling();
+        #        }
+        #    }
+        #
+        #    info('Project references updated successfully.');
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #updateProjectNodes
+        #public static void updateProjectNodes(  TreeNode        _prentProject,
+        #                                        xRefPathRecId   _xRefPathRecId = 0)
+        #{
+        #    #TreeNodeSysNodeType
+        #
+        #    TreeNode            treeNode;
+        #    TreeNodeIterator    rootNodeIterator;
+        #
+        #    xRefReferences      refReferences;
+        #    xRefPaths           refPathsRef;
+        #
+        #    xRefPathRecId       xRefNameRecId;
+        #
+        #    rootNodeIterator = _prentProject.AOTiterator();
+        #
+        #    treeNode = rootNodeIterator.next();
+        #
+        #    while (treeNode)
+        #    {
+        #        if (treeNode.treeNodeType().id() == #NT_PROJECT_GROUP)
+        #        {
+        #            DEV_Maintain::updateProjectNodes(treeNode, _xRefPathRecId);
+        #        }
+        #        else
+        #        {
+        #            refPathsRef     = xRefPaths::findOrInsert(treeNode.treeNodePath());
+        #            xRefNameRecId   = xRefNames::findOrInsert(DEV_Maintain::getRefKind(treeNode), '', treeNode.treeNodeName(), 0).RecId;
+        #
+        #            if (!xRefReferences::find(xRefNameRecId, _xRefPathRecId, XRefReference::Declaration))
+        #            {
+        #                refReferences.initValue();
+        #                refReferences.xRefNameRecId        = xRefNameRecId;
+        #                refReferences.xRefPathRecId        = _xRefPathRecId;
+        #                refReferences.referencePathRecId   = refPathsRef.RecId;
+        #                refReferences.Reference            = XRefReference::Declaration;
+        #                refReferences.insert();
+        #            }
+        #        }
+        #
+        #        treeNode.treeNodeRelease();
+        #        treeNode = rootNodeIterator.next();
+        #    }
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

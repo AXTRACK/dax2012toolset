@@ -1,0 +1,2656 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #DEV_HKSetup
+  PROPERTIES
+    Name                #DEV_HKSetup
+    Origin              #{3FB63EF8-5749-418F-BDD4-560D89FDF3D4}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #public class FormRun extends ObjectRun
+      #{
+      #    #AOT
+      #    #File
+      #
+      #    #DEV_Toolset
+      #
+      #    #define.CustColorSize(64)
+      #
+      #    DEV_HKManager               hkManager;
+      #    DEV_UserParameters          parameters;
+      #
+      #    JmgClockVisualization       clockVis;
+      #
+      #    Binary                      custColor;
+      #}
+    ENDSOURCE
+    SOURCE #addImage
+      #public TempStr addImage(TempStr _res, int _hspace = 0)
+      #{
+      #    ResourceNode    resourceNode;
+      #    TempStr         ret;
+      #
+      #    resourceNode = SysResource::getResourceNode(_res);
+      #
+      #    if (resourceNode)
+      #    {
+      #        ret += '<img src="'+ SysResource::saveToTempFile(resourceNode) + '" border=0 hspace="' + int2str(_hspace) + '">';
+      #    }
+      #
+      #    return ret;
+      #}
+    ENDSOURCE
+    SOURCE #canClose
+      #// >> DEV:MXK >>
+      #public boolean canClose()
+      #{
+      #    boolean ret;
+      #
+      #    if (DEV_UserParameters.TBEnabled && !parameters.TBEnabled)
+      #    {
+      #        new MenuFunction(menuitemDisplayStr(DEV_Toolbar), MenuItemType::Display).run(new Args());
+      #    }
+      #
+      #    if (DEV_UserParameters.HKEnabled && !parameters.HKEnabled)
+      #    {
+      #        DEV_HKManager::startHKManager().initParmDefault();
+      #    }
+      #
+      #    if (!DEV_UserParameters.disableOnError && parameters.disableOnError)
+      #    {
+      #        infolog.globalCache().remove(classStr(Info), 'Error');
+      #    }
+      #
+      #    ret = super();
+      #
+      #    return ret;
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #close
+      #public void close()
+      #{
+      #    if (infolog.globalCache().isSet(this.name(), 'instance'))
+      #    {
+      #        infolog.globalCache().remove(this.name(), 'instance');
+      #    }
+      #
+      #    super();
+      #}
+    ENDSOURCE
+    SOURCE #closeOk
+      #void closeOk()
+      #{
+      #    if (hkManager.checkCloseDialog())
+      #    {
+      #        super();
+      #    }
+      #}
+      #
+    ENDSOURCE
+    SOURCE #color2hex
+      #LeanScheduleGroupColor color2hex(OLE_Color _color)
+      #{
+      #    LeanScheduleGroupColor  retColor;
+      #    int                     r,g,b;
+      #
+      #    [r, g, b] = WinAPI::RGBint2Con(_color);
+      #    retColor = int2Hex(r, 2) + int2Hex(g, 2) + int2Hex(b, 2);
+      #
+      #    return retColor;
+      #}
+    ENDSOURCE
+    SOURCE #editHKEnabled
+      #//BP deviation documented
+      #edit boolean editHKEnabled(boolean _set, boolean _hkEnabled)
+      #{
+      #    if (_set)
+      #        hkManager.parmHKEnabled(_hkEnabled);
+      #
+      #    return hkManager.parmHKEnabled();
+      #}
+    ENDSOURCE
+    SOURCE #fileNameLookupInitialPath
+      #str fileNameLookupInitialPath()
+      #{
+      #    #WinAPI
+      #
+      #    Filename    filepath;
+      #    Filename    filename;
+      #    Filename    fileType;
+      #
+      #    [filepath, filename, fileType] = Global::fileNameSplit(GroupPath_ExportFilePath.text());
+      #
+      #    if (!filepath)
+      #    {
+      #        filepath = WinAPI::getFolderPath(#CSIDL_Personal);
+      #    }
+      #
+      #    return filepath;
+      #}
+    ENDSOURCE
+    SOURCE #filePathLookupTitle
+      #str filePathLookupTitle()
+      #{
+      #    return "@SYS95311";
+      #}
+    ENDSOURCE
+    SOURCE #getResourceHTML
+      #private str getResourceHTML()
+      #{
+      #    TreeNode resourcesNode;
+      #    resourceNode resourceNode;
+      #    str source = '';
+      #    container data;
+      #
+      #    // Get the Resource node in the AOT
+      #    resourcesNode = infolog.findNode(#ResourcesPath);
+      #
+      #    if (resourcesNode)
+      #    {
+      #        // Get the HTML string holding the data from the resource item
+      #        resourceNode = resourcesNode.AOTfindChild(resourceStr(SysWindowsAppApprovalsTilePreview_html));
+      #        if (resourceNode)
+      #        {
+      #            resourceNode.AOTload();
+      #            data = SysResource::getResourceNodeData(resourceNode);
+      #            source = conPeek(data, 1);
+      #        }
+      #    }
+      #
+      #    return source;
+      #}
+    ENDSOURCE
+    SOURCE #hex2color
+      #OLE_Color hex2color(LeanScheduleGroupColor _color)
+      #{
+      #    int r,g,b;
+      #
+      #    [b,g,r] = WinAPI::RGBint2Con(hex2Int(_color));
+      #
+      #    return WinAPI::RGB2int(r, g, b);
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #// >> DEV:MXK >>
+      #public void init()
+      #{
+      #    if (!element.args() || !element.args().caller())
+      #        throw error(error::wrongUseOfFunction(funcname()));
+      #
+      #    parameters      = DEV_UserParameters::findOrCreate();
+      #
+      #    hkManager       = element.args().caller().runbase();
+      #
+      #    super();
+      #
+      #    this.setControls();
+      #
+      #    this.setAboutText();
+      #
+      #    this.setCreditsText();
+      #
+      #    this.setLicenseText();
+      #    //throw error("@SYS322185");
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #lookupColor
+      #public void lookupColor()
+      #{
+      #    OLE_Color color = this.hex2color(DEV_UserParameters.EnvColor);
+      #
+      #    color = SysFormRun::colorLookup(element, color, custColor);
+      #
+      #    DEV_UserParameters.EnvColor = this.color2hex(color);
+      #
+      #    element.updateColor();
+      #}
+    ENDSOURCE
+    SOURCE #lookupProject
+      #void lookupProject()
+      #{
+      #    TreeNode            treeNode;
+      #    TreeNode            projectNode;
+      #    TreeNodeIterator    iterator;
+      #    int                 i, a;
+      #
+      #    controlStartupProject.clear();
+      #    controlStartupProject.add("@SYS26699");
+      #
+      #    treeNode    = infolog.projectRootNode();
+      #    treeNode    = treeNode.AOTfirstChild();
+      #
+      #    for (i=0; i<2; i++)
+      #    {
+      #        iterator    = treeNode.AOTiterator();
+      #        projectNode = iterator.next();
+      #        while (projectNode)
+      #        {
+      #            controlStartupProject.add(projectNode.treeNodeName());
+      #            projectNode = iterator.next();
+      #            a++;
+      #        }
+      #        treeNode = treeNode.AOTnextSibling();
+      #
+      #    }
+      #    controlStartupProject.items(a+1);
+      #}
+    ENDSOURCE
+    SOURCE #run
+      #public void run()
+      #{
+      #    #WinAPI
+      #    HWND                    handle;
+      #
+      #    super();
+      #
+      #    // >> DEV:MXK >>
+      #    if (DEV_UserParameters.EnvColor == '')
+      #        DEV_UserParameters.EnvColor = #EnvDefaultColour;
+      #
+      #    element.updateColor();
+      #
+      #    if (infolog.globalCache().isSet(#ToolsetName, identifierStr(firstRun)))
+      #    {
+      #        DEV_Global::showHint('Many predefined hotkeys are available in the Development workspace.\n' +
+      #                            'The default settings has been created which can be reviewed and changed as required.\n' +
+      #                            'To find out more about each hotkey check About TabPage.',
+      #                            this.name(),
+      #                            'Hotkeys');
+      #
+      #        ButtonEditorExtSetup.clicked();
+      #
+      #        infolog.globalCache().remove(#ToolsetName, identifierStr(firstRun));
+      #    }
+      #
+      #    if (infolog.globalCache().isSet(this.name(), identifierStr(instance)))
+      #    {
+      #        handle = infolog.globalCache().get(this.name(), identifierStr(instance), null);
+      #
+      #        if (handle > 0)
+      #        {
+      #            WinAPI::sendMessageEx(handle, #WM_SYSCOMMAND, #SC_CLOSE, 0);
+      #        }
+      #
+      #        infolog.globalCache().remove(this.name(), identifierStr(instance));
+      #    }
+      #
+      #    infolog.globalCache().set(this.name(), identifierStr(instance), this.hWnd());
+      #    // >> DEV:MXK <<
+      #
+      #    element.lookupProject();
+      #    element.setSelection(controlStartupProject, userInfo.StartupProject);
+      #}
+    ENDSOURCE
+    SOURCE #runBase
+      #//AOSRunMode::Client
+      #RunBase runBase()
+      #{
+      #    return hkManager;
+      #}
+      #
+    ENDSOURCE
+    SOURCE #setAboutText
+      #// BP Deviation Documented
+      #void setAboutText()
+      #{
+      #    str         s;
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>Development toolset';
+      #    s += ' is an enhanced build of multiple utilities created by a group of independant developers. The';
+      #    s += ' main purpose of this build is to allow easy setup and configuration of those';
+      #    s += ' and provide a better development experience in the Microsoft Dynamics AX environment.';
+      #    s += ' The groups of users who will benefit from this build would be developers, consultans, architects etc.';
+      #    s += ' In order to access this tools you would need to have a Developer rights in AX.';
+      #    s += ' The major utilities included in this build are listed below.</p>';
+      #
+      #    // 1 - FormDigger
+      #    s += ' <p class=MsoNormal align=center style=\'text-align:center\'><b style=\'mso-bidi-font-weight:';
+      #    s += ' normal\'><span lang=EN-US style=\'font-size:12.0pt;line-height:115%;mso-ansi-language:EN-US\'>';
+      #    s += this.addImage(resourceStr(Icon830), 10);
+      #    s += '<a href=\'http://www.axaptapedia.com/FormDigger\'>FormDigger ';
+      #    s += '</a></span></b><span lang=EN-US style=\'mso-ansi-language:EN-US\'><u1:p></u1:p></span></p>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>FormDigger ';
+      #    s += ' is Microsoft Dynamics AX add-on, developed as user interface extension. The';
+      #    s += ' main purpose of FormDigger is help to find out any field on Microsoft Dynamics AX forms,';
+      #    s += ' which represents business logic. It also allows generate field path,';
+      #    s += ' simplifying user navigation and user guides’ creation.</p>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>FormDigger';
+      #    s += ' can be called from any form by the combination <span style=\'background:#DDD9C3;mso-shading-themecolor:';
+      #    s += ' background2;mso-shading-themeshade:230\'>Alt + 2</span> or as a quick lookup by ';
+      #    s += ' <span style=\'background:#DDD9C3;mso-shading-themecolor:';
+      #    s += ' background2;mso-shading-themeshade:230\'>Alt + 1</span>.</p>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>FormDigger';
+      #    s += ' allows:</p>';
+      #
+      #    s += '<ul>';
+      #        s += '<li>';
+      #        s += 'Quick search and navigation to any form field and button(searching by user label or system field name)';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += 'Create form field path with custom format and language';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += 'Make a screenshot of any open form';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += 'Visual field highlight while searching process';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += 'Show various system information for current selected field';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += 'Pressing any form button directly from FormDigger ';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += 'Jump to element-related object (table field, display\\edit method, datasource table)';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += 'Show form and data sources names in FormDigger caption';
+      #        s += '</li>';
+      #    s += '</ul>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>FormDigger';
+      #    s += ' works in two modes: <b style=\'mso-bidi-font-weight:normal\'>Search</b> and <b';
+      #    s += ' style=\'mso-bidi-font-weight:normal\'>Setup</b>. Switching between is realizing';
+      #    s += ' by pressing <b style=\'mso-bidi-font-weight:normal\'>';
+      #    s += ' Setup</b> button or <b>Alt+S</b> hot key combination.</span></p>';
+      #
+      #    s += ' <p class=MsoNormal><i style=\'mso-bidi-font-style:normal\'><u><span lang=EN-US';
+      #    s += ' style=\'mso-ansi-language:EN-US\'>Search mode:</span></i></u></p>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>This mode';
+      #    s += ' allows search any interested form field or button. In this mode you can see all';
+      #    s += ' form content: visible and hidden fields, buttons and menu function buttons.';
+      #    s += ' Hidden form fields are <span style=\'background:#DDD9C3;mso-shading-themecolor:';
+      #    s += ' background2;mso-shading-themeshade:230\'>marked with grey color</span>. Fields';
+      #    s += ' which represent display methods or edit methods are <span style=\'background:';
+      #    s += ' #92D050\'>marked with green color</span>.<span style=\'mso-spacerun:yes\'>';
+      #    s += ' </span>You can also see a data source (a table name) which current field is';
+      #    s += ' connected to. </p>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>You can';
+      #    s += ' search fields in two ways: by user <b style=\'mso-bidi-font-weight:normal\'>labels</b>';
+      #    s += ' or by form <b style=\'mso-bidi-font-weight:normal\'>system name. </b>Switching between';
+      #    s += ' these ways is realizing by <b>System names</b>” check box.</p>';
+      #
+      #    s += '<ul>';
+      #        s += '<li>';
+      #        s += '<b>Capture</b> button makes a screenshot to clipboard of current opened form.';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Edit</b><sup>1</sup></span> button opens current form in edit mode.</p>';
+      #        s += '</li>';
+      #    s += '</ul>';
+      #
+      #    s += ' <p class=MsoNormal><i style=\'mso-bidi-font-style:normal\'><u><span lang=EN-US';
+      #    s += ' style=\'mso-ansi-language:EN-US\'>Fields context menu functions:</span></u></i></p>';
+      #
+      #    s += '<ul>';
+      #        s += '<li>';
+      #        s += '<b>Copy path</b> function generates string navigation path to current form control.';
+      #        s += 'You also can specify custom format and language for such path in setup mode.';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Jump</b><sup>1</sup> function opens field related objects such as table field, display\edit methods in AOT new window.';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Jump table</b><sup>1</sup> function opens field related table in AOT new window';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Properties</b><sup>1</sup> function open system information about selected field or button';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Add-ins</b><sup>1</sup> point opens standard system context menu.';
+      #        s += '</li>';
+      #    s += '</ul>';
+      #
+      #    s += ' <i><p class=MsoNormal><sup>1</sup></span></sup><span lang=EN-US';
+      #    s += ' style=\'mso-ansi-language:EN-US\'> – available for developers only</i></p>';
+      #
+      #    s += ' <p class=MsoNormal><i style=\'mso-bidi-font-style:normal\'><u><span lang=EN-US';
+      #    s += ' style=\'mso-ansi-language:EN-US\'>Setup mode:</span></i></u></p>';
+      #
+      #    s += '<ul>';
+      #        s += '<li>';
+      #        s += '<b>Hide invisible</b> parameter excludes invisible form fields from search list';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Fix open new Window</b> - function repairs incorrect window drawing when using <b>Jump</b> function.';
+      #        s += '(for Microsoft Dynamics AX 4.X versions)';
+      #        s += '</li>';
+      #    s += '</ul>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>Parameters';
+      #    s += ' included in <b style=\'mso-bidi-font-weight:normal\'><i style=\'mso-bidi-font-style:';
+      #    s += ' normal\'>Format</i></b> group take an effect while path navigation string generation.';
+      #    s += ' These parameters specify custom format for all field types. There are';
+      #    s += ' two hardcoded types used in format parameters list:</p>';
+      #
+      #    s += '<ul>';
+      #        s += '<li>';
+      #        s += '<b>StaticText</b> is used as default format for all field types';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Image</b> is used as default format for form name format';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Separator</b> parameter is used as path fields delimiter';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Language</b> parameter specify a language which path string is generated in.';
+      #        s += ' (note, that you should specify fields formats per';
+      #        s += ' language, or use default path format).';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Default</b> button resets all users setting to its default values.';
+      #        s += '</li>';
+      #    s += '</ul>';
+      #
+      #    // 2 - HK Framework
+      #    s += ' <p class=MsoNormal align=center style=\'text-align:center\'><b style=\'mso-bidi-font-weight:';
+      #    s += ' normal\'><span lang=EN-US style=\'font-size:12.0pt;line-height:115%;mso-ansi-language:EN-US\'>';
+      #    s += this.addImage(resourceStr(Icon825), 10);
+      #    s += ' <a href=\'http://earlionakru.blogspot.co.uk/2009/12/hk-framework.html\'>HK Framework';
+      #    s += '</a></span></b><span lang=EN-US style=\'mso-ansi-language:EN-US\'><u1:p></u1:p></span></p>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>HK Framework ';
+      #    s += ' is Microsoft Dynamics AX add-on, allowing define custom hotkeys for predifined system actions. The';
+      #    s += ' main purpose of HK Framework is to make work in Microsoft Dynamics AX convinient and effective.';
+      #    s += ' Framework is not using any thirdparty software, dll\'s or ActiveX components.';
+      #    s += ' Due to the change in AX 2012 there is no way to get the editor at the moment.';
+      #    s += ' Though the Editor hotkeys are not working.';
+      #    s += ' The hotkeys are defined by default but can be changed on the Hot keys tabpage.</p>';
+      #
+      #    s += '<style>' + SysResource::getStylesheetData(resourceStr(StyleSheet_Help_Axapta)) + '</style>';
+      #
+      #    s += '<table><caption>Predefined hotkeys</caption><tr><th>Key 1</th><th>Key 2</th><th>Key 3</th>';
+      #    s += '<th>Action type</th><th>Action\\Element name</th></tr><tr><td>Ctrl</td><td>B</td><td></td><td>AOT action</td>';
+      #    s += '<td>checkBestPractice</td></tr><tr><td>Ctrl</td><td>C</td><td></td><td>AOT action</td><td>copy2clipboard</td></tr>';
+      #    s += '<tr><td>Ctrl</td><td>T</td><td></td><td>AOT action</td><td>tableBrowser</td></tr><tr><td>Ctrl</td><td>Shift</td>';
+      #    s += '<td>C</td><td>AOT action</td><td>copyPath2clipboard</td></tr><tr><td>Ctrl</td><td>Alt</td><td>C</td><td>AOT action</td>';
+      #    s += '<td>copy2clipboard</td></tr><tr><td>Ctrl</td><td>X</td><td></td><td>AOT action</td><td>aot2xRef</td></tr><tr>';
+      #    s += '<td>Ins</td><td></td><td></td><td>AOT action</td><td>aotJump</td></tr><tr><td>Ctrl</td><td>F10</td><td></td><td>Open form</td>';
+      #    s += '<td>DEV_Projects</td></tr><tr><td>Ctrl</td><td>Shift</td><td>I</td><td>Open form</td><td>SysImportDialog</td></tr>';
+      #    s += '<tr><td>Ctrl</td><td>Shift</td><td>N</td><td>Run class</td><td>DEV_CreateNewProject</td></tr><tr>';
+      #    s += '<td>Ctrl</td><td>U</td><td></td><td>Run class</td><td>DEV_HKProject</td></tr><tr><td></td><td>F10</td><td></td>';
+      #    s += '<td>Run class</td><td>DEV_HKManager</td></tr><tr><td>Ctrl</td><td>1</td><td></td><td>Common</td><td>leftSideLeft</td></tr>';
+      #    s += '<tr><td>Ctrl</td><td>2</td><td></td><td>Common</td><td>leftSideRight</td></tr><tr><td>Ctrl</td><td>3</td>';
+      #    s += '<td></td><td>Common</td><td>rightSideLeft</td></tr><tr><td>Ctrl</td><td>4</td><td></td><td>Common</td>';
+      #    s += '<td>rightSideRight</td></tr><tr><td>Ctrl</td><td>5</td><td></td><td>Common</td><td>leftSideEditor</td></tr><tr>';
+      #    s += '<td>Ctrl</td><td>6</td><td></td><td>Common</td><td>rightSideEditor</td></tr><tr><td>Ctrl</td><td>7</td><td></td>';
+      #    s += '<td>Common</td><td>leftSideLeftNext</td></tr><tr><td>Ctrl</td><td>8</td><td></td><td>Common</td>';
+      #    s += '<td>leftSideRightBefore</td></tr><tr><td>Ctrl</td><td>Shift</td><td>O</td><td>Common</td><td>openDefaultProject</td></tr>';
+      #    s += '<tr><td>Alt</td><td>1</td><td></td><td>Common</td><td>fieldDigger</td></tr><tr><td>Alt</td><td>F1</td><td></td>';
+      #    s += '<td>Common</td><td>formDigger</td></tr><tr><td>Ctrl</td><td>WIN Left</td><td></td><td>Common</td><td>openNewWindow</td></tr></table></p>';
+      #
+      #    // 2 - DEV Toolbar
+      #    s += ' <p class=MsoNormal align=center style=\'text-align:center\'><b style=\'mso-bidi-font-weight:';
+      #    s += ' normal\'><span lang=EN-US style=\'font-size:12.0pt;line-height:115%;mso-ansi-language:EN-US\'>';
+      #    s += this.addImage(resourceStr(Icon811), 10);
+      #    s += ' <a href=\'http://axcoder.blogspot.co.uk/2012/02/devtoolbar-tabax-for-ax2012.html\'>DEV Toolbar';
+      #    s += '</a></span></b><span lang=EN-US style=\'mso-ansi-language:EN-US\'><u1:p></u1:p></span></p>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>DEV Toolbar ';
+      #    s += ' is Microsoft Dynamics AX form, improving development experience and usability. The';
+      #    s += ' main purpose of DEV Toolbar is to make work in Microsoft Dynamics AX convinient and effective.';
+      #    s += ' The form uses standard tab control from WPF with a custom template.';
+      #    s += ' Supporting extensions.</p>';
+      #
+      #    s += this.addImage(resourceStr(Icon1097), 5);
+      #    s += ' Breakpoint plugin is a DEV Toolbar plugin that allows set\\remove breakpoints for the infolog and Box messages.';
+      #    s += ' This is not interfere with other breakpoints.</p>';
+      #
+      #    s += this.addImage(resourceStr(Icon7853), 5);
+      #    s += ' Create\\update project plugin is a DEV Toolbar plugin that allows create\\update projects for a chosen set of group nodes.';
+      #    s += ' Include an option to set the project as a startup.</p>';
+      #
+      #    s += this.addImage(resourceStr(Icon7729), 5);
+      #    s += ' Maintenance plugin is a DEV Toolbar plugin that allows run maintenance tasks for the application.</p>';
+      #
+      #    s += this.addImage(resourceStr(Icon12727), 5);
+      #    s += ' Parameters plugin is a DEV Toolbar plugin that allows to access all parameters for the Development Tools.</p>';
+      #
+      #    s += this.addImage(resourceStr(Icon7890), 5);
+      #    s += ' Manage projects plugin is a DEV Toolbar plugin that allows to view and manage AX projects.</p>';
+      #
+      #    // 2 - Editor extensions
+      #    s += ' <p class=MsoNormal align=center style=\'text-align:center\'><b style=\'mso-bidi-font-weight:';
+      #    s += ' normal\'><span lang=EN-US style=\'font-size:12.0pt;line-height:115%;mso-ansi-language:EN-US\'>';
+      #    s += this.addImage(resourceStr(Icon408), 10);
+      #    s += ' <a href=\'http://ax2012editorext.codeplex.com\'>Editor extensions';
+      #    s += '</a></span></b><span lang=EN-US style=\'mso-ansi-language:EN-US\'><u1:p></u1:p></span></p>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>Editor extensions ';
+      #    s += ' is a dll files, adding aditional features for the Microsoft Dynamics AX 2012 X++ source code editor. ';
+      #    s += ' Each extension is a separate dll file and can be activated individually. The source code is available.</p>';
+      #
+      #    s += ' </div>';
+      #    s += ' </body>';
+      #    s += ' </html>';
+      #
+      #    AboutHTML.setText(s);
+      #}
+    ENDSOURCE
+    SOURCE #setControls
+      #// >> DEV:MXK >>
+      #private void setControls()
+      #{
+      #    boolean                 isAdminUser     = (curUserId() == #DEV_AdminUser);
+      #    DEV_UserParameters      adminParameters;
+      #
+      #    if (!isAdminUser)
+      #    {
+      #        adminParameters = DEV_UserParameters::findOrCreate(#DEV_AdminUser);
+      #    }
+      #
+      #    //info(strFmt('%1 == %2', curUserId(), #DEV_AdminUser));
+      #    //info(strFmt('%1', (isAdminUser || !adminParameters.EnvAdminControlled)));
+      #
+      #    GroupEnvHighlight_EnvAdminControlled.visible(   isAdminUser);
+      #    GroupEnvironment_EnvironmentName.enabled(       isAdminUser || !adminParameters.EnvAdminControlled);
+      #    GroupEnvHighlight_EnvMainCaption.enabled(       isAdminUser || !adminParameters.EnvAdminControlled);
+      #    GroupEnvHighlight_EnvFormCaption.enabled(       isAdminUser || !adminParameters.EnvAdminControlled);
+      #    GroupEnvHighlight_EnvPaintStatusBar.enabled(    isAdminUser || !adminParameters.EnvAdminControlled);
+      #    GroupEnvHighlight_EnvPaintFormDesign.enabled(   isAdminUser || !adminParameters.EnvAdminControlled);
+      #
+      #    GroupPath_ImpExpPathAdminDefault.visible(       isAdminUser);
+      #
+      #    GroupProjectComments_CommentAdminControlled.visible(    isAdminUser);
+      #    GroupProjectComments_CommentFreeTxt.allowEdit(          isAdminUser || !adminParameters.CommentAdminControlled);
+      #    GroupProjectComments_CommentDeveloperAlias.allowEdit(   isAdminUser || !adminParameters.CommentAdminControlled);
+      #    GroupProjectComments_CommentLineFmt.allowEdit(          isAdminUser || !adminParameters.CommentAdminControlled);
+      #    GroupProjectComments_CommentStartFmt.allowEdit(         isAdminUser || !adminParameters.CommentAdminControlled);
+      #    GroupProjectComments_CommentEndFmt.allowEdit(           isAdminUser || !adminParameters.CommentAdminControlled);
+      #
+      #    GroupShortComments_ShortCommentAdminControlled.visible( isAdminUser);
+      #    GroupShortComments_ShortCommentFreeTxt.allowEdit(       isAdminUser || !adminParameters.ShortCommentAdminControlled);
+      #    GroupShortComments_ShortCommentDeveloperAlias.allowEdit(isAdminUser || !adminParameters.ShortCommentAdminControlled);
+      #    GroupShortComments_ShortCommentLineFmt.allowEdit(       isAdminUser || !adminParameters.ShortCommentAdminControlled);
+      #    GroupShortComments_ShortCommentStartFmt.allowEdit(      isAdminUser || !adminParameters.ShortCommentAdminControlled);
+      #    GroupShortComments_ShortCommentEndFmt.allowEdit(        isAdminUser || !adminParameters.ShortCommentAdminControlled);
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #setCreditsText
+      #// BP Deviation Documented
+      #void setCreditsText()
+      #{
+      #    str         s;
+      #
+      #    // Form Digger & HK Framework
+      #    s += '<p class=MsoNormal align=center style=\'text-align:center\'><b style=\'mso-bidi-font-weight:';
+      #    s += 'normal\'><span lang=EN-US style=\'font-size:12.0pt;line-height:115%;mso-ansi-language:EN-US\'>';
+      #    s += this.addImage(resourceStr(Icon830), 10);
+      #    s += '<a href=\'http://www.axaptapedia.com/FormDigger\'>Form Digger</a>';
+      #    s += this.addImage(resourceStr(Icon825), 10);
+      #    s += '<a href=\'http://earlionakru.blogspot.co.uk/2009/12/hk-framework.html\'>HK Framework';
+      #    s += '</a></span></b><span lang=EN-US style=\'mso-ansi-language:EN-US\'><u1:p></u1:p></span></p>';
+      #
+      #    s += '<i><p class=MsoNormal><span class=GramE><span lang=EN-US style=\'mso-ansi-language:EN-US\'></span>';
+      #    s += this.addImage(resourceStr(Icon2639), 5);
+      #    s += '<a href=\'http://www.blogger.com/profile/17562944195203778443\'><span class=SpellE><span lang=EN-US style=\'mso-ansi-language:EN-US\'>';
+      #    s += 'Evgeny Arlionak</span></span></a><o:p></o:p></span></p>';
+      #
+      #    s += '<p>';
+      #    s += this.addImage(resourceStr(Icon2632), 5);
+      #    s += '<a href=\'http://earlionakru.blogspot.com/2009/01/intro.html\'>earlionakru.blogspot.com</a></p></i>';
+      #
+      #    // DEV Toolbar
+      #
+      #    s += ' <p class=MsoNormal align=center style=\'text-align:center\'><b style=\'mso-bidi-font-weight:';
+      #    s += ' normal\'><span lang=EN-US style=\'font-size:12.0pt;line-height:115%;mso-ansi-language:EN-US\'>';
+      #    s += this.addImage(resourceStr(Icon820), 5);
+      #    s += ' <a href=\'http://axcoder.blogspot.co.uk/2012/02/devtoolbar-tabax-for-ax2012.html\'>DEV Toolbar';
+      #    s += '</a></span></b><span lang=EN-US style=\'mso-ansi-language:EN-US\'><u1:p></u1:p></span></p>';
+      #
+      #    s += '<i><p class=MsoNormal><span class=GramE><span lang=EN-US style=\'mso-ansi-language:EN-US\'>';
+      #    s += this.addImage(resourceStr(Icon2639), 5);
+      #    s += '</span><a href=\'http://www.blogger.com/profile/03910001890342930950\'><span class=SpellE>';
+      #    s += '<span lang=EN-US style=\'mso-ansi-language:EN-US\'>Max Belugin</span></span></a><o:p></o:p></span></p>';
+      #
+      #    s += '<p>';
+      #    s += this.addImage(resourceStr(Icon2632), 5);
+      #    s += '<a href=\'http://axcoder.blogspot.com\'>axcoder.blogspot.com</a></p></i>';
+      #
+      #    // Create project & Editor scripts
+      #
+      #    s += '<p class=MsoNormal align=center style=\'text-align:center\'><b style=\'mso-bidi-font-weight:';
+      #    s += 'normal\'><span lang=EN-US style=\'font-size:12.0pt;line-height:115%;mso-ansi-language:EN-US\'>';
+      #
+      #    s += this.addImage(resourceStr(Icon7853), 10);
+      #    s += '<a href=\'http://www.axaptapedia.com/AxCreateNewProject\'>Create project</a>';
+      #    s += this.addImage(resourceStr(Icon810), 10);
+      #    s += '<a href=\'http://www.axaptapedia.com/User:IvanKashperuk\'>Editor scripts';
+      #    s += '</a></span></b><span lang=EN-US style=\'mso-ansi-language:EN-US\'><u1:p></u1:p></span></p>';
+      #
+      #    s += '<i><p class=MsoNormal><span class=GramE><span lang=EN-US style=\'mso-ansi-language:EN-US\'>';
+      #    s += this.addImage(resourceStr(Icon2639), 5);
+      #    s += ' </span><a href=\'https://plus.google.com/111036909466311925957\'><span';
+      #    s += ' class=SpellE><span lang=EN-US style=\'mso-ansi-language:EN-US\'>Ivan Kashperuk</span></span></a><o:p></o:p></span></p>';
+      #
+      #    s += '<p>';
+      #    s += this.addImage(resourceStr(Icon2632), 5);
+      #    s += '<a href=\'http://kashperuk.blogspot.com\'>kashperuk.blogspot.com</a></p></i>';
+      #
+      #    // Table browser extended
+      #
+      #    s += ' <p class=MsoNormal align=center style=\'text-align:center\'><b style=\'mso-bidi-font-weight:';
+      #    s += ' normal\'><span lang=EN-US style=\'font-size:12.0pt;line-height:115%;mso-ansi-language:EN-US\'>';
+      #    s += this.addImage(resourceStr(Icon2619), 10);
+      #    s += ' <a href=\'http://rusgon.blogspot.co.uk/2009/11/systablebrowser-instant-field-navigator.html\'>Table browser extended';
+      #    s += '</a></span></b><span lang=EN-US style=\'mso-ansi-language:EN-US\'><u1:p></u1:p></span></p>';
+      #
+      #    s += '<i><p class=MsoNormal><span class=GramE><span lang=EN-US style=\'mso-ansi-language:EN-US\'>';
+      #    s += this.addImage(resourceStr(Icon2639), 5);
+      #    s += ' </span><a href=\'http://www.blogger.com/profile/16144278259112759869\'><span';
+      #    s += ' class=SpellE><span lang=EN-US style=\'mso-ansi-language:EN-US\'>Ruslan Goncharov</span></span></a><o:p></o:p></span></p>';
+      #
+      #    s += '<p>';
+      #    s += this.addImage(resourceStr(Icon2632), 5);
+      #    s += '<a href=\'http://rusgon.blogspot.co.uk\'>rusgon.blogspot.co.uk</a></p></i>';
+      #
+      #    // Editor extensions
+      #
+      #    s += ' <p class=MsoNormal align=center style=\'text-align:center\'><b style=\'mso-bidi-font-weight:';
+      #    s += ' normal\'><span lang=EN-US style=\'font-size:12.0pt;line-height:115%;mso-ansi-language:EN-US\'>';
+      #    s += this.addImage(resourceStr(Icon408), 10);
+      #    s += ' <a href=\'http://ax2012editorext.codeplex.com\'>Editor extensions';
+      #    s += '</a></span></b><span lang=EN-US style=\'mso-ansi-language:EN-US\'><u1:p></u1:p></span></p>';
+      #
+      #    s += '<i><p class=MsoNormal><span class=GramE><span lang=EN-US style=\'mso-ansi-language:EN-US\'>';
+      #    s += this.addImage(resourceStr(Icon2639), 5);
+      #    s += ' </span><a href=\'https://mvp.microsoft.com/en-us/mvp/Jos%C3%A9%20Antonio%20Estevan-4039956\'><span';
+      #    s += ' class=SpellE><span lang=EN-US style=\'mso-ansi-language:EN-US\'>J. A. Estevan</span></span></a><o:p></o:p></span></p>';
+      #
+      #    s += '<p>';
+      #    s += this.addImage(resourceStr(Icon2632), 5);
+      #    s += '<a href=\'http://jaestevan.com\'>jaestevan.com</a></p></i>';
+      #
+      #    // Axforum
+      #
+      #    s += ' <p class=MsoNormal align=center style=\'text-align:center\'><b style=\'mso-bidi-font-weight:';
+      #    s += ' normal\'><span lang=EN-US style=\'font-size:12.0pt;line-height:115%;mso-ansi-language:EN-US\'>';
+      #    s += this.addImage(resourceStr(Icon40001), 10);
+      #    s += ' <a href=\'http://axforum.info/forums/forumdisplay.php?f=31\'>Ideas and code';
+      #    s += '</a></span></b><span lang=EN-US style=\'mso-ansi-language:EN-US\'><u1:p></u1:p></span></p>';
+      #
+      #    s += '<i><p class=MsoNormal><span class=GramE><span lang=EN-US style=\'mso-ansi-language:EN-US\'>';
+      #    s += this.addImage(resourceStr(Icon7723), 5);
+      #    s += 'Memebers of </span></span>';
+      #    s += '<a href=\'http://axforum.info\'>AXforum.info</a></p></i>';
+      #
+      #    s += this.addImage(resourceStr(EPProgressBar_gif));
+      #    s += this.addImage(resourceStr(EPProgressBar_gif));
+      #    s += this.addImage(resourceStr(EPProgressBar_gif));
+      #    s += this.addImage(resourceStr(EPProgressBar_gif));
+      #    s += this.addImage(resourceStr(EPProgressBar_gif));
+      #    s += this.addImage(resourceStr(EPProgressBar_gif));
+      #    s += this.addImage(resourceStr(EPProgressBar_gif));
+      #    s += this.addImage(resourceStr(EPProgressBar_gif));
+      #
+      #    s += ' </div>';
+      #    s += ' </body>';
+      #    s += ' </html>';
+      #
+      #    CreaditsHTML.setText(s);
+      #}
+    ENDSOURCE
+    SOURCE #setLicenseText
+      #void setLicenseText()
+      #{
+      #    str         s;
+      #
+      #    s += '<style>' + SysResource::getStylesheetData(resourceStr(StyleSheet_Help_Axapta)) + '</style>';
+      #
+      #    s += '<p class=MsoNormal align=center style=\'text-align:center\'><b style=\'mso-bidi-font-weight:';
+      #    s += 'normal\'><span lang=EN-US style=\'font-size:11.0pt;line-height:115%;mso-ansi-language:';
+      #    s += 'EN-US\'><a href=\'\'>Microsoft Dynamics AX 2012 Development toolset';
+      #    s += '</a></span></b><span lang=EN-US style=\'mso-ansi-language:EN-US\'><u1:p></u1:p></span></p>';
+      #
+      #    s += 'This license governs use of the accompanying software. If you use the software, you accept this license. ';
+      #    s += 'If you do not accept the license, do not use the software.</p>';
+      #    s += '1. Definitions</p>';
+      #    s += 'The terms \'reproduce,\' \'reproduction,\' \'derivative works,\' ';
+      #    s += 'and \'distribution\' have the same meaning here as under U.S. copyright law.';
+      #    s += 'A \'contribution\' is the original software, or any additions or changes to the software.';
+      #    s += 'A \'contributor\' is any person that distributes its contribution under this license.';
+      #    s += '\'Licensed patents\' are a contributor\'s patent claims that read directly on its contribution.</p>';
+      #    s += '2. Grant of Rights</p>';
+      #    s += '(A) Copyright Grant- Subject to the terms of this license, including the license conditions and limitations in section 3, ';
+      #    s += 'each contributor grants you a non-exclusive, worldwide, royalty-free copyright license to reproduce its contribution, ';
+      #    s += 'prepare derivative works of its contribution, and distribute its contribution or any derivative works that you create.</p>';
+      #    s += '(B) Patent Grant- Subject to the terms of this license, including the license conditions and limitations in section 3, ';
+      #    s += 'each contributor grants you a non-exclusive, worldwide, royalty-free license under its licensed patents to make, have made, ';
+      #    s += 'use, sell, offer for sale, import, and/or otherwise dispose of its contribution in the software or derivative works of the ';
+      #    s += 'contribution in the software.</p>';
+      #    s += '3. Conditions and Limitations</p>';
+      #    s += '(A) No Trademark License- This license does not grant you rights to use any contributors\' name, logo, or trademarks.</p>';
+      #    s += '(B) If you bring a patent claim against any contributor over patents that you claim are infringed by the software, ';
+      #    s += 'your patent license from such contributor to the software ends automatically.</p>';
+      #    s += '(C) If you distribute any portion of the software, you must retain all copyright, patent, trademark, and attribution ';
+      #    s += 'notices that are present in the software.</p>';
+      #    s += '(D) If you distribute any portion of the software in source code form, you may do so only under this license by including ';
+      #    s += 'a complete copy of this license with your distribution. If you distribute any portion of the software in compiled or ';
+      #    s += 'object code form, you may only do so under a license that complies with this license.</p>';
+      #    s += '(E) The software is licensed \'as-is.\' You bear the risk of using it. The contributors give no express warranties, ';
+      #    s += 'guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. ';
+      #    s += 'To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, ';
+      #    s += 'fitness for a particular purpose and non-infringement.';
+      #
+      #    s += ' </div>';
+      #    s += ' </body>';
+      #    s += ' </html>';
+      #
+      #    LicenseHTML.setText(s);
+      #}
+    ENDSOURCE
+    SOURCE #setSelection
+      #void setSelection(FormComboBoxControl formComboBoxControl, str value)
+      #{
+      #    int i, selection;
+      #
+      #    for(i=0;i < formComboBoxControl.count();i++)
+      #        if(value == formComboBoxControl.getText(i))
+      #            selection = i;
+      #
+      #    formComboBoxControl.selection(selection);
+      #}
+    ENDSOURCE
+    SOURCE #updateColor
+      #public void updateColor()
+      #{
+      #    colorEdit.backgroundColor(this.hex2color(DEV_UserParameters.EnvColor));
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #HKSetup
+          Table               #DEV_HKSetup
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+          DATAFIELD ActionElementName
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #lookup
+                #public void lookup(FormControl _formControl, str _filterStr)
+                #{
+                #    //super(_formControl, _filterStr);
+                #    DEV_HKSetup::lookupAction(_formControl, HKSetup);
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #write
+          #// >> DEV:MXK >>
+          #public void write()
+          #{
+          #    super();
+          #
+          #    hkManager.initKeyEnumerator();
+          #}
+          #// << DEV:MXK <<
+        ENDSOURCE
+        SOURCE #init
+          #public void init()
+          #{
+          #    super();
+          #
+          #    hksetup.setTmpData(hkManager.parmHkSetup());
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #SysUserInfo
+          Table               #SysUserInfo
+          Index               #UserIdx
+          AllowCheck          #No
+          AllowCreate         #No
+          AllowDelete         #No
+          JoinSource          #UserInfo
+          LinkType            #InnerJoin
+          InsertAtEnd         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #init
+          #public void init()
+          #{
+          #    super();
+          #    this.query().dataSourceName('SysUserInfo').addRange(fieldNum(SysUserInfo, Id)).value(curUserId());
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #UserInfo
+          Table               #UserInfo
+          Index               #Id
+          AllowCheck          #No
+          AllowCreate         #No
+          AllowDelete         #No
+          LinkType            #Active
+          InsertAtEnd         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #init
+          #// >> DEV:MXK >>
+          #public void init()
+          #{
+          #    super();
+          #
+          #    this.queryBuildDataSource().addRange(fieldNum(UserInfo, Id)).value(curUserId());
+          #// << DEV:MXK <<
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #DEV_UserParameters
+          Table               #DEV_UserParameters
+          Index               #UserIdx
+          AllowCreate         #No
+          AllowDelete         #No
+          InsertAtEnd         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+          DATAFIELD WMEnabled
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #// >> DEV:MXK >>
+                #public void modified()
+                #{
+                #    super();
+                #
+                #    if (DEV_UserParameters.WMEnabled)
+                #    {
+                #        DEV_Global::showHint("For this extension to work properly please use No Docking option on all windows.\n" +
+                #                            "This is include Properties and Compiler output windows and any other dockable ones.",
+                #                            fieldStr(DEV_UserParameters, WMEnabled),
+                #                            "Window management");
+                #    }
+                #}
+                #// << DEV:MXK <<
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #init
+          #// >> DEV:MXK >>
+          #public void init()
+          #{
+          #    super();
+          #
+          #    this.queryBuildDataSource().addRange(fieldNum(DEV_UserParameters, UserId)).value(curUserId());
+          #// << DEV:MXK <<
+          #}
+        ENDSOURCE
+        SOURCE #editColor
+          #// >> DEV:MXK >>
+          #public edit Color editColor(
+          #    boolean                     _set,
+          #    DEV_UserParameters          _userParameters,
+          #    Color                       _color)
+          #{
+          #    return '';
+          #}
+          #// << DEV:MXK <<
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+    SysUserInfo UserInfo
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #Development toolset parameters
+      SetCompany          #No
+      StatusBarStyle      #Simple
+      Style               #DetailsFormMaster
+      ViewEditMode        #Edit
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL ACTIONPANE
+        PROPERTIES
+          Name                #ActionPane
+          ElementPosition     #477218588
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIONPANE
+        PROPERTIES
+          Name                #ActionPaneHotKey
+          ElementPosition     #1073741822
+          HierarchyParent     #HotKeyBody
+          Style               #Strip
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIONPANETAB
+        PROPERTIES
+          Name                #ActionPaneHotKeyTab
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPaneHotKey
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIONPANETAB
+        PROPERTIES
+          Name                #GeneralActionPaneTab
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPane
+          Caption             #General
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #EditorButtonGroup
+          ElementPosition     #613566756
+          HierarchyParent     #GeneralActionPaneTab
+          Caption             #@SYS26985
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #HotKeyButtonGroup
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPaneHotKeyTab
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #MaintainButtonGroup
+          ElementPosition     #1533916890
+          HierarchyParent     #GeneralActionPaneTab
+          Caption             #@SYS4000799
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #OpenButtonGroup
+          ElementPosition     #920350134
+          HierarchyParent     #GeneralActionPaneTab
+          Caption             #@SYS80095
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ProjectsButtonGroup
+          ElementPosition     #1227133512
+          HierarchyParent     #GeneralActionPaneTab
+          Caption             #@SYS80304
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #SystemButtonGroup
+          ElementPosition     #1840700268
+          HierarchyParent     #GeneralActionPaneTab
+          Caption             #@SYS40147
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #Grid
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1610612733
+          HierarchyParent     #HotKeyBody
+          DataSource          #HKSetup
+          DataGroup           #AutoReport
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #AboutBody
+          ElementPosition     #1610612733
+          HierarchyParent     #AboutTab
+          Style               #TOCTopicSimple
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #AboutTitle
+          ElementPosition     #1073741822
+          HierarchyParent     #AboutTab
+          Style               #TOCTitleContainer
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #CreditsBody
+          ElementPosition     #1610612733
+          HierarchyParent     #CreaditsTab
+          Style               #TOCTopicSimple
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #CreditsTitle
+          ElementPosition     #1073741822
+          HierarchyParent     #CreaditsTab
+          Style               #TOCTitleContainer
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #dialogStartGrp
+          ElementPosition     #1550960411
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupEnvHighlight
+          ElementPosition     #1288490187
+          HierarchyParent     #GroupGeneral
+          FrameType           #Thin
+          DataSource          #DEV_UserParameters
+          DataGroup           #EnvHighlight
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupEnvironment
+          ElementPosition     #1431655764
+          HierarchyParent     #TabPageEnvironment
+          Style               #TOCTopicFastTabs
+          DataSource          #DEV_UserParameters
+          Columns             #3
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupGeneral
+          ElementPosition     #1431655764
+          HierarchyParent     #TabPageTools
+          Style               #TOCTopicFastTabs
+          Columns             #3
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupImpExpPath
+          Width               #Column width
+          ElementPosition     #1431655764
+          HierarchyParent     #TabPagePath
+          Style               #TOCTopicFastTabs
+          DataSource          #DEV_UserParameters
+          DataGroup           #ImpExpPath
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupLeft
+          ElementPosition     #1073741822
+          HierarchyParent     #AboutTitle
+          TopMargin           #10
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupMiscellaneous
+          ElementPosition     #1717986916
+          HierarchyParent     #GroupGeneral
+          FrameType           #Thin
+          DataSource          #DEV_UserParameters
+          DataGroup           #Miscellaneous
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupPlugins
+          ElementPosition     #858993458
+          HierarchyParent     #GroupGeneral
+          FrameType           #Thin
+          DataSource          #DEV_UserParameters
+          DataGroup           #Plugins
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupProjectComments
+          ElementPosition     #1073741822
+          HierarchyParent     #TabPageComments
+          FrameType           #Thin
+          DataSource          #DEV_UserParameters
+          DataGroup           #ProjectComments
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupProjects
+          ElementPosition     #1431655764
+          HierarchyParent     #TabPageProjects
+          Caption             #@SYS334298
+          Style               #TOCTopicFastTabs
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupShortComments
+          ElementPosition     #1610612733
+          HierarchyParent     #TabPageComments
+          FrameType           #Thin
+          DataSource          #DEV_UserParameters
+          DataGroup           #ShortComments
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #HotKeyBody
+          ElementPosition     #1610612733
+          HierarchyParent     #HotKeyTab
+          Style               #TOCTopicList
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #HotKeyTitle
+          ElementPosition     #1073741822
+          HierarchyParent     #HotKeyTab
+          Style               #TOCTitleContainer
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #LicenseBody
+          ElementPosition     #1610612733
+          HierarchyParent     #LicenseTab
+          Style               #TOCTopicSimple
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #LicenseTitle
+          ElementPosition     #1073741822
+          HierarchyParent     #LicenseTab
+          Style               #TOCTitleContainer
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #ParametersTitle
+          ElementPosition     #1073741822
+          HierarchyParent     #ParametersTab
+          Style               #TOCTitleContainer
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TAB
+        PROPERTIES
+          Name                #ParametersFastTab
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1610612734
+          HierarchyParent     #ParametersTab
+          Style               #FastTabs
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TAB
+        PROPERTIES
+          Name                #Tab
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #954437176
+          Style               #VerticalTabs
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #AboutTab
+          ElementPosition     #1601664884
+          HierarchyParent     #Tab
+          Caption             #@SYP4400258
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #pageActivated
+            #public void pageActivated()
+            #{
+            #    super();
+            #
+            #    if (!clockVis)
+            #    {
+            #        clockVis = JmgClockVisualization::construct(clock);
+            #        clockVis.parmShowSeconds(true);
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #CreaditsTab
+          ElementPosition     #1807465400
+          HierarchyParent     #Tab
+          Caption             #Credits
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #HotKeyTab
+          ElementPosition     #1395864368
+          HierarchyParent     #Tab
+          Caption             #Hot Keys
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #LicenseTab
+          ElementPosition     #1977474522
+          HierarchyParent     #Tab
+          Caption             #License
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #ParametersTab
+          ElementPosition     #1046898276
+          HierarchyParent     #Tab
+          Caption             #@SYS7764
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #TabPageComments
+          ElementPosition     #1789569705
+          HierarchyParent     #ParametersFastTab
+          Caption             #@SYS86880
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+          FastTabExpanded     #Yes
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #TabPageEnvironment
+          ElementPosition     #805306365
+          HierarchyParent     #ParametersFastTab
+          Caption             #@SYS52596
+          FastTabExpanded     #Yes
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #TabPagePath
+          ElementPosition     #1431655764
+          HierarchyParent     #ParametersFastTab
+          Caption             #@SYS7406
+          FastTabExpanded     #Yes
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #TabPageProjects
+          ElementPosition     #1073741823
+          HierarchyParent     #ParametersFastTab
+          Caption             #@SYS334298
+          FastTabExpanded     #Yes
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #TabPageTools
+          ElementPosition     #536870910
+          HierarchyParent     #ParametersFastTab
+          Caption             #@SYS104268
+          FastTabExpanded     #Yes
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #ButtonEditorExtSetup
+          AutoDeclaration     #Yes
+          HelpText            #Open setup form for editor extensions.
+          ElementPosition     #1431655764
+          HierarchyParent     #EditorButtonGroup
+          Text                #Extensions
+          ButtonDisplay       #Text & Image left
+          NormalImage         #408
+          ImageLocation       #EmbeddedResource
+          Big                 #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    #WinAPI
+            #    FilePath        filePath = xInfo::directory(DirectoryType::Bin) + #EditorComponents + #AOTDelimiter + #EditorSettingsForm;
+            #
+            #    if (DEV_HKManager::validateEditorComponents())
+            #    {
+            #        WinAPI::shellExecute(filePath, '', '', #ShellExeOpen, #SW_SHOWNORMAL, true);
+            #    }
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #Edit
+          HelpText            #@SYS74331
+          ElementPosition     #1610612733
+          HierarchyParent     #HotKeyButtonGroup
+          Text                #@SYS2475
+          ButtonDisplay       #Text & Image left
+          NormalImage         #3061
+          ImageLocation       #EmbeddedResource
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    TreeNode            node;
+            #
+            #    super();
+            #
+            #    if (HKSetup)
+            #    {
+            #        switch (HKSetup.ActionType)
+            #        {
+            #            case DEV_HKActionType::AOTAction:
+            #                    node = TreeNode::findNode(#ClassesPath + #AOTDelimiter + #HKAOT + #AOTDelimiter + HKSetup.ActionElementName);
+            #                    if (node)
+            #                        node.AOTedit();
+            #                    break;
+            #            case DEV_HKActionType::EditorAction:
+            #                    node = TreeNode::findNode(#ClassesPath + #AOTDelimiter + #HKEditor + #AOTDelimiter + HKSetup.ActionElementName);
+            #                    if (node)
+            #                        node.AOTedit();
+            #                    break;
+            #            case DEV_HKActionType::EditorScript:
+            #                    node = TreeNode::findNode(#ClassesPath + #AOTDelimiter + #EditorScripts + #AOTDelimiter + HKSetup.ActionElementName);
+            #                    if (node)
+            #                        node.AOTedit();
+            #                    break;
+            #            case DEV_HKActionType::OpenForm:
+            #                    node = TreeNode::findNode(#FormsPath + #AOTDelimiter + HKSetup.ActionElementName);
+            #                    if (node)
+            #                        node.AOTnewWindow();
+            #                    break;
+            #            case DEV_HKActionType::OpenTable:
+            #                    node = TreeNode::findNode(#TablesPath + #AOTDelimiter + HKSetup.ActionElementName);
+            #                    if (node)
+            #                        node.AOTnewWindow();
+            #                    break;
+            #            case DEV_HKActionType::RunClass:
+            #                    node = TreeNode::findNode(#ClassesPath + #AOTDelimiter + HKSetup.ActionElementName);
+            #                    if (node)
+            #                        node.AOTnewWindow();
+            #                    break;
+            #            case DEV_HKActionType::RunJob:
+            #                    node = TreeNode::findNode(#JobsPath + #AOTDelimiter + HKSetup.ActionElementName);
+            #                    if (node)
+            #                        node.AOTnewWindow();
+            #                    break;
+            #            case DEV_HKActionType::Common:
+            #                    node = TreeNode::findNode(#ClassesPath + #AOTDelimiter + #HKCommon + #AOTDelimiter + HKSetup.ActionElementName);
+            #                    if (node)
+            #                        node.AOTedit();
+            #                    break;
+            #            default:
+            #                throw error (Error::wrongUseOfFunction(funcName()));
+            #        }
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #SetDefault
+          HelpText            #@SYS27477
+          ElementPosition     #1073741822
+          HierarchyParent     #HotKeyButtonGroup
+          Text                #@SYS26467
+          ButtonDisplay       #Text & Image left
+          NormalImage         #12402
+          ImageLocation       #EmbeddedResource
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    DEV_HKSetup     setup;
+            #
+            #    select firstonly setup
+            #        where setup.UserId == curUserId();
+            #
+            #    if (!setup || Box::okCancel("@SYS98761", DialogButton::Cancel, #ToolsetName) == DialogButton::Ok)
+            #    {
+            #        super();
+            #
+            #        hkManager.initParmDefault();
+            #        // >> DEV:MXK >>
+            #        hkManager.initKeyEnumerator();
+            #        // << DEV:MXK <<
+            #        hksetup.setTmpData(hkManager.parmHkSetup());
+            #        hksetup_ds.executeQuery();
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #GroupEnvHighlight_EnvAdminControlled
+          AutoDeclaration     #Yes
+          ElementPosition     #613566756
+          HierarchyParent     #GroupEnvHighlight
+          DataSource          #DEV_UserParameters
+          DataField           #EnvAdminControlled
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #GroupEnvHighlight_EnvFormCaption
+          AutoDeclaration     #Yes
+          ElementPosition     #1227133512
+          HierarchyParent     #GroupEnvHighlight
+          DataSource          #DEV_UserParameters
+          DataField           #EnvFormCaption
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #GroupEnvHighlight_EnvMainCaption
+          AutoDeclaration     #Yes
+          ElementPosition     #920350134
+          HierarchyParent     #GroupEnvHighlight
+          DataSource          #DEV_UserParameters
+          DataField           #EnvMainCaption
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #GroupEnvHighlight_EnvPaintFormDesign
+          AutoDeclaration     #Yes
+          ElementPosition     #1840700268
+          HierarchyParent     #GroupEnvHighlight
+          DataSource          #DEV_UserParameters
+          DataField           #EnvPaintFormDesign
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #GroupEnvHighlight_EnvPaintStatusBar
+          AutoDeclaration     #Yes
+          ElementPosition     #1533916890
+          HierarchyParent     #GroupEnvHighlight
+          DataSource          #DEV_UserParameters
+          DataField           #EnvPaintStatusBar
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #GroupMiscellaneous_DisableHints
+          ElementPosition     #1431655764
+          HierarchyParent     #GroupMiscellaneous
+          DataSource          #DEV_UserParameters
+          DataField           #DisableHints
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #GroupMiscellaneous_DisableOnError
+          ElementPosition     #1073741823
+          HierarchyParent     #GroupMiscellaneous
+          DataSource          #DEV_UserParameters
+          DataField           #DisableOnError
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #GroupMiscellaneous_HideHKButtons
+          ElementPosition     #1789569705
+          HierarchyParent     #GroupMiscellaneous
+          DataSource          #DEV_UserParameters
+          DataField           #HideHKButtons
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #GroupMiscellaneous_OpenDevWorkspace
+          ElementPosition     #715827882
+          HierarchyParent     #GroupMiscellaneous
+          DataSource          #DEV_UserParameters
+          DataField           #OpenDevWorkspace
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #GroupPath_ImpExpPathAdminDefault
+          AutoDeclaration     #Yes
+          ElementPosition     #858993458
+          HierarchyParent     #GroupImpExpPath
+          DataSource          #DEV_UserParameters
+          DataField           #ImpExpPathAdminDefault
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #GroupProjectComments_CommentAdminControlled
+          AutoDeclaration     #Yes
+          ElementPosition     #536870910
+          HierarchyParent     #GroupProjectComments
+          DataSource          #DEV_UserParameters
+          DataField           #CommentAdminControlled
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #GroupShortComments_ShortCommentAdminControlled
+          AutoDeclaration     #Yes
+          ElementPosition     #536870910
+          HierarchyParent     #GroupShortComments
+          DataSource          #DEV_UserParameters
+          DataField           #ShortCommentAdminControlled
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #HKSetup_Enabled
+          ElementPosition     #477218588
+          HierarchyParent     #Grid
+          BackgroundColor     #Window background
+          DataSource          #HKSetup
+          DataField           #Enabled
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #ControlStartupProject
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741822
+          HierarchyParent     #GroupProjects
+          DisplayLength       #40
+          Text                
+            ARRAY INDEX Items 
+              #Sales order
+              #! Project
+              #Customer
+              #Interest
+              #
+              #
+              #
+              #
+              #
+              #
+            ENDARRAY
+          Items               #10
+          Label               #@SYS26960
+          ComboType           #List
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    if(controlStartupProject.selection())
+            #        userInfo.StartupProject = controlStartupProject.getText(controlStartupProject.selection());
+            #    else
+            #        userInfo.StartupProject = '';
+            #
+            #    userInfo.write();
+            #
+            #    return ret;
+            #}
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #HKSetup_ActionType
+          ElementPosition     #1431655764
+          HierarchyParent     #Grid
+          DataSource          #HKSetup
+          DataField           #ActionType
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #HKSetup_Key1
+          Width               #20
+          ElementPosition     #715827882
+          HierarchyParent     #Grid
+          DataSource          #HKSetup
+          DataField           #Key1
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #HKSetup_Key2
+          Width               #20
+          ElementPosition     #954437176
+          HierarchyParent     #Grid
+          DataSource          #HKSetup
+          DataField           #Key2
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #HKSetup_Key3
+          Width               #20
+          ElementPosition     #1193046470
+          HierarchyParent     #Grid
+          DataSource          #HKSetup
+          DataField           #Key3
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL HTML
+        PROPERTIES
+          Name                #AboutHTML
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          HierarchyParent     #AboutBody
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+        BINARY 0
+          
+        ENDBINARY
+        BINARY 1
+          00
+        ENDBINARY
+      ENDCONTROL 
+      
+      CONTROL HTML
+        PROPERTIES
+          Name                #CreaditsHTML
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          HierarchyParent     #CreditsBody
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+        BINARY 0
+          
+        ENDBINARY
+        BINARY 1
+          00
+        ENDBINARY
+      ENDCONTROL 
+      
+      CONTROL HTML
+        PROPERTIES
+          Name                #LicenseHTML
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          HierarchyParent     #LicenseBody
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+        BINARY 0
+          
+        ENDBINARY
+        BINARY 1
+          00
+        ENDBINARY
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #DEV_CreateNewProject
+          ElementPosition     #1073741822
+          HierarchyParent     #ProjectsButtonGroup
+          Text                #@SYS112171
+          ButtonDisplay       #Text & Image left
+          MenuItemType        #Action
+          MenuItemName        #DEV_CreateNewProject
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #DEV_Maintain
+          ElementPosition     #1431655764
+          HierarchyParent     #MaintainButtonGroup
+          Text                #@SYS59107
+          ButtonDisplay       #Text & Image left
+          NormalImage         #12656
+          ImageLocation       #EmbeddedResource
+          Big                 #Yes
+          MenuItemType        #Action
+          MenuItemName        #DEV_Maintain
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #DEV_Projects
+          ElementPosition     #1610612733
+          HierarchyParent     #ProjectsButtonGroup
+          Text                #@SYS115306
+          ButtonDisplay       #Text & Image left
+          MenuItemName        #DEV_Projects
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #DEV_StartupForm
+          ElementPosition     #715827882
+          HierarchyParent     #OpenButtonGroup
+          Big                 #Yes
+          MenuItemName        #DEV_StartupForm
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #DEV_Toolbar
+          ElementPosition     #1789569705
+          HierarchyParent     #OpenButtonGroup
+          Text                #@SYS26021
+          ButtonDisplay       #Text & Image left
+          MenuItemName        #DEV_Toolbar
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #DEV_WebSafeColors
+          ElementPosition     #1431655764
+          HierarchyParent     #OpenButtonGroup
+          ButtonDisplay       #Text & Image left
+          MenuItemName        #DEV_WebSafeColors
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #DEV_xRefSearch
+          ElementPosition     #1073741823
+          HierarchyParent     #OpenButtonGroup
+          ButtonDisplay       #Text & Image left
+          MenuItemName        #DEV_xRefSearch
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #SysBPSetup
+          ElementPosition     #715827882
+          HierarchyParent     #SystemButtonGroup
+          ButtonDisplay       #Text & Image left
+          NormalImage         #868
+          ImageLocation       #EmbeddedResource
+          MenuItemName        #SysBPSetup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #SysCompilerSetup
+          ElementPosition     #1073741823
+          HierarchyParent     #SystemButtonGroup
+          ButtonDisplay       #Text & Image left
+          NormalImage         #11163
+          ImageLocation       #EmbeddedResource
+          MenuItemName        #SysCompilerSetup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #SysLastValue
+          ElementPosition     #1431655764
+          HierarchyParent     #SystemButtonGroup
+          ButtonDisplay       #Text & Image left
+          NormalImage         #11291
+          ImageLocation       #EmbeddedResource
+          MenuItemName        #SysLastValue
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #xRefUpdate
+          ElementPosition     #1789569705
+          HierarchyParent     #SystemButtonGroup
+          Text                #Update xRef
+          ButtonDisplay       #Text & Image left
+          NormalImage         #3077
+          ImageLocation       #EmbeddedResource
+          MenuItemType        #Action
+          MenuItemName        #xRefUpdate
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #AboutStaticText
+          ElementPosition     #1610612733
+          HierarchyParent     #GroupLeft
+          Text                #Microsoft Dynamics AX 2012 Development toolset. Save your
+          Style               #MainInstruction
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #CreditsStaticText
+          ElementPosition     #1431655764
+          HierarchyParent     #CreditsTitle
+          Text                #Credits and Thanks
+          Style               #MainInstruction
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #HotKeyStaticText
+          ElementPosition     #1431655764
+          HierarchyParent     #HotKeyTitle
+          Text                #Setup Hot Keys
+          Style               #MainInstruction
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #LicenseStaticText
+          ElementPosition     #1431655764
+          HierarchyParent     #LicenseTitle
+          Text                #Microsoft Public License (Ms-PL)
+          Style               #MainInstruction
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #ParametersStaticText
+          ElementPosition     #1431655764
+          HierarchyParent     #ParametersTitle
+          Text                #Setup parameters
+          Style               #MainInstruction
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #ColorEdit
+          AutoDeclaration     #Yes
+          ElementPosition     #1610612733
+          HierarchyParent     #GroupEnvironment
+          LimitText           #0
+          ColorScheme         #RGB
+          DataSource          #DEV_UserParameters
+          DataMethod          #editColor
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #lookup
+            #public void lookup()
+            #{
+            #    element.lookupColor();
+            #}
+          ENDSOURCE
+          SOURCE #textChange
+            #public void textChange()
+            #{
+            #    if (this.text())
+            #    {
+            #        this.text('');
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #DEV_UserParameters_ProjectPrefix
+          ElementPosition     #1610612733
+          HierarchyParent     #GroupProjects
+          DataSource          #DEV_UserParameters
+          DataField           #ProjectPrefix
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Grid_Description
+          ElementPosition     #1908874352
+          HierarchyParent     #Grid
+          DataSource          #HKSetup
+          DataField           #Description
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupEnvironment_EnvironmentName
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741822
+          HierarchyParent     #GroupEnvironment
+          DataSource          #DEV_UserParameters
+          DataField           #EnvName
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupPath_ExportFilePath
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #1288490187
+          HierarchyParent     #GroupImpExpPath
+          DataSource          #DEV_UserParameters
+          DataField           #ExportFilePath
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupPath_ImportFilePath
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #1717986916
+          HierarchyParent     #GroupImpExpPath
+          DataSource          #DEV_UserParameters
+          DataField           #ImportFilePath
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupProjectComments_CommentDeveloperAlias
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741820
+          HierarchyParent     #GroupProjectComments
+          DataSource          #DEV_UserParameters
+          DataField           #CommentDeveloperAlias
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupProjectComments_CommentEndFmt
+          AutoDeclaration     #Yes
+          ElementPosition     #1879048185
+          HierarchyParent     #GroupProjectComments
+          DataSource          #DEV_UserParameters
+          DataField           #CommentEndFmt
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupProjectComments_CommentFreeTxt
+          AutoDeclaration     #Yes
+          ElementPosition     #805306365
+          HierarchyParent     #GroupProjectComments
+          DataSource          #DEV_UserParameters
+          DataField           #CommentFreeTxt
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupProjectComments_CommentLineFmt
+          AutoDeclaration     #Yes
+          ElementPosition     #1342177275
+          HierarchyParent     #GroupProjectComments
+          DataSource          #DEV_UserParameters
+          DataField           #CommentLineFmt
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupProjectComments_CommentStartFmt
+          AutoDeclaration     #Yes
+          ElementPosition     #1610612730
+          HierarchyParent     #GroupProjectComments
+          DataSource          #DEV_UserParameters
+          DataField           #CommentStartFmt
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupShortComments_ShortCommentDeveloperAlias
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741820
+          HierarchyParent     #GroupShortComments
+          DataSource          #DEV_UserParameters
+          DataField           #ShortCommentDeveloperAlias
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupShortComments_ShortCommentEndFmt
+          AutoDeclaration     #Yes
+          ElementPosition     #1879048185
+          HierarchyParent     #GroupShortComments
+          DataSource          #DEV_UserParameters
+          DataField           #ShortCommentEndFmt
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupShortComments_ShortCommentFreeTxt
+          AutoDeclaration     #Yes
+          ElementPosition     #805306365
+          HierarchyParent     #GroupShortComments
+          DataSource          #DEV_UserParameters
+          DataField           #ShortCommentFreeTxt
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupShortComments_ShortCommentLineFmt
+          AutoDeclaration     #Yes
+          ElementPosition     #1342177275
+          HierarchyParent     #GroupShortComments
+          DataSource          #DEV_UserParameters
+          DataField           #ShortCommentLineFmt
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupShortComments_ShortCommentStartFmt
+          AutoDeclaration     #Yes
+          ElementPosition     #1610612730
+          HierarchyParent     #GroupShortComments
+          DataSource          #DEV_UserParameters
+          DataField           #ShortCommentStartFmt
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #HKSetup_ActionElementName
+          ElementPosition     #1670265058
+          HierarchyParent     #Grid
+          DataSource          #HKSetup
+          DataField           #ActionElementName
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL WINDOW
+        PROPERTIES
+          Name                #AboutImage
+          ElementPosition     #1073741822
+          HierarchyParent     #GroupLeft
+          ImageResource       #12049
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL WINDOW
+        PROPERTIES
+          Name                #Clock
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          Skip                #Yes
+          ElementPosition     #1610612733
+          HierarchyParent     #AboutTitle
+          BackStyle           #Transparent
+          ShowLabel           #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: END

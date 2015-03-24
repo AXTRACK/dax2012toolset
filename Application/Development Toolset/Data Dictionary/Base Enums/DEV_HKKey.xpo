@@ -1,0 +1,644 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: DBE
+
+; Microsoft Dynamics AX Enumtype : DEV_HKKey unloaded
+; --------------------------------------------------------------------------------
+  ENUMTYPEVERSION 1
+  
+  ENUMTYPE #DEV_HKKey
+    PROPERTIES
+      Name                #DEV_HKKey
+      UseEnumValue        #Yes
+      Origin              #{D29D7F0A-A654-4ACA-AEF6-881A995192EE}
+    ENDPROPERTIES
+    
+    TYPEELEMENTS
+      #None
+      PROPERTIES
+        Name                #None
+        EnumValue           #0
+      ENDPROPERTIES
+      
+      #_0
+      PROPERTIES
+        Name                #_0
+        Label               #0
+        EnumValue           #48
+      ENDPROPERTIES
+      
+      #_1
+      PROPERTIES
+        Name                #_1
+        Label               #1
+        EnumValue           #49
+      ENDPROPERTIES
+      
+      #_2
+      PROPERTIES
+        Name                #_2
+        Label               #2
+        EnumValue           #50
+      ENDPROPERTIES
+      
+      #_3
+      PROPERTIES
+        Name                #_3
+        Label               #3
+        EnumValue           #51
+      ENDPROPERTIES
+      
+      #_4
+      PROPERTIES
+        Name                #_4
+        Label               #4
+        EnumValue           #52
+      ENDPROPERTIES
+      
+      #_5
+      PROPERTIES
+        Name                #_5
+        Label               #5
+        EnumValue           #53
+      ENDPROPERTIES
+      
+      #_6
+      PROPERTIES
+        Name                #_6
+        Label               #6
+        EnumValue           #54
+      ENDPROPERTIES
+      
+      #_7
+      PROPERTIES
+        Name                #_7
+        Label               #7
+        EnumValue           #55
+      ENDPROPERTIES
+      
+      #_8
+      PROPERTIES
+        Name                #_8
+        Label               #8
+        EnumValue           #56
+      ENDPROPERTIES
+      
+      #_9
+      PROPERTIES
+        Name                #_9
+        Label               #9
+        EnumValue           #57
+      ENDPROPERTIES
+      
+      #A
+      PROPERTIES
+        Name                #A
+        Label               #A
+        EnumValue           #65
+      ENDPROPERTIES
+      
+      #B
+      PROPERTIES
+        Name                #B
+        Label               #B
+        EnumValue           #66
+      ENDPROPERTIES
+      
+      #C
+      PROPERTIES
+        Name                #C
+        Label               #C
+        EnumValue           #67
+      ENDPROPERTIES
+      
+      #D
+      PROPERTIES
+        Name                #D
+        Label               #D
+        EnumValue           #68
+      ENDPROPERTIES
+      
+      #E
+      PROPERTIES
+        Name                #E
+        Label               #E
+        EnumValue           #69
+      ENDPROPERTIES
+      
+      #F
+      PROPERTIES
+        Name                #F
+        Label               #F
+        EnumValue           #70
+      ENDPROPERTIES
+      
+      #G
+      PROPERTIES
+        Name                #G
+        Label               #G
+        EnumValue           #71
+      ENDPROPERTIES
+      
+      #H
+      PROPERTIES
+        Name                #H
+        Label               #H
+        EnumValue           #72
+      ENDPROPERTIES
+      
+      #I
+      PROPERTIES
+        Name                #I
+        Label               #I
+        EnumValue           #73
+      ENDPROPERTIES
+      
+      #J
+      PROPERTIES
+        Name                #J
+        Label               #J
+        EnumValue           #74
+      ENDPROPERTIES
+      
+      #K
+      PROPERTIES
+        Name                #K
+        Label               #K
+        EnumValue           #75
+      ENDPROPERTIES
+      
+      #L
+      PROPERTIES
+        Name                #L
+        Label               #L
+        EnumValue           #76
+      ENDPROPERTIES
+      
+      #M
+      PROPERTIES
+        Name                #M
+        Label               #M
+        EnumValue           #77
+      ENDPROPERTIES
+      
+      #N
+      PROPERTIES
+        Name                #N
+        Label               #N
+        EnumValue           #78
+      ENDPROPERTIES
+      
+      #O
+      PROPERTIES
+        Name                #O
+        Label               #O
+        EnumValue           #79
+      ENDPROPERTIES
+      
+      #P
+      PROPERTIES
+        Name                #P
+        Label               #P
+        EnumValue           #80
+      ENDPROPERTIES
+      
+      #Q
+      PROPERTIES
+        Name                #Q
+        Label               #Q
+        EnumValue           #81
+      ENDPROPERTIES
+      
+      #R
+      PROPERTIES
+        Name                #R
+        Label               #R
+        EnumValue           #82
+      ENDPROPERTIES
+      
+      #S
+      PROPERTIES
+        Name                #S
+        Label               #S
+        EnumValue           #83
+      ENDPROPERTIES
+      
+      #T
+      PROPERTIES
+        Name                #T
+        Label               #T
+        EnumValue           #84
+      ENDPROPERTIES
+      
+      #U
+      PROPERTIES
+        Name                #U
+        Label               #U
+        EnumValue           #85
+      ENDPROPERTIES
+      
+      #V
+      PROPERTIES
+        Name                #V
+        Label               #V
+        EnumValue           #86
+      ENDPROPERTIES
+      
+      #W
+      PROPERTIES
+        Name                #W
+        Label               #W
+        EnumValue           #87
+      ENDPROPERTIES
+      
+      #X
+      PROPERTIES
+        Name                #X
+        Label               #X
+        EnumValue           #88
+      ENDPROPERTIES
+      
+      #Y
+      PROPERTIES
+        Name                #Y
+        Label               #Y
+        EnumValue           #89
+      ENDPROPERTIES
+      
+      #Z
+      PROPERTIES
+        Name                #Z
+        Label               #Z
+        EnumValue           #90
+      ENDPROPERTIES
+      
+      #F1
+      PROPERTIES
+        Name                #F1
+        Label               #F1
+        EnumValue           #112
+      ENDPROPERTIES
+      
+      #F2
+      PROPERTIES
+        Name                #F2
+        Label               #F2
+        EnumValue           #113
+      ENDPROPERTIES
+      
+      #F3
+      PROPERTIES
+        Name                #F3
+        Label               #F3
+        EnumValue           #114
+      ENDPROPERTIES
+      
+      #F4
+      PROPERTIES
+        Name                #F4
+        Label               #F4
+        EnumValue           #115
+      ENDPROPERTIES
+      
+      #F5
+      PROPERTIES
+        Name                #F5
+        Label               #F5
+        EnumValue           #116
+      ENDPROPERTIES
+      
+      #F6
+      PROPERTIES
+        Name                #F6
+        Label               #F6
+        EnumValue           #117
+      ENDPROPERTIES
+      
+      #F7
+      PROPERTIES
+        Name                #F7
+        Label               #F7
+        EnumValue           #118
+      ENDPROPERTIES
+      
+      #F8
+      PROPERTIES
+        Name                #F8
+        Label               #F8
+        EnumValue           #119
+      ENDPROPERTIES
+      
+      #F9
+      PROPERTIES
+        Name                #F9
+        Label               #F9
+        EnumValue           #120
+      ENDPROPERTIES
+      
+      #F10
+      PROPERTIES
+        Name                #F10
+        Label               #F10
+        EnumValue           #121
+      ENDPROPERTIES
+      
+      #F11
+      PROPERTIES
+        Name                #F11
+        Label               #F11
+        EnumValue           #122
+      ENDPROPERTIES
+      
+      #F12
+      PROPERTIES
+        Name                #F12
+        Label               #F12
+        EnumValue           #123
+      ENDPROPERTIES
+      
+      #F13
+      PROPERTIES
+        Name                #F13
+        Label               #F13
+        EnumValue           #124
+      ENDPROPERTIES
+      
+      #F14
+      PROPERTIES
+        Name                #F14
+        Label               #F14
+        EnumValue           #125
+      ENDPROPERTIES
+      
+      #F15
+      PROPERTIES
+        Name                #F15
+        Label               #F15
+        EnumValue           #126
+      ENDPROPERTIES
+      
+      #F16
+      PROPERTIES
+        Name                #F16
+        Label               #F16
+        EnumValue           #127
+      ENDPROPERTIES
+      
+      #F17
+      PROPERTIES
+        Name                #F17
+        Label               #F17
+        EnumValue           #128
+      ENDPROPERTIES
+      
+      #F18
+      PROPERTIES
+        Name                #F18
+        Label               #F18
+        EnumValue           #129
+      ENDPROPERTIES
+      
+      #F19
+      PROPERTIES
+        Name                #F19
+        Label               #F19
+        EnumValue           #130
+      ENDPROPERTIES
+      
+      #F20
+      PROPERTIES
+        Name                #F20
+        Label               #F20
+        EnumValue           #131
+      ENDPROPERTIES
+      
+      #F21
+      PROPERTIES
+        Name                #F21
+        Label               #F21
+        EnumValue           #132
+      ENDPROPERTIES
+      
+      #F22
+      PROPERTIES
+        Name                #F22
+        Label               #F22
+        EnumValue           #133
+      ENDPROPERTIES
+      
+      #F23
+      PROPERTIES
+        Name                #F23
+        Label               #F23
+        EnumValue           #134
+      ENDPROPERTIES
+      
+      #F24
+      PROPERTIES
+        Name                #F24
+        Label               #F24
+        EnumValue           #135
+      ENDPROPERTIES
+      
+      #Tilda
+      PROPERTIES
+        Name                #Tilda
+        Label               #~
+        EnumValue           #192
+      ENDPROPERTIES
+      
+      #BACKSPACE
+      PROPERTIES
+        Name                #BACKSPACE
+        Label               #BACKSPACE
+        EnumValue           #8
+      ENDPROPERTIES
+      
+      #TAB
+      PROPERTIES
+        Name                #TAB
+        Label               #TAB
+        EnumValue           #9
+      ENDPROPERTIES
+      
+      #Clear
+      PROPERTIES
+        Name                #Clear
+        Label               #Clear
+        EnumValue           #12
+      ENDPROPERTIES
+      
+      #Enter
+      PROPERTIES
+        Name                #Enter
+        Label               #Enter
+        EnumValue           #13
+      ENDPROPERTIES
+      
+      #Shift
+      PROPERTIES
+        Name                #Shift
+        Label               #Shift
+        EnumValue           #16
+      ENDPROPERTIES
+      
+      #Ctrl
+      PROPERTIES
+        Name                #Ctrl
+        Label               #Ctrl
+        EnumValue           #17
+      ENDPROPERTIES
+      
+      #Alt
+      PROPERTIES
+        Name                #Alt
+        Label               #Alt
+        EnumValue           #18
+      ENDPROPERTIES
+      
+      #Pause
+      PROPERTIES
+        Name                #Pause
+        Label               #Pause
+        EnumValue           #19
+      ENDPROPERTIES
+      
+      #CapsLock
+      PROPERTIES
+        Name                #CapsLock
+        Label               #CapsLock
+        EnumValue           #20
+      ENDPROPERTIES
+      
+      #Esc
+      PROPERTIES
+        Name                #Esc
+        Label               #Esc
+        EnumValue           #27
+      ENDPROPERTIES
+      
+      #Space
+      PROPERTIES
+        Name                #Space
+        Label               #Space
+        EnumValue           #32
+      ENDPROPERTIES
+      
+      #PageUp
+      PROPERTIES
+        Name                #PageUp
+        Label               #PageUp
+        EnumValue           #33
+      ENDPROPERTIES
+      
+      #PageDown
+      PROPERTIES
+        Name                #PageDown
+        Label               #PageDown
+        EnumValue           #34
+      ENDPROPERTIES
+      
+      #End
+      PROPERTIES
+        Name                #End
+        Label               #End
+        EnumValue           #35
+      ENDPROPERTIES
+      
+      #Home
+      PROPERTIES
+        Name                #Home
+        Label               #Home
+        EnumValue           #36
+      ENDPROPERTIES
+      
+      #Left
+      PROPERTIES
+        Name                #Left
+        Label               #Left
+        EnumValue           #37
+      ENDPROPERTIES
+      
+      #Up
+      PROPERTIES
+        Name                #Up
+        Label               #Up
+        EnumValue           #38
+      ENDPROPERTIES
+      
+      #Right
+      PROPERTIES
+        Name                #Right
+        Label               #Right
+        EnumValue           #39
+      ENDPROPERTIES
+      
+      #Down
+      PROPERTIES
+        Name                #Down
+        Label               #Down
+        EnumValue           #40
+      ENDPROPERTIES
+      
+      #Select
+      PROPERTIES
+        Name                #Select
+        Label               #Select
+        EnumValue           #41
+      ENDPROPERTIES
+      
+      #Print
+      PROPERTIES
+        Name                #Print
+        Label               #Print
+        EnumValue           #42
+      ENDPROPERTIES
+      
+      #Execute
+      PROPERTIES
+        Name                #Execute
+        Label               #Execute
+        EnumValue           #43
+      ENDPROPERTIES
+      
+      #PrintScreen
+      PROPERTIES
+        Name                #PrintScreen
+        Label               #PrintScreen
+        EnumValue           #44
+      ENDPROPERTIES
+      
+      #Ins
+      PROPERTIES
+        Name                #Ins
+        Label               #Ins
+        EnumValue           #45
+      ENDPROPERTIES
+      
+      #Del
+      PROPERTIES
+        Name                #Del
+        Label               #Del
+        EnumValue           #46
+      ENDPROPERTIES
+      
+      #Help
+      PROPERTIES
+        Name                #Help
+        Label               #Help
+        EnumValue           #47
+      ENDPROPERTIES
+      
+      #LWIN
+      PROPERTIES
+        Name                #LWIN
+        Label               #WIN Left
+        EnumValue           #91
+      ENDPROPERTIES
+      
+    ENDTYPEELEMENTS
+  ENDENUMTYPE
+  
+
+***Element: END

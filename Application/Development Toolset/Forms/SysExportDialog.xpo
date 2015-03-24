@@ -1,0 +1,306 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #SysExportDialog
+  PROPERTIES
+    Name                #SysExportDialog
+    Origin              #{D9A0A8BF-A06B-4734-A5F3-EAD9165E2FD6}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #DEV_UpdateFileName
+      #// >> DEV:MXK >>
+      #public void DEV_UpdateFileName()
+      #{
+      #    TempStr             st;
+      #
+      #    FilePath            path;
+      #    FileName            name;
+      #    FileName            ext;
+      #
+      #    int                 pos;
+      #
+      #    st = FileName.valueStr();
+      #
+      #    [path, name, ext] = fileNameSplit(st);
+      #
+      #    pos = strScan(name, '[', 1, strLen(name));
+      #
+      #    if (pos)
+      #    {
+      #        name = subStr(name, 1, pos - 2);
+      #    }
+      #
+      #    element.updateBox(fileNameNext(strfmt('%1%2 [%3%4%5%6]%7',
+      #                                    path,
+      #                                    name,
+      #                                    LayerGrp.optionValue() ? Layer.valueStr() + ', ' : '',
+      #                                    LabelGrp.optionValue() ? 'labels, ' : '',
+      #                                    curUserId() + ', ',
+      #                                    DEV_Global::curEnv(),
+      #                                    ext)));
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #fileNameLookupInitialPath
+      #str fileNameLookupInitialPath()
+      #{
+      #    #WinApi
+      #    Filename                path;
+      #    Filename                name;
+      #    Filename                ext;
+      #    ;
+      #    [path, name, ext] = fileNameSplit(fileName.getEditText());
+      #
+      #    if (!path)
+      #    {
+      #        if (conlen(lastFiles))
+      #        {
+      #            [path, name, ext] = fileNameSplit(conpeek(lastFiles,1));
+      #        }
+      #
+      #        if (!path || !WinAPI::pathExists(path))
+      #        {
+      #            path = WinAPI::getFolderPath(#CSIDL_Personal) + '\\';
+      #        }
+      #    }
+      #    return path;
+      #
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #void init()
+      #{
+      #    super();
+      #
+      #    imageListAppl_checkbox  = new ImageListAppl_checkbox();
+      #    exportFlag              = #noExport;
+      #    languageMap             = new Map(Types::String, Types::Enum);
+      #
+      #    languageTree.setStateImagelist(imageListAppl_checkbox.imageList());
+      #
+      #    // >> DEV:MXK >>
+      #    LayerGrp.clicked();
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #run
+      #public void run()
+      #{
+      #    #File
+      #    TreeNode            treeNode;
+      #    LastAotSelection    lastAotSelection = new LastAotSelection();
+      #    FilePath            filePath;
+      #    str                 preFix;  // first part of the file name to export to
+      #    MapIterator         mapIterator = new MapIterator(Map::create(LanguageTable::installedLanguages()));
+      #    // >> DEV:MXK >>
+      #    TreeItemIdx         treeItemIdx;
+      #    FormTreeItem        formTreeItem;
+      #    // << DEV:MXK <<
+      #    ;
+      #    mapIterator.begin();
+      #    while (mapIterator.more())
+      #    {
+      #        languageMap.insert(mapIterator.value(), FormTreeItemStatus::Selected);
+      #        mapIterator.next();
+      #    }
+      #
+      #    languageMap.insert(LanguageTable::defaultLanguage(), FormTreeItemStatus::Selected);
+      #
+      #    xSysLastValue::getLast(element);
+      #
+      #    if (conpeek(lastFiles, 1))
+      #    {
+      #        fileName.text(conpeek(lastFiles, 1));
+      #    }
+      #
+      #    // >> DEV:MXK >>
+      #    filePath = DEV_UserParameters::findOrCreate().ExportFilePath;
+      #
+      #    if (filePath && WinAPI::pathExists(filePath))
+      #    {
+      #        filePath += #FilePathDelimiter;
+      #    }
+      #    else
+      #    {
+      #        filePath = element.fileNameLookupInitialPath();
+      #    }
+      #    // << DEV:MXK <<
+      #    treeNode = lastAotSelection.first();
+      #
+      #    if (!treeNode)
+      #    {
+      #        element.closeCancel();
+      #        return;
+      #    }
+      #
+      #    layer.selection(currentAOLayer());
+      #
+      #    prefix = enum2str(SysTreeNode::path2ApplObjectType(treeNode.treeNodePath()));
+      #    // >> DEV:MXK >>
+      #    //element.updateBox(fileNameNext(strfmt('%1%2_%3%4', filePath, preFix, treeNode.treeNodeName(), #xpo)));
+      #    element.updateBox(/*fileNameNext*/(strfmt('%1%2_%3%4', filePath, preFix, treeNode.treeNodeName(), #xpo)));
+      #    // << DEV:MXK <<
+      #    LanguageTable::buildSelectLanguageTree(languageTree, languageMap);
+      #    layerGrp.enableChilds(labelGrp.enableChilds());
+      #
+      #    super();
+      #    layer.modified();
+      #    // >> DEV:MXK >>
+      #    formTreeItem = languageTree.getItem(languageTree.getRoot());
+      #
+      #    if (formTreeItem &&
+      #        languageTree.getChild(formTreeItem.idx()) &&
+      #        formTreeItem.stateImage() != imageListAppl_checkbox.image(#imageCheckNone))
+      #    {
+      #        treeItemIdx = languageTree.getChild(formTreeItem.idx());
+      #
+      #        while (treeItemIdx)
+      #        {
+      #            formTreeItem = languageTree.getItem(treeItemIdx);
+      #
+      #            //info(formTreeItem.text());
+      #            if (    formTreeItem.text() != @'English (United Kingdom) ')
+      #                //&&  formTreeItem.text() != @'English (United States)')
+      #            {
+      #                formTreeItem.stateImage(#Image_NotOK);
+      #                languageTree.setItem(formTreeItem);
+      #            }
+      #            treeItemIdx = languageTree.getNextSibling(treeItemIdx);
+      #        }
+      #    }
+      #
+      #    formTreeItem = languageTree.getItem(languageTree.getRoot());
+      #    formTreeItem.stateImage(6);
+      #    languageTree.setItem(formTreeItem);
+      #
+      #    this.DEV_UpdateFileName();
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+  ENDOBJECTBANK
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    CONTAINER
+      CONTROL GROUP #LabelGrp
+        METHODS
+          SOURCE #clicked
+            #public void clicked()
+            #{
+            #    boolean newValue = !this.enableChilds();
+            #
+            #    super();
+            #
+            #    element.lock();
+            #    languageTree.visible(newValue);
+            #    languageText.visible(newValue);
+            #
+            #    if (newValue)
+            #    {
+            #        labelGrp.frameType(FormFrameType::Edged3D);
+            #    }
+            #    else
+            #    {
+            #        labelGrp.frameType(FormFrameType::Edged3DLine);
+            #    }
+            #
+            #    element.resetSize();
+            #    element.arrange();
+            #    element.unLock();
+            #
+            #    element.DEV_UpdateFileName(); // DEV:MXK
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP #LayerGrp
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #public void clicked()
+            #{
+            #    super();
+            #
+            #    element.DEV_UpdateFileName();
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #FileName
+          AutoDeclaration     #Yes
+          Width               #Column width
+          AlignControl        #No
+          HelpText            #@SYS21196
+          ElementPosition     #1073741822
+          HierarchyParent     #FileGrp
+          DisplayLength       #100
+          Label               #@SYS16423
+          AppendNew           #Yes
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX #Layer
+        METHODS
+          SOURCE #selectionChange
+            #// >> DEV:MXK >>
+            #public int selectionChange()
+            #{
+            #    int ret;
+            #
+            #    ret = super();
+            #
+            #    element.DEV_UpdateFileName();
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON #Export
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    //element.DEV_SetFileName(); // DEV:MXK
+            #    element.export();
+            #    super();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+  ENDPERMISSIONS
+  
+ENDFORM
+
+
+***Element: END

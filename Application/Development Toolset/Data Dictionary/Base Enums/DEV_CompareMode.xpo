@@ -1,0 +1,65 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: DBE
+
+; Microsoft Dynamics AX Enumtype : DEV_CompareMode unloaded
+; --------------------------------------------------------------------------------
+  ENUMTYPEVERSION 1
+  
+  ENUMTYPE #DEV_CompareMode
+    PROPERTIES
+      Name                #DEV_CompareMode
+      Label               #@SYS74481
+      UseEnumValue        #Yes
+      Origin              #{B380D934-CA0C-4E8B-AEEF-7E7B58B30D16}
+    ENDPROPERTIES
+    
+    TYPEELEMENTS
+      #Default
+      PROPERTIES
+        Name                #Default
+        Label               #@SYS27587
+        EnumValue           #0
+      ENDPROPERTIES
+      
+      #TopLayers
+      PROPERTIES
+        Name                #TopLayers
+        Label               #Top layers
+        EnumValue           #1
+      ENDPROPERTIES
+      
+      #BottomLayers
+      PROPERTIES
+        Name                #BottomLayers
+        Label               #Bottom layers
+        EnumValue           #2
+      ENDPROPERTIES
+      
+      #Custom
+      PROPERTIES
+        Name                #Custom
+        Label               #Custom selection
+        EnumValue           #3
+      ENDPROPERTIES
+      
+      #CustomVsTop
+      PROPERTIES
+        Name                #CustomVsTop
+        Label               #Custom vs top
+        EnumValue           #4
+      ENDPROPERTIES
+      
+      #CustomVsBottom
+      PROPERTIES
+        Name                #CustomVsBottom
+        Label               #Custom vs bottom
+        EnumValue           #5
+      ENDPROPERTIES
+      
+    ENDTYPEELEMENTS
+  ENDENUMTYPE
+  
+
+***Element: END

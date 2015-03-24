@@ -1,0 +1,166 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_SourceCode unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_SourceCode
+    PROPERTIES
+      Name                #DEV_SourceCode
+      Origin              #{ED7B634A-E5A6-4A88-A992-B868EE0C0209}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #applyIndent
+        #private void applyIndent()
+        #{
+        #    if (this.isNewLine() && indentLevel > 0)
+        #    {
+        #        source += this.indent();
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #blockEnd
+        #public void blockEnd()
+        #{
+        #    this.indentDec();
+        #    this.applyIndent();
+        #    source += '}';
+        #    this.newLine();
+        #}
+      ENDSOURCE
+      SOURCE #blockStart
+        #public void blockStart()
+        #{
+        #    this.applyIndent();
+        #    source += '{';
+        #    this.newLine();
+        #    this.indentInc();
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class DEV_SourceCode
+        #{
+        #    Source source;
+        #    int indentLevel;
+        #    int indentUnitLength;
+        #    str indent;
+        #
+        #    #xppTexts
+        #}
+      ENDSOURCE
+      SOURCE #columnLayout
+        #public str columnLayout(
+        #    str _str1,
+        #    str _str2,
+        #    int _fromPosition)
+        #{
+        #    // nearest column (multiple of 4)
+        #    int fromPosition;
+        #    int columnPos;
+        #    str space;
+        #    ;
+        #
+        #    if (strLen(_str1) > _fromPosition)
+        #    {
+        #        fromPosition = strLen(_str1);
+        #    }
+        #    else
+        #    {
+        #        fromPosition = _fromPosition;
+        #    }
+        #
+        #    columnPos = ((fromPosition div 4) + 1) * 4;
+        #    space = strRep(' ', columnPos - strLen(_str1));
+        #
+        #    return strFmt(
+        #        '%1%2%3',
+        #        _str1,
+        #        space,
+        #        _str2);
+        #}
+      ENDSOURCE
+      SOURCE #indent
+        #public str indent()
+        #{
+        #    return strRep(#space, indentLevel * indentUnitLength);
+        #}
+      ENDSOURCE
+      SOURCE #indentDec
+        #public void indentDec()
+        #{
+        #    if (indentLevel>0)
+        #    {
+        #        indentLevel--;
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #indentInc
+        #public void indentInc()
+        #{
+        #    indentLevel++;
+        #}
+      ENDSOURCE
+      SOURCE #isNewLine
+        #private boolean isNewLine()
+        #{
+        #    if (strFind(source, '\n', strLen(source), -2))
+        #    {
+        #        return true;
+        #    }
+        #
+        #    return false;
+        #}
+      ENDSOURCE
+      SOURCE #line
+        #public void line(str _text)
+        #{
+        #    ;
+        #    this.applyIndent();
+        #    source += _text + #newline;
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #public void new()
+        #{
+        #    ;
+        #    indentUnitLength = strLen(#tab);
+        #}
+      ENDSOURCE
+      SOURCE #newLine
+        #public void newLine()
+        #{
+        #    ;
+        #    source += '\n';
+        #}
+      ENDSOURCE
+      SOURCE #parmIndentUnitLength
+        #public int parmIndentUnitLength(int _indentUnitLength = indentUnitLength)
+        #{
+        #    ;
+        #    indentUnitLength = _indentUnitLength;
+        #
+        #    return indentUnitLength;
+        #}
+      ENDSOURCE
+      SOURCE #text
+        #public void text(str _text)
+        #{
+        #    ;
+        #    this.applyIndent();
+        #    source += _text;
+        #}
+      ENDSOURCE
+      SOURCE #toString
+        #public Source toString()
+        #{
+        #    return source;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

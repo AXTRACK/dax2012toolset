@@ -1,0 +1,49 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: Info unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #Info
+    PROPERTIES
+      Name                #Info
+      Extends             #xInfo
+      Origin              #{2D04F004-0000-1000-496E-666F00000000}
+      LegacyId            #61444
+    ENDPROPERTIES
+    
+    METHODS
+    ENDMETHODS
+    EVENTS
+      METHOD #onEventGoingIdle
+        EVENTHANDLERS
+          EVENTHANDLER #DEV_HKCommon
+            PROPERTIES
+              Class               #DEV_HKCommon
+              Method              #handleInfoOnEventGoingIdlePost
+              AOTlink             #\Classes\DEV_HKCommon\handleInfoOnEventGoingIdlePost
+            ENDPROPERTIES
+            
+          ENDEVENTHANDLER
+        ENDEVENTHANDLERS
+      ENDMETHOD
+      METHOD #workspaceWindowCreated
+        EVENTHANDLERS
+          EVENTHANDLER #DEV_HKCommon
+            PROPERTIES
+              CalledWhen          #Post
+              Class               #DEV_HKCommon
+              Method              #handleInfoWorkspaceWindowCreatedPost
+              AOTlink             #\Classes\DEV_HKCommon\handleInfoWorkspaceWindowCreatedPost
+            ENDPROPERTIES
+            
+          ENDEVENTHANDLER
+        ENDEVENTHANDLERS
+      ENDMETHOD
+    ENDEVENTS
+  ENDCLASS
+
+***Element: END

@@ -1,0 +1,286 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysFormRun unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysFormRun
+    PROPERTIES
+      Name                #SysFormRun
+      Extends             #FormRun
+      RunOn               #Client
+      Origin              #{2D0A09A8-0000-1000-AAF2-52576F726D52}
+      LegacyId            #2472
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #controlType
+        #static FormControlType controlType(classId classId)
+        #{
+        #    switch (classId)
+        #    {
+        #        case classnum(FormStaticTextControl):
+        #        case classnum(FormBuildStaticTextControl):
+        #            return FormControlType::StaticText;
+        #
+        #        case classnum(FormStringControl):
+        #        case classnum(FormBuildStringControl):
+        #            return FormControlType::String;
+        #
+        #        case classnum(FormTabControl):
+        #        case classnum(FormBuildTabControl):
+        #            return FormControlType::Tab;
+        #
+        #        case classnum(FormCheckBoxControl):
+        #        case classnum(FormBuildCheckBoxControl):
+        #            return FormControlType::CheckBox;
+        #
+        #        case classnum(FormGroupControl):
+        #        case classnum(FormBuildGroupControl):
+        #            return FormControlType::Group;
+        #
+        #        case classnum(FormButtonControl):
+        #        case classnum(FormBuildButtonControl):
+        #            return FormControlType::Button;
+        #
+        #        case classnum(FormRealControl):
+        #        case classnum(FormBuildRealControl):
+        #            return FormControlType::Real;
+        #
+        #        case classnum(FormIntControl):
+        #        case classnum(FormBuildIntControl):
+        #            return FormControlType::Integer;
+        #
+        #        case classnum(FormInt64Control):
+        #        case classnum(FormBuildInt64Control):
+        #            return FormControlType::Int64;
+        #
+        #        case classnum(FormGuidControl):
+        #        case classnum(FormBuildGuidControl):
+        #            return FormControlType::Guid;
+        #
+        #        case classnum(FormComboBoxControl):
+        #        case classnum(FormBuildComboBoxControl):
+        #            return FormControlType::ComboBox;
+        #
+        #        case classnum(FormWindowControl):
+        #        case classnum(FormBuildWindowControl):
+        #            return FormControlType::Image;
+        #
+        #        case classnum(FormDateControl):
+        #        case classnum(FormBuildDateControl):
+        #            return FormControlType::Date;
+        #
+        #        case classnum(FormDateTimeControl):
+        #        case classnum(FormBuildDateTimeControl):
+        #            return FormControlType::DateTime;
+        #
+        #        case classnum(FormGridControl):
+        #        case classnum(FormBuildGridControl):
+        #            return FormControlType::Grid;
+        #
+        #        case classnum(FormRadioControl):
+        #        case classnum(FormBuildRadioControl):
+        #            return FormControlType::RadioButton;
+        #
+        #        case classnum(FormButtonGroupControl):
+        #        case classnum(FormBuildButtonGroupControl):
+        #            return FormControlType::ButtonGroup;
+        #
+        #        case classnum(FormTabPageControl):
+        #        case classnum(FormBuildTabPageControl):
+        #            return FormControlType::TabPage;
+        #
+        #        case classnum(FormCommandButtonControl):
+        #        case classnum(FormBuildCommandButtonControl):
+        #            return FormControlType::CommandButton;
+        #
+        #        case classnum(FormMenuButtonControl):
+        #        case classnum(FormBuildMenuButtonControl):
+        #            return FormControlType::MenuButton;
+        #
+        #        case classnum(FormFunctionButtonControl):
+        #        case classnum(FormBuildFunctionButtonControl):
+        #            return FormControlType::MenuFunctionButton;
+        #
+        #        case classnum(FormListBoxControl):
+        #        case classnum(FormBuildListBoxControl):
+        #            return FormControlType::ListBox;
+        #
+        #        case classnum(FormTimeControl):
+        #        case classnum(FormBuildTimeControl):
+        #            return FormControlType::Time;
+        #
+        #        case classnum(FormTableControl):
+        #        case classnum(FormBuildTableControl):
+        #            return FormControlType::Table;
+        #
+        #        case classnum(FormButtonSeparatorControl):
+        #        case classnum(FormBuildButtonSeparatorControl):
+        #            return FormControlType::ButtonSeparator;
+        #
+        #        case classnum(FormTreeControl):
+        #        case classnum(FormBuildTreeControl):
+        #            return FormControlType::Tree;
+        #
+        #        case classnum(FormActiveXControl):
+        #        case classnum(FormBuildActiveXControl):
+        #            return FormControlType::ActiveX;
+        #
+        #        case classnum(FormListControl):
+        #        case classnum(FormBuildListControl):
+        #            return FormControlType::ListView;
+        #
+        #        case classnum(FormProgressControl):
+        #        case classnum(FormBuildProgressControl):
+        #            return FormControlType::Progress;
+        #
+        #        case classnum(FormAnimateControl):
+        #        case classnum(FormBuildAnimateControl):
+        #            return FormControlType::Animate;
+        #
+        #        case classnum(FormHTMLControl):
+        #        case classnum(FormBuildHTMLControl):
+        #            return FormControlType::HTML;
+        #
+        #        case classnum(FormActionPaneControl):
+        #        case classnum(FormBuildActionPaneControl):
+        #            return FormControlType::ActionPane;
+        #
+        #        case classnum(FormActionPaneTabControl):
+        #        case classnum(FormBuildActionPaneTabControl):
+        #            return FormControlType::ActionPaneTab;
+        #
+        #        case classnum(FormFilterPaneControl):
+        #        case classnum(FormBuildFilterPaneControl):
+        #            return FormControlType::FilterPane;
+        #
+        #        case classnum(FormManagedHostControl):
+        #        case classnum(FormBuildManagedHostControl):
+        #            return FormControlType::ManagedHost;
+        #
+        #        case classnum(FormSegmentedEntryControl):
+        #        case classnum(FormBuildSegmentedEntryControl):
+        #            return FormControlType::SegmentedEntry;
+        #
+        #        case classnum(FormDropDialogButtonControl):
+        #        case classnum(FormBuildDropDialogButtonControl):
+        #            return FormControlType::DropDialogButton;
+        #
+        #        case classnum(FormReferenceGroupControl):
+        #        case classnum(FormBuildReferenceGroupControl):
+        #            return FormControlType::ReferenceGroup;
+        #
+        #        case classnum(FormFastTabHeaderControl):
+        #        case classnum(FormBuildFastTabHeaderControl):
+        #        // >> DEV:MXK >>
+        #        case classnum(FormFastTabSummarySeparator):
+        #        // << DEV:MXK <<
+        #            return FormControlType::FastTabHeader;
+        #
+        #        case classnum(FormRichTextControl):
+        #        case classnum(FormBuildRichTextControl):
+        #            return FormControlType::RichText;
+        #    }
+        #
+        #    throw error(strfmt("@SYS18598",funcname()));
+        #}
+      ENDSOURCE
+      SOURCE #controlTypeStr
+        #static identifiername controlTypeStr(classId classId)
+        #{
+        #    switch (classId)
+        #    {
+        #        case classnum(Form):
+        #        // >> DEV:MXK >>
+        #        case classNum(FormStaticTextControl):
+        #        // << DEV:MXK <<
+        #            return 'STATICTEXT';
+        #        case classnum(FormStringControl):
+        #            return 'STRINGEdit';
+        #        case classnum(FormTabControl):
+        #            return 'TAB';
+        #        case classnum(FormCheckBoxControl):
+        #            return 'CHECKBOX';
+        #        case classnum(FormGroupControl):
+        #            return 'GROUP';
+        #        case classnum(FormButtonControl):
+        #            return 'BUTTON';
+        #        case classnum(FormRealControl):
+        #            return 'REALEdit';
+        #        case classnum(FormIntControl):
+        #            return 'INTEdit';
+        #        case classnum(FormInt64Control):
+        #            return 'INT64Edit';
+        #        case classnum(FormGuidControl):
+        #            return 'GUIDEdit';
+        #        case classnum(FormComboBoxControl):
+        #            return 'COMBOBOX';
+        #        case classnum(FormWindowControl):
+        #            return 'Window';
+        #        case classnum(FormDateControl):
+        #            return 'DATEEdit';
+        #        case classnum(FormGridControl):
+        #            return 'GRID';
+        #        case classnum(FormRadioControl):
+        #            return 'RADIOBUTTON';
+        #        case classnum(FormButtonGroupControl):
+        #            return 'BUTTONGROUP';
+        #        case classnum(FormTabPageControl):
+        #            return 'TABPAGE';
+        #        case classnum(FormCommandButtonControl):
+        #            return 'COMMANDBUTTON';
+        #        case classnum(FormMenuButtonControl):
+        #            return 'MENUBUTTON';
+        #        case classnum(FormFunctionButtonControl):
+        #            return 'MENUItemBUTTON';
+        #        case classnum(FormListBoxControl):
+        #            return 'LISTBOX';
+        #        case classnum(FormTimeControl):
+        #            return 'TIMEEdit';
+        #        case classnum(FormTableControl):
+        #            return 'TABLE';
+        #        case classnum(FormButtonSeparatorControl):
+        #            return 'SEPARATOR';
+        #        case classnum(FormTreeControl):
+        #            return 'TREE';
+        #        case classnum(FormActiveXControl):
+        #            return 'ACTIVEX';
+        #        case classnum(FormListControl):
+        #            return 'LISTVIEW';
+        #//        case classNum(FormProgressControl):
+        #//            return 'PROGRESS';
+        #        case classnum(FormAnimateControl):
+        #            return 'ANIMATE';
+        #        case classnum(FormHTMLControl):
+        #            return 'HTML';
+        #        case classnum(FormActionPaneControl):
+        #            return 'ACTIONPANE';
+        #        case classnum(FormActionPaneTabControl):
+        #            return 'ACTIONPANETAB';
+        #        case classnum(FormManagedHostControl):
+        #            return 'MANAGEDHOST';
+        #        case classnum(FormSegmentedEntryControl):
+        #            return 'SegmentedEntry';
+        #        case classnum(FormDropDialogButtonControl):
+        #            return 'DROPDIALOGBUTTON';
+        #        case classnum(FormReferenceGroupControl):
+        #            return 'ReferenceGroup';
+        #        case classnum(FormFastTabHeaderControl):
+        #            return 'FastTabHeader';
+        #        // >> DEV:MXK >>
+        #        case classnum(FormDateTimeControl):
+        #            return 'UTCDATETIMEEDIT';
+        #        // << DEV:MXK <<
+        #    }
+        #
+        #    throw error(strfmt("@SYS18598",funcname()));
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

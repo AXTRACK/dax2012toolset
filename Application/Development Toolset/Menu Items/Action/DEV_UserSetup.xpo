@@ -1,0 +1,24 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FTM
+
+; Microsoft Dynamics AX MENUITEM : DEV_UserSetup unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  MENUITEM #DEV_UserSetup
+    Type: 3
+    PROPERTIES
+      Name                #DEV_UserSetup
+      Label               #Parameters
+      HelpText            #Allow to setup development parameters for the user (Default hotkey F10).
+      ObjectType          #Class
+      Object              #DEV_HKManager
+      Origin              #{C6329C5C-4BDD-4AC4-A3EE-42BAB8CECC16}
+    ENDPROPERTIES
+    
+  ENDMENUITEM
+  
+
+***Element: END

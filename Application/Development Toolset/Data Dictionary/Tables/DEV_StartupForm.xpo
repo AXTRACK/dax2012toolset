@@ -1,0 +1,306 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: DBT
+
+; Microsoft Dynamics AX Table : DEV_StartupForm unloaded
+; --------------------------------------------------------------------------------
+  TABLEVERSION 1
+  
+  TABLE #DEV_StartupForm
+    EnforceFKRelation 0
+    PROPERTIES
+      Name                #DEV_StartupForm
+      Label               #Startup table
+      FormRef             #DEV_StartupForm
+      TitleField1         #UserId
+      TitleField2         #TreeNodePath
+      SecurityKey         #BasicTables
+      CacheLookup         #Found
+      SaveDataPerCompany  #No
+      PrimaryIndex        #UserFormIdx
+      ClusterIndex        #UserFormIdx
+      Origin              #{AE215517-F9DC-4CAF-B147-099E68496A08}
+    ENDPROPERTIES
+    
+    FIELDS
+      FIELD #Company
+        STRING
+        PROPERTIES
+          Name                #Company
+          HelpText            #Startup company
+          Table               #DEV_StartupForm
+          Origin              #{A12EF3E9-6625-4150-A19B-4768FCFA42C8}
+          ExtendedDataType    #DataAreaId
+          StringSize          #4
+        ENDPROPERTIES
+        
+      FIELD #ComputerName
+        STRING
+        PROPERTIES
+          Name                #ComputerName
+          HelpText            #Startup computer name
+          Table               #DEV_StartupForm
+          Origin              #{BEF02769-D7B9-452A-811A-269A1E0336F4}
+          ExtendedDataType    #ComputerName
+          StringSize          #30
+        ENDPROPERTIES
+        
+      FIELD #Enabled
+        ENUM
+        PROPERTIES
+          Name                #Enabled
+          Label               #@SYS60755
+          HelpText            #@SYS60755
+          Table               #DEV_StartupForm
+          Origin              #{FB17736F-B905-4ECC-85C4-202B01345C98}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #TreeNodePath
+        STRING
+        PROPERTIES
+          Name                #TreeNodePath
+          HelpText            #Full AOT path to object
+          Mandatory           #Yes
+          Table               #DEV_StartupForm
+          Origin              #{C6E594DE-C7CD-4C69-9F02-A2B91DCE4C3E}
+          ExtendedDataType    #TreeNodePath
+          StringSize          #400
+        ENDPROPERTIES
+        
+      FIELD #UserId
+        STRING
+        PROPERTIES
+          Name                #UserId
+          HelpText            #Startup user ID
+          Mandatory           #Yes
+          Table               #DEV_StartupForm
+          Origin              #{31CE97FC-401C-4A5B-8304-8F74B5ECC590}
+          ExtendedDataType    #UserId
+          StringSize          #8
+        ENDPROPERTIES
+        
+    ENDFIELDS
+    GROUPS
+      GROUP #AutoSummary
+        PROPERTIES
+          Name                #AutoSummary
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Enabled
+          #ComputerName
+          #TreeNodePath
+          #UserId
+          #Company
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoReport
+        PROPERTIES
+          Name                #AutoReport
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Enabled
+          #ComputerName
+          #TreeNodePath
+          #UserId
+          #Company
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoLookup
+        PROPERTIES
+          Name                #AutoLookup
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Enabled
+          #ComputerName
+          #TreeNodePath
+          #UserId
+          #Company
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoBrowse
+        PROPERTIES
+          Name                #AutoBrowse
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Enabled
+          #UserId
+          #TreeNodePath
+          #Company
+          #ComputerName
+        ENDGROUPFIELDS
+      ENDGROUP
+    ENDGROUPS
+    
+    INDICES
+      #UserFormIdx
+      PROPERTIES
+        Name                #UserFormIdx
+        AllowDuplicates     #No
+        Origin              #{429D94A3-25D9-4E4F-8793-DC6B8EC03D6A}
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #UserId
+        #TreeNodePath
+        #ComputerName
+        #Company
+      ENDINDEXFIELDS
+      
+    ENDINDICES
+    FULLTEXTINDICES
+    ENDFULLTEXTINDICES
+    REFERENCES
+    ENDREFERENCES
+    
+    DELETEACTIONS
+    ENDDELETEACTIONS
+    
+    METHODS
+      SOURCE #initValue
+        #public void initValue()
+        #{
+        #    super();
+        #
+        #    this.UserId         = curUserId();
+        #    this.Enabled        = NoYes::Yes;
+        #    this.ComputerName   = WinAPI::getComputerName();
+        #}
+        #
+      ENDSOURCE
+      SOURCE #validateWrite
+        #public boolean validateWrite()
+        #{
+        #    boolean ret;
+        #
+        #    ret = super();
+        #
+        #    if (!TreeNode::findNode(this.TreeNodePath))
+        #    {
+        #        ret = checkFailed(strFmt("@SYS324296", this.TreeNodePath)); // Tree %1 node path is invalid.
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #startupApplRun
+        #public static void startupApplRun(  boolean _onCompanyChange    = false,
+        #                                    UserId  _userId             = curUserId())
+        #{
+        #    #TreeNodeSysNodeType
+        #    #define.Main('Main')
+        #
+        #    DEV_StartupForm                 startupForm;
+        #    TreeNode                        treeNode;
+        #    Args                            args            = new Args();
+        #    FormRun                         formRun;
+        #    DictClass                       dictClass;
+        #    SysDictClass                    sdc;
+        #
+        #    while select startupForm
+        #        where       startupForm.UserId  == _userId
+        #                &&  startupForm.Enabled == NoYes::Yes
+        #                &&  (   startupForm.Company == curext()
+        #                    ||  startupForm.Company == '')
+        #    {
+        #        treeNode = infolog.findNode(startupForm.TreeNodePath);
+        #
+        #        if (treeNode)
+        #        {
+        #            if (startupForm.ComputerName &&
+        #                (   (startupForm.ComputerName != WinAPI::getComputerName())
+        #                &&   startupForm.ComputerName != '*'))
+        #            {
+        #                continue;
+        #            }
+        #
+        #            switch (treeNode.treeNodeType().id())
+        #            {
+        #                case #NT_FUNCITEM:
+        #                    treeNode.AOTrun();
+        #                break;
+        #
+        #                case #NT_FORM:
+        #                    args.name(treeNode.treeNodeName());
+        #                    formRun = classfactory.formRunClass(args);
+        #                    formRun.init();
+        #                    formRun.run();
+        #                    formRun.wait();
+        #                    formRun.detach();
+        #                break;
+        #
+        #                case #NT_CLASS:
+        #                    dictClass = new DictClass(className2Id(treeNode.treeNodeName()));
+        #
+        #                    if (dictClass)
+        #                    {
+        #                        sdc = new SysDictClass(className2Id(treeNode.treeNodeName()));
+        #
+        #                        if (sdc.hasStaticMethod(#Main))
+        #                        {
+        #                            dictClass.callStatic(#Main);
+        #                        }
+        #                    }
+        #                break;
+        #
+        #                default:
+        #            }
+        #        }
+        #    }
+        #}
+        #
+      ENDSOURCE
+      SOURCE #startupInfoRun
+        #public static void startupInfoRun(  boolean _onCompanyChange    = false,
+        #                                    UserId  _userId             = curUserId())
+        #{
+        #    #AOT
+        #
+        #    DEV_StartupForm                 startupForm;
+        #    ProjectListNode                 parentTreenode;
+        #    ProjectNode                     projectNode;
+        #    TreeNode                        treeNode;
+        #    container                       con;
+        #
+        #    while select startupForm
+        #        where       startupForm.UserId  == _userId
+        #                &&  startupForm.Enabled == NoYes::Yes
+        #                &&  (   startupForm.Company == curext()
+        #                    ||  startupForm.Company == '')
+        #    {
+        #        con = str2con(startupForm.TreeNodePath, '\\');
+        #
+        #        if (conLen(con) < 3)
+        #            continue;
+        #
+        #        if (subStr(startupForm.TreeNodePath, 1, strLen(#ProjectSharedPath)) == #ProjectSharedPath)
+        #        {
+        #            parentTreenode  = SysTreeNode::getSharedProject();
+        #            projectNode     = parentTreenode.AOTfindChild(conPeek(con, 4));
+        #            treeNode        = projectNode.getRunNode();
+        #        }
+        #        else if (subStr(startupForm.TreeNodePath, 1, strLen(#ProjectPrivatePath)) == #ProjectPrivatePath)
+        #        {
+        #            parentTreenode  = SysTreeNode::getPrivateProject();
+        #            projectNode     = parentTreenode.AOTfindChild(conPeek(con, 4));
+        #            treeNode        = projectNode.getRunNode();
+        #            projectNode.AOTrun();
+        #        }
+        #
+        #        if (treeNode)
+        #            treeNode.AOTnewWindow();
+        #    }
+        #}
+        #
+      ENDSOURCE
+    ENDMETHODS
+  ENDTABLE
+  
+
+***Element: END

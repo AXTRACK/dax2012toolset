@@ -1,0 +1,118 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: MNU
+
+; Microsoft Dynamics AX Menu : DEV_Toolset unloaded
+; --------------------------------------------------------------------------------
+  MNUVERSION 5
+  
+  MENU #DEV_Toolset
+    PROPERTIES
+      Name                #DEV_Toolset
+      Label               #Development toolset
+      ConfigurationKey    #SysDevelopmentMorphX
+      SetCompany          #Yes
+      NormalImage         #12049
+      ImageLocation       #EmbeddedResource
+      Origin              #{435DF0F3-1902-4FCD-88ED-CC56C5B0AA63}
+    ENDPROPERTIES
+    
+    MENU #@SYS333846
+      PROPERTIES
+        Name                #Common
+        Label               #@SYS333846
+        NormalImage         #3495
+        ImageLocation       #EmbeddedResource
+      ENDPROPERTIES
+      
+      MENUITEM
+        PROPERTIES
+          Name                #Development toolbar
+          MenuItemName        #DEV_Toolbar
+        ENDPROPERTIES
+        
+      ENDMENUITEM
+      MENUITEM
+        PROPERTIES
+          Name                #Manage projects
+          MenuItemName        #DEV_Projects
+        ENDPROPERTIES
+        
+      ENDMENUITEM
+      MENUITEM
+        PROPERTIES
+          Name                #Pick color
+          MenuItemName        #DEV_WebSafeColors
+        ENDPROPERTIES
+        
+      ENDMENUITEM
+      MENUITEM
+        PROPERTIES
+          Name                #Icon used by
+          MenuItemName        #DEV_xRefSearch
+        ENDPROPERTIES
+        
+      ENDMENUITEM
+    ENDMENU
+    MENU #@SYS8782
+      PROPERTIES
+        Name                #DevicePeriotic
+        Label               #@SYS8782
+        NormalImage         #3476
+        ImageLocation       #EmbeddedResource
+      ENDPROPERTIES
+      
+      MENUITEM
+        PROPERTIES
+          Name                #Create/update project
+          MenuItemType        #Action
+          MenuItemName        #DEV_CreateNewProject
+        ENDPROPERTIES
+        
+      ENDMENUITEM
+      MENUITEM
+        PROPERTIES
+          Name                #Export changes
+          MenuItemType        #Action
+          MenuItemName        #DEV_ExportChanges
+        ENDPROPERTIES
+        
+      ENDMENUITEM
+      MENUITEM
+        PROPERTIES
+          Name                #Maintenance
+          MenuItemType        #Action
+          MenuItemName        #DEV_Maintain
+        ENDPROPERTIES
+        
+      ENDMENUITEM
+    ENDMENU
+    MENU #@SYS2186
+      PROPERTIES
+        Name                #DeviceSetup
+        Label               #@SYS2186
+        NormalImage         #3478
+        ImageLocation       #EmbeddedResource
+      ENDPROPERTIES
+      
+      MENUITEM
+        PROPERTIES
+          Name                #Parameters
+          MenuItemType        #Action
+          MenuItemName        #DEV_HKManager
+        ENDPROPERTIES
+        
+      ENDMENUITEM
+      MENUITEM
+        PROPERTIES
+          Name                #Startup
+          MenuItemName        #DEV_StartupForm
+        ENDPROPERTIES
+        
+      ENDMENUITEM
+    ENDMENU
+  ENDMENU
+  
+
+***Element: END

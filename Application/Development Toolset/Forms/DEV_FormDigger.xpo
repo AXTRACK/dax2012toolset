@@ -1,0 +1,1513 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #DEV_FormDigger
+  PROPERTIES
+    Name                #DEV_FormDigger
+    Origin              #{E8A39CA0-FF27-47AD-AE14-95C0F78D6F87}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #public class FormRun extends ObjectRun
+      #{
+      #    DEV_FormDigger      formDigger;
+      #
+      #    Range               filterControlName;
+      #    boolean             helpMode;
+      #
+      #    int                 timerId;
+      #
+      #    ImageListAppl_Form  imageList;
+      #
+      #    #KeyPressed
+      #    #WinAPI
+      #    #Task
+      #
+      #    #define.HighLightPeriodMs(50)
+      #}
+    ENDSOURCE
+    SOURCE #borderCtrl
+      #void borderCtrl(hwnd _hwnd = 0)
+      #{
+      #    int         wndDC;
+      #    WinGDI      winGDI;
+      #    int         x,y,k,l;
+      #    int         pen;
+      #
+      #    if (!_hwnd && formDigger.parmLastActivatedCtrl())
+      #    {
+      #        _hwnd = formDigger.parmLastActivatedCtrl().hWnd();
+      #    }
+      #
+      #    this.borderTimer(false);
+      #
+      #    wndDC  = WinAPI::getWindowDC(_hwnd);
+      #
+      #    if (wndDC)
+      #    {
+      #        winGDI = new WinGDI(wndDC);
+      #
+      #        if (winGDI)
+      #        {
+      #            pen = winGDI.createPen(0, 5, WinAPI::RGB2int(0xFF, 0x00, 0x00));
+      #
+      #            if (pen)
+      #            {
+      #                winGDI.selectObject(pen);
+      #
+      #                [x, y, k, l] = WinAPI::getWindowRect(_hwnd);
+      #                winGDI.lineTo(k - x, 0);
+      #                winGDI.lineTo(k - x, l - y);
+      #                winGDI.lineTo(0, l - y);
+      #                winGDI.lineTo(0, 0);
+      #
+      #                winGDI.deleteObject(pen);
+      #            }
+      #        }
+      #
+      #        WinAPI::releaseDC(_hwnd, wndDC);
+      #    }
+      #
+      #    this.borderTimer(true, 200);
+      #}
+    ENDSOURCE
+    SOURCE #borderTimer
+      #void borderTimer(boolean _set, int _periodMs = 0)
+      #{
+      #    if (timerId)
+      #    {
+      #        element.cancelTimeOut(timerId);
+      #    }
+      #
+      #    if (_set && _periodMs)
+      #    {
+      #        timerId = element.setTimeOut(identifierStr(borderCtrl), _periodMs);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #canClose
+      #public boolean canClose()
+      #{
+      #    return true;
+      #}
+    ENDSOURCE
+    SOURCE #captureForm
+      #void captureForm()
+      #{
+      #    formDigger.parmCallerFormRun().redraw();
+      #
+      #    DEV_FormDigger::captureWnd(formDigger.parmCallerFormRun().hWnd());
+      #
+      #    element.design().visible(true);
+      #}
+    ENDSOURCE
+    SOURCE #clickCurrUserButton
+      #boolean clickCurrUserButton()
+      #{
+      #    Object      formControl;
+      #    boolean     ret;
+      #
+      #    if (   FormDiggerTmpData.ControlType == FormControlType::Button
+      #        || FormDiggerTmpData.ControlType == FormControlType::MenuFunctionButton)
+      #    {
+      #        formControl = formDigger.parmCallerFormRun().control(FormDiggerTmpData.Id);
+      #
+      #        if (formControl && formControl.enabled() && formControl.visible())
+      #        {
+      #            try
+      #            {
+      #                formControl.clicked();
+      #                ret = true;
+      #            }
+      #            catch
+      #            {
+      #                return ret;
+      #            }
+      #        }
+      #    }
+      #
+      #    return ret;
+      #}
+    ENDSOURCE
+    SOURCE #close
+      #public void close()
+      #{
+      #    super();
+      #
+      #    formDigger.onClose();
+      #}
+    ENDSOURCE
+    SOURCE #editFixNewWindow
+      #// BP deviation documented
+      #edit boolean editFixNewWindow(boolean _set, boolean _fixNewWindow)
+      #{
+      #    if (_set)
+      #        formDigger.parmFixNewWindow(_fixNewWindow);
+      #
+      #    return formDigger.parmFixNewWindow();
+      #}
+    ENDSOURCE
+    SOURCE #editPathDelimiter
+      #// BP deviation documented
+      #edit Delimiter editPathDelimiter(boolean _set, Delimiter _pathDelimiter)
+      #{
+      #    if (_set)
+      #        formDigger.parmFmtDelimiter(_pathDelimiter);
+      #
+      #    return formDigger.parmFmtDelimiter();
+      #}
+    ENDSOURCE
+    SOURCE #editShowInvisibleFields
+      #// BP deviation documented
+      #edit boolean editShowInvisibleFields(boolean _set, boolean _showInvisibleFields)
+      #{
+      #    if (_set)
+      #        formDigger.parmShowInvisibleFields(_showInvisibleFields);
+      #
+      #    return formDigger.parmShowInvisibleFields();
+      #}
+    ENDSOURCE
+    SOURCE #editUseDataField
+      #// BP deviation documented
+      #edit boolean editUseDataField(boolean _set, boolean _useDataField)
+      #{
+      #    if (_set)
+      #    {
+      #        formDigger.parmUseDataField(_useDataField);
+      #
+      #        element.updateDesign();
+      #
+      #        FormDiggerTmpData_ds.executeQuery();
+      #    }
+      #
+      #    return formDigger.parmUseDataField();
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #public void init()
+      #{
+      #    if (!element.args().caller())
+      #        throw error(Error::wrongUseOfFunction(funcName()));
+      #
+      #    formDigger = new DEV_FormDigger(element.args().caller(), this);
+      #
+      #    super();
+      #
+      #    ControlTypeImage.imageList(new ImageListAppl_Form().imageList());
+      #
+      #    this.installMessageProc(#WM_KEYDOWN, editfilterControlName.hWnd(), identifierStr(onEventKeyDown));
+      #
+      #    this.setCaption();
+      #
+      #    this.setAboutText();
+      #
+      #    this.updateDesign();
+      #
+      #    this.toggleMode(formDigger.parmSetupMode());
+      #
+      #    this.selectCurrent();
+      #
+      #    // >> DEV:MXK >>
+      #    ToggleSetupButton.visible(isDeveloper());
+      #    EditFormButton.visible(isDeveloper());
+      #    HelpButton.visible(isDeveloper());
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #onEventKeyDown
+      #void onEventKeyDown(anyType _a     = '',
+      #                    anyType _b     = '',
+      #                    anyType _vkKey = '',
+      #                    anyType _d     = '',
+      #                    anyType _e     = '',
+      #                    anyType _f     = '')
+      #{
+      #    switch (_vkKey)
+      #    {
+      #        case #arrowUp:
+      #            FormDiggerTmpData_ds.prev();
+      #            break;
+      #        case #arrowDown:
+      #            FormDiggerTmpData_ds.next();
+      #            break;
+      #        default:
+      #            break;
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #selectCurrent
+      #void selectCurrent()
+      #{
+      #    FormControl         currentControl;
+      #
+      #    currentControl = formDigger.parmCallerFormRun().selectedControl();
+      #
+      #    if (element.args())
+      #    {
+      #        element.args().lookupField(fieldNum(DEV_FormDiggerTmpData, Id));
+      #        element.args().lookupValue(int2str(currentControl.id()));
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #setAboutText
+      #// BP Deviation Documented
+      #void setAboutText()
+      #{
+      #    str         s;
+      #
+      #    s += ' <p class=MsoNormal align=center style=\'text-align:center\'><b style=\'mso-bidi-font-weight:';
+      #    s += ' normal\'><span lang=EN-US style=\'font-size:15.0pt;line-height:115%;mso-ansi-language:';
+      #    s += ' EN-US\'><a href=\'http://www.axaptapedia.com/FormDigger\'>FormDigger';
+      #    s += ' 1.1</a></span></b><span lang=EN-US style=\'mso-ansi-language:EN-US\'>, April 2009<u1:p></u1:p></span></p>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>FormDigger ';
+      #    s += ' is Microsoft Dynamics AX add-on, developed as user interface extension. The';
+      #    s += ' main purpose of FormDigger is help to find out any field on Microsoft Dynamics AX forms,';
+      #    s += ' which represents business logic. It also allows generate field path,';
+      #    s += ' simplifying user navigation and user guides’ creation.<o:p></o:p></span></p>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>FormDigger';
+      #    s += ' allows:<o:p></o:p></span></p>';
+      #
+      #    s += '<ul>';
+      #        s += '<li>';
+      #        s += 'Quick search and navigation to any form field and button(searching by user label or system field name)';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += 'Create form field path with custom format and language';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += 'Make a screenshot of any open form';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += 'Visual field highlight while searching process';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += 'Show various system information for current selected field';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += 'Pressing any form button directly from FormDigger ';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += 'Jump to element-related object (table field, display\\edit method, datasource table)';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += 'Show form and data sources names in FormDigger caption';
+      #        s += '</li>';
+      #    s += '</ul>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>FormDigger';
+      #    s += ' works in two modes: <b style=\'mso-bidi-font-weight:normal\'>Search</b> and <b';
+      #    s += ' style=\'mso-bidi-font-weight:normal\'>Setup</b>. Switching between is realizing';
+      #    s += ' by pressing <b style=\'mso-bidi-font-weight:normal\'>';
+      #    s += ' Setup</b> button or <b>Alt+S</b> hot key combination.<o:p></o:p></span></p>';
+      #
+      #    s += ' <p class=MsoNormal><u><span lang=EN-US style=\'font-size:14.0pt;line-height:';
+      #    s += ' 115%;mso-ansi-language:EN-US\'>Search mode<o:p></o:p></span></u></p>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>This mode';
+      #    s += ' allows search any interested form field or button. In this mode you can see all';
+      #    s += ' form content: visible and hidden fields, buttons and menu function buttons.';
+      #    s += ' Hidden form fields are <span style=\'background:#DDD9C3;mso-shading-themecolor:';
+      #    s += ' background2;mso-shading-themeshade:230\'>marked with grey color</span>. Fields';
+      #    s += ' which represent display methods or edit methods are <span style=\'background:';
+      #    s += ' #92D050\'>marked with green color</span>.<span style=\'mso-spacerun:yes\'>';
+      #    s += ' </span>You can also see a data source (a table name) which current field is';
+      #    s += ' connected to. <o:p></o:p></span></p>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>You can';
+      #    s += ' search fields in two ways: by user <b style=\'mso-bidi-font-weight:normal\'>labels</b>';
+      #    s += ' or by form <b style=\'mso-bidi-font-weight:normal\'>system name. </b>Switching between';
+      #    s += ' these ways is realizing by <b>System names</b>” check box.<o:p></o:p></span></p>';
+      #
+      #    s += '<ul>';
+      #        s += '<li>';
+      #        s += '<b>Capture</b> button makes a screenshot to clipboard of current opened form.';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Edit</b><sup>1</sup></span> button opens current form in edit mode.<o:p></o:p></span></p>';
+      #        s += '</li>';
+      #    s += '</ul>';
+      #
+      #    s += ' <p class=MsoNormal><i style=\'mso-bidi-font-style:normal\'><u><span lang=EN-US';
+      #    s += ' style=\'mso-ansi-language:EN-US\'>Fields context menu functions:<o:p></o:p></span></u></i></p>';
+      #
+      #    s += '<ul>';
+      #        s += '<li>';
+      #        s += '<b>Copy path</b> function generates string navigation path to current form control.';
+      #        s += 'You also can specify custom format and language for such path in setup mode.';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Jump</b><sup>1</sup> function opens field related objects such as table field, display\edit methods in AOT new window.';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Jump table</b><sup>1</sup> function opens field related table in AOT new window';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Properties</b><sup>1</sup> function open system information about selected field or button';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Add-ins</b><sup>1</sup> point opens standard system context menu.';
+      #        s += '</li>';
+      #    s += '</ul>';
+      #
+      #    s += ' <i><p class=MsoNormal><sup>1</sup></span></sup><span lang=EN-US';
+      #    s += ' style=\'mso-ansi-language:EN-US\'> – available for developers only<o:p></o:p></span></p>';
+      #    s += ' <p class=MsoNormal><u><span lang=EN-US style=\'font-size:14.0pt;line-height:';
+      #    s += ' 115%;mso-ansi-language:EN-US\'>Setup mode:<o:p></o:p></span></u></p></i>';
+      #
+      #    s += '<ul>';
+      #        s += '<li>';
+      #        s += '<b>Hide invisible</b> parameter excludes invisible form fields from search list';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Fix open new Window</b> - function repairs incorrect window drawing when using <b>Jump</b> function.';
+      #        s += '(for Microsoft Dynamics AX 4.X versions)';
+      #        s += '</li>';
+      #    s += '</ul>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>Parameters';
+      #    s += ' included in <b style=\'mso-bidi-font-weight:normal\'><i style=\'mso-bidi-font-style:';
+      #    s += ' normal\'>Format</i></b> group take an effect while path navigation string generation.';
+      #    s += ' These parameters specify custom format for all field types. There are';
+      #    s += ' two hardcoded types used in format parameters list:<o:p></o:p></span></p>';
+      #
+      #    s += '<ul>';
+      #        s += '<li>';
+      #        s += '<b>StaticText</b> is used as default format for all field types';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Image</b> is used as default format for form name format';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Separator</b> parameter is used as path fields delimiter';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Language</b> parameter specify a language which path string is generated in.';
+      #        s += ' (note, that you should specify fields formats per';
+      #        s += ' language, or use default path format).';
+      #        s += '</li>';
+      #
+      #        s += '<li>';
+      #        s += '<b>Default</b> button resets all users setting to its default values.';
+      #        s += '</li>';
+      #    s += '</ul>';
+      #
+      #    s += '<i>';
+      #    s += ' <p class=MsoNormal><span class=GramE><span lang=EN-US style=\'mso-ansi-language:';
+      #    s += ' EN-US\'>Created by </span><a href=\'http://www.blogger.com/profile/17562944195203778443\'><span';
+      #    s += ' class=SpellE><span lang=EN-US style=\'mso-ansi-language:EN-US\'>Evgeny</span></span><span';
+      #    s += ' lang=EN-US style=\'mso-ansi-language:EN-US\'> <span class=SpellE>Arlionak</span></span></a><span';
+      #    s += ' lang=EN-US style=\'mso-ansi-language:EN-US\'> (AKA DSPIC || EVO).</span></span><span';
+      #    s += ' lang=EN-US style=\'mso-ansi-language:EN-US\'> <o:p></o:p></span></p>';
+      #
+      #    s += '<p>Blog: <a href=\'http://earlionakru.blogspot.com/2009/01/intro.html\'>eArlionakRu.blogspot.com</a></p>';
+      #    s += '<p>EMail: <a href=\'mailto:evgeny.arlionak@gmail.com\'>evgeny.arlionak@gmail.com</a></p>';
+      #    s += '</i>';
+      #
+      #    s += ' </div>';
+      #    s += ' </body>';
+      #    s += ' </html>';
+      #
+      #
+      #    AboutHTML.setText(s);
+      #}
+    ENDSOURCE
+    SOURCE #setCaption
+      #void setCaption()
+      #{
+      #    DEV_FormDiggerTmpData   tmpData;
+      #    Caption                 caption;//, captionDS;
+      #
+      #    tmpData.setTmpData(formDigger.parmFormDiggerTmpData());
+      #
+      #    // >> DEV:MXK >>
+      #    caption = strFmt('(D) %1', formDigger.parmCallerFormRun().name());
+      #
+      #    /*while select tmpData
+      #      group by dataSourceTable
+      #        where tmpData.dataSourceTable
+      #           && !tmpData.setupRecord
+      #    {
+      #        captionDS += strFmt("%1, ", tmpData.DataSourceTable);
+      #    }
+      #
+      #    captionDS = strdel(captionDS, strLen(captionDS) - 1, 2); //delete last ", "
+      #
+      #    caption   = strFmt("%1 (DS: %2)", caption, captionDS);*/
+      #    // << DEV:MXK <<
+      #
+      #    this.design().caption(caption);
+      #}
+    ENDSOURCE
+    SOURCE #task
+      #public int task(int _taskId)
+      #{
+      #    #Task
+      #    #KeyPressed
+      #    int ret;
+      #
+      #    switch (_taskId)
+      #    {
+      #        case #taskEnter:
+      #                element.clickCurrUserButton();
+      #                element.closeOk();
+      #                break;
+      #        case  #taskAlt:
+      #            switch (true)
+      #            {
+      #                case (DEV_WinAPI::getAsyncKeyState(#keyO) > 1):
+      #                    element.toggleMode();
+      #                    break;
+      #                default:
+      #                    break;
+      #            }
+      #        default:
+      #            break;
+      #    }
+      #
+      #    ret = super(_taskId);
+      #
+      #    return ret;
+      #}
+    ENDSOURCE
+    SOURCE #toggleMode
+      #void toggleMode(boolean _mode = !formDigger.parmSetupMode())
+      #{
+      #    if (!helpMode)
+      #    {
+      #    formDigger.parmSetupMode(_mode);
+      #
+      #    this.updateDesign();
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #updateDesign
+      #void updateDesign()
+      #{
+      #    element.lock();
+      #    FormDiggerTmpData_Name_Column2.visible( formDigger.parmUseDataField());
+      #    FormDiggerTmpData_Name_Column1.visible(!formDigger.parmUseDataField());
+      #
+      #    GridGroup.visible(!formDigger.parmSetupMode() && !helpMode);
+      #    SetupGroupCtrl.visible(  formDigger.parmSetupMode() && !helpMode);
+      #    HelpGroupCtrl.visible(helpMode);
+      #
+      #    // >> DEV:MXK >>
+      #    editFilterControlName.enabled(!helpMode);
+      #    editUseDataField.enabled(!helpMode);
+      #    // << DEV:MXK <<
+      #    EditFormButton.enabled(!formDigger.parmSetupMode() && !helpMode);
+      #    CaptureFormButton.enabled(!helpMode && !formDigger.parmSetupMode());
+      #    ToggleSetupButton.enabled(!helpMode);
+      #
+      #    element.resetSize();
+      #    element.arrange();
+      #    element.unLock();
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #FormDiggerTmpData
+          Table               #DEV_FormDiggerTmpData
+          AllowEdit           #No
+          AllowCreate         #No
+          AllowDelete         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+          DATAFIELD EDT
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #toolTip
+                #// >> DEV:MXK >>
+                #public str toolTip()
+                #{
+                #    #AOT
+                #    #Properties
+                #
+                #    str                 ret;
+                #    TreeNode            treeNode;
+                #    TreeNodeName        extendsEDT;
+                #    str                 properties;
+                #
+                #    ret = super();
+                #    ret = '';
+                #
+                #    if (FormDiggerTmpData.EDT)
+                #    {
+                #        treeNode = TreeNode::findNode(#ExtendedDataTypesPath + #AOTDelimiter + FormDiggerTmpData.EDT);
+                #
+                #        if (treeNode)
+                #        {
+                #            properties = treeNode.AOTgetProperties();
+                #
+                #            if (hasProperty(properties, #PropertyStringSize))
+                #            {
+                #                ret += strFmt('Size: %1 ', findProperty(properties, #PropertyStringSize));
+                #            }
+                #
+                #            while (hasProperty(properties, #PropertyExtends) && findProperty(properties, #PropertyExtends))
+                #            {
+                #                extendsEDT = findProperty(properties, #PropertyExtends);
+                #                ret += strFmt(' > %1', extendsEDT);
+                #                treeNode = TreeNode::findNode(#ExtendedDataTypesPath + #AOTDelimiter + extendsEDT);
+                #
+                #                if (!treeNode)
+                #                {
+                #                    treeNode = TreeNode::findNode(#SystemTypesPath + #AOTDelimiter + extendsEDT);
+                #                }
+                #
+                #                if (!treeNode)
+                #                    break;
+                #
+                #                properties = treeNode.AOTgetProperties();
+                #            }
+                #        }
+                #    }
+                #
+                #    return ret;
+                #}
+                #// << DEV:MXK <<
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD Enum
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #toolTip
+                #// >> DEV:MXK >>
+                #public str toolTip()
+                #{
+                #    str             ret;
+                #    DictEnum        dictEnum;
+                #    Counter         counter;
+                #
+                #    ret = super();
+                #    ret = '';
+                #
+                #    if (FormDiggerTmpData.Enum)
+                #    {
+                #        dictEnum = new DictEnum(enumName2Id(FormDiggerTmpData.Enum));
+                #
+                #        for (counter = 0; counter < dictEnum.values(); counter++)
+                #        {
+                #            if (dictEnum.index2Symbol(counter) == dictEnum.index2Label(counter))
+                #            {
+                #                ret += strFmt('%1 [%2] ', dictEnum.index2Symbol(counter), dictEnum.index2Value(counter));
+                #            }
+                #            else
+                #            {
+                #                ret += strFmt('%1: %2 [%3] ', dictEnum.index2Symbol(counter), dictEnum.index2Label(counter), dictEnum.index2Value(counter));
+                #            }
+                #        }
+                #    }
+                #
+                #    return ret;
+                #}
+                #// << DEV:MXK <<
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #applySearchFilter
+          #void applySearchFilter()
+          #{
+          #    QueryBuildDataSource    qbds;
+          #    QueryBuildRange         qbr;
+          #    Range                   range;
+          #
+          #    qbds = this.query().dataSourceTable(tableNum(DEV_FormDiggerTmpData));
+          #
+          #    qbr = SysQuery::findOrCreateRange(qbds, fieldNum(DEV_FormDiggerTmpData, Name));
+          #    qbr.value(strFmt('*%1*', filterControlName));
+          #    qbr.enabled(filterControlName && !formDigger.parmUseDataField());
+          #
+          #    if (!formDigger.parmShowInvisibleFields())
+          #    {
+          #        qbr = SysQuery::findOrCreateRange(qbds, fieldNum(DEV_FormDiggerTmpData, IsVisible));
+          #        qbr.value(SysQuery::value(NoYes::Yes));
+          #    }
+          #
+          #    qbr = SysQuery::findOrCreateRange(qbds, fieldNum(DEV_FormDiggerTmpData, FieldMethodName));
+          #    qbr.value(strFmt('*%1*', filterControlName));
+          #    qbr.enabled(filterControlName && formDigger.parmUseDataField());
+          #
+          #    qbr = SysQuery::findOrCreateRange(qbds, fieldNum(DEV_FormDiggerTmpData, RecId));
+          #    range = strFmt('((IsDataBound==%1) || (ControlType==%2) || (ControlType==%3))',
+          #                                                                enum2int(NoYes::Yes),
+          #                                                                enum2int(FormControlType::Button),
+          #                                                                enum2int(FormControlType::MenuFunctionButton));
+          #    qbr.value(range);
+          #}
+        ENDSOURCE
+        SOURCE #executeQuery
+          #public void executeQuery()
+          #{
+          #    this.applySearchFilter();
+          #
+          #    super();
+          #}
+        ENDSOURCE
+        SOURCE #displayOption
+          #public void displayOption(DEV_FormDiggerTmpData _formDiggerTmpData, FormRowDisplayOption _options)
+          #{
+          #    if (_formDiggerTmpData.IsMethod)
+          #    {
+          #        _options.backColor(WinAPI::RGB2int(0xAA, 0xE6, 0xAA));
+          #    }
+          #    else if (!_formDiggerTmpData.IsVisible)
+          #    {
+          #        _options.backColor(WinAPI::RGB2int(0xD7, 0xD7, 0xD7));
+          #    }
+          #
+          #    super(_formDiggerTmpData, _options);
+          #}
+        ENDSOURCE
+        SOURCE #active
+          #public int active()
+          #{
+          #    int ret;
+          #
+          #    ret = super();
+          #
+          #    element.borderTimer(false);
+          #
+          #    if (formDigger.parmSetupMode())
+          #        return ret;
+          #
+          #    if (FormDiggerTmpData.IsVisible)
+          #    {
+          #        formDigger.onSelectionChanged(FormDiggerTmpData.Id);
+          #        element.borderTimer(true, #HighLightPeriodMs);
+          #    }
+          #    else if (formDigger.parmLastActivatedCtrl())
+          #    {
+          #        formDigger.onSelectionChanged(formDigger.parmLastActivatedCtrl().id());
+          #    }
+          #
+          #    return ret;
+          #}
+        ENDSOURCE
+        SOURCE #init
+          #public void init()
+          #{
+          #    super();
+          #
+          #    FormDiggerTmpData.setTmpData(formDigger.parmFormDiggerTmpData());
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Width               #Column width
+      Height              #Column height
+      Caption             #FormDigger 1.1.
+      HideToolbar         #Yes
+      SetCompany          #No
+      StatusBarStyle      #Simple
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL GRID
+        PROPERTIES
+          Name                #Grid
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          HierarchyParent     #GridGroup
+          DataSource          #FormDiggerTmpData
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #ButtonsPanel
+          Width               #Column width
+          ElementPosition     #429496729
+          FrameType           #Edged 3D
+          ArrangeMethod       #Horizontal, flush right
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GridGroup
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #858993458
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #HelpGroupCtrl
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1717986916
+          FrameType           #Raised 3D
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #ParametersGroup
+          ElementPosition     #1431655764
+          HierarchyParent     #SetupGroupCtrl
+          FrameType           #Edged 3D
+          Caption             #@SYS7764
+          Columns             #3
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #SetupGroupCtrl
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1288490187
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #CaptureFormButton
+          AutoDeclaration     #Yes
+          HelpText            #Capture form
+          ElementPosition     #1193046470
+          HierarchyParent     #ButtonsPanel
+          ButtonDisplay       #Image only
+          NormalImage         #2627
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+          MultiSelect         #Yes
+          BackStyle           #Transparent
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    super();
+            #
+            #    element.design().visible(false);
+            #    element.setTimeOut(identifierStr(captureForm), 50);
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #EditFormButton
+          AutoDeclaration     #Yes
+          HelpText            #@SYS453
+          SecurityKey         #SysDevelopment
+          ElementPosition     #1670265058
+          HierarchyParent     #ButtonsPanel
+          ButtonDisplay       #Image only
+          NormalImage         #407
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+          MultiSelect         #Yes
+          BackStyle           #Transparent
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    #AOT
+            #    TreeNode   formTreeNode;
+            #
+            #    super();
+            #
+            #    element.toggleMode();
+            #
+            #    formTreeNode = TreeNode::findNode(#FormsPath + #AOTDelimiter + formDigger.parmCallerFormRun().name());
+            #
+            #    if (formTreeNode)
+            #    {
+            #        formTreeNode.AOTnewWindow();
+            #        element.close();
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #HelpButton
+          AutoDeclaration     #Yes
+          HelpText            #@SYS14501
+          ElementPosition     #1908874352
+          HierarchyParent     #ButtonsPanel
+          ButtonDisplay       #Image only
+          NormalImage         #1025
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+          MultiSelect         #Yes
+          BackStyle           #Transparent
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    super();
+            #
+            #    helpMode = !helpMode;
+            #
+            #    element.updateDesign();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #separatorBtn1
+          Width               #3
+          Enabled             #No
+          ElementPosition     #954437176
+          HierarchyParent     #ButtonsPanel
+          Text                #|
+          ButtonDisplay       #Image only
+          NormalImage         #3100
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+          ShowShortCut        #No
+          BackStyle           #Transparent
+          ForegroundColor     #
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #context
+            #public void context()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #ToggleSetupButton
+          AutoDeclaration     #Yes
+          HelpText            #@SYS2186
+          ElementPosition     #1431655764
+          HierarchyParent     #ButtonsPanel
+          ButtonDisplay       #Image only
+          NormalImage         #933
+          ImageLocation       #EmbeddedResource
+          Border              #Flat
+          MultiSelect         #Yes
+          BackStyle           #Transparent
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    super();
+            #
+            #    element.toggleMode();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #editFixNewWindow
+          HelpText            #Fix open new window for single elements.
+          ElementPosition     #1288490187
+          HierarchyParent     #ParametersGroup
+          Label               #Fix open new window
+          DataMethod          #editFixNewWindow
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #editShowInvisibleFields
+          HelpText            #Show hidden controls.
+          ElementPosition     #858993458
+          HierarchyParent     #ParametersGroup
+          Label               #Show hidden controls
+          DataMethod          #editShowInvisibleFields
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #editUseDataField
+          AutoDeclaration     #Yes
+          HelpText            #Search in fields
+          ElementPosition     #715827882
+          HierarchyParent     #ButtonsPanel
+          Label               #@SYS36590
+          DataMethod          #edituseDataField
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL HTML
+        PROPERTIES
+          Name                #AboutHTML
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          HierarchyParent     #HelpGroupCtrl
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+        BINARY 0
+          
+        ENDBINARY
+        BINARY 1
+          00
+        ENDBINARY
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #editFilterControlName
+          AutoDeclaration     #Yes
+          Width               #100
+          ElementPosition     #477218588
+          HierarchyParent     #ButtonsPanel
+          DisplayLength       #10
+          Label               #@SYS60181
+          ExtendedDataType    
+            ARRAY 
+              #Range
+              #
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #enter
+            #public void enter()
+            #{
+            #    //super();
+            #}
+          ENDSOURCE
+          SOURCE #textChange
+            #public void textChange()
+            #{
+            #    super();
+            #
+            #    filterControlName = editFilterControlName.valueStr();
+            #    FormDiggerTmpData_ds.executeQuery();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #editpathDelimiter
+          ElementPosition     #1717986916
+          HierarchyParent     #ParametersGroup
+          Text                #>
+          Label               #@SYS22503
+          DataMethod          #editpathDelimiter
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #FormDiggerTmpData_CtrlName
+          ElementPosition     #1366580502
+          HierarchyParent     #Grid
+          DataSource          #FormDiggerTmpData
+          DataField           #CtrlName
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #context
+            #// >> DEV:MXK >>
+            #public void context()
+            #{
+            #//    super();
+            #    DEV_FormDiggerContextMenu::construct(formDigger, FormDiggerTmpData).onContext(this);
+            #// << DEV:MXK <<
+            #}
+          ENDSOURCE
+          SOURCE #mouseDblClick
+            #public int mouseDblClick(int _x, int _y, int _button, boolean _ctrl, boolean _shift)
+            #{
+            #    int                         ret;
+            #    DEV_FormDiggerContextMenu   formDiggerContextMenu = DEV_FormDiggerContextMenu::construct(formDigger, FormDiggerTmpData);
+            #
+            #    formDiggerContextMenu.onContext_FormControl();
+            #
+            #    ret = super(_x, _y, _button, _ctrl, _shift);
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #FormDiggerTmpData_DataSourceTable
+          ElementPosition     #976128930
+          HierarchyParent     #Grid
+          DataSource          #FormDiggerTmpData
+          DataField           #DataSourceTable
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #context
+            #// >> DEV:MXK >>
+            #public void context()
+            #{
+            #//    super();
+            #    DEV_FormDiggerContextMenu::construct(formDigger, FormDiggerTmpData).onContext(this);
+            #// << DEV:MXK <<
+            #}
+          ENDSOURCE
+          SOURCE #mouseDblClick
+            #// >> DEV:MXK >>
+            #public int mouseDblClick(int _x, int _y, int _button, boolean _ctrl, boolean _shift)
+            #{
+            #    int                         ret;
+            #    DEV_FormDiggerContextMenu   formDiggerContextMenu;
+            #
+            #    if (FormDiggerTmpData.DataSourceTable)
+            #    {
+            #        formDiggerContextMenu = DEV_FormDiggerContextMenu::construct(formDigger, FormDiggerTmpData);
+            #        formDiggerContextMenu.onContext_TableBrowser();
+            #    }
+            #
+            #    ret = super(_x, _y, _button, _ctrl, _shift);
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #FormDiggerTmpData_EDT
+          ElementPosition     #1757032074
+          HierarchyParent     #Grid
+          DataSource          #FormDiggerTmpData
+          DataField           #EDT
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #context
+            #// >> DEV:MXK >>
+            #public void context()
+            #{
+            #//    super();
+            #    DEV_FormDiggerContextMenu::construct(formDigger, FormDiggerTmpData).onContext(this);
+            #// << DEV:MXK <<
+            #}
+          ENDSOURCE
+          SOURCE #mouseDblClick
+            #// >> DEV:MXK >>
+            #public int mouseDblClick(int _x, int _y, int _button, boolean _ctrl, boolean _shift)
+            #{
+            #    int                         ret;
+            #    DEV_FormDiggerContextMenu   formDiggerContextMenu;
+            #
+            #    if (FormDiggerTmpData.EDT)
+            #    {
+            #        formDiggerContextMenu = DEV_FormDiggerContextMenu::construct(formDigger, FormDiggerTmpData);
+            #        formDiggerContextMenu.onContext_EDT();
+            #    }
+            #
+            #    ret = super(_x, _y, _button, _ctrl, _shift);
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #FormDiggerTmpData_Enum
+          ElementPosition     #1952257860
+          HierarchyParent     #Grid
+          DataSource          #FormDiggerTmpData
+          DataField           #Enum
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #context
+            #// >> DEV:MXK >>
+            #public void context()
+            #{
+            #//    super();
+            #    DEV_FormDiggerContextMenu::construct(formDigger, FormDiggerTmpData).onContext(this);
+            #// << DEV:MXK <<
+            #}
+          ENDSOURCE
+          SOURCE #mouseDblClick
+            #// >> DEV:MXK >>
+            #public int mouseDblClick(int _x, int _y, int _button, boolean _ctrl, boolean _shift)
+            #{
+            #    int                         ret;
+            #    DEV_FormDiggerContextMenu   formDiggerContextMenu;
+            #
+            #    if (FormDiggerTmpData.Enum)
+            #    {
+            #        formDiggerContextMenu = DEV_FormDiggerContextMenu::construct(formDigger, FormDiggerTmpData);
+            #        formDiggerContextMenu.onContext_Enum();
+            #    }
+            #
+            #    ret = super(_x, _y, _button, _ctrl, _shift);
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #FormDiggerTmpData_FieldMethodName
+          ElementPosition     #585677358
+          HierarchyParent     #Grid
+          DataSource          #FormDiggerTmpData
+          DataField           #FieldMethodName
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #context
+            #// >> DEV:MXK >>
+            #public void context()
+            #{
+            #//    super();
+            #    DEV_FormDiggerContextMenu::construct(formDigger, FormDiggerTmpData).onContext(this);
+            #// << DEV:MXK <<
+            #}
+          ENDSOURCE
+          SOURCE #mouseDblClick
+            #// >> DEV:MXK >>
+            #public int mouseDblClick(int _x, int _y, int _button, boolean _ctrl, boolean _shift)
+            #{
+            #    int                         ret;
+            #    DEV_FormDiggerContextMenu   formDiggerContextMenu;
+            #
+            #    if (FormDiggerTmpData.FieldMethodName)
+            #    {
+            #        formDiggerContextMenu = DEV_FormDiggerContextMenu::construct(formDigger, FormDiggerTmpData);
+            #        formDiggerContextMenu.onContext_TableField();
+            #    }
+            #
+            #    ret = super(_x, _y, _button, _ctrl, _shift);
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #FormDiggerTmpData_Name_Column1
+          AutoDeclaration     #Yes
+          ElementPosition     #390451572
+          HierarchyParent     #Grid
+          DataSource          #FormDiggerTmpData
+          DataField           #Name
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #context
+            #// >> DEV:MXK >>
+            #public void context()
+            #{
+            #//    super();
+            #    DEV_FormDiggerContextMenu::construct(formDigger, FormDiggerTmpData).onContext(this);
+            #// << DEV:MXK <<
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #FormDiggerTmpData_Name_Column2
+          AutoDeclaration     #Yes
+          ElementPosition     #780903144
+          HierarchyParent     #Grid
+          DataSource          #FormDiggerTmpData
+          DataField           #Name
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #context
+            #// >> DEV:MXK >>
+            #public void context()
+            #{
+            #//    super();
+            #    DEV_FormDiggerContextMenu::construct(formDigger, FormDiggerTmpData).onContext(this);
+            #// << DEV:MXK <<
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL WINDOW
+        PROPERTIES
+          Name                #ControlBaseTypeImage
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          Width               #5
+          Height              #16
+          Skip                #Yes
+          ElementPosition     #1561806288
+          HierarchyParent     #Grid
+          BackStyle           #Transparent
+          ShowLabel           #No
+          DataSource          #FormDiggerTmpData
+          DataField           #BaseTypeImg
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #mouseDblClick
+            #public int mouseDblClick(int _x, int _y, int _button, boolean _ctrl, boolean _shift)
+            #{
+            #    int         ret;
+            #
+            #    ret = super(_x, _y, _button, _ctrl, _shift);
+            #
+            #    if (element.clickCurrUserButton())
+            #    {
+            #        element.closeOk();
+            #    }
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL WINDOW
+        PROPERTIES
+          Name                #ControlTypeImage
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          Width               #5
+          Height              #16
+          Skip                #Yes
+          ElementPosition     #1171354716
+          HierarchyParent     #Grid
+          Imagemode           #Center
+          BackStyle           #Transparent
+          ShowLabel           #No
+          DataSource          #FormDiggerTmpData
+          DataField           #ImageRes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #mouseDblClick
+            #public int mouseDblClick(int _x, int _y, int _button, boolean _ctrl, boolean _shift)
+            #{
+            #    int         ret;
+            #
+            #    ret = super(_x, _y, _button, _ctrl, _shift);
+            #
+            #    if (element.clickCurrUserButton())
+            #    {
+            #        element.closeOk();
+            #    }
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: END

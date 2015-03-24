@@ -1,0 +1,25 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FTM
+
+; Microsoft Dynamics AX MENUITEM : DEV_HKManager unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  MENUITEM #DEV_HKManager
+    Type: 3
+    PROPERTIES
+      Name                #DEV_HKManager
+      Label               #@SYS7764
+      ObjectType          #Class
+      Object              #DEV_HKManager
+      ConfigurationKey    #SysDevelopmentMorphX
+      SecurityKey         #SysDevelopment
+      Origin              #{C7792096-A38D-4724-BB1E-55C3B7AE7CD7}
+    ENDPROPERTIES
+    
+  ENDMENUITEM
+  
+
+***Element: END

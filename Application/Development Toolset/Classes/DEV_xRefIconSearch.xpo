@@ -1,0 +1,259 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_xRefIconSearch unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_xRefIconSearch
+    PROPERTIES
+      Name                #DEV_xRefIconSearch
+      Origin              #{F67D8D09-880B-4B50-A770-1CD3B92D36B1}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #addAllElements
+        #public void addAllElements()
+        #{
+        #    XInfo               xInfo = new XInfo();
+        #    DEV_xRefElements    xRefElements;
+        #
+        #    ttsbegin;
+        #
+        #    delete_from xRefElements
+        #        where       xRefElements.Embedded   == NoYes::No
+        #                &&  xRefElements.Type       == UtilElementType::Resource;
+        #
+        #    this.addNodeFromParentPath(#MenuItemsDisplayPath, false);
+        #    this.addNodeFromParentPath(#MenuItemsOutputPath, false);
+        #    this.addNodeFromParentPath(#MenuItemsActionPath, false);
+        #    this.addNodeFromParentPath(#FormsPath, true);
+        #
+        #    ttsCommit;
+        #}
+      ENDSOURCE
+      SOURCE #addForm
+        #private void addForm(TreeNode _formTreeNode)
+        #{
+        #    TreeNode    tmpNode;
+        #    str         type;
+        #
+        #    tmpNode = TreeNode::findNode(strFmt(#FormControlPath, _formTreeNode.AOTname(), ''));
+        #    tmpNode = tmpNode.AOTfirstChild();
+        #
+        #    if (!tmpNode)
+        #        return;
+        #
+        #    while(tmpNode)
+        #    {
+        #        type = findProperty(tmpNode.AOTgetProperties(), #PropertyType);
+        #
+        #        if (    type == enum2str(FormControlType::ButtonGroup)
+        #            ||  type == enum2str(FormControlType::Button)
+        #            ||  type == enum2str(FormControlType::MenuFunctionButton)
+        #            ||  type == enum2str(FormControlType::MenuButton))
+        #        {
+        #            this.addRes(tmpNode);
+        #        }
+        #
+        #        tmpNode = tmpNode.AOTNextSibling();
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #addNodeFromParentPath
+        #private void addNodeFromParentPath(str _path, boolean _isForm)
+        #{
+        #    treeNode        tmpNode;
+        #    XInfo           xInfo = new XInfo();
+        #    boolean         foundFirst;
+        #
+        #    tmpNode = TreeNode::findNode(_path);
+        #    tmpNode = tmpNode.AOTfirstChild();
+        #
+        #    while (true)
+        #    {
+        #        tmpNode = tmpNode.AOTnextSibling();
+        #        if(!tmpNode) break;
+        #
+        #        if (_isForm)
+        #            this.addForm(tmpNode);
+        #        else
+        #            this.addRes(tmpNode);
+        #
+        #        foundFirst = true;
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #addRes
+        #private void addRes(TreeNode _treeNode)
+        #{
+        #    str                 resType;
+        #    int                 resId;
+        #    DEV_xRefElements    xRefElements;
+        #
+        #    if (!hasProperty(_treeNode.AOTgetProperties(), #PropertyImageLocation))
+        #        return;
+        #
+        #    resType = _treeNode.AOTgetProperty(#PropertyImageLocation);
+        #    if (resType == enum2str(SysImageLocation::EmbeddedResource))
+        #    {
+        #        resId = _treeNode.AOTgetProperty(#PropertyNormalImage);
+        #
+        #        if (resId)
+        #        {
+        #            xRefElements.FullPath   = _treeNode.treeNodePath();
+        #            xRefElements.Label      = this.getLabel(_treeNode);
+        #            xRefElements.HelpText   = this.getLabel(_treeNode, true);
+        #            xRefElements.ImageRes   = resId;
+        #            xRefElements.Type       = UtilElementType::Resource;
+        #
+        #            if (    xRefElements.Label
+        #                && !strFind(xRefElements.Label, '@', 1, 100))
+        #            {
+        #                xRefElements.insert();
+        #            }
+        #        }
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class DEV_xRefIconSearch
+        #{
+        #    #AOT
+        #    #Properties
+        #}
+      ENDSOURCE
+      SOURCE #getLabel
+        #private str getLabel(TreeNode node, boolean _helpText = false)
+        #{
+        #    str             res;
+        #    TreeNode        tmpNode;
+        #    str             menuItemType;
+        #
+        #    if (_helpText)
+        #    {
+        #        if(!res)
+        #            res = this.labelIdToLabel(findProperty(node.AOTgetProperties(), #PropertyHelpText));
+        #
+        #        if(!res)
+        #            res = this.labelIdToLabel(findProperty(node.AOTgetProperties(), #PropertyHelp));
+        #    }
+        #    else
+        #    {
+        #        res = this.labelIdToLabel(findProperty(node.AOTgetProperties(), #PropertyLabel));
+        #
+        #        if (!res && findProperty(node.AOTgetProperties(), #PropertyCaption))
+        #        {
+        #            res = this.labelIdToLabel(findProperty(node.AOTgetProperties(), #PropertyCaption));
+        #        }
+        #
+        #        if (!res && findProperty(node.AOTgetProperties(), #PropertyText))
+        #        {
+        #            res = this.labelIdToLabel(findProperty(node.AOTgetProperties(), #PropertyText));
+        #        }
+        #    }
+        #
+        #    if (!res && findProperty(node.AOTgetProperties(), #PropertyExtendedDataType))
+        #    {
+        #        tmpNode = TreeNode::findNode(#ExtendedDataTypesPath + '\\' + findProperty(node.AOTgetProperties(), #PropertyExtendedDataType));
+        #        if (tmpNode)
+        #        {
+        #            res = this.getLabel(tmpNode, _helpText);
+        #        }
+        #    }
+        #
+        #    if (!res && findProperty(node.AOTgetProperties(), #PropertyExtends))
+        #    {
+        #        tmpNode = TreeNode::findNode(#ExtendedDataTypesPath + '\\' + findProperty(node.AOTgetProperties(), #PropertyExtends));
+        #        if (tmpNode)
+        #        {
+        #            res = this.getLabel(tmpNode, _helpText);
+        #        }
+        #    }
+        #
+        #    if (!res && findProperty(node.AOTgetProperties(), #PropertyEnumtype))
+        #    {
+        #        tmpNode = TreeNode::findNode(#BaseEnumsPath + '\\' + findProperty(node.AOTgetProperties(), #PropertyEnumtype));
+        #        if (tmpNode)
+        #        {
+        #            res = this.getLabel(tmpNode, _helpText);
+        #        }
+        #    }
+        #
+        #    if (!res && findProperty(node.AOTgetProperties(), #PropertyMenuItemName))
+        #    {
+        #        menuItemType = findProperty(node.AOTgetProperties(), #PropertyMenuItemType);
+        #        if (!menuItemType)
+        #        {
+        #            menuItemType = enum2str(MenuItemType::Display);
+        #        }
+        #
+        #        tmpNode = TreeNode::findNode(#MenuItemsPath + '\\' + menuItemType + '\\' + findProperty(node.AOTgetProperties(), #PropertyMenuItemName));
+        #        if (tmpNode)
+        #            res = this.getLabel(tmpNode, _helpText);
+        #    }
+        #
+        #    return res;
+        #}
+      ENDSOURCE
+      SOURCE #labelIdToLabel
+        #str labelIdToLabel(str label, str replaceWithIfEmpty = "")
+        #{
+        #    if(subStr(label, 1, 1) == '@')
+        #    {
+        #        return new Label(infolog.language()).extractString(label);
+        #    }
+        #
+        #    if(!label)
+        #    {
+        #        return replaceWithIfEmpty;
+        #    }
+        #    else
+        #    {
+        #        return label;
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #public static void main(Args args)
+        #{
+        #    new DEV_xRefIconSearch().addAllElements();
+        #}
+      ENDSOURCE
+      SOURCE #updateEmbedded
+        #// >> DEV:MXK >>
+        #public static void updateEmbedded()
+        #{
+        #    #Define.MaxNumOfResources(60000)
+        #
+        #    DEV_xRefElements        xRefElements;
+        #    int                     i;
+        #
+        #    ttsBegin;
+        #
+        #    delete_from xRefElements
+        #        where       xRefElements.Embedded   == NoYes::Yes
+        #                &&  xRefElements.Type       == UtilElementType::Resource;
+        #
+        #
+        #    for (i = 1; i < #MaxNumOfResources; i++)
+        #    {
+        #        if (!Image::validResource(i))
+        #            continue;
+        #
+        #        xRefElements.clear();
+        #        xRefElements.ImageRes  = i;
+        #        xRefElements.Embedded  = NoYes::Yes;
+        #        xRefElements.insert();
+        #    }
+        #
+        #    ttsCommit;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

@@ -1,0 +1,68 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_EditorLineInfo unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_EditorLineInfo
+    PROPERTIES
+      Name                #DEV_EditorLineInfo
+      Origin              #{14FD2CB0-17E1-4AF9-B454-CDB8742DD186}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class DEV_EditorLineInfo
+        #{
+        #    int varDeclFirstCharIdx;
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #void new()
+        #{
+        #    varDeclFirstCharIdx = -1;
+        #}
+      ENDSOURCE
+      SOURCE #parmVarDeclFirstCharIdx
+        #int parmVarDeclFirstCharIdx(int _varDeclFirstCharIdx = varDeclFirstCharIdx)
+        #{
+        #    varDeclFirstCharIdx = _varDeclFirstCharIdx;
+        #    return varDeclFirstCharIdx;
+        #}
+      ENDSOURCE
+      SOURCE #construct
+        #public static DEV_EditorLineInfo construct(int _varDeclFirstCharIdx)
+        #{
+        #    DEV_EditorLineInfo editorLineInfo = new DEV_EditorLineInfo();
+        #
+        #    editorLineInfo.parmVarDeclFirstCharIdx(_varDeclFirstCharIdx);
+        #    return editorLineInfo;
+        #}
+      ENDSOURCE
+      SOURCE #maxVarDeclFirstCharIdx
+        #static int maxVarDeclFirstCharIdx(List lineInfoList)
+        #{
+        #    ListIterator       iter = new ListIterator(lineInfoList);
+        #    DEV_EditorLineInfo currLineInfo;
+        #    int                maxIdx = 0;
+        #
+        #    while (iter.more())
+        #    {
+        #        currLineInfo = iter.value();
+        #        if (currLineInfo != null && currLineInfo.parmVarDeclFirstCharIdx() > maxIdx)
+        #        {
+        #            maxIdx = currLineInfo.parmVarDeclFirstCharIdx();
+        #        }
+        #        iter.next();
+        #    }
+        #
+        #    return maxIdx;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

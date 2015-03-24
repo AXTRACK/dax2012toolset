@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ModelManifest SchemaVersion="1.9" ModelFileVersion="18" ElementCount="1887" ModelBuildVersion="">
+  <Name>Development Toolset</Name>
+  <DisplayName>Development Toolset</DisplayName>
+  <Description>Microsoft Dynamics AX 2012 Development Toolset</Description>
+  <Publisher>Maksym Kozhukhar</Publisher>
+  <Signed>false</Signed>
+  <Category>Standard</Category>
+  <InstallMode>Overwrite</InstallMode>
+  <Version>1.0.0.0</Version>
+  <Layer>Cus</Layer>
+  <DependencyState />
+</ModelManifest>

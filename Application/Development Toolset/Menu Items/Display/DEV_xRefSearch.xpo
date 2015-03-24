@@ -1,0 +1,25 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FTM
+
+; Microsoft Dynamics AX MENUITEM : DEV_xRefSearch unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  MENUITEM #DEV_xRefSearch
+    Type: 1
+    PROPERTIES
+      Name                #DEV_xRefSearch
+      Label               #Icon used by
+      HelpText            #Serach for an icon references in the entry points
+      Object              #DEV_xRefIcons
+      NormalImage         #11337
+      ImageLocation       #EmbeddedResource
+      Origin              #{84112B9B-1B5F-4713-BF5D-7E4ECEF78CFB}
+    ENDPROPERTIES
+    
+  ENDMENUITEM
+  
+
+***Element: END

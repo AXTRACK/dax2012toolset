@@ -1,0 +1,142 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_TableMethod_Exist unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_TableMethod_Exist
+    PROPERTIES
+      Name                #DEV_TableMethod_Exist
+      Extends             #DEV_TableMethod
+      Origin              #{28A4E471-0209-4532-964F-6BC64ECD8B73}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #addSummary
+        #protected void addSummary()
+        #{
+        #    code.line('/// <summary>');
+        #    code.line(strFmt('///    Determines whether the specified record in the <c>%1</c> table exists.', dictTable.name()));
+        #    code.line('/// </summary>');
+        #    code.line('/// <param name="_recId">');
+        #    code.line(strFmt('///    The record ID of the <c>%1</c> record.', dictTable.name()));
+        #    code.line('/// </param>');
+        #    code.line('/// <returns>');
+        #    code.line('///    true if the specified record exists; otherwise, false.');
+        #    code.line('/// </returns>');
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class DEV_TableMethod_Exist extends DEV_TableMethod
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #initSource
+        #protected void initSource()
+        #{
+        #    int i;
+        #
+        #    // header
+        #    code.text(strFmt('public static boolean %1(', name));
+        #
+        #    if (numOfIndexFields == 1)
+        #    {
+        #        code.line(strFmt(
+        #                '%1 %2)',
+        #                this.fieldType(1),
+        #                this.parameterName(this.fieldName(1))));
+        #    }
+        #    else
+        #    {
+        #        code.indentInc();
+        #        code.newLine();
+        #        for (i = 1; i <= numOfIndexFields; i++)
+        #        {
+        #            code.text(code.columnLayout(
+        #                this.fieldType(i),
+        #                this.parameterName(this.fieldName(i)),
+        #                this.maxTypeLength()));
+        #
+        #            if (i != numOfIndexFields)
+        #            {
+        #                code.text(',');
+        #                code.newLine();
+        #            }
+        #        }
+        #        code.line(')');
+        #        code.indentDec();
+        #    }
+        #
+        #
+        #    code.blockStart();
+        #
+        #        // variable declaration
+        #        code.line(strFmt('%1\t%2;', dictTable.name(), tableVarName));
+        #        //code.line(';');
+        #        code.newLine();
+        #
+        #        // body
+        #
+        #        // check parameters
+        #        code.text(strFmt('if (%1', this.parameterName(this.fieldName(1))));
+        #
+        #        code.indentInc();
+        #            for (i = 2; i <= numOfIndexFields; i++)
+        #            {
+        #                code.newLine();
+        #                code.text(strFmt('&& %1', this.parameterName(this.fieldName(i))));
+        #            }
+        #            code.line(')');
+        #        code.indentDec();
+        #
+        #        code.blockStart(); // block: params ok
+        #
+        #             // select
+        #            code.line(strFmt('select firstOnly RecId from %1', tableVarName));
+        #
+        #            code.indentInc();
+        #
+        #                // where
+        #                code.text(strFmt('where%1.%2== %3',
+        #                    (numOfIndexFields > 1 ? '\t\t' : ' ') + tableVarName,
+        #                    this.fieldName(1) + (numOfIndexFields > 1 ? '\t' : ' '),
+        #                    this.parameterName(this.fieldName(1))));
+        #
+        #                code.indentInc();
+        #                    for (i = 2; i <= numOfIndexFields; i++)
+        #                    {
+        #                        code.newLine();
+        #                        code.text(strFmt('\t&&\t%1.%2\t== %3',
+        #                            tableVarName,
+        #                            this.fieldName(i),
+        #                            this.parameterName(this.fieldName(i))));
+        #                    }
+        #                code.indentDec();
+        #                code.line(';');
+        #            code.indentDec();
+        #
+        #        code.blockEnd(); // // block end: params ok
+        #        code.newLine();
+        #
+        #        code.line(strFmt('return %1.RecId != 0;', tableVarName));
+        #    code.blockEnd();
+        #
+        #    source = code.toString();
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #public void new(SysDictTable _dictTable,
+        #                boolean     _addSummary = false)
+        #{
+        #    super(_dictTable, _addSummary);
+        #
+        #    name = #exist;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

@@ -1,0 +1,26 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FTM
+
+; Microsoft Dynamics AX MENUITEM : DEV_Toolbar unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  MENUITEM #DEV_Toolbar
+    Type: 1
+    PROPERTIES
+      Name                #DEV_Toolbar
+      Label               #Development toolbar
+      HelpText            #Runs a Development toolbar in Development workspace
+      Object              #DEV_Toolbar
+      SecurityKey         #SysDevelopment
+      NormalImage         #811
+      ImageLocation       #EmbeddedResource
+      Origin              #{6B38F982-A6F2-49FF-AEF9-4A21742DB384}
+    ENDPROPERTIES
+    
+  ENDMENUITEM
+  
+
+***Element: END

@@ -1,0 +1,641 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_HKProject unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_HKProject
+    PROPERTIES
+      Name                #DEV_HKProject
+      Extends             #RunBase
+      Origin              #{88ED4C17-1554-4F75-A269-A2BFC7DB1736}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #addElement
+        #protected void addElement(TreeNode _treeNode)
+        #{
+        #    UtilElements                utilElements;
+        #
+        #    if (!_treeNode)
+        #        throw error (Error::wrongUseOfFunction(funcname()));
+        #
+        #    projectFilter = DEV_Global::createProject(projectName);
+        #
+        #    utilElements = xUtilElements::findTreeNode(TreeNode::findNode(SysTreeNode::applObjectPath(_treeNode.treeNodePath())), false);
+        #
+        #    if (    utilElements.RecordType == UtilElementType::SharedProject
+        #        ||  utilElements.RecordType == UtilElementType::PrivateProject
+        #        ||  utilElements.RecordType == UtilElementType::ClassInternalHeader
+        #        ||  utilElements.RecordType == UtilElementType::TableInternalHeader
+        #        || !projectFilter.doUtilElements(utilElements))
+        #    {
+        #        info(strfmt("@SYS316339", strfmt('%1 %2', utilElements.RecordType, utilElements.Name)));
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #caption
+        #public ClassDescription caption()
+        #{
+        #    ClassDescription ret;
+        #
+        #    ret = 'Add element to project';
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #changeGroupPos
+        #void changeGroupPos(ProjectGroupNode _groupNode)
+        #{
+        #    ListEnumerator      listEnumerator = DEV_HKProject::aotStructList().getEnumerator();
+        #    Map                 aotSortedMap;
+        #    ProjectGroupNode    groupNode;
+        #    int                 newPos, oldPos;
+        #
+        #    // convert AOT list to sorted map
+        #    aotSortedMap    = new Map(Types::String, Types::Integer);
+        #    oldPos          = 1;
+        #    while (listEnumerator.moveNext())
+        #    {
+        #        aotSortedMap.insert(strReplace(listEnumerator.current(), " ", "_"),  oldPos);
+        #
+        #        oldPos++;
+        #    }
+        #
+        #    if (!aotSortedMap.exists(this.convert2AOTPath(_groupNode.treeNodePath())))
+        #        return;
+        #
+        #    newPos      = aotSortedMap.lookup((this.convert2AOTPath(_groupNode.treeNodePath())));
+        #
+        #    groupNode   = _groupNode.AOTnextSibling();
+        #
+        #    while (groupNode && aotSortedMap.exists(this.convert2AOTPath(groupNode.treeNodePath())))
+        #    {
+        #        oldPos = aotSortedMap.lookup(this.convert2AOTPath(groupNode.treeNodePath()));
+        #
+        #        if (oldPos < newPos)
+        #        {
+        #            _groupNode.AOTMove(_groupNode.AOTparent(), groupNode);
+        #            groupNode = _groupNode.AOTnextSibling();
+        #        }
+        #        else
+        #        {
+        #            groupNode = groupNode.AOTnextSibling();
+        #        }
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class DEV_HKProject extends RunBase
+        #{
+        #    // Dialog
+        #    DialogRunbase                       dialog;
+        #
+        #    DEV_HKProjectName                   projectName;
+        #    DialogField                         dlgProjectName;
+        #    // >> DEV:MXK >>
+        #    NoYesId                             isDefault;
+        #    NoYesId                             openProject;
+        #
+        #    DialogField                         dlgIsDefault;
+        #    DialogField                         dlgOpenProject;
+        #    // >> DEV:MXK <<
+        #    SysProjectFilterRunBase             projectFilter;
+        #    TreeNodePath                        treeNodePath;
+        #
+        #    ListEnumerator                      treeNodeEnumerator;
+        #    boolean                             setupMode;
+        #
+        #    Counter                             selectedCount;
+        #
+        #    #AOT
+        #
+        #    #define.CurrentVersion(5)
+        #    #localmacro.CurrentList
+        #        projectName,
+        #        isDefault,
+        #        openProject
+        #    #endmacro
+        #}
+      ENDSOURCE
+      SOURCE #convert2AOTPath
+        #protected TreeNodePath convert2AOTPath(TreeNodePath _projectPath)
+        #{
+        #    TreeNodePath    ret;
+        #    container       pathCon = str2con(_projectPath,  #AOTRootPath);
+        #
+        #    pathCon = condel(pathCon, 1, 4); //delete project start path
+        #
+        #    ret = con2str(pathCon, #AOTRootPath);
+        #
+        #    ret = #AOTRootPath + ret;
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #dialog
+        #protected Object dialog()
+        #{
+        #    FormStringControl                   fsc;
+        #
+        #    dialog = super();
+        #
+        #    treeNodeEnumerator  = this.selectedNodeList().getEnumerator();
+        #
+        #    dialog = super();
+        #
+        #    dialog.addGroup('Add to project');
+        #
+        #    dlgProjectName  = dialog.addFieldValue(extendedtypestr(DEV_HKProjectName), projectName, "@SYS117835", 'Default project name.');
+        #    dlgProjectName.value(DEV_Global::getStartupProject());
+        #    fsc             = dlgProjectName.fieldControl();
+        #    fsc.mandatory(true);
+        #
+        #    dlgIsDefault    = dialog.addFieldValue(extendedtypestr(NoYesId), isDefault, "@SYS27587", 'Use default project name');
+        #    dlgIsDefault.value(NoYes::No);
+        #
+        #    dlgOpenProject  = dialog.addFieldValue(extendedtypestr(NoYesId), openProject, "@SYS333061", 'Open project after adding the objects');
+        #    dlgOpenProject.value(NoYes::No);
+        #
+        #    dialog.addText(strFmt('Number of bjects to add: %1', selectedCount));
+        #
+        #    return dialog;
+        #}
+      ENDSOURCE
+      SOURCE #dialogPostRun
+        #// >> DEV:MXK >>
+        #public void dialogPostRun(DialogRunbase _dialog)
+        #{
+        #    super(_dialog);
+        #
+        #    _dialog.dialogForm().formRun().controlMethodOverload(true);
+        #    _dialog.dialogForm().formRun().controlMethodOverloadObject(this);
+        #}
+      ENDSOURCE
+      SOURCE #fld1_1_modified
+        #public boolean fld1_1_modified() // Project name
+        #{
+        #    boolean                     ret;
+        #    FormStringControl           control = dialog.formRun().controlCallingMethod();
+        #
+        #    ret = control.modified();
+        #
+        #    if (ret)
+        #    {
+        #        if (dlgProjectName.value() != '')
+        #        {
+        #            dlgIsDefault.value(NoYes::No);
+        #        }
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #fld2_1_modified
+        #public boolean fld2_1_modified() // Project name
+        #{
+        #    boolean                     ret;
+        #    FormStringControl           control = dialog.formRun().controlCallingMethod();
+        #
+        #    ret = control.modified();
+        #
+        #    if (ret)
+        #    {
+        #        if (dlgIsDefault.value() == NoYes::Yes)
+        #        {
+        #            dlgProjectName.value(DEV_Global::getStartupProject());
+        #        }
+        #        else
+        #        {
+        #            dlgProjectName.value(projectName);
+        #        }
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #getFromDialog
+        #public boolean getFromDialog()
+        #{
+        #    boolean ret;
+        #
+        #    ret = super();
+        #
+        #    projectName     = dlgProjectName.value();
+        #    openProject     = dlgOpenProject.value();
+        #    isDefault       = dlgIsDefault.value();
+        #    openProject     = dlgOpenProject.value();
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #initParmDefault
+        #public void initParmDefault()
+        #{
+        #    super();
+        #
+        #    projectName     = DEV_Global::getStartupProject();
+        #}
+      ENDSOURCE
+      SOURCE #pack
+        #public container pack()
+        #{
+        #    return [#CurrentVersion, #CurrentList];
+        #}
+      ENDSOURCE
+      SOURCE #parmTreeNodePath
+        #public TreeNodePath parmTreeNodePath(TreeNodePath _treeNodePath = treeNodePath)
+        #{
+        #    treeNodePath = _treeNodePath;
+        #
+        #    return treeNodePath;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #putToDialog
+        #protected void putToDialog()
+        #{
+        #    super();
+        #
+        #    dlgProjectName.value(projectName);
+        #    dlgIsDefault.value(isDefault);
+        #    dlgOpenProject.value(openProject);
+        #}
+      ENDSOURCE
+      SOURCE #run
+        #public void run()
+        #{
+        #    TreeNode                            treeNode;
+        #
+        #    if (setupMode)
+        #        return;
+        #
+        #    startLengthyOperation();
+        #
+        #    while (treeNodeEnumerator.moveNext())
+        #    {
+        #        treeNode = treeNodeEnumerator.current();
+        #        this.addElement(treeNode);
+        #    }
+        #
+        #    projectFilter.write();
+        #
+        #    endLengthyOperation();
+        #
+        #    if (openProject)
+        #    {
+        #        projectFilter.parmProjectNode().AOTrun();
+        #        DEV_WinAPI::closeWindow(DEV_WinAPI::getTopWindow());
+        #        projectFilter.parmProjectNode().AOTrun();
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #selectedNodeList
+        #List selectedNodeList()
+        #{
+        #    LastAOTSelection    lastAOTSelection = new LastAOTSelection();
+        #    TreeNode            treeNode;
+        #    Set                 selectedElementSet;
+        #    List                list = new List(Types::Class);
+        #
+        #    selectedElementSet = new Set(Types::Container);
+        #
+        #    if (treeNodePath)
+        #        treeNode = TreeNode::findNode(treeNodePath);
+        #
+        #    if (treeNode)
+        #    {
+        #        treeNode = DEV_HKProject::treeNode2ParentNode (treeNode);
+        #
+        #        if (treeNode && treeNode.treeNodeType().id())
+        #        {
+        #            list.addEnd(treeNode);
+        #            selectedCount ++;
+        #        }
+        #    }
+        #    else
+        #    {
+        #        treeNode = lastAOTSelection.first ();
+        #
+        #        while (treeNode)
+        #        {
+        #            treeNode = DEV_HKProject::treeNode2ParentNode (treeNode);
+        #
+        #            if (treeNode && treeNode.treeNodeType().id())
+        #            {
+        #                if (selectedElementSet.add([treenode.treeNodePath(), treeNode.treeNodeName()]))
+        #                {
+        #                     list.addEnd(treeNode);
+        #                     selectedCount ++;
+        #                }
+        #            }
+        #
+        #           treeNode = lastAOTSelection.next();
+        #        }
+        #    }
+        #
+        #    return list;
+        #}
+      ENDSOURCE
+      SOURCE #unpack
+        #public boolean unpack(container packedClass)
+        #{
+        #    Version version = RunBase::getVersion(packedClass);
+        #
+        #    switch (version)
+        #    {
+        #        case #CurrentVersion:
+        #            [version,#CurrentList] = packedClass;
+        #            break;
+        #        default:
+        #            return false;
+        #    }
+        #
+        #    return true;
+        #}
+      ENDSOURCE
+      SOURCE #validate
+        #public boolean validate(Object calledFrom = null)
+        #{
+        #    boolean         ret;
+        #    DialogButton    dialogButton;
+        #    str             createNewTxt;
+        #
+        #    ret = super(calledFrom);
+        #
+        #    if (!projectName)
+        #        ret = checkfailed(strFmt("@SYS50104", "@SYS15760"));
+        #
+        #    if (ret && !DEV_HKProject::checkProjectExists(projectName))
+        #    {
+        #        createNewTxt = strFmt('Project \'%1\' does not exist. Do you want to create a new one?', projectName);
+        #
+        #        dialogButton = BOX::yesNo(createNewTxt, DialogButton::Yes, "@SYS80246");
+        #
+        #        if (dialogButton != DialogButton::Yes)
+        #            ret = false;
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #aotStructList
+        #// Method generated by \Classes\DEV_HKProject\buildAOTStruct
+        #static List aotStructList()
+        #{
+        #    List list = new List(Types::String);
+        #
+        #    list.addEnd('\\');
+        #    list.addEnd('\\Data Dictionary');
+        #    list.addEnd('\\Data Dictionary\\Tables');
+        #    list.addEnd('\\Data Dictionary\\Maps');
+        #    list.addEnd('\\Data Dictionary\\Views');
+        #    list.addEnd('\\Data Dictionary\\Extended Data Types');
+        #    list.addEnd('\\Data Dictionary\\Base Enums');
+        #    list.addEnd('\\Data Dictionary\\License Codes');
+        #    list.addEnd('\\Data Dictionary\\Configuration Keys');
+        #    list.addEnd('\\Data Dictionary\\Security Keys');
+        #    list.addEnd('\\Data Dictionary\\Table Collections');
+        #    list.addEnd('\\Data Dictionary\\Perspectives');
+        #    list.addEnd('\\Macros');
+        #    list.addEnd('\\Classes');
+        #    list.addEnd('\\Forms');
+        #    list.addEnd('\\Parts');
+        #    list.addEnd('\\Parts\\Info Parts');
+        #    list.addEnd('\\Parts\\Form Parts');
+        #    list.addEnd('\\Parts\\Cues');
+        #    list.addEnd('\\Parts\\Cue Groups');
+        #    list.addEnd('\\Data Sets');
+        #    list.addEnd('\\SSRS Reports');
+        #    list.addEnd('\\SSRS Reports\\Reports');
+        #    list.addEnd('\\SSRS Reports\\Report Style Templates');
+        #    list.addEnd('\\SSRS Reports\\Report Style Templates\\Layout Templates');
+        #    list.addEnd('\\SSRS Reports\\Report Style Templates\\List Style Templates');
+        #    list.addEnd('\\SSRS Reports\\Report Style Templates\\Matrix Style Templates');
+        #    list.addEnd('\\SSRS Reports\\Report Style Templates\\Pie and Doughnut Chart Style Templates');
+        #    list.addEnd('\\SSRS Reports\\Report Style Templates\\Table Style Templates');
+        #    list.addEnd('\\SSRS Reports\\Report Style Templates\\XY Chart Style Templates');
+        #    list.addEnd('\\SSRS Reports\\Report Datasources');
+        #    list.addEnd('\\SSRS Reports\\Report Images');
+        #    list.addEnd('\\Reports');
+        #    list.addEnd('\\Reports\\Report Templates');
+        #    list.addEnd('\\Reports\\Section Templates');
+        #    list.addEnd('\\Visual Studio Projects');
+        #    list.addEnd('\\Visual Studio Projects\\Dynamics AX Model Projects');
+        #    list.addEnd('\\Visual Studio Projects\\C Sharp Projects');
+        #    list.addEnd('\\Visual Studio Projects\\Visual Basic Projects');
+        #    list.addEnd('\\Visual Studio Projects\\Web Application Projects');
+        #    list.addEnd('\\Visual Studio Projects\\Analysis Services Projects');
+        #    list.addEnd('\\Report Libraries');
+        #    list.addEnd('\\Queries');
+        #    list.addEnd('\\Jobs');
+        #    list.addEnd('\\Menus');
+        #    list.addEnd('\\Menu Items');
+        #    list.addEnd('\\Menu Items\\Display');
+        #    list.addEnd('\\Menu Items\\Output');
+        #    list.addEnd('\\Menu Items\\Action');
+        #    list.addEnd('\\Web');
+        #    list.addEnd('\\Web\\Web Menu Items');
+        #    list.addEnd('\\Web\\Web Menu Items\\URLs');
+        #    list.addEnd('\\Web\\Web Menu Items\\Actions');
+        #    list.addEnd('\\Web\\Web Content');
+        #    list.addEnd('\\Web\\Web Content\\Managed');
+        #    list.addEnd('\\Web\\Web Menus');
+        #    list.addEnd('\\Web\\Web Files');
+        #    list.addEnd('\\Web\\Web Files\\Web Parts');
+        #    list.addEnd('\\Web\\Web Files\\Page Definitions');
+        #    list.addEnd('\\Web\\Web Files\\List Definitions');
+        #    list.addEnd('\\Web\\Web Files\\Static Files');
+        #    list.addEnd('\\Web\\Web Files\\Web Controls');
+        #    list.addEnd('\\Web\\Web Modules');
+        #    list.addEnd('\\Services');
+        #    list.addEnd('\\Service Groups');
+        #    list.addEnd('\\Workflow');
+        #    list.addEnd('\\Workflow\\Workflow Categories');
+        #    list.addEnd('\\Workflow\\Approvals');
+        #    list.addEnd('\\Workflow\\Tasks');
+        #    list.addEnd('\\Workflow\\Automated Tasks');
+        #    list.addEnd('\\Workflow\\Workflow Types');
+        #    list.addEnd('\\Workflow\\Providers');
+        #    list.addEnd('\\Workflow\\Providers\\Hierarchy Assignment');
+        #    list.addEnd('\\Workflow\\Providers\\Participant Assignment');
+        #    list.addEnd('\\Workflow\\Providers\\Queue Assignment');
+        #    list.addEnd('\\Workflow\\Providers\\Due Date Calculation');
+        #    list.addEnd('\\Security');
+        #    list.addEnd('\\Security\\Code Permissions');
+        #    list.addEnd('\\Security\\Privileges');
+        #    list.addEnd('\\Security\\Duties');
+        #    list.addEnd('\\Security\\Roles');
+        #    list.addEnd('\\Security\\Process Cycles');
+        #    list.addEnd('\\Security\\Policies');
+        #    list.addEnd('\\Resources');
+        #    list.addEnd('\\Label Files');
+        #    list.addEnd('\\References');
+        #    list.addEnd('\\Help Document Sets');
+        #    list.addEnd('\\System Documentation');
+        #    list.addEnd('\\System Documentation\\Reserved Words');
+        #    list.addEnd('\\System Documentation\\Functions');
+        #    list.addEnd('\\System Documentation\\Tables');
+        #    list.addEnd('\\System Documentation\\Types');
+        #    list.addEnd('\\System Documentation\\Enums');
+        #    list.addEnd('\\System Documentation\\Classes');
+        #
+        #    return list;
+        #}
+      ENDSOURCE
+      SOURCE #buildAOTStruct
+        #//crates the method HKProject::aotStructSet() at the first time of execution the HKProject class
+        #// BP Deviation Documented
+        #static void buildAOTStruct()
+        #{
+        #    Source          structLine, buf;
+        #    TreeNode        methodNode, classNode;
+        #    DialogButton    DialogButton;
+        #
+        #    void build (TreeNode _treeNode = TreeNode::rootNode())
+        #    {
+        #        TreeNode    treeNode;
+        #
+        #        treeNode = _treeNode;
+        #
+        #        while (treeNode)
+        #        {
+        #            if (    treeNode.treeNodeType().id()
+        #                &&  treeNode.treeNodeType().isUtilElement()
+        #                ||  (   strStartsWith(treeNode.treeNodePath(), #SystemDocPath)
+        #                    &&  conLen(str2con(treeNode.treeNodePath(), #AOTDelimiter)) >= 4))
+        #                return;
+        #            else
+        #            {
+        #                buf = strFmt('    list.addEnd(\'%1\');\n', treeNode.treeNodePath());
+        #
+        #                buf = con2str(str2con(buf, #AOTDelimiter), '\\\\');
+        #
+        #                structLine += buf;
+        #            }
+        #
+        #            if (treeNode.AOTfirstChild())
+        #            {
+        #                build(treeNode.AOTfirstChild());
+        #            }
+        #
+        #            treeNode = treeNode.AOTnextSibling();
+        #        }
+        #    }
+        #
+        #    methodNode  = TreeNode::findNode('\\Classes\\DEV_HKProject\\aotStructList');
+        #
+        #    if (methodNode)
+        #        return;
+        #
+        #    dialogButton = Box::okCancel('HKManager class is not initialized. Press \'OK\' to initialize. (One-time action)', DialogButton::Ok, 'AOT structure build');
+        #
+        #    if (DialogButton != dialogButton::Ok)
+        #        return;
+        #
+        #    startLengthyOperation();
+        #
+        #    build();
+        #
+        #    endLengthyOperation();
+        #
+        #    classNode   = TreeNode::findNode('\\Classes\\DEV_HKProject');
+        #
+        #    if (classNode)
+        #    {
+        #        buf =  '// Method generated by \\Classes\\DEV_HKProject\\buildAOTStruct\n';
+        #        buf += 'static List aotStructList()\n';
+        #        buf += '{\n';
+        #        buf += '    List list = new List(Types::String);\n\n';
+        #        buf += structLine;
+        #        buf += '\n';
+        #        buf += '    return list;\n';
+        #        buf += '}';
+        #
+        #        methodNode = classNode.AOTadd('aotStructList');
+        #        methodNode.AOTsetSource(buf, true);
+        #        methodNode.AOTparent().AOTsave();
+        #        methodNode.AOTparent().AOTcompile();
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #checkProjectExists
+        #static boolean checkProjectExists(DEV_HKProjectName _projectName)
+        #{
+        #    return SysTreeNode::getSharedProject().AOTfindChild(_projectName) ? true : false;
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #client static void main(Args args)
+        #{
+        #    DEV_HKProject    hkProject = new DEV_HKProject();
+        #
+        #    DEV_HKProject::buildAOTStruct();
+        #
+        #    if (hkProject.prompt())
+        #    {
+        #        hkProject.run();
+        #    }
+        #}
+        #
+      ENDSOURCE
+      SOURCE #newAddElement
+        #client static void newAddElement(TreeNodePath _treeNodePath = '')
+        #{
+        #    DEV_HKProject                       hkProject = new DEV_HKProject();
+        #
+        #    hkProject.parmTreeNodePath(_treeNodePath);
+        #
+        #    if (hkProject.prompt())
+        #    {
+        #        hkProject.run();
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #treeNode2ParentNode
+        #static public TreeNode treeNode2ParentNode(TreeNode _treeNode)
+        #{
+        #    TreeNode            treeNode = _treeNode;
+        #    TreeNode            parentTreeNode;
+        #    List                aotStructList = DEV_HKProject::aotStructList();
+        #
+        #    boolean inList(List _list, treeNodePath _path)
+        #    {
+        #        ListEnumerator  listEnumerator;
+        #        boolean         ret;
+        #
+        #        listEnumerator = _list.getEnumerator();
+        #
+        #        while (listEnumerator.moveNext())
+        #        {
+        #            if (listEnumerator.current() == _path)
+        #            {
+        #                ret = true;
+        #                break;
+        #            }
+        #        }
+        #
+        #        return ret;
+        #    }
+        #
+        #    if (!_treeNode)
+        #        return null;
+        #
+        #    parentTreeNode = treeNode.AOTparent();
+        #
+        #    while (parentTreeNode && !inList(aotStructList, parentTreeNode.treeNodePath()))
+        #    {
+        #        treeNode        = parentTreeNode;
+        #        parentTreeNode  = treeNode.AOTparent();
+        #    }
+        #
+        #    return parentTreeNode ? treeNode : null;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

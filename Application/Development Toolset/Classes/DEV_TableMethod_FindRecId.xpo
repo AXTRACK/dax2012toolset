@@ -1,0 +1,139 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_TableMethod_FindRecId unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_TableMethod_FindRecId
+    PROPERTIES
+      Name                #DEV_TableMethod_FindRecId
+      Extends             #DEV_TableMethod
+      Origin              #{C887BFF5-1188-4161-916D-16BF3AF23D65}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #addSummary
+        #// >> DEV:MXK >>
+        #protected void addSummary()
+        #{
+        #    code.line('/// <summary>');
+        #    code.line(strFmt('///    Finds and returns the <c>%1</c> table record for the given record ID.', dictTable.name()));
+        #    code.line('/// </summary>');
+        #    code.line('/// <param name="_recId">');
+        #    code.line('///    The record ID to check.');
+        #    code.line('/// </param>');
+        #    code.line('/// <param name="_forUpdate">');
+        #    code.line('///    A boolean value that determines whether the record should be selected for update; optional.');
+        #    code.line('/// </param>');
+        #    code.line('/// <param name="_concurrencyModel">');
+        #    code.line('///    A <c>ConcurrencyModel</c> value that specifies the locking scheme; optional.');
+        #    code.line('/// </param>');
+        #    code.line('/// <returns>');
+        #    code.line(strFmt('///    A <c>%1</c> table record if it exists; otherwise, an empty record.', dictTable.name()));
+        #    code.line('/// </returns>');
+        #    code.line('/// <remarks>');
+        #    code.line(strFmt('///    If the record does not exist, an empty <c>%1</c> table record is returned.', dictTable.name()));
+        #    code.line('/// </remarks>');
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class DEV_TableMethod_FindRecId extends DEV_TableMethod
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #initSource
+        #protected void initSource()
+        #{
+        #    int colLayoutFromPosition;
+        #
+        #    // header
+        #    code.line(strFmt('public static %1 %2(', dictTable.name(), name));
+        #
+        #    code.indentInc();
+        #        colLayoutFromPosition = max(this.maxTypeLength(), strLen(enumStr(ConcurrencyModel)));
+        #
+        #        code.line(code.columnLayout(
+        #            'RecId',
+        #            '_recId,',
+        #            colLayoutFromPosition));
+        #
+        #        code.line(code.columnLayout(
+        #            'boolean',
+        #            '_forUpdate = false,',
+        #            colLayoutFromPosition));
+        #        code.line(code.columnLayout(
+        #            enumStr(ConcurrencyModel),
+        #            strFmt('_concurrencyModel = %1::Auto)', enumStr(ConcurrencyModel)),
+        #            colLayoutFromPosition));
+        #    code.indentDec();
+        #
+        #    code.blockStart();
+        #
+        #        // variable declaration
+        #        code.line(strFmt('%1\t%2;', dictTable.name(), tableVarName));
+        #        //code.line(';');
+        #        code.newLine();
+        #
+        #        // body
+        #
+        #        // check parameters
+        #        code.text('if (_recId)');
+        #        code.newLine();
+        #        code.blockStart(); // block: params ok
+        #
+        #            // set forupdate
+        #            code.line('if (_forUpdate)');
+        #            code.blockStart();
+        #
+        #                code.line(strFmt('%1.selectForUpdate(_forUpdate);', tableVarName));
+        #                code.newLine();
+        #
+        #                code.line('if (_concurrencyModel != ConcurrencyModel::Auto)');
+        #
+        #                code.blockStart();
+        #                    code.line(strFmt('%1.concurrencyModel(_concurrencyModel);', tableVarName));
+        #                code.blockEnd();
+        #
+        #            code.blockEnd();
+        #
+        #            code.newLine();
+        #
+        #            // select
+        #            code.line(strFmt('select firstOnly %1', tableVarName));
+        #            code.indentInc();
+        #
+        #                // where
+        #                code.text(strFmt('where %1.RecId == _recId;', tableVarName));
+        #
+        #            code.indentDec();
+        #
+        #        code.newLine();
+        #
+        #        code.blockEnd(); // block end: params ok
+        #
+        #        code.newLine();
+        #
+        #        code.line(strFmt('return %1;', tableVarName));
+        #
+        #    code.blockEnd();
+        #
+        #    source = code.toString();
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #public void new(SysDictTable _dictTable,
+        #                boolean     _addSummary = false)
+        #{
+        #    super(_dictTable, _addSummary);
+        #
+        #    name = #findRecId;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

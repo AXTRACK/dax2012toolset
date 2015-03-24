@@ -1,0 +1,744 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: DBT
+
+; Microsoft Dynamics AX Table : DEV_HKSetup unloaded
+; --------------------------------------------------------------------------------
+  TABLEVERSION 1
+  
+  TABLE #DEV_HKSetup
+    EnforceFKRelation 0
+    PROPERTIES
+      Name                #DEV_HKSetup
+      Label               #Hot key setup
+      TitleField1         #ActionType
+      TitleField2         #ActionElementName
+      ConfigurationKey    #SysDevelopmentMorphX
+      SecurityKey         #SysDevelopment
+      CreateRecIdIndex    #Yes
+      SaveDataPerCompany  #No
+      PrimaryIndex        #RecId
+      ClusterIndex        #KeyIdx
+      Origin              #{397E1D83-3716-43BC-A2B6-7243AA4A4F38}
+    ENDPROPERTIES
+    
+    FIELDS
+      FIELD #ActionElementName
+        STRING
+        PROPERTIES
+          Name                #ActionElementName
+          Label               #Action\Element name
+          HelpText            #ActionElementName.
+          Mandatory           #Yes
+          Table               #DEV_HKSetup
+          Origin              #{57D815D8-FEF0-4848-B7AE-FCA8CC8A6F45}
+          ExtendedDataType    #TreeNodeName
+          StringSize          #40
+        ENDPROPERTIES
+        
+      FIELD #ActionType
+        ENUM
+        PROPERTIES
+          Name                #ActionType
+          Label               #Action type
+          HelpText            #Action type.
+          Table               #DEV_HKSetup
+          Origin              #{9B218086-F6E7-429A-8C44-4D87D1889E6D}
+          EnumType            #DEV_HKActionType
+        ENDPROPERTIES
+        
+      FIELD #Description
+        STRING
+        PROPERTIES
+          Name                #Description
+          Table               #DEV_HKSetup
+          Origin              #{77DB7315-9D2E-40D4-B814-C542C66C5180}
+          ExtendedDataType    #Description
+          StringSize          #60
+        ENDPROPERTIES
+        
+      FIELD #Enabled
+        ENUM
+        PROPERTIES
+          Name                #Enabled
+          Label               #@SYS58636
+          Table               #DEV_HKSetup
+          Origin              #{39DD8E6B-93C8-4AE2-9254-10CA1F3957C2}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #Key1
+        ENUM
+        PROPERTIES
+          Name                #Key1
+          Label               #Key 1
+          HelpText            #Key 1.
+          Table               #DEV_HKSetup
+          Origin              #{81B79605-18AC-4D5C-A760-4B3B1735D7E2}
+          EnumType            #DEV_HKKey
+        ENDPROPERTIES
+        
+      FIELD #Key2
+        ENUM
+        PROPERTIES
+          Name                #Key2
+          Label               #Key 2
+          HelpText            #Key 2.
+          Table               #DEV_HKSetup
+          Origin              #{E38E0008-E896-4ED7-92E2-189571151B78}
+          EnumType            #DEV_HKKey
+        ENDPROPERTIES
+        
+      FIELD #Key3
+        ENUM
+        PROPERTIES
+          Name                #Key3
+          Label               #Key 3
+          HelpText            #Key 3.
+          Table               #DEV_HKSetup
+          Origin              #{F17F1D69-A345-4176-96FD-F000D8462407}
+          EnumType            #DEV_HKKey
+        ENDPROPERTIES
+        
+      FIELD #UserId
+        STRING
+        PROPERTIES
+          Name                #UserId
+          Label               #@SYS16181
+          Mandatory           #Yes
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_HKSetup
+          Origin              #{31D048D6-AFC3-4CF2-B753-338E1C9B547E}
+          ExtendedDataType    #UserId
+          StringSize          #8
+        ENDPROPERTIES
+        
+    ENDFIELDS
+    GROUPS
+      GROUP #AutoSummary
+        PROPERTIES
+          Name                #AutoSummary
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #ActionElementName
+          #ActionType
+          #Description
+          #Enabled
+          #Key1
+          #Key2
+          #Key3
+          #UserId
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoReport
+        PROPERTIES
+          Name                #AutoReport
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Enabled
+          #Key1
+          #Key3
+          #Key2
+          #ActionType
+          #ActionElementName
+          #Description
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoLookup
+        PROPERTIES
+          Name                #AutoLookup
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #ActionElementName
+          #ActionType
+          #Description
+          #Enabled
+          #Key1
+          #Key2
+          #Key3
+          #UserId
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoBrowse
+        PROPERTIES
+          Name                #AutoBrowse
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #ActionElementName
+          #ActionType
+          #Description
+          #Enabled
+          #Key1
+          #Key2
+          #Key3
+          #UserId
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Action
+        PROPERTIES
+          Name                #Action
+          Label               #@SYS15752
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #ActionType
+          #ActionElementName
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Enabled
+        PROPERTIES
+          Name                #Enabled
+          Label               #@SYS58636
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Enabled
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #KeyCombination
+        PROPERTIES
+          Name                #KeyCombination
+          Label               #Key combination
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Key1
+          #Key2
+          #Key3
+        ENDGROUPFIELDS
+      ENDGROUP
+    ENDGROUPS
+    
+    INDICES
+      #KeyIdx
+      PROPERTIES
+        Name                #KeyIdx
+        Origin              #{F56F97EC-404B-414C-9ECC-9416858E59CB}
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #UserId
+        #Key1
+        #Key3
+        #Key2
+      ENDINDEXFIELDS
+      
+    ENDINDICES
+    FULLTEXTINDICES
+    ENDFULLTEXTINDICES
+    REFERENCES
+    ENDREFERENCES
+    
+    DELETEACTIONS
+    ENDDELETEACTIONS
+    
+    METHODS
+      SOURCE #initValue
+        #public void initValue()
+        #{
+        #    super();
+        #
+        #    // >> DEV:MXK >>
+        #    this.UserId  = curUserId();
+        #    // << DEV:MXK <<
+        #    this.Enabled = NoYes::Yes;
+        #}
+      ENDSOURCE
+      SOURCE #insertHotKey
+        #void insertHotKey( int              _vk1,
+        #                   int              _vk2,
+        #                   int              _vk3,
+        #                   DEV_HKActionType _actionType,
+        #                   TreeNodeName     _actionElementName,
+        #                   Description      _description,
+        #                   boolean          _enabled = true )
+        #{
+        #    this.clear();
+        #    // >> DEV:MXK >>
+        #    this.initValue();
+        #    // << DEV:MXK <<
+        #    this.Key1               = _vk1;
+        #    this.Key2               = _vk2;
+        #    this.Key3               = _vk3;
+        #    this.ActionType         = _actionType;
+        #    this.ActionElementName  = _actionElementName;
+        #    this.Description        = _description;// DEV:MXK
+        #    this.Enabled            = _enabled;
+        #
+        #    if (this.validateWrite())
+        #    {
+        #        this.insert();
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #lookupValidate
+        #boolean lookupValidate()
+        #{
+        #    QueryRun    qr;
+        #    boolean     ret = true;
+        #
+        #    qr = new QueryRun(DEV_HKSetup::lookupQueryType(this.ActionType, this.ActionElementName));
+        #
+        #    if (!qr.next())
+        #    {
+        #        ret = checkFailed(strFmt('Value \'%1\' is not allowed in the table \'%2\'', this.ActionElementName, tablePName(DEV_HKSetup)));
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #modifiedField
+        #public void modifiedField(FieldId _fieldId)
+        #{
+        #    super(_fieldId);
+        #
+        #    switch (_fieldId)
+        #    {
+        #        case fieldNum(DEV_HKSetup, ActionType):
+        #            this.ActionElementName = '';
+        #            break;
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #validateField
+        #public boolean validateField(FieldId _fieldIdToCheck)
+        #{
+        #    boolean ret;
+        #
+        #    ret = super(_fieldIdToCheck);
+        #
+        #    switch (_fieldIdToCheck)
+        #    {
+        #        case fieldNum(DEV_HKSetup, ActionElementName):
+        #            ret = this.lookupValidate();
+        #            break;
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #defaultHKSetup
+        #public static DEV_HKSetup defaultHKSetup()
+        #{
+        #    DEV_HKSetup     hkSetup;
+        #
+        #    delete_from hkSetup;
+        #
+        #    DEV_HKSetup::insertRunHK();
+        #
+        #    DEV_HKSetup::insertAOTHK();
+        #
+        #    DEV_HKSetup::insertEditorHK();
+        #
+        #    DEV_HKSetup::insertCommonHK();
+        #
+        #    return hkSetup;
+        #}
+      ENDSOURCE
+      SOURCE #insertAOTHK
+        #public static void insertAOTHK()
+        #{
+        #    DEV_HKSetup     hkSetup;
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::T,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::AOTAction,
+        #                            staticMethodStr(DEV_HKAOT, tableBrowser),
+        #                            'Browse selected table, dtasource or view');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::C,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::AOTAction,
+        #                            staticMethodStr(DEV_HKAOT, copy2clipboard),
+        #                            'Copy selected elements name\'s to clipboard');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::Alt,
+        #                            DEV_HKKey::C,
+        #                            DEV_HKActionType::AOTAction,
+        #                            staticMethodStr(DEV_HKAOT, copy2clipboard),
+        #                            'Copy selected elements name\'s to clipboard');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::Shift,
+        #                            DEV_HKKey::C,
+        #                            DEV_HKActionType::AOTAction,
+        #                            staticMethodStr(DEV_HKAOT, copyPath2clipboard),
+        #                            'Copy selected elements full path\'s to clipboard');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::B,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::AOTAction,
+        #                            staticMethodStr(DEV_HKAOT, checkBestPractice),
+        #                            'Check best practices on selected elements');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::X,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::AOTAction,
+        #                            staticMethodStr(DEV_HKAOT, aot2xRef),
+        #                            'Cross reference for selected element');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ins,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::AOTAction,
+        #                            staticMethodStr(DEV_HKAOT, aotJump),
+        #                            'Navigate to related objects e.g. EDT, Enum etc.');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::K,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::AOTAction,
+        #                            staticMethodStr(DEV_HKAOT, aot2project),
+        #                            'Add selected elements to project');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::Alt,
+        #                            DEV_HKKey::F,
+        #                            DEV_HKActionType::AOTAction,
+        #                            staticMethodStr(DEV_HKAOT, findSelected),
+        #                            'Find selected element name on parent');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::Shift,
+        #                            DEV_HKKey::LWIN,
+        #                            DEV_HKActionType::AOTAction,
+        #                            staticMethodStr(DEV_HKAOT, newWindow),
+        #                            'Open last selected object in new AOT window');
+        #}
+      ENDSOURCE
+      SOURCE #insertCommonHK
+        #public static void insertCommonHK()
+        #{
+        #    DEV_HKSetup     hkSetup;
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::Shift,
+        #                            DEV_HKKey::O,
+        #                            DEV_HKActionType::Common,
+        #                            staticMethodStr(DEV_HKCommon, openDefaultProject),
+        #                            'Open Startup project');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::_1,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::Common,
+        #                            staticMethodStr(DEV_HKCommon, leftSideSmart),
+        #                            'Position window depending on it\'s type');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::_2,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::Common,
+        #                            staticMethodStr(DEV_HKCommon, rightSideSmart),
+        #                            'Position window depending on it\'s type');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::_3,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::Common,
+        #                            staticMethodStr(DEV_HKCommon, leftSideRightBefore),
+        #                            'Position window to the left side');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::_4,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::Common,
+        #                            staticMethodStr(DEV_HKCommon, leftSideRight),
+        #                            'Position window to the left side');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::_5,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::Common,
+        #                            staticMethodStr(DEV_HKCommon, rightSideLeft),
+        #                            'Position window to the right side');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::_6,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::Common,
+        #                            staticMethodStr(DEV_HKCommon, rightSideRight),
+        #                            'Position window to the right side');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::_7,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::Common,
+        #                            staticMethodStr(DEV_HKCommon, leftSideFull),
+        #                            'Position window to the left side and fit');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::_8,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::Common,
+        #                            staticMethodStr(DEV_HKCommon, rightSideFull),
+        #                            'Position window to the right side and fit');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::LWIN,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::Common,
+        #                            staticMethodStr(DEV_HKCommon, newWindow),
+        #                            'Open last selected object in new AOT window');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Alt,
+        #                            DEV_HKKey::A,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::Common,
+        #                            staticMethodStr(DEV_HKCommon, sendToBackground),
+        #                            'Send active window to the background');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Alt,
+        #                            DEV_HKKey::Q,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::Common,
+        #                            staticMethodStr(DEV_HKCommon, closeTopWindow),
+        #                            'Close active window');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Alt,
+        #                            DEV_HKKey::_1,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::Common,
+        #                            staticMethodStr(DEV_HKCommon, fieldDigger),
+        #                            'Hardcoded hotkey. Get active form control details');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Alt,
+        #                            DEV_HKKey::_2,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::Common,
+        #                            staticMethodStr(DEV_HKCommon, formDigger),
+        #                            'Hardcoded hotkey. Open Form Digger for active form');
+        #}
+      ENDSOURCE
+      SOURCE #insertEditorHK
+        #public static void insertEditorHK()
+        #{
+        #    DEV_HKSetup     hkSetup;
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::J,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::EditorAction,
+        #                            staticMethodStr(DEV_HKEditor, goToDeclaration),
+        #                            'Navigate to variable declaration');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::M,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::EditorAction,
+        #                            staticMethodStr(DEV_HKEditor, goBack),
+        #                            'Navigate back from variable declaration');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::R,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::EditorAction,
+        #                            staticMethodStr(DEV_HKEditor, openObject),
+        #                            'Open object under caret');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::P,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::EditorAction,
+        #                            staticMethodStr(DEV_HKEditor, showObjectProperty),
+        #                            'Open Properties window for object under caret');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Alt,
+        #                            DEV_HKKey::Enter,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::EditorAction,
+        #                            staticMethodStr(DEV_HKEditor, showProperty),
+        #                            'Open Properties window');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::Shift,
+        #                            DEV_HKKey::LWIN,
+        #                            DEV_HKActionType::EditorAction,
+        #                            staticMethodStr(DEV_HKEditor, newWindow),
+        #                            'Expend curent method in new AOT window');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::B,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::EditorAction,
+        #                            staticMethodStr(DEV_HKEditor, tableBrowser),
+        #                            'Browse table, dtasource or view under caret');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::K,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::EditorAction,
+        #                            staticMethodStr(DEV_HKEditor, aot2project),
+        #                            'Add element under caret to project');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::Q,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::EditorAction,
+        #                            staticMethodStr(DEV_HKEditor, formatCode),
+        #                            'Format selected code');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::E,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::EditorAction,
+        #                            staticMethodStr(DEV_HKEditor, comment),
+        #                            'Comment selected code with a project comment');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::Shift,
+        #                            DEV_HKKey::E,
+        #                            DEV_HKActionType::EditorAction,
+        #                            staticMethodStr(DEV_HKEditor, shortComment),
+        #                            'Comment selected code with a custom comment');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::L,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::EditorAction,
+        #                            staticMethodStr(DEV_HKEditor, findSelected),
+        #                            'Find selected text in the parent node');
+        #}
+      ENDSOURCE
+      SOURCE #insertRunHK
+        #public static void insertRunHK()
+        #{
+        #    DEV_HKSetup     hkSetup;
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::None,
+        #                            DEV_HKKey::F10,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::RunClass,
+        #                            classStr(DEV_HKManager),
+        #                            'Development toolset parameters form');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::F10,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::OpenForm,
+        #                            formStr(DEV_Projects),
+        #                            'Manage projects form');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::Shift,
+        #                            DEV_HKKey::N,
+        #                            DEV_HKActionType::RunClass,
+        #                            classStr(DEV_CreateNewProject),
+        #                            'Create new project dialog');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::Shift,
+        #                            DEV_HKKey::I,
+        #                            DEV_HKActionType::OpenForm,
+        #                            formStr(SysImportDialog),
+        #                            'Import .xpo file form');
+        #}
+      ENDSOURCE
+      SOURCE #lookupAction
+        #client static void lookupAction(FormStringControl   _lookupCtrl,
+        #                                DEV_HKSetup         _hkSetup)
+        #{
+        #    SysTableLookup              sysTableLookup = SysTableLookup::newParameters(tableNum(UtilElements), _lookupCtrl);
+        #
+        #    sysTableLookup.addLookupfield(fieldNum(UtilElements, Name));
+        #
+        #    sysTableLookup.parmQuery(DEV_HKSetup::lookupQueryType(_hkSetup.ActionType));
+        #    sysTableLookup.performFormLookup();
+        #}
+      ENDSOURCE
+      SOURCE #lookupQueryType
+        #client static Query lookupQueryType(DEV_HKActionType    _actionType,
+        #                                    TreeNodeName        _nameRange = '')
+        #{
+        #    #DEV_Toolset
+        #
+        #    Query                   query = new Query();
+        #    QueryBuildDataSource    qbds;
+        #    QueryBuildRange         qbr;
+        #
+        #    qbds = query.addDataSource(tableNum(UtilElements));
+        #
+        #    switch (_actionType)
+        #    {
+        #        case DEV_HKActionType::AOTAction:
+        #                qbr  = qbds.addRange(fieldNum(UtilElements, RecordType));
+        #                qbr.value(SysQuery::value(UtilElementType::ClassStaticMethod));
+        #
+        #                qbr  = qbds.addRange(fieldNum(UtilElements, ParentId));
+        #                qbr.value(SysQuery::value(classnum(#HKAOT)));
+        #                break;
+        #        case DEV_HKActionType::EditorAction:
+        #                qbr  = qbds.addRange(fieldNum(UtilElements, RecordType));
+        #                qbr.value(SysQuery::value(UtilElementType::ClassStaticMethod));
+        #
+        #                qbr  = qbds.addRange(fieldNum(UtilElements, ParentId));
+        #                qbr.value(SysQuery::value(classnum(#HKEditor)));
+        #                break;
+        #        case DEV_HKActionType::EditorScript:
+        #                qbr  = qbds.addRange(fieldNum(UtilElements, RecordType));
+        #                qbr.value(SysQuery::value(UtilElementType::ClassInstanceMethod));
+        #
+        #                qbr  = qbds.addRange(fieldNum(UtilElements, ParentId));
+        #                qbr.value(SysQuery::value(classnum(#EditorScripts)));
+        #                break;
+        #        case DEV_HKActionType::OpenForm:
+        #                qbr  = qbds.addRange(fieldNum(UtilElements, RecordType));
+        #                qbr.value(SysQuery::value(UtilElementType::Form));
+        #
+        #                qbr  = qbds.addRange(fieldNum(UtilElements, Name));
+        #                qbr.value(_nameRange ? _nameRange : SysQuery::valueUnlimited());
+        #                break;
+        #        case DEV_HKActionType::OpenTable:
+        #                qbr  = qbds.addRange(fieldNum(UtilElements, RecordType));
+        #                qbr.value(SysQuery::value(UtilElementType::Table));
+        #
+        #                qbr  = qbds.addRange(fieldNum(UtilElements, Name));
+        #                qbr.value(_nameRange ? _nameRange : SysQuery::valueUnlimited());
+        #                break;
+        #        case DEV_HKActionType::RunClass:
+        #                qbr  = qbds.addRange(fieldNum(UtilElements, RecordType));
+        #                qbr.value(SysQuery::value(UtilElementType::Class));
+        #
+        #                qbr  = qbds.addRange(fieldNum(UtilElements, Name));
+        #                qbr.value(_nameRange ? _nameRange : SysQuery::valueUnlimited());
+        #                break;
+        #        case DEV_HKActionType::RunJob:
+        #                qbr  = qbds.addRange(fieldNum(UtilElements, RecordType));
+        #                qbr.value(SysQuery::value(UtilElementType::Job));
+        #
+        #                qbr  = qbds.addRange(fieldNum(UtilElements, Name));
+        #                qbr.value(_nameRange ? _nameRange : SysQuery::valueUnlimited());
+        #                break;
+        #        // >> DEV:MXK >>
+        #        case DEV_HKActionType::Common:
+        #                qbr  = qbds.addRange(fieldNum(UtilElements, RecordType));
+        #                qbr.value(SysQuery::value(UtilElementType::ClassStaticMethod));
+        #
+        #                qbr  = qbds.addRange(fieldNum(UtilElements, ParentId));
+        #                qbr.value(SysQuery::value(classNum(#HKCommon)));
+        #                break;
+        #        // << DEV:MXK <<
+        #        default:
+        #            throw error (Error::wrongUseOfFunction(funcName()));
+        #    }
+        #
+        #    return query;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDTABLE
+  
+
+***Element: END

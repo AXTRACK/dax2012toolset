@@ -1,0 +1,493 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #SysBreakpoints
+  PROPERTIES
+    Name                #SysBreakpoints
+    Origin              #{0B0E0000-0000-1000-234A-8CF78B4F047D}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #run
+      #public void run()
+      #{
+      #    #define.preferredWidth(700)
+      #    #define.preferredHeight(350)
+      #
+      #    list.prefColumnSize(#preferredWidth, #preferredHeight);
+      #
+      #    DEV_Breakpoints.normalImage(DEV_Breakpoints::isInfoBreak(DEV_Breakpoints::initPathSet()) ? '1097' : '7609'); // DEV:MXK
+      #
+      #    super();
+      #
+      #    this.createColumns();
+      #    this.getBreakpoints();
+      #    this.updateButtons();
+      #
+      #    // >> DEV:MXK >>
+      #    DEV_Global::showHint('Now you can remove all breakpoints with a button click. Toggle the enabled status.\n' +
+      #                        'Helpfull for debugging Infolog button which sets all necessary breakpoints for you.',
+      #                        this.name(),
+      #                        'Breakpoints');
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #updateButtons
+      #void updateButtons()
+      #{
+      #    boolean enableEditCode, enableRemove, enableRemoveAll;
+      #
+      #    if (gettingBreakpoints || settingBreakpoints || updatingBreakpoints)
+      #        return;
+      #
+      #    enableEditCode  = list.getSelectedCount() >= 1;//== 1; //mxk
+      #    enableRemove    = list.getSelectedCount() != 0;
+      #    enableRemoveAll = list.getCount()         != 0;
+      #
+      #    // >> DEV:MXK >>
+      #    DEV_Breakpoints.normalImage(DEV_Breakpoints::isInfoBreak(DEV_Breakpoints::initPathSet()) ? '1097' : '7609');
+      #
+      #    DEV_DisableEnable.text(DEV_Breakpoints::isAllDisabled() ? "@SYS95005" : "@SYS95006");
+      #    DEV_DisableEnable.enabled(enableRemove);
+      #    // << DEV:MXK <<
+      #
+      #    editCode.enabled(enableEditCode);
+      #    remove.enabled(enableRemove);
+      #    removeAll.enabled(enableRemoveAll);
+      #}
+      #
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+  ENDOBJECTBANK
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Width               #Column width
+      Height              #Column height
+      Caption             #@SYS70467
+      WindowType          #Workspace
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #DEV_CopyAll
+          AutoDeclaration     #Yes
+          HelpText            #@SYS27402
+          SecurityKey         #SysDevelopment
+          ElementPosition     #1975684954
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS309329
+          DefaultButton       #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    TextBuffer                  textBuffer  = new TextBuffer();
+            #    int                         idx;
+            #    FormListItem                item;
+            #    str                         path;
+            #    int                         line;
+            #    TreeNode                    node;
+            #    int                         pos;
+            #
+            #    idx = list.getNextItem(FormListNext::All);
+            #
+            #    while (idx != -1)
+            #    {
+            #        item    = list.getItem(idx, 1);
+            #        line    = str2int(item.text());
+            #
+            #        item    = list.getItem(idx, 2);
+            #        path    = item.text();
+            #
+            #        node = TreeNode::findNode(path);
+            #        if (node)
+            #        {
+            #            textBuffer.appendText(path + '\n');
+            #            node.treeNodeRelease();
+            #        }
+            #        else
+            #        {
+            #            // If it was not found then it is likely that
+            #            // it is a map node.  Map node paths are changed
+            #            // to Tables from Maps so the interpreter can
+            #            // execute the map code directly for debugging.
+            #            // Switch it back here to find node for editing.
+            #            pos = strScan(path,'\\Tables\\',1,strLen(path));
+            #            if (pos != 0) // Replace Tables with Maps
+            #            {
+            #                // Replace Tables with Maps
+            #                path = strDel(path,pos+1,6);
+            #                path = strIns(path,'Maps',pos+1);
+            #
+            #                // Try lookup again
+            #                node = TreeNode::findNode(path);
+            #                if (node)
+            #                {
+            #                    textBuffer.appendText(path + '\n');
+            #                    node.treeNodeRelease();
+            #                }
+            #            }
+            #        }
+            #
+            #        idx = list.getNextItem(FormListNext::All, idx);
+            #    }
+            #
+            #    if (textBuffer && textBuffer.usageCount())
+            #        textBuffer.toClipboard();
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #DEV_CreateProject
+          HelpText            #Creates project with all found elements.
+          ElementPosition     #2061584300
+          HierarchyParent     #ButtonGroup
+          Text                #Create project
+          MultiSelect         #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    #TreeNodeSysNodeType
+            #    #define.ProjectName('DEV_Breakpoints')
+            #
+            #    Set                         treeNodeLocalPaths;
+            #    SetEnumerator               treeNodeLocalPathEnumerator;
+            #
+            #    SysProjectFilterRunBase     projectFilter;
+            #    UtilElements                utilElements;
+            #
+            #    Dialog                      dialog;
+            #    DialogField                 dialogField;
+            #
+            #    int                         idx;
+            #    FormListItem                item;
+            #    str                         path;
+            #    int                         line;
+            #    TreeNode                    node;
+            #    int                         pos;
+            #
+            #    treeNodeLocalPaths = new Set(Types::String);
+            #
+            #    idx = list.getNextItem(FormListNext::All);
+            #
+            #    while (idx != -1)
+            #    {
+            #        item    = list.getItem(idx, 1);
+            #        line    = str2int(item.text());
+            #
+            #        item    = list.getItem(idx, 2);
+            #        path    = item.text();
+            #
+            #        node = TreeNode::findNode(path);
+            #        if (node)
+            #        {
+            #            treeNodeLocalPaths.add(node.treeNodePath());
+            #            node.treeNodeRelease();
+            #        }
+            #        else
+            #        {
+            #            // If it was not found then it is likely that
+            #            // it is a map node.  Map node paths are changed
+            #            // to Tables from Maps so the interpreter can
+            #            // execute the map code directly for debugging.
+            #            // Switch it back here to find node for editing.
+            #            pos = strScan(path,'\\Tables\\',1,strLen(path));
+            #            if (pos != 0) // Replace Tables with Maps
+            #            {
+            #                // Replace Tables with Maps
+            #                path = strDel(path,pos+1,6);
+            #                path = strIns(path,'Maps',pos+1);
+            #
+            #                // Try lookup again
+            #                node = TreeNode::findNode(path);
+            #                if (node)
+            #                {
+            #                    treeNodeLocalPaths.add(node.treeNodePath());
+            #                    node.treeNodeRelease();
+            #                }
+            #            }
+            #        }
+            #
+            #        idx = list.getNextItem(FormListNext::All, idx);
+            #    }
+            #
+            #    if (treeNodeLocalPaths.elements())
+            #    {
+            #        dialog      = new dialog("@SYS53207"); // Create project
+            #        dialogField = dialog.addFieldValue(extendedTypeStr(ProjectName), #ProjectName);
+            #
+            #        if (dialog.run())
+            #        {
+            #            startLengthyOperation();
+            #
+            #            treeNodeLocalPathEnumerator = treeNodeLocalPaths.getEnumerator();
+            #
+            #            while (treeNodeLocalPathEnumerator.moveNext())
+            #            {
+            #                utilElements = xUtilElements::findTreeNode(
+            #                    treeNode::findNode(
+            #                        SysTreeNode::applObjectPath(
+            #                        treeNodeLocalPathEnumerator.current())),
+            #                    false);
+            #
+            #                if (!projectFilter)
+            #                    projectFilter = DEV_Global::createProject(any2str(dialogField.value()));
+            #
+            #                if (    utilElements.RecordType == UtilElementType::SharedProject
+            #                    ||  utilElements.RecordType == UtilElementType::PrivateProject
+            #                    ||  utilElements.RecordType == UtilElementType::ClassInternalHeader
+            #                    ||  utilElements.RecordType == UtilElementType::TableInternalHeader
+            #                    || !projectFilter.doUtilElements(utilElements))
+            #                {
+            #                    info(strfmt("@SYS316339", strfmt('%1 %2', utilElements.RecordType, utilElements.Name)));
+            #                }
+            #            }
+            #
+            #            projectFilter.write();
+            #
+            #            info(strFmt('Project created: %1', projectFilter.parmProjectNode().name()));
+            #
+            #            endLengthyOperation();
+            #        }
+            #    }
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #DEV_DisableEnable
+          AutoDeclaration     #Yes
+          HelpText            #@SYS70472
+          ElementPosition     #1503238551
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS95006
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    if (DEV_DisableEnable.text() == "@SYS95005")
+            #    {
+            #        DEV_Breakpoints::toggleAll(true);
+            #        DEV_DisableEnable.text("@SYS95006");
+            #    }
+            #    else
+            #    {
+            #        DEV_Breakpoints::toggleAll(false);
+            #        DEV_DisableEnable.text("@SYS95005");
+            #    }
+            #
+            #    element.updateButtons();
+            #// << DEV:MXK <<
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #EditCode
+          AutoDeclaration     #Yes
+          HelpText            #@SYS70469
+          SecurityKey         #SysDevelopment
+          ElementPosition     #858993458
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS453
+          DefaultButton       #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    //>> DEV:MXK >>
+            #    int             num;
+            #    int             i;
+            #    //<< DEV:MXK <<
+            #    int             idx;
+            #    FormListItem    item;
+            #    str             path;
+            #    int             line;
+            #    TreeNode        node;
+            #    int             pos;
+            #;
+            #    super();
+            #
+            #    //>> DEV:MXK >>
+            #    num = List.getSelectedCount();
+            #
+            #    if (num >= 1)
+            #    {
+            #        idx = list.getNextItem(FormListNext::Selected);
+            #
+            #        for (i = 0; i < num; i++)
+            #        {
+            #    //<< DEV:MXK <<
+            #            if (idx != -1)
+            #            {
+            #                item    = list.getItem(idx, 1);
+            #                line    = str2int(item.text());
+            #
+            #                item    = list.getItem(idx, 2);
+            #                path    = item.text();
+            #
+            #                node = TreeNode::findNode(path);
+            #                if (node)
+            #                {
+            #                    node.AOTedit(line, 0);
+            #                }
+            #                else
+            #                {
+            #                    // If it was not found then it is likely that
+            #                    // it is a map node.  Map node paths are changed
+            #                    // to Tables from Maps so the interpreter can
+            #                    // execute the map code directly for debugging.
+            #                    // Switch it back here to find node for editing.
+            #                    pos = strScan(path,'\\Tables\\',1,strLen(path));
+            #                    if (pos != 0) // Replace Tables with Maps
+            #                    {
+            #                        // Replace Tables with Maps
+            #                        path = strDel(path,pos+1,6);
+            #                        path = strIns(path,'Maps',pos+1);
+            #
+            #                        // Try lookup again
+            #                        node = TreeNode::findNode(path);
+            #                        if (node)
+            #                            node.AOTedit(line, 0);
+            #                    }
+            #                }
+            #            }
+            #            idx = list.getNextItem(FormListNext::Selected, idx);
+            #        }
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL LISTVIEW #List
+        METHODS
+          SOURCE #keyDown
+            ##define.VK_DELETE(0x2E)
+            ##KeyPressed
+            #public boolean keyDown(int _vKey, boolean _ctrl, boolean _shift)
+            #{
+            #    boolean         ret;
+            #
+            #    if (_vKey == #VK_DELETE)
+            #    {
+            #        remove.clicked();
+            #        ret = true;
+            #    }
+            #    // >> DEV:MXK >>
+            #    else if (_vKey == #backSpace)
+            #    {
+            #        EditCode.clicked();
+            #    }
+            #    // << DEV:MXK <<
+            #    else
+            #    {
+            #        ret = super(_vKey, _ctrl, _shift);
+            #    }
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+          SOURCE #mouseDblClick
+            #// >> DEV:MXK >>
+            #public int mouseDblClick(int _x, int _y, int _button, boolean _Ctrl, boolean _Shift)
+            #{
+            #    int ret;
+            #
+            #    ret = super(_x, _y, _button, _Ctrl, _Shift);
+            #
+            #    EditCode.clicked();
+            #
+            #    return ret;
+            #// << DEV:MXK <<
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #DEV_Breakpoints
+          AutoDeclaration     #Yes
+          ElementPosition     #1889785608
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS25246
+          ButtonDisplay       #Text & Image left
+          NormalImage         #7609
+          ImageLocation       #EmbeddedResource
+          MenuItemType        #Action
+          MenuItemName        #DEV_Breakpoints
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    super();
+            #
+            #    element.updateButtons();
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL SEPARATOR
+        PROPERTIES
+          Name                #DEV_Separator
+          ElementPosition     #1803886262
+          HierarchyParent     #ButtonGroup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+  ENDPERMISSIONS
+  
+ENDFORM
+
+
+***Element: END

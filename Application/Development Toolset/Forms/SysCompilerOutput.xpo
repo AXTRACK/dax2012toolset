@@ -1,0 +1,76 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #SysCompilerOutput
+  PROPERTIES
+    Name                #SysCompilerOutput
+    Origin              #{5287A9F5-57E7-4A12-BCE4-E16D54614931}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #run
+      #public void run()
+      #{
+      #    super();
+      #
+      #    errorsRange = errors_ds.query().dataSourceNo(1).addRange(fieldnum(TmpCompilerOutput, SysCompilerOutputTab));
+      #    errorsRange.value(queryValue(SysCompilerOutputTab::Error));
+      #    errorsRange.status(RangeStatus::Hidden);
+      #    this.setRange();
+      #
+      #    // Show the newest at top
+      #    errors_ds.query().dataSourceTable(tableNum(TmpCompilerOutput)).addSortField(fieldNum(TmpCompilerOutput, createdDateTime), SortOrder::Descending);
+      #
+      #    formSplitter = new SysFormSplitter_X(split, MainGroup, this);
+      #    xSysLastValue::getLast(this);
+      #
+      #    // >> DEV:MXK >>
+      #    if (DEV_UserParameters::findOrCreate().WMEnabled)
+      #    {
+      #        DEV_HKCommon::rightSideCompiler(this.hWnd());
+      #    }
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+  ENDOBJECTBANK
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    CONTAINER
+      CONTROL BUTTON #ResetBtn
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    super();
+            #    sysCompilerOutput.reset(true);
+            #    DEV_HKCommon::sendToBackground(element.hWnd()); // DEV:MXK
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+  ENDPERMISSIONS
+  
+ENDFORM
+
+
+***Element: END

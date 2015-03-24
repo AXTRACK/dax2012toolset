@@ -1,0 +1,529 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_FormDigger unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_FormDigger
+    PROPERTIES
+      Name                #DEV_FormDigger
+      Origin              #{75805AE3-659A-49D5-9496-5A0C8BE5ACF3}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #canShowControl
+        #boolean canShowControl(DEV_FormDiggerTmpData _formDiggerTmpData)
+        #{
+        #    boolean     ret;
+        #
+        #    ret = _formDiggerTmpData.IsDataBound;
+        #    ret = true;
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class DEV_FormDigger implements SysSaveable
+        #{
+        #    FormRun                 callerFormRun;
+        #    FormRun                 formDiggerFormRun;
+        #
+        #    DEV_FormDiggerTmpData   formDiggerTmpData;
+        #    FormListControl         formListControl;
+        #
+        #    FormControl             lastActivatedCtrl;
+        #
+        #    Delimiter               fmtDelimiter;
+        #    LanguageId              languageId;
+        #
+        #    boolean                 useDataField;
+        #    boolean                 setupMode;
+        #    boolean                 showInvisibleFields;
+        #    boolean                 fixNewWindow;
+        #
+        #    #define.CurrentVersion(3)
+        #    #define.version1(1)
+        #    #localmacro.CurrentList
+        #        fmtDelimiter,
+        #        showInvisibleFields,
+        #        fixNewWindow
+        #    #endmacro
+        #}
+      ENDSOURCE
+      SOURCE #id2FormControl
+        #FormControl id2FormControl(int _controlId)
+        #{
+        #    FormControl     fc;
+        #
+        #    fc = callerFormRun.design().control(_controlId);
+        #
+        #    return fc;
+        #}
+      ENDSOURCE
+      SOURCE #init
+        #void init()
+        #{
+        #    formDiggerTmpData = DEV_FormDigger::initFormDiggerTmpData(callerFormRun);
+        #}
+      ENDSOURCE
+      SOURCE #initParmDefault
+        #public void initParmDefault()
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #lastValueDataAreaId
+        #public dataAreaId lastValueDataAreaId()
+        #{
+        #    // >> DEV:MXK >>
+        #    return '';//curExt();
+        #    // << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #lastValueDesignName
+        #public identifiername lastValueDesignName()
+        #{
+        #    return '';
+        #}
+      ENDSOURCE
+      SOURCE #lastValueElementName
+        #public identifiername lastValueElementName()
+        #{
+        #    return classId2Name(classIdGet(this));
+        #}
+      ENDSOURCE
+      SOURCE #lastValueType
+        #public UtilElementType lastValueType()
+        #{
+        #    return UtilElementType::Class;
+        #}
+      ENDSOURCE
+      SOURCE #lastValueUserId
+        #public userId lastValueUserId()
+        #{
+        #    return curUserId();
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #void new(FormRun _callerFormRun, FormRun _fieldFinderFormRun = null)
+        #{
+        #    callerFormRun     = _callerFormRun;
+        #    formDiggerFormRun = _fieldFinderFormRun;
+        #
+        #    this.init();
+        #
+        #    xSysLastValue::getLast(this);
+        #}
+      ENDSOURCE
+      SOURCE #onClose
+        #void onClose()
+        #{
+        #    callerFormRun.redraw();
+        #
+        #    xSysLastValue::saveLast(this);
+        #}
+      ENDSOURCE
+      SOURCE #onSelectionChanged
+        #void onSelectionChanged(int _controlId)
+        #{
+        #    // >> DEV:MXK >>
+        #    //callerFormRun.redraw();
+        #    // << DEV:MXK <<
+        #
+        #    if (_controlId)
+        #    {
+        #        lastActivatedCtrl = callerFormRun.design().control(_controlId);
+        #
+        #        if (lastActivatedCtrl)
+        #        {
+        #            WinAPI::bringWindowToTop(callerFormRun.hWnd());
+        #
+        #            lastActivatedCtrl.displayControl();
+        #            lastActivatedCtrl.setFocus();
+        #
+        #            WinAPI::bringWindowToTop(formDiggerFormRun.hWnd());
+        #        }
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #pack
+        #public container pack()
+        #{
+        #    return [#CurrentVersion, #CurrentList];
+        #}
+      ENDSOURCE
+      SOURCE #parmCallerFormRun
+        #public FormRun parmCallerFormRun(FormRun _callerFormRun = callerFormRun)
+        #{
+        #    callerFormRun = _callerFormRun;
+        #
+        #    return callerFormRun;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #parmFixNewWindow
+        #public boolean parmFixNewWindow(boolean _fixNewWindow = fixNewWindow)
+        #{
+        #    fixNewWindow = _fixNewWindow;
+        #
+        #    return fixNewWindow;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #parmFmtDelimiter
+        #public Delimiter parmFmtDelimiter(Delimiter _fmtDelimiter = fmtDelimiter)
+        #{
+        #    fmtDelimiter = _fmtDelimiter;
+        #
+        #    return fmtDelimiter;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #parmFormDiggerTmpData
+        #public DEV_FormDiggerTmpData parmFormDiggerTmpData(DEV_FormDiggerTmpData _formDiggerTmpData = formDiggerTmpData)
+        #{
+        #    formDiggerTmpData = _formDiggerTmpData;
+        #
+        #    return formDiggerTmpData;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #parmFormListControl
+        #public FormListControl parmFormListControl(FormListControl _formListControl = formListControl)
+        #{
+        #    formListControl = _formListControl;
+        #
+        #    return formListControl;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #parmLastActivatedCtrl
+        #public FormControl parmLastActivatedCtrl(FormControl _lastActivatedCtrl = lastActivatedCtrl)
+        #{
+        #    lastActivatedCtrl = _lastActivatedCtrl;
+        #
+        #    return lastActivatedCtrl;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #parmSetupMode
+        #public boolean parmSetupMode(boolean _setupMode = setupMode)
+        #{
+        #    setupMode = _setupMode;
+        #
+        #    return setupMode;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #parmShowInvisibleFields
+        #public boolean parmShowInvisibleFields(boolean _showInvisibleFields = showInvisibleFields)
+        #{
+        #    showInvisibleFields = _showInvisibleFields;
+        #
+        #    return showInvisibleFields;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #parmUseDataField
+        #public boolean parmUseDataField(boolean _useDataField = useDataField)
+        #{
+        #    useDataField = _useDataField;
+        #
+        #    return useDataField;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #unpack
+        #public boolean unpack(container packedClass)
+        #{
+        #    Version     version     = runbase::getVersion(packedClass);
+        #
+        #    switch (version)
+        #    {
+        #        case #CurrentVersion:
+        #            [version, #CurrentList] = packedClass;
+        #            break;
+        #        default:
+        #            return false;
+        #    }
+        #
+        #    return true;
+        #}
+      ENDSOURCE
+      SOURCE #captureWnd
+        #static void captureWnd(HWND _hWnd)
+        #{
+        #    Image       image = new Image();
+        #    // >> DEV:MXK >>
+        #    Filename    fileNameTmp;
+        #    // << DEV:MXK <<
+        #
+        #    image.captureWindow(_hWnd);
+        #    image.clipboardCopy();
+        #    // >> DEV:MXK >>
+        #    fileNameTmp = WinAPI::getTempFilename(WinAPI::getTempPath(), 'FD_');
+        #    fileNameTmp = subStr(fileNameTmp, 1, strLen(fileNameTmp) - 4) + '.jpg';
+        #    image.saveImage(fileNameTmp, ImageSaveType::JPG);
+        #    WinAPI::shellExecute(fileNameTmp);
+        #    // << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #ctrlId2TreeNode
+        #static TreeNode ctrlId2TreeNode(FormRun _formRun, int _id = 0)
+        #{
+        #    TreeNode    ret;
+        #
+        #    if (!_id && _formRun.selectedControl())
+        #    {
+        #        _id = _formRun.selectedControl().id();
+        #    }
+        #
+        #    ret = _id ? SysFormRun::ctrlId2treeNode(_formRun, _id) : null;
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #formControlIsDataBound
+        #static boolean formControlIsDataBound(Object _formControl)
+        #{
+        #    FormControlType formControlType = SysFormRun::controlType(classidget(_formControl));
+        #    boolean         ret;
+        #
+        #    if (_formControl)
+        #    {
+        #        if (formControlType == FormControlType::CheckBox ||
+        #            formControlType == FormControlType::ComboBox ||
+        #            formControlType == FormControlType::ListBox ||
+        #            formControlType == FormControlType::RadioButton ||
+        #            formControlType == FormControlType::String ||
+        #            formControlType == FormControlType::StaticText ||
+        #            formControlType == FormControlType::Date ||
+        #            formControlType == FormControlType::Integer ||
+        #            formControlType == FormControlType::Real ||
+        #            formControlType == FormControlType::Time ||
+        #            formControlType == FormControlType::Image ||
+        #            // >> DEV:MXK >>
+        #            formControlType == FormControlType::MenuFunctionButton
+        #            )
+        #            // << DEV:MXK <<
+        #        {
+        #            ret = true;
+        #        }
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #getPathFormat
+        #// >> DEV:MXK >>
+        #public static str getPathFormat(FormControlType _controlType)
+        #{
+        #    str                     ret;
+        #    LanguageId              languageId          = currentUserLanguage();
+        #
+        #    switch (_controlType)
+        #    {
+        #        case FormControlType::Group:
+        #            ret = SysLabel::labelId2String2(literalstr("@SYS40804"), languageId) + ' \'%1\'';
+        #            break;
+        #
+        #        case FormControlType::TabPage:
+        #            ret = SysLabel::labelId2String2(literalstr("@SYS78488"), languageId) + ' \'%1\'';
+        #            break;
+        #
+        #        case FormControlType::StaticText:
+        #            ret = SysLabel::labelId2String2(literalstr("@SYS8498"), languageId) + ' \'%1\'';
+        #            break;
+        #
+        #        case FormControlType::Image:
+        #            ret = SysLabel::labelId2String2(literalstr("@SYS6890"), languageId) + ' \'%1\'';
+        #            break;
+        #
+        #        case FormControlType::MenuFunctionButton:
+        #            ret = SysLabel::labelId2String2(literalstr("@SYS80126"), languageId) + ' \'%1\'';
+        #            break;
+        #
+        #        case FormControlType::Button:
+        #            ret = SysLabel::labelId2String2(literalstr("@SYS80126"), languageId) + ' \'%1\'';
+        #            break;
+        #    }
+        #
+        #    return ret;
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #handleSysSetupFormRunTaskPost
+        #// >> DEV:MXK >>
+        #/// <summary>
+        #/// Post event handler for the task method of <c>SysSetupFormRun</c>
+        #/// </summary>
+        #/// <param name='_args'>
+        #/// Event arguments
+        #/// </param>
+        #public static void handleSysSetupFormRunTaskPost(XppPrePostArgs _args)
+        #{
+        #    #KeyPressed
+        #    #Task
+        #
+        #    if (    DEV_UserParameters::exist()
+        #        &&  DEV_UserParameters::find().FDEnabled)
+        #    {
+        #        if (_args.getArgNum(1) != #taskAlt)
+        #            return;
+        #
+        #        if (WinAPI::isKeyDown(#Key1))
+        #        {
+        #            DEV_FormDigger::newPopup(_args.getThis());
+        #        }
+        #
+        #        if (WinAPI::isKeyDown(#Key2))
+        #        {
+        #            DEV_FormDigger::newForm(_args.getThis());
+        #        }
+        #    }
+        #
+        #    if (isDeveloper() && DEV_UserParameters::findOrCreate().DisableHints == NoYes::No)
+        #    {
+        #        DEV_Global::showHint('This is new tool that allows to search on AX forms across controls and display relevant information.\n' +
+        #                            'Press Ctrl+2 on the form to open Form Digger or Ctrl+1 for the extended information on the selected control.\n' +
+        #                            'To copy extended information into clipboard keep \'Shift\' key pressed before selecting context menu entry.',
+        #                            funcName(),
+        #                            'Form Digger');
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #initFormDiggerTmpData
+        #static DEV_FormDiggerTmpData initFormDiggerTmpData( FormRun                 _formRun,
+        #                                                    DEV_FormDiggerTmpData   _formDiggerTmpData = null,
+        #                                                    int                 _formControlId      = 0,
+        #                                                    boolean             _searchHidden       = false,
+        #                                                    boolean             _searchUserHidden   = false)
+        #{
+        #    Counter                 controlCount ,i;
+        #    Object                  formControl;
+        #    Object                  formGroupControl;
+        #    int                     parentId;
+        #    boolean                 visible;
+        #    DEV_FormDiggerTmpData   parentTmpData;
+        #
+        #    if (!_formRun)
+        #        throw error(Error::wrongUseOfFunction(funcname()));
+        #
+        #    if (_formControlId)
+        #    {
+        #        formGroupControl = _formRun.design().control(_formControlId);
+        #        parentId         = formGroupControl.id();
+        #    }
+        #    else
+        #    {
+        #        formGroupControl = _formRun.design();
+        #    }
+        #
+        #    controlCount = formGroupControl.controlCount();
+        #
+        #    for (i = 1; i <= controlCount && formGroupControl.controlNum(i); i++)
+        #    {
+        #        formControl = formGroupControl.controlNum(i);
+        #
+        #        visible = true;
+        #        if (parentId)
+        #        {
+        #            parentTmpData.data(DEV_FormDiggerTmpData::find(parentId, _formDiggerTmpData));
+        #            visible = parentTmpData.isVisible && formControl.IsVisible();
+        #        }
+        #
+        #        _formDiggerTmpData.clear();
+        #        _formDiggerTmpData.initFromFormControl(formControl, _formRun, parentId);
+        #        _formDiggerTmpData.isVisible = visible;
+        #        _formDiggerTmpData.insert();
+        #
+        #        if (formControl.isContainer())
+        #        {
+        #            _formDiggerTmpData = DEV_FormDigger::initFormDiggerTmpData( _formRun,
+        #                                                                    _formDiggerTmpData,
+        #                                                                    formControl.id(),
+        #                                                                    _searchHidden,
+        #                                                                    _searchUserHidden);
+        #        }
+        #    }
+        #
+        #    return _formDiggerTmpData;
+        #}
+      ENDSOURCE
+      SOURCE #newForm
+        #client static boolean newForm(FormRun _callerformRun)
+        #{
+        #    Args    args = new Args(formstr(DEV_FormDigger));
+        #    FormRun formRun;
+        #
+        #    if (!_callerformRun || _callerformRun.name() == formstr(DEV_FormDigger))
+        #        return false;
+        #
+        #    args.caller(_callerformRun);
+        #
+        #    formRun = classFactory::formRunClassOnClient(args);
+        #    formRun.init();
+        #    formRun.run();
+        #    formRun.wait();
+        #
+        #    return true;
+        #}
+      ENDSOURCE
+      SOURCE #newPopup
+        #// >> DEV:MXK >>
+        #client static boolean newPopup(FormRun _callerformRun)
+        #{
+        #    DEV_FormDigger          formDigger;
+        #    DEV_FormDiggerTmpData   formDiggerTmpData;
+        #    FormControl             currentControl;
+        #
+        #    if (!_callerformRun || _callerformRun.name() == formstr(DEV_FormDigger))
+        #        return false;
+        #
+        #    formDiggerTmpData   = DEV_FormDigger::initFormDiggerTmpData(_callerformRun);
+        #    currentControl      = _callerformRun.selectedControl();
+        #
+        #    if (currentControl)
+        #    {
+        #        formDigger = new DEV_FormDigger(_callerformRun);
+        #        formDigger.parmFormDiggerTmpData(formDiggerTmpData);
+        #
+        #        select firstOnly formDiggerTmpData
+        #            where formDiggerTmpData.Id == currentControl.id();
+        #
+        #        DEV_FormDiggerContextMenu::construct(formDigger, formDiggerTmpData).onContext(currentControl);
+        #    }
+        #
+        #    return true;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #showFieldProperties
+        #static void showFieldProperties(FormRun _formRun, int _id = 0)
+        #{
+        #    TreeNode    treeNode;
+        #
+        #    if (!_id && _formRun.selectedControl())
+        #    {
+        #        _id = _formRun.selectedControl().id();
+        #    }
+        #
+        #    if (_id)
+        #    {
+        #        treeNode =  SysFormRun::ctrlId2treeNode(_formRun, _id);
+        #
+        #        if (treeNode)
+        #        {
+        #            treeNode.AOTshowProperties();
+        #        }
+        #    }
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

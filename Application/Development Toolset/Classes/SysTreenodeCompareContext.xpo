@@ -1,0 +1,249 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysTreenodeCompareContext unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysTreenodeCompareContext
+    PROPERTIES
+      Name                #SysTreenodeCompareContext
+      RunOn               #Client
+      Origin              #{2D1903BB-0000-1000-4AC3-13E30BFE5CFD}
+      LegacyId            #955
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #onContextMenu
+        #public void onContextMenu(
+        #    int _hwnd,
+        #    SysComparable _comparable1,
+        #    SysComparable _comparable2,
+        #    SysComparable _topComparable1,
+        #    SysComparable _topComparable2)
+        #{
+        #    SysTreeNode comparable1 = _comparable1 as SysTreeNode;
+        #    SysTreeNode comparable2 = _comparable2 as SysTreeNode;
+        #
+        #    SysContextMenuCompare contextMenu = new SysContextMenuCompare(comparable1 ? comparable1.parmTreeNode() : null ,
+        #                                                                  comparable2 ? comparable2.parmTreeNode() : null);
+        #
+        #    PopupMenu popupMenu  = new PopupMenu(_hwnd);
+        #    PopupMenu subMenu    = contextMenu.buildMenu(_hwnd, popupMenu);
+        #    PopupMenu menu1      = new PopupMenu(_hwnd, popupMenu);
+        #    PopupMenu menu2      = new PopupMenu(_hwnd, popupMenu);
+        #    int       newWindow1;
+        #    int       newWindow2;
+        #    int       edit1;
+        #    int       edit2;
+        #    int       property1;
+        #    int       property2;
+        #    int       sel;
+        #    TreeNode  node1 = comparable1 ? comparable1.parmTreeNode() : null;
+        #    TreeNode  node2 = comparable2 ? comparable2.parmTreeNode() : null;
+        #    // >> DEV:MXK >>
+        #    TreeNode  nodeOrig;
+        #    int       editOrig;
+        #    // << DEV:MXK <<
+        #    ;
+        #
+        #    if (node1)
+        #    {
+        #        // >> DEV:MXK >>
+        #        /*newWindow1 = menu1.insertItem("@SYS53405");
+        #        if (SysTreeNode::hasSource(node1))
+        #            edit1 = menu1.insertItem("@SYS453");
+        #        property1 = menu1.insertItem("@SYS10344");
+        #        popupMenu.insertPopupMenu(_topComparable1.comparableName(), menu1);*/
+        #
+        #        popupMenu.insertItem(_topComparable1.comparableName(), true, true);
+        #        newWindow1 = popupMenu.insertItem("@SYS53405");
+        #        if (SysTreeNode::hasSource(node1))
+        #            edit1 = popupMenu.insertItem("@SYS53654");
+        #        property1 = popupMenu.insertItem("@SYS10344");
+        #        // << DEV:MXK <<
+        #    }
+        #
+        #    if (node2)
+        #    {
+        #        // >> DEV:MXK >>
+        #        /*newWindow2 = menu2.insertItem("@SYS53405");
+        #        if (SysTreeNode::hasSource(node2))
+        #            edit2 = menu2.insertItem("@SYS453");
+        #        property2  = menu2.insertItem("@SYS10344");
+        #        popupMenu.insertPopupMenu(_topComparable2.comparableName(), menu2);*/
+        #        popupMenu.insertItem(_topComparable2.comparableName(), true, true);
+        #        newWindow2 = popupMenu.insertItem("@SYS53405");
+        #        if (SysTreeNode::hasSource(node2))
+        #            edit2 = popupMenu.insertItem("@SYS53654");
+        #        property2 = popupMenu.insertItem("@SYS10344");
+        #        // << DEV:MXK <<
+        #    }
+        #
+        #    // >> DEV:MXK >>
+        #    popupMenu.insertBreak();
+        #
+        #    if (node1)
+        #    {
+        #        nodeOrig = TreeNode::findNode(node1.treeNodePath());
+        #    }
+        #    else if (node2)
+        #    {
+        #        nodeOrig = TreeNode::findNode(node2.treeNodePath());
+        #    }
+        #
+        #    if (nodeOrig && SysTreeNode::hasSource(nodeOrig))
+        #    {
+        #        editOrig = popupMenu.insertItem(strFmt('Edit: %1()', nodeOrig.treeNodeName()));
+        #    }
+        #    else if (nodeOrig)
+        #    {
+        #        editOrig = popupMenu.insertItem(strFmt('Open: %1', nodeOrig.treeNodeName()));
+        #    }
+        #
+        #    popupMenu.insertBreak();
+        #    try
+        #    {
+        #        if (node1 && SysTreeNode::hasSource(node1))
+        #        {
+        #            popupMenu.insertItem('Node in layers: ' +
+        #                    (SysTreeNode::isNodeInLayer(TreeNode::findNode(node1.treeNodePath()), UtilEntryLevel::sys) ? strfmt('(%1) ', enum2str(UtilEntryLevel::sys)) : '') +
+        #                    (SysTreeNode::isNodeInLayer(TreeNode::findNode(node1.treeNodePath()), UtilEntryLevel::syp) ? strfmt('(%1) ', enum2str(UtilEntryLevel::syp)) : '') +
+        #                    (SysTreeNode::isNodeInLayer(TreeNode::findNode(node1.treeNodePath()), UtilEntryLevel::isv) ? strfmt('(%1) ', enum2str(UtilEntryLevel::isv)) : '') +
+        #                    (SysTreeNode::isNodeInLayer(TreeNode::findNode(node1.treeNodePath()), UtilEntryLevel::isp) ? strfmt('(%1) ', enum2str(UtilEntryLevel::isp)) : '') +
+        #                    (SysTreeNode::isNodeInLayer(TreeNode::findNode(node1.treeNodePath()), UtilEntryLevel::var) ? strfmt('(%1) ', enum2str(UtilEntryLevel::var)) : ''),
+        #                    false, true);
+        #        }
+        #        else if (node2 && SysTreeNode::hasSource(node2))
+        #        {
+        #            popupMenu.insertItem('Node in layers: ' +
+        #                    (SysTreeNode::isNodeInLayer(TreeNode::findNode(node2.treeNodePath()), UtilEntryLevel::sys) ? strfmt('(%1) ', enum2str(UtilEntryLevel::sys)) : '') +
+        #                    (SysTreeNode::isNodeInLayer(TreeNode::findNode(node2.treeNodePath()), UtilEntryLevel::syp) ? strfmt('(%1) ', enum2str(UtilEntryLevel::syp)) : '') +
+        #                    (SysTreeNode::isNodeInLayer(TreeNode::findNode(node2.treeNodePath()), UtilEntryLevel::isv) ? strfmt('(%1) ', enum2str(UtilEntryLevel::isv)) : '') +
+        #                    (SysTreeNode::isNodeInLayer(TreeNode::findNode(node2.treeNodePath()), UtilEntryLevel::isp) ? strfmt('(%1) ', enum2str(UtilEntryLevel::isp)) : '') +
+        #                    (SysTreeNode::isNodeInLayer(TreeNode::findNode(node2.treeNodePath()), UtilEntryLevel::var) ? strfmt('(%1) ', enum2str(UtilEntryLevel::var)) : ''),
+        #                    false, true);
+        #        }
+        #    }
+        #    catch (Exception::Error)
+        #    {
+        #        infolog.clear();
+        #    }
+        #    // << DEV:MXK <<
+        #
+        #    popupMenu.insertBreak();
+        #    popupMenu.insertPopupMenu("@SYS28637", subMenu);
+        #    sel = popupMenu.draw();
+        #
+        #    if (!contextMenu.runMenu(sel, contextMenu))
+        #    {
+        #        switch (sel)
+        #        {
+        #            case newWindow1:
+        #                node1.AOTnewWindow();
+        #                break;
+        #            case newWindow2:
+        #                node2.AOTnewWindow();
+        #                break;
+        #            case edit1:
+        #                node1.AOTedit();
+        #                break;
+        #            case edit2:
+        #                node2.AOTedit();
+        #                break;
+        #            case property1:
+        #                node1.AOTshowProperties();
+        #                break;
+        #            case property2:
+        #                node2.AOTshowProperties();
+        #                break;
+        #            // >> DEV:MXK >>
+        #            case editOrig:
+        #                if (SysTreeNode::hasSource(nodeOrig))
+        #                {
+        #                    nodeOrig.AOTedit();
+        #                }
+        #                else
+        #                {
+        #                    DEV_AOTNodeExpander::expandNode(nodeOrig);
+        #                }
+        #                break;
+        #            // << DEV:MXK <<
+        #        }
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #parmSysTreenode1
+        #public SysTreeNode parmSysTreenode1(SysTreeNode _sysTreenode1 = sysTreenode1)
+        #{
+        #    ;
+        #    sysTreenode1 = _sysTreenode1;
+        #
+        #    // >> DEV:MXK >>
+        #    if (!prmisdefault(_sysTreenode1))
+        #    {
+        #        default1 = sysTreenode1 ? sysTreeNode1.comparableName() : '';
+        #    }
+        #    // << DEV:MXK <<
+        #
+        #    return sysTreenode1;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #parmSysTreenode2
+        #public SysTreeNode parmSysTreenode2(SysTreeNode _sysTreenode2 = sysTreenode2)
+        #{
+        #    ;
+        #    sysTreenode2 = _sysTreenode2;
+        #
+        #    // >> DEV:MXK >>
+        #    if (!prmisdefault(_sysTreenode2))
+        #    {
+        #        default2 = sysTreenode2 ? sysTreeNode2.comparableName() : '';
+        #    }
+        #    // << DEV:MXK <<
+        #
+        #    return sysTreenode2;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #parmTreeNode1
+        #public TreeNode parmTreeNode1(TreeNode _treeNode1 = treeNode1)
+        #{
+        #    ;
+        #    treeNode1 = _treeNode1;
+        #
+        #    // >> DEV:MXK >>
+        #    if (!prmisdefault(_treeNode1) && !sysTreeNode1)
+        #    {
+        #        default1 = treeNode1 ? SysTreeNode::newTreenode(treeNode1).comparableName() : '';
+        #    }
+        #    // << DEV:MXK <<
+        #
+        #    return treeNode1;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #parmTreenode2
+        #public TreeNode parmTreenode2(TreeNode _treenode2 = treenode2)
+        #{
+        #    ;
+        #    treenode2 = _treenode2;
+        #
+        #    // >> DEV:MXK >>
+        #    if (!prmisdefault(_treeNode2) && !sysTreeNode2)
+        #    {
+        #        default2 = treeNode2 ? SysTreeNode::newTreenode(treeNode2).comparableName() : '';
+        #    }
+        #    // << DEV:MXK <<
+        #
+        #    return treenode2;
+        #}
+        #
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

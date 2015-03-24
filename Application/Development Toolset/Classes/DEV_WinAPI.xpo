@@ -1,0 +1,714 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_WinAPI unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_WinAPI
+    PROPERTIES
+      Name                #DEV_WinAPI
+      RunOn               #Client
+      Origin              #{A371B00A-E7A4-4E72-944F-7A6575CFA994}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #/// Interface for Tabax and some functions
+        #class DEV_WinAPI
+        #{
+        #    //
+        #    // This class provides an X++ API to the Window APi
+        #    // All methods must be marked as Run-on client
+        #    //
+        #
+        #    #AOT
+        #    #WinAPI
+        #    #DEV_Toolset
+        #
+        #    #define.sizeOfInt(4)
+        #    #define.offset0(0)
+        #    #define.offset2(2)
+        #    #define.offset4(4)
+        #    #define.offset6(6)
+        #    #define.offset8(8)
+        #    #define.offset10(10)
+        #    #define.offset12(12)
+        #    #define.offset16(16)
+        #    #define.offset20(20)
+        #    #define.offset21(21)
+        #    #define.offset22(22)
+        #    #define.offset23(23)
+        #    #define.offset24(24)
+        #    #define.offset25(25)
+        #    #define.offset26(26)
+        #    #define.offset27(27)
+        #    #define.offset28(28)
+        #    #define.offset32(32)
+        #    #define.offset34(34)
+        #    #define.offset36(36)
+        #    #define.offset38(38)
+        #    #define.offset40(40)
+        #    #define.offset44(44)
+        #    #define.offset48(48)
+        #    #define.offset52(52)
+        #    #define.offset56(56)
+        #    #define.offset58(58)
+        #    #define.offset60(60)
+        #    #define.offset64(64)
+        #    #define.offset68(68)
+        #    #define.offset72(72)
+        #    #define.offset76(76)
+        #
+        #    #define.VK_ALT(0x12)
+        #    #define.VK_ESCAPE(0x1B)
+        #
+        #    #define.UserDLL('USER32')
+        #}
+      ENDSOURCE
+      SOURCE #closeWindow
+        #// >> DEV:MXK >>
+        #public static int closeWindow(HWND _hwnd)
+        #{
+        #    return WinAPI::sendMessageEx(_hwnd, #WM_CLOSE, 0, 0);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #createSymbolicLink
+        #// >> DEV:MXK >>
+        #public client static boolean createSymbolicLink(str         _symlinkFileName,
+        #                                                str         _targetFileName,
+        #                                                boolean     _isDirectory = false)
+        #{
+        #    DLL                 DLL         = new DLL(#KernelDLL);
+        #    DLLFunction         DLLFunction = new DLLFunction(DLL, identifierStr(CreateSymbolicLinkW));
+        #
+        #    DLLFunction.returns(ExtTypes::DWord);
+        #    DLLFunction.arg(
+        #        ExtTypes::WString,
+        #        ExtTypes::WString,
+        #        ExtTypes::DWord);
+        #
+        #    return DLLFunction.call(_symlinkFileName, _targetFileName, _isDirectory);
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #enableWindow
+        #// >> DEV:MXK >>
+        #public static client void enableWindow(HWND _hwnd)
+        #{
+        #    DLL             DLL = new DLL(#UserDLL);
+        #    DLLFunction     DLLFunction;
+        #
+        #    DLLFunction  = new DLLFunction(DLL, identifierstr(EnableWindow));
+        #    DLLFunction.arg(ExtTypes::DWord, ExtTypes::DWord);
+        #    DLLFunction.returns(ExtTypes::DWord);
+        #    DLLFunction.call(_hwnd, true);
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #ensureIsShown
+        #static public void ensureIsShown(HWND _hwnd)
+        #{
+        #    if (DEV_WinAPI::isIconic(_hwnd) || DEV_WinAPI::isZoomed(_hwnd))
+        #    {
+        #        WinAPI::showWindow(_hwnd, #SW_RESTORE);
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #getActiveWindow
+        #// >> DEV:MXK >>
+        #public client static HWND getActiveWindow()
+        #{
+        #    DLL                 DLL         = new DLL(#UserDLL);
+        #    DLLFunction         DLLFunction = new DLLFunction(DLL, identifierstr(GetActiveWindow));
+        #
+        #    DLLFunction.returns(ExtTypes::DWord);
+        #    return DLLFunction.call();
+        #// >> DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #getAsyncKeyState
+        #// >> DEV:MXK >>
+        #public client static boolean getAsyncKeyState(int _key1 = 0, int _key2 = 0, int _key3 = 0)
+        #{
+        #    DLL             DLL         = new DLL(#UserDLL);
+        #    DLLFunction     DLLFunction = new DLLFunction(DLL, identifierStr(GetAsyncKeyState));
+        #    boolean         ret1, ret2, ret3;
+        #
+        #    DLLFunction.returns(ExtTypes::Word);
+        #    DLLFunction.arg(ExtTypes::DWord);
+        #
+        #    ret1 = _key1 ? DLLFunction.call(_key1) & 0x8000 : false;
+        #    ret2 = _key2 ? DLLFunction.call(_key2) & 0x8000 : false;
+        #    ret3 = _key3 ? DLLFunction.call(_key3) & 0x8000 : false;
+        #
+        #    return      (_key1 ? ret1 : true)
+        #            &&  (_key2 ? ret2 : true)
+        #            &&  (_key3 ? ret3 : true);
+        #}
+        #// >> DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #getClassName
+        #public static str getClassName(HWND _hwnd)
+        #{
+        #    #define.MaxClassName(255)
+        #
+        #    DLL                 DLL         = new DLL(#UserDLL);
+        #    DLLFunction         DLLFunction = new DLLFunction(DLL, identifierStr(GetClassNameW));
+        #    Binary              value       = new Binary(#MaxClassName * 2);
+        #    int                 ret;
+        #
+        #    DLLFunction.arg(ExtTypes::DWord);
+        #    DLLFunction.arg(ExtTypes::Pointer);
+        #    DLLFunction.arg(ExtTypes::DWord);
+        #    DLLFunction.returns(ExtTypes::DWord);
+        #    ret = DLLFunction.call(_hwnd, value, #MaxClassName - 1);
+        #    return ret ?  value.wString(0): '';
+        #}
+      ENDSOURCE
+      SOURCE #getClientRect
+        #public static container getClientRect(HWND _hwnd = DEV_WinAPI::mdiClient())
+        #{
+        #    DLL                 DLL         = new DLL(#UserDLL);
+        #    DLLFunction         DLLFunction = new DLLFunction(DLL, identifierStr(GetClientRect));
+        #    Binary              buffer      = new Binary(4*4);
+        #
+        #    DLLFunction.returns(ExtTypes::DWord);
+        #    DLLFunction.arg(ExtTypes::DWord, ExtTypes::Pointer);
+        #    DLLFunction.call(_hwnd, buffer);
+        #
+        #    return DLLFunction.call(_hwnd, buffer) ? [buffer.dWord(0), buffer.dWord(4), buffer.dWord(8), buffer.dWord(12)]
+        #                                           : conNull();
+        #}
+        #
+      ENDSOURCE
+      SOURCE #getCurMethod
+        #public static TreeNode getCurMethod(HWND _editorHWnd)
+        #{
+        #    int                         hWnd = _editorHWnd;
+        #    int                         hWndChild;
+        #    str                         name = WinAPI::getWindowText(_editorHWnd);
+        #    boolean                     editor;
+        #    str                         className;
+        #    int                         childPos;
+        #
+        #    int                         listView;
+        #    int                         selectedItem;
+        #    str                         itemName;
+        #    str                         nodeName;
+        #
+        #    TreeNode fromMethods(TreeNode _parent, str _name)
+        #    {
+        #        TreeNode ret = _parent;
+        #
+        #        if (strEndsWith(_name, ' *'))
+        #            _name = subStr(_name, 1, strLen(_name) - 2);
+        #        if (ret)
+        #            ret = ret.AOTfindChild('methods');
+        #        if (ret)
+        #            ret = ret.AOTfindChild(_name);
+        #        return ret;
+        #    }
+        #
+        #    boolean pref(str _prefix, str _name)
+        #    {
+        #        _prefix = #AOTDelimiter+_prefix+#AOTDelimiter;
+        #        if (subStr(_name, 1, strLen(_prefix)) == _prefix)
+        #        {
+        #            nodeName = subStr(_name, strLen(_prefix) + 1, strLen(_name) - strLen(_prefix));
+        #            return true;
+        #        }
+        #        return false;
+        #    }
+        #    #localmacro.pref
+        #        pref(@'%1', _name)
+        #    #endmacro
+        #    TreeNode toTreeNode(str _name, str _methodName)
+        #    {
+        #        TreeNode parent = TreeNode::findNode(_name);
+        #        str controlName;
+        #        str controlMethodName;
+        #        int delimiterPos;
+        #        if (!parent)
+        #            return null;
+        #        if (#pref(Classes) || #pref(Jobs) || #pref(Macros))
+        #            return parent.AOTfindChild(_methodName);
+        #        if (#pref(Data Dictionary\Tables) || #pref(Data Dictionary\Maps) || #pref(Data Dictionary\Views))
+        #            return fromMethods(parent, _methodName);
+        #        if (#pref(Forms) || #pref(Reports))
+        #        {
+        #            delimiterPos = strFind(_methodName, ':', 1, strLen(_methodName));
+        #            if (delimiterPos)
+        #            {
+        #                controlName = strRTrim(strLTrim(subStr(_methodName, 1, delimiterPos - 1)));
+        #                controlMethodName = strRTrim(strLTrim(subStr(_methodName, delimiterPos + 1, strLen(_methodName) - delimiterPos)));
+        #                return fromMethods(DEV_Global::controlByName(parent, controlName), controlMethodName);
+        #            }
+        #            else
+        #                return fromMethods(parent, _methodName);
+        #        }
+        #        return null;
+        #    }
+        #    str GetClassName(int _hWnd)
+        #    {
+        #        DLL             dll = new Dll(#UserDLL);
+        #        DLLFunction     getCalssName = new DLLFunction(dll, identifierStr(GetClassNameA));
+        #        Binary  classNamePtr = new Binary(256);
+        #
+        #        getCalssName.arg(ExtTypes::DWord, ExtTypes::Pointer, ExtTypes::DWord);
+        #        getCalssName.returns(ExtTypes::DWord);
+        #        if (getCalssName.call(_hWnd, classNamePtr, 255))
+        #            return classNamePtr.string(0);
+        #        else
+        #            return "";
+        #    }
+        #    #define.LVM_FIRST(0x1000)
+        #    #define.LVM_GETNEXTITEM(#LVM_FIRST + 12)
+        #    #define.LVM_GETITEMTEXT(#LVM_FIRST + 45)
+        #
+        #    #define.LVNI_SELECTED(0x0002)
+        #
+        #    str getItemText(int     _hWnd, int _item)
+        #    {
+        #        DLL         _winApiDLL      = new DLL('USER32');
+        #        DLLFunction _sendMessage    = new DLLFunction(_winApiDLL, 'SendMessageA');
+        #        Binary      LVItem = new Binary(52);
+        #        Binary      itemText = new Binary(256);
+        #        #define.LVIF_TEXT(0x0001)
+        #        ;
+        #        LVItem.dWord(0, #LVIF_TEXT); // mask
+        #        LVItem.dWord(4, _item); // iItem
+        #        LVItem.dWord(8, 0); // iSubItem
+        #        LVItem.setBinaryValue(20, itemText); // pszText
+        #        LVItem.dWord(24, 255); // cchTextMax
+        #        _sendMessage.returns(ExtTypes::DWord);
+        #        _sendMessage.arg(ExtTypes::DWord,
+        #                         ExtTypes::DWord,
+        #                         ExtTypes::DWord,
+        #                         ExtTypes::Pointer);
+        #
+        #        return _sendMessage.call(_hWnd, #LVM_GETITEMTEXT, _item, LVItem) ? itemText.string(0) : '';
+        #    }
+        #
+        #    name    = DEV_Global::editorPath(0, name);
+        #    editor  = true;
+        #    hWndChild = winapi::getWindow(hWnd, #GW_CHILD);
+        #    childPos = 1;
+        #    ListView = 0;
+        #
+        #    while (hWndChild && _editorHWnd)
+        #    {
+        #        className = GetClassName(hWndChild);
+        #        switch (childPos)
+        #        {
+        #            case 1:
+        #                editor = className == 'AxEdTabCtrl';
+        #                childPos++;
+        #                break;
+        #            case 2:
+        #                editor = className == 'AxListViewCtrl';
+        #                ListView = hWndChild;
+        #                childPos++;
+        #                break;
+        #            case 3:
+        #                editor = className == 'AxChidFrame';
+        #                childPos++;
+        #                break;
+        #            case 4:
+        #                editor = className == 'AxPaneWnd';
+        #                childPos++;
+        #                break;
+        #            default:
+        #                editor = false;
+        #                break;
+        #        }
+        #        hWndChild = winapi::getWindow(hWndChild, #GW_HWNDNEXT);
+        #    }
+        #    if (editor && listView)
+        #    {
+        #        selectedItem = winapi::sendMessageEx(listView, #LVM_GETNEXTITEM, -1, #LVNI_SELECTED);
+        #        if (selectedItem >= 0)
+        #        {
+        #            itemName = getItemText(ListView, selectedItem);
+        #            if (itemName)
+        #            {
+        #                return toTreeNode(name, itemName);
+        #            }
+        #        }
+        #    }
+        #    return null;
+        #}
+      ENDSOURCE
+      SOURCE #getDelta
+        #// >> DEV:MXK >>
+        #// Get delta for Scroll
+        #public static int getDelta()
+        #{
+        #    return DEV_WinAPI::isVScrollVisible() ? 11 : 0;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #getDesktopWindow
+        #public static HWND getDesktopWindow()
+        #{
+        #    DLL                 DLL         = new DLL(#UserDLL);
+        #    DLLFunction         DLLFunction = new DllFunction(DLL, identifierStr(GetDesktopWindow));
+        #
+        #    DLLFunction.returns(ExtTypes::DWord);
+        #    return DLLFunction.call();
+        #}
+      ENDSOURCE
+      SOURCE #getMaxSize
+        #public static container getMaxSize(HWnd _hwnd)
+        #{
+        #//typedef struct {
+        #//    POINT ptReserved; 0 (x:0, y:4)
+        #//    POINT ptMaxSize;  8 (x:8, y:12)
+        #//    POINT ptMaxPosition; 16 (x:16, y:20)
+        #//    POINT ptMinTrackSize; 24 (x:24, y:28)
+        #//    POINT ptMaxTrackSize; 32 (x:32, y:36)
+        #//} MINMAXINFO; 40
+        #    Binary ret=new Binary(4*2*5);
+        #    Binary ptr=new Binary(4);
+        #    int msx;
+        #    int msy;
+        #    int mpx;
+        #    int mpy;
+        #    int mtx;
+        #    int mty;
+        #    int mxtx;
+        #    int mxty;
+        #
+        #    ptr.setBinaryValue(0, ret);
+        #
+        #//        WinAPI::sendMessageEx(tabPageControl.hWnd(), #TCM_GETITEMRECT, 0, ptr.dWord(0));
+        #    WinAPI::sendMessageEx(_hwnd, #WM_GETMINMAXINFO,  0, ptr.dWord(0));
+        #    msx = ret.dWord(8);
+        #    msy = ret.dWord(12);
+        #    mpx = ret.dWord(16);
+        #    mpy = ret.dWord(20);
+        #    mtx = ret.dWord(24);
+        #    mty = ret.dWord(28);
+        #    mxtx = ret.dWord(32);
+        #    mxty = ret.dWord(36);
+        #    return [ret.dWord(32), ret.dWord(36)];
+        #}
+      ENDSOURCE
+      SOURCE #getMdiClientRelativeRect
+        #// returns rectangle relative to mdiClient
+        #public static container getMdiClientRelativeRect(HWND _hwnd)
+        #{
+        #    int x1;
+        #    int y1;
+        #    int x2;
+        #    int y2;
+        #
+        #    [x1, y1, x2, y2] = DEV_WinAPI::getWindowRect(_hwnd);
+        #    [x1, y1] = WinAPI::screenToClient(DEV_WinAPI::mdiClient(), x1, y1);
+        #    [x2, y2] = WinAPI::screenToClient(DEV_WinAPI::mdiClient(), x2, y2);
+        #    return [x1, y1, x2, y2];
+        #}
+      ENDSOURCE
+      SOURCE #getParent
+        #public static HWND getParent(HWND _hwnd)
+        #{
+        #    DLL                 DLL         = new DLL(#UserDLL);
+        #    DLLFunction         DLLFunction = new DLLFunction(DLL, identifierStr(GetParent));
+        #
+        #    DLLFunction.returns(ExtTypes::DWord);
+        #    DLLFunction.arg(ExtTypes::DWord);
+        #
+        #    return DLLFunction.call(_hwnd);
+        #}
+      ENDSOURCE
+      SOURCE #getSystemMetrics
+        #public static container getSystemMetrics()
+        #{
+        #    #define.SM_CXVIRTUALSCREEN(78)
+        #    #define.SM_CYVIRTUALSCREEN(79)
+        #
+        #    return [WinAPI::getSystemMetrics(#SM_CXVIRTUALSCREEN), WinAPI::getSystemMetrics(#SM_CYVIRTUALSCREEN)];
+        #}
+      ENDSOURCE
+      SOURCE #getTopWindow
+        #// >> DEV:MXK >>
+        #public client static HWND getTopWindow(HWND _parent = DEV_WinAPI::mdiClient())
+        #{
+        #    DLL                 DLL         = new DLL(#UserDLL);
+        #    DLLFunction         DLLFunction = new DLLFunction(DLL, identifierStr(GetTopWindow));
+        #
+        #    DLLFunction.returns(ExtTypes::DWord);
+        #    DLLFunction.arg(ExtTypes::DWord);
+        #
+        #    return DLLFunction.call(_parent);
+        #// >> DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #getTopWindowText
+        #// >> DEV:MXK >>
+        #public static str getTopWindowText()
+        #{
+        #    return WinAPI::getWindowText(DEV_WinAPI::getTopWindow(DEV_WinAPI::mdiClient()));
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #getWindowRect
+        #public static container getWindowRect(HWND _hwnd)
+        #{
+        #    DLL                 DLL         = new DLL(#UserDLL);
+        #    DLLFunction         DLLFunction = new DLLFunction(DLL, identifierStr(GetWindowRect));
+        #    Binary              data        = new Binary(32);
+        #
+        #    DLLFunction.returns(ExtTypes::DWord);
+        #    DLLFunction.arg(ExtTypes::DWord, ExtTypes::Pointer);
+        #    DLLFunction.call(_hwnd, data);
+        #
+        #    return [data.dWord(0), data.dWord(4), data.dWord(8), data.dWord(12)];
+        #}
+      ENDSOURCE
+      SOURCE #isAltButtonDown
+        #// >> DEV:MXK >>
+        #// returns true if the Alt button is pressed at the time of invocation
+        #public static boolean isAltButtonDown()
+        #{
+        #    DLL                 DLL         = new DLL(#UserDLL);
+        #    DLLFunction         DLLFunction = new DLLFunction(DLL, identifierStr(GetKeyState));
+        #    int                 retval;
+        #
+        #    DLLFunction.returns(ExtTypes::Word);
+        #    DLLFunction.arg(ExtTypes::DWord);
+        #
+        #    retval = DLLFunction.call(#VK_ALT);
+        #
+        #    return retval > 0x7fff;
+        #}
+        #// >> DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #isEscButtonDown
+        #// >> DEV:MXK >>
+        #// returns true if the Esc button is pressed at the time of invocation
+        #public static boolean isEscButtonDown()
+        #{
+        #    DLL                 DLL         = new DLL(#UserDLL);
+        #    DLLFunction         DLLFunction = new DLLFunction(DLL, identifierStr(GetKeyState));
+        #    int                 retval;
+        #
+        #    DLLFunction.returns(ExtTypes::Word);
+        #    DLLFunction.arg(ExtTypes::DWord);
+        #
+        #    retval = DLLFunction.call(#VK_ESCAPE);
+        #
+        #    return retval > #VK_ESCAPE;
+        #}
+        #// >> DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #isIconic
+        #/// is window with hanlde == _hwnd minimized
+        #public static boolean isIconic(HWND _hwnd)
+        #{
+        #    DLL                 DLL         = new DLL(#UserDLL);
+        #    DLLFunction         DLLFunction = new DLLFunction(DLL, identifierStr(IsIconic));
+        #
+        #    DLLFunction.returns(ExtTypes::DWord);
+        #    DLLFunction.arg(ExtTypes::DWord);
+        #
+        #    return DLLFunction.call(_hwnd);
+        #}
+      ENDSOURCE
+      SOURCE #isTwoDisplays
+        #// >> DEV:MXK >>
+        #// Check if two display used
+        #public static boolean isTwoDisplays()
+        #{
+        #    int                                 x1, y1, x2, y2;
+        #
+        #    [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #
+        #    return ((x2 - x1) > 1920 && (x2 - x1) <= 3840);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #isVScrollVisible
+        #// >> DEV:MXK >>
+        #public static boolean isVScrollVisible(HWND _hwnd = DEV_WinAPI::mdiClient())
+        #{
+        #    int                                 wndStyle;
+        #    boolean                             ret;
+        #
+        #    wndStyle = WinAPI::getWindowLong(_hwnd, #GWL_STYLE);
+        #
+        #    if (wndStyle & #WS_VSCROLL != 0)
+        #    {
+        #        ret = true;
+        #    }
+        #
+        #    return ret;
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #isWindowVisible
+        #// >> DEV:MXK >>
+        #public static client boolean isWindowVisible(HWND _hwnd)
+        #{
+        #    DLL                 DLL         = new DLL(#UserDLL);
+        #    DLLFunction         DLLFunction = new DLLFunction(DLL, identifierStr(IsWindowVisible));
+        #
+        #    DLLFunction.arg(ExtTypes::DWord);
+        #    DLLFunction.returns(ExtTypes::DWord);
+        #
+        #    return DLLFunction.call(_hwnd) ? true : false;
+        #// >> DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #isZoomed
+        #public static boolean isZoomed(HWND _hwnd)
+        #{
+        #    DLL                 DLL         = new DLL(#UserDLL);
+        #    DLLFunction         DLLFunction = new DLLFunction(DLL, identifierStr(IsZoomed));
+        #
+        #    DLLFunction.returns(ExtTypes::DWord);
+        #    DLLFunction.arg(ExtTypes::DWord);
+        #
+        #    return DLLFunction.call(_hwnd);
+        #}
+      ENDSOURCE
+      SOURCE #lockWindowUpdate
+        #public static boolean lockWindowUpdate(HWND _hwnd)
+        #{
+        #    DLL                 DLL         = new DLL(#UserDLL);
+        #    DLLFunction         DLLFunction = new DLLFunction(DLL, identifierStr(LockWindowUpdate));
+        #
+        #    DLLFunction.returns(ExtTypes::DWord);
+        #    DLLFunction.arg(ExtTypes::DWord);
+        #
+        #    return DLLFunction.call(_hwnd);
+        #}
+      ENDSOURCE
+      SOURCE #mdiClient
+        #public static HWND mdiClient()
+        #{
+        #    return WinAPI::findWindowEx(infolog.hWnd(), 0, #MDIClient, '');
+        #}
+      ENDSOURCE
+      SOURCE #moveWindow
+        #public static boolean moveWindow(HWND _hwnd, int _x, int _y, int _w, int _h, boolean _repaint)
+        #{
+        #    DLL                 DLL         = new DLL(#UserDLL);
+        #    DLLFunction         DLLFunction = new DLLFunction(DLL, identifierStr(MoveWindow));
+        #    boolean             ret;
+        #    int                 dllret;
+        #
+        #    ret = false;
+        #
+        #    DLLFunction.returns(ExtTypes::DWord); // BOOL
+        #    DLLFunction.arg(ExtTypes::DWord);     // handle window
+        #    DLLFunction.arg(ExtTypes::DWord);     // x
+        #    DLLFunction.arg(ExtTypes::DWord);     // y
+        #    DLLFunction.arg(ExtTypes::DWord);     // cx
+        #    DLLFunction.arg(ExtTypes::DWord);     // cy
+        #    DLLFunction.arg(ExtTypes::DWord);     // repaint;
+        #
+        #    dllRet = DLLFunction.call(_hwnd,  _x, _y, _w, _h, _repaint);
+        #
+        #    return dllRet ? true : false;
+        #}
+      ENDSOURCE
+      SOURCE #prepareToSide
+        #public static container prepareToSide(HWND _hwnd)
+        #{
+        #    WinAPI::sendMessageEx(_hwnd, #WM_SYSCOMMAND, #SC_RESTORE, 0);
+        #
+        #    return DEV_WinAPI::getClientRect(DEV_WinAPI::mdiClient());
+        #}
+      ENDSOURCE
+      SOURCE #sendInput
+        #// UINT WINAPI SendInput(_In_ UINT nInputs, _In_ LPINPUT pInputs, _In_ int cbSize);
+        #// typedef struct tagINPUT {DWORD type; union {MOUSEINPUT mi; KEYBDINPUT ki; HARDWAREINPUT hi;};} INPUT, *PINPUT;
+        #client static int sendInput()
+        #{
+        #    #define.structSize(16)
+        #    #define.INPUT_KEYBOARD(1)
+        #
+        #    DLL                 DLL         = new DLL(#UserDLL);
+        #    DLLFunction         DLLFunction = new DLLFunction(DLL, identifierStr(SendInput));
+        #    Binary              value       = new Binary(#structSize);
+        #
+        #    /*DLLFunction.returns(ExtTypes::DWord);
+        #    DLLFunction.arg(ExtTypes::DWord,    // UINT - The number of structures in the pInputs array.
+        #                    ExtTypes::DWord,    // LPINPUT - An array of INPUT structures.
+        #                    ExtTypes::DWord);   // int - The size, in bytes, of an INPUT structure. If cbSize is not the size of an INPUT structure, the function fails.
+        #
+        #    value.dWord(#offset0, #INPUT_KEYBOARD); // type
+        #    value.dWord(#offset4, _luid.dWord(#offset0));
+        #    value.dWord(#offset8, _luid.dWord(#offset4));
+        #    value.dWord(#offset12, _attributes);    */
+        #
+        #    return DLLFunction.call(1);
+        #    // The function returns the number of events that it successfully inserted into the keyboard or mouse input stream.
+        #    // If the function returns zero, the input was already blocked by another thread.
+        #    // To get extended error information, call GetLastError.
+        #}
+      ENDSOURCE
+      SOURCE #setWindowPos
+        #public static int setWindowPos(
+        #                           int              _handle,
+        #                           int              _hWndInsertAfter,
+        #                           int              _left,
+        #                           int              _top,
+        #                           int              _width,
+        #                           int              _height,
+        #                           int              _flags    = 0     )
+        #
+        #{
+        #    DLL                 user32          = new DLL('USER32');
+        #    DLLFunction         setWindowPos    = new DLLFunction(user32, 'SetWindowPos');
+        #    boolean             ret;
+        #    int                 dllret;
+        #
+        #    ret = false;
+        #
+        #    setWindowPos.returns(ExtTypes::DWord); // BOOL
+        #    setWindowPos.arg(ExtTypes::DWord);     // handle window
+        #    setWindowPos.arg(ExtTypes::DWord);     // handle to Z Order window
+        #    setWindowPos.arg(ExtTypes::DWord);     // x
+        #    setWindowPos.arg(ExtTypes::DWord);     // y
+        #    setWindowPos.arg(ExtTypes::DWord);     // cx
+        #    setWindowPos.arg(ExtTypes::DWord);     // cy
+        #    setWindowPos.arg(ExtTypes::DWord);     // flags;
+        #
+        #    dllRet = setWindowPos.call(_handle, _hWndInsertAfter, _left, _top, _width, _height, _flags );
+        #
+        #    if (dllRet)
+        #    {
+        #        ret = true;
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #showProperties
+        #// >> DEV:MXK >>
+        #public static client void showProperties(str _path)
+        #{
+        #    TreeNode            treeNode;
+        #
+        #    treeNode = TreeNode::findNode(_path);
+        #
+        #    if (treeNode)
+        #    {
+        #        treeNode.AOTshowProperties();
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

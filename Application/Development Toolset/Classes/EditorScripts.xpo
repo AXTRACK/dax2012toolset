@@ -1,0 +1,295 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: EditorScripts unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #EditorScripts
+    PROPERTIES
+      Name                #EditorScripts
+      RunOn               #Client
+      Origin              #{2D0D0984-0000-1000-4BE1-54DC59156563}
+      LegacyId            #2436
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #addIns_Comment
+        #// >> DEV:MXK >>
+        #void addIns_Comment(Editor _e)
+        #{
+        #    DEV_HKEditor::comment(_e);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #addIns_Find
+        #// >> DEV:MXK >>
+        #void addIns_Find(Editor _e)
+        #{
+        #    DEV_HKEditor::findSelected(_e);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #addIns_GotoDeclaration
+        #// >> DEV:MXK >>
+        #void addIns_GotoDeclaration(Editor _e)
+        #{
+        #    DEV_HKEditor::goToDeclaration(_e);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #addIns_OpenNewWindow
+        #public void addIns_OpenNewWindow(Editor e)
+        #{
+        #    // >> DEV:MXK >>
+        #    /*TreeNode treeNode = TreeNode::findNode(e.path());
+        #    ;
+        #    treeNode = TreeNode::findNode(xUtilElements::getNodePathRough(xUtilElements::parentElement(xUtilElements::findTreeNode(treeNode))));
+        #    if (treeNode)
+        #        treeNode.AOTnewWindow();*/
+        #    DEV_HKEditor::newWindow(e);
+        #    // << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #addIns_OpenObject
+        #// >> DEV:MXK >>
+        #public void addIns_OpenObject(Editor _e)
+        #{
+        #    DEV_HKEditor::openObject(_e);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #addIns_TableBrowser
+        #// >> DEV:MXK >>
+        #void addIns_TableBrowser(Editor _e)
+        #{
+        #    DEV_HKEditor::tableBrowser(_e);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #isApplicableMethod
+        #//
+        #// Use this method to control what scripts are shown on the scripts popup menu in the editor
+        #//
+        #protected boolean isApplicableMethod(DictMethod _dictMethod, TreeNode _aotNode)
+        #{
+        #    #TreenodeSysNodeType
+        #    //
+        #    // Only one parameter of type Editor
+        #    // Must be public
+        #    // Must return void
+        #    //
+        #    if (_dictMethod.parameterCnt() != 1 ||
+        #        _dictMethod.parameterType(1) != Types::Class ||
+        #        _dictMethod.parameterId(1) != classNum(Editor) ||
+        #        _dictMethod.accessSpecifier() != AccessSpecifier::public ||
+        #        _dictMethod.returnType() != Types::void)
+        #    {
+        #        return false;
+        #    }
+        #
+        #    switch (_dictMethod.name())
+        #    {
+        #        //
+        #        // Editor scripts that does not apply to Macros
+        #        //
+        #        // >> DEV:MXK >>
+        #        case methodStr(EditorScripts, template_flow_info):
+        #        case methodStr(EditorScripts, template_flow_query):
+        #        case methodStr(EditorScripts, template_flow_tryRun):
+        #        // << DEV:MXK <<
+        #        case methodStr(EditorScripts, template_database_whileSelect):
+        #        case methodStr(EditorScripts, template_flow_do):
+        #        case methodStr(EditorScripts, template_flow_if):
+        #        case methodStr(EditorScripts, template_flow_ifElse):
+        #        case methodStr(EditorScripts, template_flow_else):
+        #        case methodStr(EditorScripts, template_flow_switch):
+        #        case methodStr(EditorScripts, template_flow_try):
+        #        case methodStr(EditorScripts, template_flow_for):
+        #        case methodStr(EditorScripts, template_flow_while):
+        #            if (_aotNode &&
+        #                _aotNode.treeNodeType().id() != #NT_MCRCODE)
+        #            {
+        #                return true;
+        #            }
+        #            return false;
+        #
+        #        //
+        #        // Editor scripts that does not apply to Macros and Jobs
+        #        //
+        #        case methodStr(EditorScripts, template_method_construct):
+        #        case methodStr(EditorScripts, template_method_edit):
+        #        case methodStr(EditorScripts, template_method_editWithClass):
+        #        case methodStr(EditorScripts, template_method_main):
+        #        case methodStr(EditorScripts, template_method_parm):
+        #        case methodStr(EditorScripts, documentation_HeaderTemplate):
+        #            if (_aotNode &&
+        #                _aotNode.treeNodeType().id() != #NT_MCRCODE &&
+        #                _aotNode.treeNodeType().id() != #NT_XALCODE)
+        #            {
+        #                return true;
+        #            }
+        #            return false;
+        #    }
+        #
+        #    return true;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #template_flow_info
+        #// >> DEV:MXK >>
+        #public void template_flow_info(Editor editor)
+        #{
+        #    xppSource   xppSource   = new xppSource(editor.columnNo());
+        #    int         currentLine = editor.currentLineNo();
+        #    int         currentCol  = editor.columnNo();
+        #
+        #    editor.insertLines(xppSource.info());
+        #    editor.gotoLine(currentLine + 1);
+        #    editor.gotoCol(strLen(editor.currentLine()) - 2);
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #template_flow_query
+        #// >> DEV:MXK >>
+        #public void template_flow_query(Editor editor)
+        #{
+        #    xppSource   xppSource   = new xppSource(editor.columnNo());
+        #    int         currentLine = editor.currentLineNo();
+        #    int         currentCol  = editor.columnNo();
+        #
+        #    editor.insertLines(xppSource.query());
+        #    editor.gotoLine(currentLine + 5);
+        #    editor.gotoCol(strLen(editor.currentLine()) - 2);
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #template_flow_tryRun
+        #// >> DEV:MXK >>
+        #public void template_flow_tryRun(Editor editor)
+        #{
+        #    xppSource   xppSource   = new xppSource(editor.columnNo());
+        #    int         currentLine = editor.currentLineNo();
+        #    int         currentCol  = editor.columnNo();
+        #
+        #    editor.insertLines(xppSource.tryRun());
+        #    editor.gotoLine(currentLine + 12);
+        #    editor.gotoCol(8);
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #template_flow_whileRecord
+        #// >> DEV:MXK >>
+        #public void template_flow_whileRecord(Editor editor)
+        #{
+        #    xppSource   xppSource   = new xppSource(editor.columnNo());
+        #    int         currentLine = editor.currentLineNo();
+        #    int         currentCol  = editor.columnNo();
+        #
+        #    editor.insertLines(xppSource.whileRecord());
+        #    editor.gotoLine(currentLine + 1);
+        #    editor.gotoCol(currentCol + 1);
+        #    editor.mark(currentLine + 1, currentCol + 10);
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #addIns_xCommentObj
+        #// >> DEV:MXK >>
+        #// Not in use
+        #// Comment every method in the current Object
+        #static void addIns_xCommentObj(Editor _e)
+        #{
+        #    DEV_UserParameters          parameters      = DEV_UserParameters::findOrCreate();
+        #
+        #    dialog                      dialog          = new dialog("");
+        #    dialogField                 dfFullPath      = dialog.addField(extendedTypeStr(TreeNodePath), @"Selected node");
+        #
+        #    tempstr                     fullPath        = _e.path();
+        #
+        #    TreeNodeTraverserSource     tntSource;
+        #    TreeNode                    treeNode;
+        #    TreeNode                    treeNodeRoot;
+        #
+        #    str                         source;
+        #
+        #    if (!fullPath)
+        #        return;
+        #
+        #    dfFullPath.value(fullPath);
+        #    dfFullPath.displayLength(60);
+        #    dialog.formBuildDesign().width(500);
+        #    dialog.caption('Comment every method in the selected object.');
+        #
+        #    if (!dialog.run())
+        #        return;
+        #
+        #    fullPath        = dfFullPath.value();
+        #    tntSource       = new TreeNodeTraverserSource(TreeNode::findNode(fullPath).AOTparent());
+        #
+        #    if (tntSource)
+        #    {
+        #        treeNodeRoot = treeNode::findNode(fullPath).AOTparent();
+        #
+        #        _e.close();
+        #
+        #        do
+        #        {
+        #            treeNode = tntSource.next();
+        #
+        #            if (treeNode)
+        #            {
+        #                source =    strFmt( parameters.CommentLineFmt + '\n',
+        #                                    parameters.CommentFreeTxt,
+        #                                    strUpr(parameters.CommentDeveloperAlias ? parameters.CommentDeveloperAlias : curUserId()),
+        #                                    datetime2str(DateTimeUtil::getSystemDateTime(), 123),
+        #                                    DEV_Global::getStartupProject()) +
+        #                            treeNode.AOTgetSource();
+        #
+        #                treeNode.AOTsetSource(source);
+        #            }
+        #        }
+        #        while(treeNode);
+        #
+        #        if (treeNodeRoot)
+        #        {
+        #            treeNodeRoot.AOTsave();
+        #            treeNodeRoot.AOTrefresh();
+        #            treeNodeRoot.AOTrestore();
+        #
+        #            if (SysTreeNode::canEdit(treeNodeRoot))
+        #            {
+        #                treeNodeRoot.AOTedit();
+        #            }
+        #            else if (treeNodeRoot)
+        #            {
+        #                treeNodeRoot.AOTnewWindow();
+        #            }
+        #        }
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+    ENDMETHODS
+    EVENTS
+      METHOD #getApplicableScripts
+        EVENTHANDLERS
+          EVENTHANDLER #DEV_HKManager
+            PROPERTIES
+              Class               #DEV_HKManager
+              Method              #handleEditorScriptsPre
+              AOTlink             #\Classes\DEV_HKManager\handleEditorScriptsPre
+            ENDPROPERTIES
+            
+          ENDEVENTHANDLER
+        ENDEVENTHANDLERS
+      ENDMETHOD
+    ENDEVENTS
+  ENDCLASS
+
+***Element: END

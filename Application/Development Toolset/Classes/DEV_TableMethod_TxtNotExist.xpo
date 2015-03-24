@@ -1,0 +1,61 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_TableMethod_TxtNotExist unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_TableMethod_TxtNotExist
+    PROPERTIES
+      Name                #DEV_TableMethod_TxtNotExist
+      Extends             #DEV_TableMethod
+      Origin              #{CA52905B-0C94-4BFF-B349-7CAB8CFD7D0D}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #addSummary
+        #protected void addSummary()
+        #{
+        #    code.line('/// <summary>');
+        #    code.line(strFmt('///    Gets the message to use when a specific record in the <c>%1</c> table does not exist.', dictTable.name()));
+        #    code.line('/// </summary>');
+        #    code.line('/// <returns>');
+        #    code.line('///    The message that indicates a record does not exists.');
+        #    code.line('/// </returns>');
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class DEV_TableMethod_TxtNotExist extends DEV_TableMethod
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #initSource
+        #protected void initSource()
+        #{
+        #    code.line(strFmt('public static %1 %2()',
+        #        extendedTypeStr(TxtNotExist),
+        #        name));
+        #
+        #    code.blockStart();
+        #        code.line('// TODO: Replace with relevant label');
+        #        code.line('return "Record %1 does not exist.";');
+        #    code.blockEnd();
+        #
+        #    source = code.toString();
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #public void new(SysDictTable _dictTable,
+        #                boolean     _addSummary = false)
+        #{
+        #    super(_dictTable, _addSummary);
+        #
+        #    name = #txtNotExist;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

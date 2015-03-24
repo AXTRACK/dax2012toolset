@@ -1,0 +1,85 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: DBE
+
+; Microsoft Dynamics AX Enumtype : DEV_HKActionType unloaded
+; --------------------------------------------------------------------------------
+  ENUMTYPEVERSION 1
+  
+  ENUMTYPE #DEV_HKActionType
+    PROPERTIES
+      Name                #DEV_HKActionType
+      UseEnumValue        #Yes
+      Origin              #{435471B4-390D-4E00-B406-EFA6A7E4A7DC}
+    ENDPROPERTIES
+    
+    TYPEELEMENTS
+      #AOTAction
+      PROPERTIES
+        Name                #AOTAction
+        Label               #AOT action
+        EnumValue           #0
+      ENDPROPERTIES
+      
+      #EditorAction
+      PROPERTIES
+        Name                #EditorAction
+        Label               #Editor action
+        EnumValue           #1
+      ENDPROPERTIES
+      
+      #EditorScript
+      PROPERTIES
+        Name                #EditorScript
+        Label               #Editor script
+        EnumValue           #6
+      ENDPROPERTIES
+      
+      #OpenForm
+      PROPERTIES
+        Name                #OpenForm
+        Label               #Open form
+        EnumValue           #2
+      ENDPROPERTIES
+      
+      #OpenTable
+      PROPERTIES
+        Name                #OpenTable
+        Label               #Open table
+        EnumValue           #3
+      ENDPROPERTIES
+      
+      #RunClass
+      PROPERTIES
+        Name                #RunClass
+        Label               #Run class
+        EnumValue           #4
+      ENDPROPERTIES
+      
+      #RunJob
+      PROPERTIES
+        Name                #RunJob
+        Label               #Run job
+        EnumValue           #5
+      ENDPROPERTIES
+      
+      #Common
+      PROPERTIES
+        Name                #Common
+        Label               #Common
+        EnumValue           #7
+      ENDPROPERTIES
+      
+      #Other
+      PROPERTIES
+        Name                #Other
+        Label               #Other
+        EnumValue           #8
+      ENDPROPERTIES
+      
+    ENDTYPEELEMENTS
+  ENDENUMTYPE
+  
+
+***Element: END

@@ -1,0 +1,534 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #xRefReferencesUsedByTypedTree
+  PROPERTIES
+    Name                #xRefReferencesUsedByTypedTree
+    Origin              #{74487556-6372-4ED8-9CF1-7264FAAFEB74}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #run
+      #void run()
+      #{
+      #    #TreeNodeSysNodeType
+      #
+      #    if (treeNode &&
+      #        ((treeNode.treeNodeType().isUtilElement() && treeNode.utilElement().RecordType == UtilElementType::ClassInstanceMethod) ||
+      #         (treeNode.TreeNodeType().id() == #NT_KERNELDOCFUNCTIONNODE && !strContains(treeNode.AOTtoolTip(), 'static '))))     //  instance system class method
+      #    {
+      #        tree.linesAtRoot(true);
+      #        hierarchy = SysTypeHierarchy::newFormTreeControl(tree);
+      #        infolog.globalCache().set(formstr(xRefReferencesUsedByTypedTree), 0, new ObjectIdent(this));
+      #        hierarchy.onItemCreated += eventHandler(xRefUpdate::setIcon);
+      #        this.setupSimpleChart();
+      #    }
+      #    else
+      #    {   //Hides application heirarchy tree when node is not of correct type to display tree for.
+      #        treeGroup.width(0);
+      #        split.enabled(false);
+      #    }
+      #
+      #    super();
+      #
+      #    // >> DEV:MXK >>
+      #    DEV_Global::showHint('Quick filters are available now.\n' +
+      #                        'Create project with all referenced objects.\n' +
+      #                        'Set breakpoints on the selected lines.\n' +
+      #                        'Use mouse double click on the path field to expend node in AOT.',
+      #                        this.name(),
+      #                        'Cross references');
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #XRefReferences
+          Table               #xRefReferences
+          AllowCreate         #No
+          AllowDelete         #No
+          InsertAtEnd         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #write
+          #public void write()
+          #{
+          #    //super();
+          #}
+        ENDSOURCE
+        SOURCE #executeQuery
+          #// >> DEV:MXK >>
+          #public void executeQuery()
+          #{
+          #    QueryBuildDataSource            qbds = this.queryBuildDataSource();
+          #    QueryBuildRange                 qbrReference;
+          #    QueryBuildRange                 qbrSourceLine;
+          #
+          #    qbrReference    = SysQuery::findOrCreateRange(qbds, fieldNum(XRefReferences, Reference));
+          #    qbrSourceLine   = SysQuery::findOrCreateRange(qbds, fieldNum(XRefReferences, line));
+          #
+          #    if (DEV_Methods.value())
+          #    {
+          #        qbrSourceLine.value(SysQuery::valueNot(0));
+          #    }
+          #    else
+          #    {
+          #        qbds.clearRange(qbrSourceLine.field());
+          #    }
+          #
+          #    if (DEV_Filter.value())
+          #    {
+          #        switch (DEV_ReferenceFilter.selection())
+          #        {
+          #            case XRefReference::Definition:
+          #                qbrReference.value(SysQuery::value(XRefReference::Definition));
+          #                break;
+          #
+          #            case XRefReference::Declaration:
+          #                qbrReference.value(SysQuery::value(XRefReference::Declaration));
+          #                break;
+          #
+          #            case XRefReference::Read:
+          #                qbrReference.value(SysQuery::value(XRefReference::Read));
+          #                break;
+          #
+          #            case XRefReference::Write:
+          #                qbrReference.value(SysQuery::value(XRefReference::Write));
+          #                break;
+          #
+          #            case XRefReference::Call:
+          #                qbrReference.value(SysQuery::value(XRefReference::Call));
+          #                break;
+          #
+          #            case XRefReference::EventHandlerCall:
+          #                qbrReference.value(SysQuery::value(XRefReference::EventHandlerCall));
+          #                break;
+          #        }
+          #    }
+          #    else
+          #    {
+          #        qbds.clearRange(qbrReference.field());
+          #    }
+          #
+          #    super();
+          #
+          #    if (!XRefReferences.RecId)
+          #    {
+          #        DEV_Filter.value(NoYes::No);
+          #        DEV_Methods.value(NoYes::No);
+          #        XRefReferences_ds.executeQuery();
+          #    }
+          #}
+          #// << DEV:MXK <<
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #xRefPaths
+          Table               #xRefPaths
+          AllowEdit           #No
+          AllowCreate         #No
+          AllowDelete         #No
+          JoinSource          #XRefReferences
+          LinkType            #InnerJoin
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #isPathExists
+          #// >> DEV:MXK >>
+          #//BP Deviation documented
+          #display ImageRes isPathExists(xRefPaths _xRefPaths)
+          #{
+          #    int                             ret;
+          #
+          #    if (_xRefPaths.Path)
+          #    {
+          #        if (_xRefPaths.treeNode())
+          #        {
+          #            ret = 0;
+          #        }
+          #        else
+          #        {
+          #            ret = 3112;
+          #        }
+          #    }
+          #
+          #    return ret;
+          #}
+          #// << DEV:MXK <<
+          #
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #xRefNames
+          Table               #xRefNames
+          AllowEdit           #No
+          AllowCreate         #No
+          AllowDelete         #No
+          JoinSource          #XRefReferences
+          LinkType            #InnerJoin
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+    xRefPaths XRefReferences
+    xRefNames XRefReferences
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #@SYS27530
+      TitleDatasource     #xRefNames
+      WindowResize        #Dynamic
+      WindowType          #Workspace
+      SetCompany          #No
+      DataSource          #XRefReferences
+      ArrangeWhen         #Auto
+      HideIfEmpty         #No
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL GRID
+        PROPERTIES
+          Name                #Grid
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1252698792
+          HierarchyParent     #ThisCalled
+          DataSource          #XRefReferences
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #mouseDblClick
+            #// >> DEV:MXK >>
+            #public int mouseDblClick(int _x, int _y, int _button, boolean _Ctrl, boolean _Shift)
+            #{
+            #    int ret;
+            #
+            #    ret = super(_x, _y, _button, _Ctrl, _Shift);
+            #
+            #    if (XRefReferences.line == 0)
+            #    {
+            #        DEV_AOTNodeExpander::expandNode(xRefPaths.treeNode());
+            #    }
+            #    return ret;
+            #// << DEV:MXK <<
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #NameRegister
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #715827882
+          FrameType           #None
+          FramePosition       #Center
+          DataSource          #XRefReferences
+          Columns             #6
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+              #0
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #DEV_CreateProject
+          HelpText            #Creates project with all found elements.
+          ElementPosition     #1744830462
+          HierarchyParent     #ButtonGroup
+          Text                #Create project
+          MultiSelect         #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #// BP Deviation Documented
+            #void clicked()
+            #{
+            #    #TreeNodeSysNodeType
+            #    #define.ProjectName('DEV_UsedByProject')
+            #
+            #    xRefPaths                   refPaths;
+            #    Set                         treeNodeLocalPaths;
+            #    SetEnumerator               treeNodeLocalPathEnumerator;
+            #
+            #    SysProjectFilterRunBase     projectFilter;
+            #    UtilElements                utilElements;
+            #
+            #    Dialog                      dialog;
+            #    DialogField                 dialogField;
+            #
+            #    treeNodeLocalPaths = new Set(Types::String);
+            #
+            #    refPaths = xRefPaths_ds.getFirst();
+            #
+            #    while (refPaths)
+            #    {
+            #        treeNodeLocalPaths.add(refPaths.Path);
+            #        refPaths = xRefPaths_ds.getNext();
+            #    }
+            #
+            #    if (treeNodeLocalPaths.elements() == 0)
+            #    {
+            #        info('No AOT objects to include into Project.');
+            #        return;
+            #    }
+            #
+            #    dialog      = new dialog("@SYS53207"); // Create project
+            #    dialogField = dialog.addFieldValue(extendedTypeStr(ProjectName), #ProjectName);
+            #
+            #    if (dialog.run())
+            #    {
+            #        startLengthyOperation();
+            #
+            #        treeNodeLocalPathEnumerator = treeNodeLocalPaths.getEnumerator();
+            #        while (treeNodeLocalPathEnumerator.moveNext())
+            #        {
+            #            utilElements = xUtilElements::findTreeNode(
+            #                treeNode::findNode(
+            #                    SysTreeNode::applObjectPath(
+            #                    treeNodeLocalPathEnumerator.current())),
+            #                false);
+            #
+            #            if (!projectFilter)
+            #                projectFilter = DEV_Global::createProject(any2str(dialogField.value()));
+            #
+            #            if (    utilElements.RecordType == UtilElementType::SharedProject
+            #                ||  utilElements.RecordType == UtilElementType::PrivateProject
+            #                ||  utilElements.RecordType == UtilElementType::ClassInternalHeader
+            #                ||  utilElements.RecordType == UtilElementType::TableInternalHeader
+            #                || !projectFilter.doUtilElements(utilElements))
+            #            {
+            #                info(strfmt("@SYS316339", strfmt('%1 %2', utilElements.RecordType, utilElements.Name)));
+            #            }
+            #        }
+            #
+            #        projectFilter.write();
+            #
+            #        info(strFmt('Project created: %1', projectFilter.parmProjectNode().name()));
+            #
+            #        endLengthyOperation();
+            #    }
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #DEV_SetBreakpoint
+          HelpText            #Sets a breakpoint for the selected line.
+          ElementPosition     #1342177278
+          HierarchyParent     #ButtonGroup
+          Text                #Set breakpoint
+          MultiSelect         #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #     xRefReferences  xRefReferencesEdit;
+            #     container       bpCons;
+            #     container       bpCon;
+            #
+            #    for (   xRefReferencesEdit = xRefReferences_ds.getFirst(true) ? xRefReferences_ds.getFirst(true) : xRefReferences_ds.cursor();
+            #            xRefReferencesEdit;
+            #            xRefReferencesEdit = xRefReferences_ds.getNext())
+            #    {
+            #        bpCon = conNull();
+            #        bpCon += [xRefPaths::findRecId(xRefReferencesEdit.xRefPathRecId).Path];
+            #        bpCon += [xRefReferencesEdit.line];
+            #        bpCon += [true];
+            #
+            #        bpcons += [bpCon];
+            #    }
+            #
+            #    DEV_Breakpoints::newFromContainer(bpcons).run();
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DEV_Filter
+          AutoDeclaration     #Yes
+          ElementPosition     #1946157054
+          HierarchyParent     #NameRegister
+          Label               #Filter
+          LabelPosition       #Above
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #// >> DEV:MXK >>
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    XRefReferences_ds.executeQuery();
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DEV_Methods
+          AutoDeclaration     #Yes
+          ElementPosition     #2080374782
+          HierarchyParent     #NameRegister
+          Label               #@SYS25613
+          LabelPosition       #Above
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #// >> DEV:MXK >>
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    XRefReferences_ds.executeQuery();
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #DEV_ReferenceFilter
+          AutoDeclaration     #Yes
+          ElementPosition     #2013265918
+          HierarchyParent     #NameRegister
+          LabelPosition       #Above
+          ExtendedDataType    
+            ARRAY 
+              #xRefReferenceType
+              #
+            ENDARRAY
+          ComboType           #List
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #selectionChange
+            #// >> DEV:MXK >>
+            #public int selectionChange()
+            #{
+            #    int ret;
+            #
+            #    ret = super();
+            #
+            #    DEV_Filter.value(NoYes::Yes);
+            #    XRefReferences_ds.executeQuery();
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL WINDOW
+        PROPERTIES
+          Name                #IsPathExists
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          Width               #3
+          Height              #15
+          Skip                #Yes
+          HelpText            #@SYS315446
+          ElementPosition     #715827882
+          HierarchyParent     #Grid
+          Imagemode           #Center
+          BackStyle           #Transparent
+          ShowLabel           #No
+          Label               #@SYS332948
+          DataSource          #xRefPaths
+          DataMethod          #isPathExists
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+  ENDPERMISSIONS
+  
+ENDFORM
+
+
+***Element: END

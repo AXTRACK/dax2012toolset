@@ -1,0 +1,500 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #DEV_QueryBrowser
+  PROPERTIES
+    Name                #DEV_QueryBrowser
+    Origin              #{6E7857EF-221C-48FA-A9AB-49B902FE227D}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #// Created by GRR for QueryBrowser on 28.10.2007
+      #public class FormRun extends ObjectRun
+      #{
+      #    Query                   query;
+      #    container               cGrayFields;
+      #
+      #    //FormGroupControl        _ctrlSplitVertical;
+      #    SysFormSplitter_Y       _formSplitterVertical;
+      #
+      #    //FormGroupControl        _ctrlGroupSQl;
+      #}
+    ENDSOURCE
+    SOURCE #doQuery
+      #void doQuery()
+      #{
+      #    if (query)
+      #    {
+      #        ds_ds.query(query);
+      #        ds_ds.executeQuery();
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #public void init()
+      #{
+      #    super();
+      #
+      #    this.controlMethodOverload(true);
+      #
+      #    _formSplitterVertical   = new SysFormSplitter_Y(CtrlSplitVertical, TabPageSQL, this);
+      #    CtrlSplitVertical.left(0);
+      #}
+    ENDSOURCE
+    SOURCE #linkDS
+      #void linkDS()
+      #{
+      #    int     i;
+      #    int     dsCnt = query.dataSourceCount();
+      #
+      #    void joinDS(int _parentDS, int _childDS, int _joinMode, int _fetchMode)
+      #    {
+      #        FormDataSource      datasource;
+      #        FormLinkType        linkType;
+      #        ;
+      #        datasource = element.dataSource(_childDS);
+      #        datasource.joinSource(element.dataSource(_parentDS).id());
+      #
+      #        switch(_joinMode)
+      #        {
+      #            case JoinMode::InnerJoin :
+      #                linkType = FormLinkType::InnerJoin;
+      #            break;
+      #
+      #            case JoinMode::OuterJoin :
+      #                linkType = FormLinkType::OuterJoin;
+      #            break;
+      #
+      #            case JoinMode::ExistsJoin :
+      #                linkType = FormLinkType::ExistJoin;
+      #            break;
+      #
+      #            case JoinMode::NoExistsJoin :
+      #                linkType = FormLinkType::NotExistJoin;
+      #            break;
+      #        }
+      #        datasource.linktype(linkType);
+      #        datasource.onlyFetchActive(_fetchMode);
+      #    }
+      #
+      #    for (i=2; i<=dsCnt; i++)
+      #        joinDS(query.dataSourceNo(i).parentDataSource().id(), i, query.dataSourceNo(i).joinMode(), query.dataSourceNo(i).fetchMode());
+      #}
+    ENDSOURCE
+    SOURCE #parmGrayFields
+      #container parmGrayFields(container _cGrayFields = cGrayFields)
+      #{
+      #    cGrayFields = _cGrayFields;
+      #
+      #    return cGrayFields;
+      #}
+    ENDSOURCE
+    SOURCE #parmQuery
+      #Query parmQuery(Query _query = query)
+      #{
+      #    query = _query;
+      #
+      #    return query;
+      #}
+    ENDSOURCE
+    SOURCE #run
+      #public void run()
+      #{
+      #    if(query)
+      #    {
+      #        element.doQuery();
+      #        element.linkDS();
+      #
+      #        stringEditQuery.text(query.dataSourceNo(1).toString());
+      #        stringEditXML.text  (query.xml());
+      #    }
+      #
+      #    super();
+      #}
+    ENDSOURCE
+    SOURCE #RunTimeControl_gotFocus
+      #public void RunTimeControl_gotFocus()
+      #{
+      #    FormControl     formControl = element.controlCallingMethod();
+      #
+      #    formControl.gotFocus();
+      #    fieldNameText.text(formControl.helpText());
+      #
+      #    return;
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #ds
+          Table               #Common
+          AllowEdit           #No
+          AllowCreate         #No
+          AllowDelete         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #displayOption
+          #public void displayOption(Common _common, FormRowDisplayOption _options)
+          #{
+          #    int     len, i;
+          #
+          #    len = conLen(cGrayFields);
+          #    if(len)
+          #    {
+          #        _options.backColor(winapi::RGB2int(192, 192, 192));
+          #        for (i=1; i<=len; i++)
+          #            _options.affectedElementsByControl(conPeek(cGrayFields, i));
+          #    }
+          #
+          #    super(_common, _options);
+          #}
+        ENDSOURCE
+        SOURCE #init
+          #public void init()
+          #{
+          #    if(query)
+          #        this.query(query);
+          #
+          #    super();
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #Analyzer
+      TopMargin           #0
+      BottomMargin        #0
+      LeftMargin          #0
+      RightMargin         #0
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL GROUP
+        PROPERTIES
+          Name                #CtrlSplitVertical
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #5
+          VerticalSpacing     #0
+          AlignControl        #Yes
+          ElementPosition     #1431655764
+          FrameType           #Raised 3D
+          BackgroundColor     #Window background
+          TopMargin           #0
+          BottomMargin        #0
+          LeftMargin          #0
+          RightMargin         #0
+          HideIfEmpty         #No
+          AlignChild          #No
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #mouseDown
+            #int mouseDown(int x, int y, int button, boolean Ctrl, boolean Shift)
+            #{
+            #    int ret;
+            #
+            #    ret = super(x, y, button, Ctrl, Shift);
+            #
+            #    return _formSplitterVertical.mouseDown(x, y, button, Ctrl, Shift);
+            #}
+          ENDSOURCE
+          SOURCE #mouseMove
+            #int mouseMove(int x, int y, int button, boolean Ctrl, boolean Shift)
+            #{
+            #    int ret;
+            #
+            #    ret = super(x, y, button, Ctrl, Shift);
+            #
+            #    return _formSplitterVertical.mouseMove(x,y,button,ctrl,shift);
+            #}
+          ENDSOURCE
+          SOURCE #mouseUp
+            #int mouseUp(int x, int y, int button, boolean Ctrl, boolean Shift)
+            #{
+            #    int ret;
+            #
+            #    ret = super(x, y, button, Ctrl, Shift);
+            #
+            #    return _formSplitterVertical.mouseUp(x, y, button, Ctrl, Shift);
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupSQL
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #Column height
+          VerticalSpacing     #0
+          ElementPosition     #715827882
+          FrameType           #None
+          TopMargin           #0
+          BottomMargin        #0
+          LeftMargin          #0
+          RightMargin         #0
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TAB
+        PROPERTIES
+          Name                #Tab
+          Width               #Column width
+          Height              #Column height
+          VerticalSpacing     #0
+          ElementPosition     #1610612733
+          HierarchyParent     #GroupSQL
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #TabPageSQL
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #Column height
+          VerticalSpacing     #0
+          HelpText            #@SYS57539
+          ElementPosition     #1073741822
+          HierarchyParent     #Tab
+          Caption             #@SYS57539
+          TopMargin           #0
+          BottomMargin        #0
+          LeftMargin          #0
+          RightMargin         #0
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #TabPageXML
+          Top                 #Top edge
+          Width               #Column width
+          VerticalSpacing     #0
+          HelpText            #XML
+          ElementPosition     #1610612733
+          HierarchyParent     #Tab
+          Caption             #XML
+          TopMargin           #0
+          BottomMargin        #0
+          LeftMargin          #0
+          RightMargin         #0
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #ButtonXML
+          VerticalSpacing     #0
+          HelpText            #XML
+          ElementPosition     #1610612733
+          HierarchyParent     #TabPageXML
+          Text                #XML
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    TextBuffer  buf      = new TextBuffer();
+            #    str         fileName =  WinAPI::getTempPath() + 'query.xml';
+            #
+            #    super();
+            #
+            #    buf.setText(query.xml());
+            #    buf.ToFile(fileName);
+            #    WinAPI::shellExecute(fileName);
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #FieldNameText
+          AutoDeclaration     #Yes
+          Visible             #No
+          ElementPosition     #1073741822
+          HierarchyParent     #GroupSQL
+          Text                #
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #StringEditQuery
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          Width               #Column width
+          Height              #Column height
+          VerticalSpacing     #0
+          HelpText            #@SYS57539
+          ElementPosition     #1431655764
+          HierarchyParent     #TabPageSQL
+          MultiLine           #Yes
+          Font                #Courier New
+          FontSize            #9
+          Bold                #Normal
+          ShowLabel           #No
+          LabelAlignment      #Right
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #StringEditXML
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          Width               #Column width
+          Height              #Column height
+          VerticalSpacing     #0
+          HelpText            #XML
+          ElementPosition     #1073741822
+          HierarchyParent     #TabPageXML
+          MultiLine           #Yes
+          Font                #Courier New
+          FontSize            #9
+          Bold                #Normal
+          ShowLabel           #No
+          LabelAlignment      #Right
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: END

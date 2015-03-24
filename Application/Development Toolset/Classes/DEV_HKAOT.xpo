@@ -1,0 +1,1005 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_HKAOT unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_HKAOT
+    PROPERTIES
+      Name                #DEV_HKAOT
+      Origin              #{4A715F77-AF5C-4643-B893-0770D85E5B14}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class DEV_HKAOT
+        #{
+        #    #AOT
+        #    #Properties
+        #    #TreeNodeSysNodeType
+        #    #DEV_Toolset
+        #
+        #    #define.showTooltip(false)
+        #}
+      ENDSOURCE
+      SOURCE #aot2compare
+        #// >> DEV:MXK >>
+        #static void aot2compare()
+        #{
+        #    Args                                args;
+        #    LastAOTSelection                    lastAOTSelection = new LastAOTSelection();
+        #    TreeNode                            treeNode;
+        #    SysTreenodeCompareContext           treenodeCompare = SysTreenodeCompareContext::construct();
+        #
+        #    if (DEV_HKManager::hWnd_isAOTinEditMode() || !DEV_HKManager::hWnd_isMDIActive())
+        #        return;
+        #
+        #    treeNode = lastAOTSelection.first();
+        #
+        #    if (treeNode)
+        #    {
+        #        args = new Args();
+        #        args.object(treeNode);
+        #        SysTreenodeCompareContext::main(args);
+        #    }
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #aot2project
+        #static void aot2project()
+        #{
+        #    DEV_HKProject::newAddElement();
+        #}
+        #
+      ENDSOURCE
+      SOURCE #aot2xRef
+        #// >> DEV:MXK >>
+        #static void aot2xRef()
+        #{
+        #    MenuFunction                        menuFunction;
+        #    Args                                args;
+        #    LastAOTSelection                    lastAOTSelection = new LastAOTSelection();
+        #    TreeNode                            treeNode;
+        #    SysContextMenu                      context;
+        #
+        #    if (DEV_HKManager::hWnd_isAOTinEditMode() || !DEV_HKManager::hWnd_isMDIActive())
+        #        return;
+        #
+        #    treeNode = lastAOTSelection.first();
+        #
+        #    if (treeNode)
+        #    {
+        #        context = new SysContextMenuTreeNode(treeNode);
+        #
+        #        if (context)
+        #        {
+        #            args = new Args();
+        #
+        #            if(context.verifyItem(menuItemDisplayStr(XRefReferencesUsedBy), MenuItemType::Display))
+        #            {
+        #                menuFunction = new MenuFunction(menuItemDisplayStr(XRefReferencesUsedBy), MenuItemType::Display);
+        #                args.parmObject(context);
+        #                args.caller(null);
+        #                menuFunction.run(args);
+        #            }
+        #        }
+        #    }
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #aotJump
+        #// >> DEV:MXK >>
+        #static client void aotJump()
+        #{
+        #    TreeNode            treeNode = new LastAotSelection().first();
+        #    TreeNodePath        treeNodeTargetPath;
+        #    TreeNode            treeNodeTarget;
+        #    SysDictClass        sysDictClass;
+        #
+        #    // Search method overriden
+        #    SysDictClass        dictClass;
+        #    ListEnumerator      le;
+        #    SysDictClass        descendant;
+        #    str                 path;
+        #    str                 properties;
+        #
+        #    Map                 pathMap     = new Map(Types::String, Types::String);
+        #    Set                 expendSet   = new Set(Types::String);
+        #    Set                 editSet     = new Set(Types::String);
+        #    Map                 runMap      = new Map(Types::String, Types::Container);
+        #    int                 i;
+        #
+        #    boolean pickAdd(str     _type       = '',
+        #                    boolean _expand     = false,
+        #                    boolean _edit       = false)
+        #    {
+        #        if (    treeNodeTarget
+        #            &&  treeNodeTarget.treeNodePath() != treeNode.treeNodePath()
+        #            &&  !   (   strEndsWith(treeNodeTarget.treeNodePath(), #DataSourcesNode)
+        #                    ||  strEndsWith(treeNodeTarget.treeNodePath(), #TablesNode)
+        #                    ||  strEndsWith(treeNodeTarget.treeNodePath(), #ViewsNode)
+        #                    ||  strEndsWith(treeNodeTarget.treeNodePath(), #MethodsNode)))
+        #        {
+        #            if (_type == '' && treeNodeTarget.treeNodeType().isUtilElement())
+        #                _type = enum2Symbol(enumNum(UtilElementType), treeNodeTarget.utilElement().recordType);
+        #            else if (_type == '')
+        #                _type = 'System Documentation';
+        #
+        #            pathMap.insert(treeNodeTarget.treeNodePath(), _type + ": " + treeNodeTarget.AOTname());
+        #
+        #            if (_expand)
+        #                expendSet.add(treeNodeTarget.treeNodePath());
+        #
+        #            if (_edit)
+        #                editSet.add(treeNodeTarget.treeNodePath());
+        #
+        #            return true;
+        #        }
+        #
+        #        return false;
+        #    }
+        #
+        #    boolean find(   str     _property1,
+        #                    str     _property2  = '',
+        #                    str     _path       = '',
+        #                    str     _sysPath    = '',
+        #                    boolean _expand     = false,
+        #                    boolean _edit       = false,
+        #                    str     _type       = '')
+        #    {
+        #        treeNodeTarget = DEV_HKAOT::findTreeNode(properties, _property1, _property2, _path, _sysPath);
+        #        return pickAdd(_type, _expand, _edit);
+        #    }
+        #
+        #    if (!treeNode)
+        #        return;
+        #
+        #    if (WinAPI::isShiftButtonDown())
+        #        info(strFmt("%1", treeNode.treeNodeType().id())); // DEBUG
+        #
+        #    properties = treeNode.AOTgetProperties();
+        #
+        #    find(#PropertyForm);
+        #    find(#PropertyFormHelp, '', #FormNamePath);
+        #    find(#PropertyFormRef);
+        #    find(#PropertyListPageRef);
+        #
+        #    if (    !find(#PropertyTable,       #PropertyField,     #TableFieldNamePath,    '', true)
+        #        &&  !find(#PropertyTable)
+        #        &&  !find(#PropertyDataSource,  #PropertyDataField, #TableFieldNamePath,    '', true)
+        #        &&  !find(#PropertyDataSource,  #PropertyDataField, #ViewFieldNamePath,     '', true, false, 'View field')
+        #        &&  !find(#PropertyTable,       #PropertyField,     #ViewFieldNamePath,     '', true, false, 'View field'))
+        #    {
+        #        find(#PropertyTable, '', #ViewNamePath, '', false, false, 'View');
+        #    }
+        #
+        #    find(#PropertyReferenceTable);
+        #
+        #    if (!find(#PropertyMappingTable))
+        #        find(#PropertyMappingTable, '', #ViewNamePath, '', false, false, 'View');
+        #
+        #
+        #    if (treeNode.treeNodeType().isUtilElement())
+        #        switch (treeNode.utilElement().recordType)
+        #        {
+        #            case UtilElementType::Table:
+        #                find(#PropertyExtends);
+        #                break;
+        #
+        #            case UtilElementType::Class:
+        #                find(#PropertyExtends, '', #ClassNamePath, #SystemClassNamePath, false, false, 'Extends');
+        #                break;
+        #
+        #            case UtilElementType::ExtendedType:
+        #                find(#PropertyExtends, '', #ExtendedDataTypesNamePath, #SystemExtendedDataTypesNamePath);
+        #                break;
+        #        }
+        #
+        #    if (!strStartsWith(treeNode.treeNodePath(), #ViewsPath))
+        #    {
+        #        find(#PropertyView, '', '', '', false, false, 'View');
+        #    }
+        #
+        #    find(#PropertyQuery);
+        #    find(#PropertyReport);
+        #    find(#PropertyEnumTypeParameter);
+        #
+        #    if (!find(#PropertyMenuItemType, #PropertyMenuItemName))
+        #    {
+        #        find(#PropertyMenuItemName);
+        #    }
+        #
+        #    find(#PropertyActionMenuItem);
+        #    find(#PropertyDocumentMenuItem);
+        #    find(#PropertyCancelMenuItem);
+        #    find(#PropertySubmitToWorkflowMenuItem);
+        #    find(#PropertyResubmitMenuItem);
+        #    find(#PropertyDelegateMenuItem);
+        #    find(#PropertyDocument);
+        #    find(#PropertyCanceledEventHandler);
+        #    find(#PropertyStartedEventHandler);
+        #    find(#PropertyDocumentWebMenuItem);
+        #    find(#PropertyResubmitWebMenuItem);
+        #    find(#PropertySubmitToWorkflowWebMenuItem);
+        #    find(#PropertyActionWebMenuItem);
+        #    find(#PropertyDelegateWebMenuItem);
+        #    find(#PropertyCancelWebMenuItem);
+        #    find(#PropertyRecallWebMenuItem);
+        #    find(#PropertyProviderClass);
+        #    find(#PropertyPresenceClass);
+        #
+        #    if (!strStartsWith(treeNode.treeNodePath(), #MenuItemsPath))
+        #    {
+        #        if (!find(#PropertyClass, #PropertyMethod, #ClassMethodPath, '', true, true))
+        #            find(#PropertyClass);
+        #    }
+        #
+        #    find(#PropertyCue);
+        #    find(#PropertyService);
+        #    find(#PropertyExtendedDataType);
+        #    find(#PropertyEnumType,         '',                         #BaseEnumsNamePath,         #SystemBaseEnumsNamePath);
+        #    find(#PropertyDataSource,       #PropertyReferenceField,    #TableFieldNamePath,        '', true);
+        #    find(#PropertyDataSource,       #PropertyDataMethod,        #TableFieldMethodPath,      '', true, true);
+        #    find(#PropertyTable,            #PropertyDataField,         #TableFieldNamePath,        '', true);
+        #    find(#PropertyTable,            #PropertyDataField,         #ViewFieldNamePath,         '', true);
+        #    find(#PropertyDataSource,       #PropertyDataGroup,         #TableDataGroupNamePath,    '', true);
+        #
+        #    if (match(@'<\\Forms\\.*\\.*>', treeNode.treeNodePath()))
+        #    {
+        #        if (    find(#PropertyDataSource,       #PropertyDataField,         #TableFieldNamePath,        '', true)
+        #            ||  find(#PropertyDataSource,       #PropertyDataField,         #ViewFieldNamePath,         '', true, false, 'View field'))
+        #        {
+        #                treeNodeTarget = TreeNode::findNode(strFmt(#TableFieldDS,
+        #                                                    conPeek(str2con(treeNode.treeNodePath(), #AOTDelimiter), 3),
+        #                                                    findProperty(properties, #PropertyDataSource),
+        #                                                    findProperty(properties, #PropertyDataField)));
+        #                if (treeNodeTarget)
+        #                {
+        #                    if (strEndsWith(treeNodeTarget.treeNodePath(), #DataSourcesNode))
+        #                    {
+        #                        treeNodeTarget = null;
+        #                    }
+        #                    else
+        #                    {
+        #                        pickAdd("@SYS56294", true); // Data source
+        #                    }
+        #                }
+        #        }
+        #        else
+        #        {
+        #            treeNodeTarget = TreeNode::findNode(strFmt(#TableMethodDS,
+        #                                                conPeek(str2con(treeNode.treeNodePath(), #AOTDelimiter), 3),
+        #                                                findProperty(properties, #PropertyDataSource),
+        #                                                findProperty(properties, #PropertyDataMethod)));
+        #            if (treeNodeTarget)
+        #            {
+        #                if (strEndsWith(treeNodeTarget.treeNodePath(), #MethodsNode))
+        #                {
+        #                    treeNodeTarget = null;
+        #                }
+        #                else
+        #                {
+        #                    pickAdd('Method', true, true);
+        #                }
+        #            }
+        #
+        #            if (!treeNodeTarget)
+        #                find(#PropertyDataSource);
+        #        }
+        #    }
+        #
+        #    find(#PropertyObjectType, #PropertyObject);
+        #    find(#PropertyObjectType, #PropertyObjectName);
+        #
+        #    if (    findProperty(properties, #PropertyImageLocation) == identifierStr(EmbeddedResource)
+        #        &&  findProperty(properties, #PropertyNormalImage))
+        #    {
+        #        treeNodeTargetPath = strFmt(#ClassMethodPath, identifierStr(DEV_Global), identifierStr(lookupEmbeddedImg));
+        #        runMap.insert(treeNodeTargetPath, [findProperty(properties, #PropertyNormalImage)]);
+        #        pathMap.insert(treeNodeTargetPath, strFmt('Image: %1', findProperty(properties, #PropertyNormalImage)));
+        #    }
+        #
+        #    switch (treeNode.treeNodeType().id())
+        #    {
+        #        // SSRS Report
+        #        case #NT_SSRSREPORT:
+        #            treeNodeTargetPath = DEV_HKAOT::findSSRSReport(treeNode.AOTname());
+        #            break;
+        #
+        #        // Privileges
+        #        case #NT_SECPRIVILEGEREFERENCENODE:
+        #            find(#PropertyName, '', #SecPrivilegeNamePath);
+        #            break;
+        #
+        #        // Duties
+        #        case #NT_SECDUTYREFERENCENODE:
+        #            find(#PropertyName, '', #SecDutieNamePath);
+        #            break;
+        #
+        #        // Class
+        #        case #NT_CLASS:
+        #            sysDictClass = new SysDictClass(className2Id(treeNode.treeNodeName()));
+        #            if (sysDictClass)
+        #            {
+        #                if (sysDictClass.extend())
+        #                {
+        #                    treeNodeTarget = TreeNode::findNode(strFmt(#ClassNamePath, classid2name(sysDictClass.extend())));
+        #                    pickAdd('Extends');
+        #                }
+        #
+        #                i = 1;
+        #                while (sysDictClass.implements(i))
+        #                {
+        #                    treeNodeTarget = TreeNode::findNode(strFmt(#ClassNamePath, classid2name(sysDictClass.implements(i))));
+        #                    pickAdd('Implements');
+        #                    i++;
+        #                }
+        #            }
+        #            break;
+        #
+        #        // Class method
+        #        case #NT_MEMBERFUNCNODELOCAL:
+        #            if (match(@'<\\Classes\\.*\\.*>', treeNode.treeNodePath()))
+        #            {
+        #                dictClass   =  new SysDictClass(className2ID(treeNode.AOTparent().treeNodeName()));
+        #                le       = dictClass.extendedBy().getEnumerator();
+        #
+        #                while (le.moveNext())
+        #                {
+        #                    descendant  = new SysDictClass(le.current());
+        #                    path        = descendant.path() + #AOTDelimiter + treeNode.treeNodeName();
+        #
+        #                    if (TreeNode::findNode(path))
+        #                    {
+        #                        treeNodeTarget = TreeNode::findNode(path);
+        #                        pickAdd(strFmt('Overriden %1', descendant.name()), true);
+        #                    }
+        #                }
+        #            }
+        #            break;
+        #    }
+        #
+        #    if (pathMap.elements())
+        #    {
+        #        treeNodeTargetPath = pickList(pathMap, "@SYS682", "@SYS57423", true); // Property - Open node in new window
+        #
+        #        if (!treeNodeTargetPath)
+        #        {
+        #            return;
+        #        }
+        #    }
+        #
+        #    treeNodeTarget = treeNodeTargetPath ? TreeNode::findNode(treeNodeTargetPath) : null;
+        #
+        #    if (treeNodeTarget)
+        #    {
+        #        if (runMap.keySet().in(treeNodeTarget.treeNodePath()))
+        #        {
+        #            DEV_Global::lookupEmbeddedImg(conPeek(runMap.lookup(treeNodeTarget.treeNodePath()), 1));
+        #            return;
+        #        }
+        #
+        #        if (expendSet.in(treeNodeTarget.treeNodePath()))
+        #        {
+        #            DEV_AOTNodeExpander::expandNode(treeNodeTarget);
+        #        }
+        #        else
+        #        {
+        #            treeNodeTarget.AOTnewWindow();
+        #        }
+        #
+        #        if (editSet.in(treeNodeTarget.treeNodePath()))
+        #        {
+        #            treeNodeTarget.AOTedit();
+        #        }
+        #
+        #        if (!treeNodeTarget.AOTfirstChild())
+        #        {
+        #            infolog.getUserSetup().setUserSetup(xUserInfo::find());
+        #        }
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #checkBestPractice
+        #// >> DEV:MXK >>
+        #static void checkBestPractice()
+        #{
+        #    TreeNode                contextNode;
+        #    LastAOTSelection        lastAOTSelection    = new LastAOTSelection();
+        #    SysBPParameters         parameters          = SysBPParameters::find();
+        #    Args                    args                = new Args();
+        #
+        #    contextNode = lastAOTSelection.first();
+        #    args.record(parameters);
+        #
+        #    while (contextNode)
+        #    {
+        #        args.object(contextNode);
+        #        SysBPCheck::main(args);
+        #        contextNode = lastAOTSelection.next();
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #copy2clipboard
+        #static void copy2clipboard()
+        #{
+        #    // >> DEV:MXK >>
+        #    LastAOTSelection        lastAOTSelection = new LastAOTSelection();
+        #    container               con;
+        #    // << DEV:MXK <<
+        #    TreeNode                treeNode;
+        #    TextBuffer              textBuffer          = new TextBuffer();
+        #    str                     st;
+        #
+        #    PopupMenu               popupMenu           = new PopupMenu(infolog.hWnd());
+        #
+        #    if (DEV_HKManager::hWnd_isAOTinEditMode() || !DEV_HKManager::hWnd_isMDIActive())
+        #        return;
+        #
+        #    treeNode = lastAOTSelection.first();
+        #
+        #    while (treeNode)
+        #    {
+        #        // >> DEV:MXK >>
+        #        st  = treeNode.treeNodePath();
+        #
+        #        con = str2con(st, #AOTDelimiter);
+        #        st = conPeek(con, conLen(con));
+        #
+        #        // Remove additional info from the Name like "Tab:Tab" => "Tab", "Currency(Currency)" => "Currency"
+        #        if (strFind(st, ':', 1, strLen(st)))
+        #        {
+        #            con = str2con(st, ':');
+        #            st  = conPeek(con, conLen(con));
+        #        }
+        #
+        #        if (strFind(st, '(', 1, strLen(st)))
+        #        {
+        #            con = str2con(st, '(');
+        #            st  = conPeek(con, 1);
+        #        }
+        #
+        #        st = strRem(st, ']');
+        #        // << DEV:MXK <<
+        #
+        #        textBuffer.appendText(st);
+        #
+        #        treeNode = lastAOTSelection.next();
+        #
+        #        if (treeNode)
+        #        {
+        #            textBuffer.appendText(strFmt("%1%2", num2char(0x0D), num2char(0x0A)));
+        #        }
+        #    }
+        #
+        #    textBuffer.toClipboard();
+        #
+        #    // >> DEV:MXK >>
+        #    if (#showTooltip && textBuffer.numLines())
+        #    {
+        #        popupMenu.insertItem(strFmt('Copied %1 lines.', textBuffer.numLines()), true, true);
+        #        popupMenu.draw();
+        #    }
+        #    // << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #copyPath2clipboard
+        #static void copyPath2clipboard()
+        #{
+        #    LastAOTSelection        lastAOTSelection = new LastAOTSelection();
+        #    TreeNode                treeNode;
+        #    TextBuffer              textBuffer = new TextBuffer();
+        #    PopupMenu               popupMenu  = new PopupMenu(infolog.hWnd());
+        #
+        #    treeNode = lastAOTSelection.first();
+        #
+        #    if (    DEV_HKManager::hWnd_isAOTinEditMode()
+        #        ||  !DEV_HKManager::hWnd_isMDIActive()
+        #        ||  !treeNode)
+        #        return;
+        #
+        #    do
+        #    {
+        #        textBuffer.appendText(treeNode.treeNodePath() + num2char(0x0D) + num2char(0x0A));
+        #        treeNode = lastAOTSelection.next();
+        #    }while (treeNode);
+        #
+        #    textBuffer.toClipboard();
+        #
+        #    // >> DEV:MXK >>
+        #    if (#showTooltip && textBuffer.numLines())
+        #    {
+        #        popupMenu.insertItem(strFmt('Copied %1 lines.', textBuffer.numLines()), true, true);
+        #        popupMenu.draw();
+        #    }
+        #    // >> DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #findSelected
+        #// >> DEV:MXK >>
+        #static void findSelected()
+        #{
+        #    LastAOTSelection        lastAOTSelection = new LastAOTSelection();
+        #    TreeNode                treeNode;
+        #    TreeNode                treeNodeParent;
+        #
+        #    if (DEV_HKManager::hWnd_isAOTinEditMode() || !DEV_HKManager::hWnd_isMDIActive())
+        #        return;
+        #
+        #    treeNode = lastAOTSelection.first();
+        #
+        #    treeNodeParent = DEV_HKProject::treeNode2ParentNode(treeNode);
+        #
+        #    if (treeNode && treeNodeParent && treeNodeParent.treeNodeType().isUtilElement())
+        #    {
+        #        DEV_Global::findAOTText(treeNodeParent, DEV_Global::extractName(treeNode));
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #findSSRSReport
+        #// >> DEV:MXK >>
+        #static TreeNodePath findSSRSReport(str _ssrsReportNameToFind)
+        #{
+        #    #SysManagedCode
+        #    #define.Report_ReferencesAttrib('Include')
+        #    #define.ProjectContent("Project Content")
+        #
+        #    TreeNode            projectsRootNode = TreeNode::findNode(#VSProjectsAXModelPath);
+        #    TreeNodeIterator    iter = projectsRootNode.AOTiterator();
+        #    TreeNode            projectType = iter.next();
+        #    VSProjectNode       project = null;
+        #    str                 projectPath;
+        #    TreeNode            projectContentNode;
+        #    str                 aotName, projectContent;
+        #    XmlDocument         projectDoc;
+        #
+        #    XmlNode             projectRefNode;
+        #    XmlNode             xmlAttribute;
+        #    str                 ssrsReportAotName, ssrsReportAotNameUpper;
+        #    str                 xpath;
+        #    XmlNodeList         reportReferences;
+        #    int                 nodeIndex;
+        #    int                 basePathLen = strLen(#SSRSReportsPath + #AOTDelimiter);
+        #    XmlNamespaceManager nsmgr;
+        #    str                 namespaceUri = #MSBuildURL;
+        #    str                 nsPrefix = 'cs';
+        #
+        #    boolean             found = false;
+        #
+        #    str stripByteOrderInfo(str xml)
+        #    {
+        #        int offset;
+        #
+        #        // The xml string has some special chars and we need to trim it.
+        #        if (xml)
+        #        {
+        #            xml = strrtrim(strltrim(xml));
+        #            offset = strscan(xml, @"<Project", 0, strLen(xml));
+        #
+        #            // Remove everything before the "<?xml" tag
+        #            if (offset > 0)
+        #            {
+        #                xml = subStr(xml, offset, strLen(xml));
+        #            }
+        #        }
+        #
+        #        return xml;
+        #    }
+        #
+        #    while(projectType)
+        #    {
+        #        projectPath = projectType.treeNodePath();
+        #        project = TreeNode::findNode(projectPath);
+        #        if(project)
+        #        {
+        #            projectContentNode = project.AOTfindChild(#VSProjectContentFolder);
+        #            aotName = project.AOTname();
+        #
+        #            // Find the project file node
+        #            projectContentNode = projectContentNode.AOTfindChild(aotName + #VSProjectsAXModelProjectFileExtension);
+        #            if(projectContentNode)
+        #            {
+        #                // load the project file content from the project file node
+        #                projectContent = projectContentNode.AOTgetSource();
+        #                if (projectContent)
+        #                {
+        #                    projectContent = stripByteOrderInfo(projectContent);
+        #
+        #                    // load project file content into XML document.
+        #                    projectDoc = new XmlDocument();
+        #                    if (projectDoc.loadXml(projectContent))
+        #                    {
+        #                        // catalog report references in the XmlDocument
+        #                        nsmgr = new XmlNamespaceManager(projectDoc.NameTable());
+        #                        nsmgr.addNamespace(nsPrefix, namespaceUri);
+        #
+        #                        xpath = strFmt('//cs:Compile/@Include[contains(., \'%1\')]/parent::node()', #SSRSReportsRootPath);
+        #                        reportReferences = projectDoc.selectNodes(xpath, nsmgr);
+        #
+        #                        for (nodeIndex = 0; nodeIndex < reportReferences.length(); nodeIndex++)
+        #                        {
+        #                            projectRefNode = reportReferences.item(nodeIndex);
+        #                            xmlAttribute = projectRefNode.attributes().getNamedItem(#Report_ReferencesAttrib);
+        #                            if (xmlAttribute)
+        #                            {
+        #                                // update attribute if new value is different
+        #                                ssrsReportAotName = xmlAttribute.innerText();
+        #                                ssrsReportAotName = strDel(xmlAttribute.innerText(), 0, basePathLen);
+        #                                ssrsReportAotNameUpper = strUpr(ssrsReportAotName);
+        #
+        #                                if (ssrsReportAotName == _ssrsReportNameToFind)
+        #                                {
+        #                                    found = true;
+        #                                    break;
+        #                                }
+        #                            }
+        #                        }
+        #                    }
+        #                }
+        #            }
+        #        }
+        #
+        #        if (found)
+        #            break;
+        #
+        #        projectType = iter.next();
+        #    }
+        #
+        #    return projectPath;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #findTreeNode
+        #// >> DEV:MXK >>
+        #static TreeNode findTreeNode(   str _properties,
+        #                                str _property1,
+        #                                str _property2  = '',
+        #                                str _path       = '',
+        #                                str _sysPath    = '')
+        #{
+        #    TreeNodePath        treeNodeTargetPath;
+        #    TreeNode            treeNodeTarget;
+        #    str                 propVal1, propVal2;
+        #
+        #    if (hasProperty(_properties, _property1))
+        #    {
+        #        propVal1 = findProperty(_properties, _property1);
+        #
+        #        if (!propVal1)
+        #            return null;
+        #
+        #        if (_property2)
+        #        {
+        #            if (hasProperty(_properties, _property2))
+        #            {
+        #                propVal2 = findProperty(_properties, _property2);
+        #            }
+        #
+        #            if (!propVal2)
+        #                return null;
+        #        }
+        #
+        #        if (propVal1)
+        #        {
+        #            _path = _path ? _path : DEV_HKAOT::pathByProperty(_property1, propVal1);
+        #
+        #            treeNodeTargetPath = strFmt(_path, propVal1, propVal2);
+        #
+        #            if (!TreeNode::findNode(treeNodeTargetPath))
+        #            {
+        #                _sysPath = _sysPath ? _sysPath : DEV_HKAOT::systemPathByProperty(_property1);
+        #                treeNodeTargetPath = strFmt(_sysPath, propVal1, propVal2);
+        #            }
+        #
+        #            if (    treeNodeTargetPath == ''
+        #                ||  !TreeNode::findNode(treeNodeTargetPath))
+        #            {
+        #                treeNodeTargetPath = strFmt(_path, propVal2);
+        #            }
+        #
+        #            if (treeNodeTargetPath)
+        #            {
+        #                treeNodeTarget = TreeNode::findNode(treeNodeTargetPath);
+        #            }
+        #        }
+        #    }
+        #
+        #    return treeNodeTarget ? treeNodeTarget : null;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #newWindow
+        #static void newWindow()
+        #{
+        #    TreeNode            treeNode = new LastAotSelection().first();
+        #
+        #    if (treeNode)
+        #    {
+        #        treeNode.AOTnewWindow();
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #pathByProperty
+        #// >> DEV:MXK >>
+        #public static TreeNodePath pathByProperty(  str _property,
+        #                                            str _propVal1)
+        #{
+        #    TreeNodePath        ret;
+        #
+        #    switch (_property)
+        #    {
+        #        case #PropertyListPageRef:
+        #        case #PropertyForm:
+        #            ret = #FormNamePath;
+        #            break;
+        #
+        #        case #PropertyMappingTable:
+        #        case #PropertyTable:
+        #        case #PropertyReferenceTable:
+        #        case #PropertyDataSource:
+        #        case #PropertyExtends: // Used only for Table
+        #            ret = #TableNamePath;
+        #            break;
+        #
+        #        case #PropertyEnumTypeParameter:
+        #            ret = #BaseEnumsNamePath;
+        #            break;
+        #
+        #        case #PropertyExtendedDataType:
+        #            ret = #ExtendedDataTypesNamePath;
+        #            break;
+        #
+        #        case #PropertyQuery:
+        #            ret = #QueryPath;
+        #            break;
+        #
+        #        case #PropertyView:
+        #            ret = #ViewNamePath;
+        #            break;
+        #
+        #        case #PropertyMenuItemType:
+        #            ret = #MenuItemsNamePath;
+        #            break;
+        #
+        #        case #PropertyMenuItemName:
+        #        case #PropertyFormRef:
+        #        case #PropertyDocumentMenuItem:
+        #            ret = #MenuItemsDisplayNamePath;
+        #            break;
+        #
+        #        case #PropertyActionMenuItem:
+        #        case #PropertyCancelMenuItem:
+        #        case #PropertySubmitToWorkflowMenuItem:
+        #        case #PropertyDelegateMenuItem:
+        #        case #PropertyResubmitMenuItem:
+        #            ret = #MenuItemsActionNamePath;
+        #            break;
+        #
+        #        case #PropertyDocumentWebMenuItem:
+        #        case #PropertyResubmitWebMenuItem:
+        #        case #PropertySubmitToWorkflowWebMenuItem:
+        #        case #PropertyActionWebMenuItem:
+        #        case #PropertyDelegateWebMenuItem:
+        #        case #PropertyCancelWebMenuItem:
+        #        case #PropertyRecallWebMenuItem:
+        #            ret = #WebMenuItemsActionPath + '\\%1';
+        #            break;
+        #
+        #        case #PropertyService:
+        #            ret = #ServicePath;
+        #            break;
+        #
+        #        case #PropertyClass:
+        #        case #PropertyProviderClass:
+        #        case #PropertyPresenceClass:
+        #        case #PropertyDocument:
+        #        case #PropertyCanceledEventHandler:
+        #        case #PropertyStartedEventHandler:
+        #            ret = #ClassNamePath;
+        #            break;
+        #
+        #        case #PropertyReport:
+        #            ret = #ReportNamePath;
+        #            break;
+        #
+        #        case #PropertyCue:
+        #            ret = #CuesPath + '\\%1';
+        #            break;
+        #
+        #        case #PropertyObjectType:
+        #            switch (_propVal1)
+        #            {
+        #                case enum2Value(MenuItemObjectType::Class):
+        #                    ret = #ClassNamePath;
+        #                    break;
+        #
+        #                case enum2Value(MenuItemObjectType::CueGroup):
+        #                    ret = #CueGroupsPath + '\\%1';
+        #                    break;
+        #
+        #                case enum2Value(MenuItemObjectType::Form):
+        #                    ret = #FormNamePath;
+        #                    break;
+        #
+        #                case enum2Value(MenuItemObjectType::FormPart):
+        #                    ret = #FormPartsPath + '\\%1';
+        #                    break;
+        #
+        #                case enum2Value(MenuItemObjectType::InfoPart):
+        #                    ret = #InfoPartsPath + '\\%1';
+        #                    break;
+        #
+        #                case enum2Value(MenuItemObjectType::Job):
+        #                    ret = #JobPath;
+        #                    break;
+        #
+        #                case enum2Value(MenuItemObjectType::Query):
+        #                    ret = #QueryPath;
+        #                    break;
+        #
+        #                case enum2Value(MenuItemObjectType::Report):
+        #                    ret = #ReportsPath + '\\%1';
+        #                    break;
+        #
+        #                case enum2Value(MenuItemObjectType::SQLReportLibraryReport):
+        #                    ret = #ReportLibrariesPath + '\\%1';
+        #                    break;
+        #
+        #                case enum2Value(MenuItemObjectType::SSRSReport):
+        #                    ret = #ReportNamePath;
+        #                    break;
+        #
+        #                case enum2Value(MenuItemObjectType::WebControl):
+        #                    ret = #WebControlsPath + '\\%1';
+        #                    break;
+        #
+        #                case enum2Value(MenuItemObjectType::WebForm):
+        #                    ret = #WebFormsPath + '\\%1';
+        #                    break;
+        #
+        #                //
+        #
+        #                case enum2Value(EntryPointType::MenuItemAction):
+        #                    ret = #MenuItemsActionNamePath;
+        #                    break;
+        #
+        #                case enum2Value(EntryPointType::MenuItemDisplay):
+        #                    ret = #MenuItemsDisplayNamePath;
+        #                    break;
+        #
+        #                case enum2Value(EntryPointType::MenuItemOutput):
+        #                    ret = #MenuItemsOutputNamePath;
+        #                    break;
+        #
+        #                case enum2Value(EntryPointType::ServiceOperation):
+        #                    ret = #ServicePath;
+        #                    break;
+        #
+        #                case enum2Value(EntryPointType::WebActionItem):
+        #                    ret = #WebMenuItemsActionPath + '\\%1';
+        #                    break;
+        #
+        #                case enum2Value(EntryPointType::WebManagedContent):
+        #                    ret = #WebContentItemsManagedPath + '\\%1';
+        #                    break;
+        #
+        #                case enum2Value(EntryPointType::WebUrlItem):
+        #                    ret = #WebMenuItemsUrlPath + '\\%1';
+        #                    break;
+        #            }
+        #            break;
+        #    }
+        #
+        #    return ret;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #searchInPrj
+        #static void searchInPrj(TreeNode _treeNode)
+        #{
+        #    LastAOTSelection    lastAOTSelection = new LastAOTSelection();
+        #    SysTableBrowser     sysTableBrowser  = new SysTableBrowser();
+        #    TableId             tableId;
+        #
+        #    if (!_treeNode)
+        #    {
+        #        _treeNode = lastAOTSelection.first();
+        #    }
+        #
+        #    if (_treeNode)
+        #    {
+        #        tableId = sysTableBrowser::treeNode2TableId(_treeNode);
+        #
+        #        if (tableId)
+        #            sysTableBrowser.run(tableId);
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #systemPathByProperty
+        #// >> DEV:MXK >>
+        #public static TreeNodePath systemPathByProperty(str _property)
+        #{
+        #    TreeNodePath        ret;
+        #
+        #    switch (_property)
+        #    {
+        #        case #PropertyMappingTable:
+        #        case #PropertyTable:
+        #        case #PropertyReferenceTable:
+        #        case #PropertyDataSource:
+        #        case #PropertyExtends: // Used only for Table
+        #            ret = #SystemTablesNamePath;
+        #            break;
+        #
+        #        case #PropertyEnumTypeParameter:
+        #            ret = #SystemBaseEnumsNamePath;
+        #            break;
+        #
+        #        case #PropertyExtendedDataType:
+        #            ret = #SystemExtendedDataTypesNamePath;
+        #            break;
+        #    }
+        #
+        #    return ret;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #tableBrowser
+        #// >> DEV:MXK >>
+        #static void tableBrowser(TreeNode _treeNode = new LastAOTSelection().first())
+        #{
+        #    SysTableBrowser     sysTableBrowser     = new SysTableBrowser();
+        #    TreeNode            treeNodeTarget;
+        #    TableId             tableId;
+        #    str                 properties;
+        #
+        #    TableId find(   str     _property1,
+        #                    str     _property2  = '',
+        #                    str     _path       = '',
+        #                    str     _sysPath    = '')
+        #    {
+        #        treeNodeTarget = DEV_HKAOT::findTreeNode(properties, _property1, _property2, _path, _sysPath);
+        #        if (treeNodeTarget)
+        #        {
+        #            tableId = SysTableBrowser::treeNode2TableId(treeNodeTarget);
+        #        }
+        #        return tableId;
+        #    }
+        #
+        #    if (_treeNode)
+        #    {
+        #        tableId = SysTableBrowser::treeNode2TableId(_treeNode);
+        #
+        #        if (!tableId)
+        #        {
+        #            properties = _treeNode.AOTgetProperties();
+        #
+        #            tableId =   find(#PropertyTable)
+        #                    ?   tableId
+        #                    :   find(#PropertyTable, '', #ViewNamePath)
+        #                    ?   tableId
+        #                    :   find(#PropertyReferenceTable)
+        #                    ?   tableId
+        #                    :   find(#PropertyMappingTable);
+        #        }
+        #    }
+        #
+        #    if (tableId)
+        #    {
+        #        sysTableBrowser.run(tableId);
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

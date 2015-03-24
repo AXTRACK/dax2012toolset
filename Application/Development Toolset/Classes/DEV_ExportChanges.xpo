@@ -1,0 +1,317 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_ExportChanges unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_ExportChanges
+    PROPERTIES
+      Name                #DEV_ExportChanges
+      Extends             #RunBase
+      Origin              #{BC81FE5B-44C8-4D8B-B6E4-B3D9D0FB7F43}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #caption
+        #public ClassDescription caption()
+        #{
+        #    return 'Export projects';
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class DEV_ExportChanges extends RunBase
+        #{
+        #    DialogField         dialogFromDate;
+        #    DialogField         dialogToDate;
+        #    DialogField         dialogPath;
+        #    DialogField         dialogSharedOnly;
+        #    DialogField         dialogExpLables;
+        #    DialogField         dialogExpLayer;
+        #    DialogField         dialogExpEmail;
+        #
+        #    FromDate            fromDate;
+        #    FromDate            toDate;
+        #    FilePath            path;
+        #    NoYesId             sharedOnly;
+        #    boolean             expLables;
+        #    boolean             expLayer;
+        #    boolean             expEmail;
+        #
+        #    #define.CurrentVersion(1)
+        #    #localmacro.CurrentList
+        #        sharedOnly,
+        #        expLables,
+        #        expLayer,
+        #    expEmail
+        #    #endmacro
+        #}
+      ENDSOURCE
+      SOURCE #dialog
+        #public Object dialog()
+        #{
+        #    DialogRunbase           dialog = super();
+        #
+        #    dialogPath          = dialog.addFieldValue(extendedTypeStr(FilePath), path);
+        #    dialogFromDate      = dialog.addFieldValue(extendedTypeStr(FromDate), fromDate);
+        #    dialogToDate        = dialog.addFieldValue(extendedTypeStr(ToDate), toDate);
+        #    dialogSharedOnly    = dialog.addFieldValue(extendedTypeStr(NoYesId), sharedOnly, "@SYS117520");
+        #    dialogExpLables     = dialog.addFieldValue(extendedTypeStr(NoYesId), expLables, "@SYS69898", "@SYS69899");
+        #    dialogExpLayer      = dialog.addFieldValue(extendedTypeStr(NoYesId), expLayer, "@SYS85919");
+        #    dialogExpEmail      = dialog.addFieldValue(extendedTypeStr(NoYesId), expEmail, "@SYS75282", "@SYS84424");
+        #
+        #    return dialog;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #getFromDialog
+        #public boolean getFromDialog()
+        #{
+        #    boolean ret;
+        #
+        #    ret = super();
+        #
+        #    path        = dialogPath.value() ? any2str(dialogPath.value()) : SysImportUtil::getTempFolder();
+        #    fromDate    = dialogFromDate.value();
+        #    toDate      = dialogToDate.value();
+        #    expLables   = dialogExpLables.value();
+        #    expLayer    = dialogExpLayer.value();
+        #    expEmail    = dialogExpEmail.value();
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #initParmDefault
+        #public void initParmDefault()
+        #{
+        #    super();
+        #
+        #    sharedOnly  = true;
+        #    expLables   = true;
+        #    expLayer    = true;
+        #    expEmail    = false;
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #protected void new()
+        #{
+        #    super();
+        #}
+      ENDSOURCE
+      SOURCE #pack
+        #public container pack()
+        #{
+        #    return [#CurrentVersion, #CurrentList];
+        #}
+        #
+      ENDSOURCE
+      SOURCE #run
+        #public void run()
+        #{
+        #    #File
+        #    #WinAPI
+        #    #AotExport
+        #
+        #    #DEV_Toolset
+        #
+        #    SysINetMail             mail;
+        #
+        #    FileName                fileName;
+        #    TempStr                 folderName;
+        #    FilePath                folderPath;
+        #    FileName                attachName;
+        #
+        #    projectNode             projectNode;
+        #    projectListNode         projectListNode;
+        #    UtilElements            utilElements;
+        #    Container               con;
+        #
+        #    int                     flag = #export;
+        #
+        #    if (expLables)
+        #    {
+        #        flag += #expLables;
+        #    }
+        #
+        #    if (expLayer)
+        #    {
+        #        flag += #expLayer;
+        #    }
+        #
+        #    try
+        #    {
+        #        new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #        folderName  = strFmt('Projects (%1 - %2)',
+        #                            date2str(fromDate, 123, 2, 1, 3, 1, 4, DateFlags::None),
+        #                            date2str(today(), 123, 2, 1, 3, 1, 4, DateFlags::None));
+        #
+        #        if (path == '')
+        #        {
+        #            folderPath  = System.IO.Path::GetTempPath();
+        #        }
+        #        else
+        #        {
+        #            folderPath = path;
+        #        }
+        #
+        #        folderPath += folderName;
+        #
+        #        if (!System.IO.Directory::Exists(folderPath))
+        #        {
+        #            System.IO.Directory::CreateDirectory(folderPath);
+        #        }
+        #
+        #        projectListNode = SysTreeNode::getSharedProject();
+        #
+        #        con += '***SUMMARY***\n';
+        #        con += strrep('_', 50) + #delimiterCRLF;
+        #
+        #        while select name, utilLevel, recordType, createdBy from utilElements
+        #            where       (   utilElements.recordType         == UtilElementType::PrivateProject
+        #                        ||  utilElements.recordType         == UtilElementType::SharedProject)
+        #                    &&  (   utilElements.createdDateTime    == DateTimeUtil::newDateTime(dateNull(), 0)
+        #                        ||  (   utilElements.createdDateTime    >= DateTimeUtil::newDateTime(fromDate, 0))
+        #                    &&  (   utilElements.createdDateTime    <= DateTimeUtil::newDateTime(toDate, 0)
+        #                        ||  toDate == dateNull()))
+        #                    &&  (   utilElements.modifiedDateTime   == DateTimeUtil::newDateTime(dateNull(), 0)
+        #                        ||  (   utilElements.modifiedDateTime   >= DateTimeUtil::newDateTime(fromDate, 0))
+        #                    &&  (   utilElements.modifiedDateTime   <= DateTimeUtil::newDateTime(toDate, 0)
+        #                        ||  toDate == dateNull()))
+        #        {
+        #            if (    sharedOnly
+        #                &&  utilElements.recordType == UtilElementType::PrivateProject)
+        #            {
+        #                continue;
+        #            }
+        #
+        #            projectNode = projectListNode.AOTfindChild(utilElements.name);
+        #            if (projectNode == NULL)
+        #            {
+        #                continue;
+        #            }
+        #            fileName = folderPath + #FilePathDelimiter + projectNode.AOTname() + #xpo;
+        #            projectNode.treeNodeExport(fileName, flag);
+        #            con += strfmt('Added on: %1, By: %2, Layer: %3, Name: %4.%5',
+        #                            utilElements.createdDateTime,
+        #                            utilElements.createdBy,
+        #                            utilElements.utilLevel,
+        #                            utilElements.name,
+        #                            #delimiterCRLF);
+        #        }
+        #
+        #        con += strrep('_', 50) + #delimiterCRLF;
+        #        con += strfmt('Number of files exported: %1, Exportbed by: %2, From application: %3.',
+        #                        conlen(con) - 3,
+        #                        UserInfoHelp::userName(curuserid()),
+        #                        DEV_Global::curEnv());
+        #
+        #        SysImportUtil::createFileFromContainer(folderPath + #FilePathDelimiter + folderName + #txt, con);
+        #
+        #        if (WinAPI::pathExists(folderPath))
+        #        {
+        #            WinAPI::shellExecute(folderPath);
+        #        }
+        #
+        #        CodeAccessPermission::revertAssert();
+        #
+        #        if (expEmail)
+        #        {
+        #            attachName = folderPath + #FilePathDelimiter + folderName + #xpo;
+        #
+        #            if (WinAPI::fileExists(#CombineXPO))
+        #            {
+        #                WinAPI::shellExecute(#CombineXPO,
+        #                    strFmt(' -XpoDir \"%1\" -CombinedXpoFile \"%2\"', folderPath, attachName),
+        #                    '',
+        #                    #ShellExeOpen,
+        #                    #SW_SHOWNORMAL,
+        #                    true);
+        #            }
+        #
+        #            mail = new SysINetMail();
+        #            mail.sendMailAttach(SysUserInfo::find(curUserId()).Email,
+        #                            '',
+        #                            folderName,
+        #                            con2StrUnlimited(con, ''),
+        #                            true,
+        #                            WinAPI::fileExists(attachName) ? attachName : '');
+        #        }
+        #    }
+        #    catch (Exception::Error)
+        #    {
+        #        error(Error::wrongUseOfFunction(funcName()));
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #unpack
+        #public boolean unpack(container packedClass)
+        #{
+        #    Version     version = RunBase::getVersion(packedClass);
+        #
+        #    switch (version)
+        #    {
+        #        case #CurrentVersion:
+        #            [version, #CurrentList] = packedClass;
+        #            break;
+        #        default:
+        #            return false;
+        #    }
+        #
+        #    return true;
+        #}
+        #
+        #
+      ENDSOURCE
+      SOURCE #validate
+        #public boolean validate(Object calledFrom = null)  // The object/form which calls the method
+        #{
+        #    boolean ret;
+        #
+        #    ret = super(calledFrom);
+        #
+        #    if (!System.IO.Directory::Exists(path))
+        #    {
+        #        ret = CheckFailed(strfmt("@SYS55831", path));
+        #    }
+        #
+        #    if (fromDate == dateNull())
+        #    {
+        #        ret = CheckFailed("@SYS14652");
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #construct
+        #public static DEV_ExportChanges construct()
+        #{
+        #    return new DEV_ExportChanges();
+        #}
+        #
+      ENDSOURCE
+      SOURCE #main
+        #public static void main(Args args)
+        #{
+        #    DEV_ExportChanges               exportChanges = DEV_ExportChanges::construct();
+        #
+        #    if (isDeveloper())
+        #    {
+        #        if (exportChanges.prompt())
+        #        {
+        #            exportChanges.run();
+        #        }
+        #    }
+        #    else
+        #    {
+        #        error("@SYS81158");
+        #    }
+        #}
+        #
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

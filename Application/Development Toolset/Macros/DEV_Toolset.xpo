@@ -1,0 +1,199 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: MCR
+
+; Microsoft Dynamics AX Macro: DEV_Toolset unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #DEV_Toolset
+    #// === Default setting
+    #    #define.DEV_AdminUser('Admin')
+    #    #define.ProjectPrefix('TFS_')
+    #    #define.EnvDefaultColour('A0E1FF')
+    #
+    #// === Folder and file path
+    #    #define.CombineXPO('c:\\Program Files\\Microsoft Dynamics AX\\60\\ManagementUtilities\\CombineXPOs.exe')
+    #    #define.EditorComponents('EditorComponents')
+    #    #define.VSAssemblies('VSAssemblies')
+    #
+    #// === Windows Management
+    #    #define.AOTWidth(420)
+    #    #define.EditorSuffix        (' - ' + "@SYS26985")   // Editor
+    #    #define.UsedByTitle         ("@SYS28579")           // Used by
+    #    #define.ImportTitle         ("@SYS105127")          // Import
+    #    #define.TableBrowserTitle   ("@SYS54191" + ':')     // Table browser
+    #    #define.FindTitle           ("@SYS5260" + ':')      // Find
+    #    #define.CompilerOutputTitle ("@SYS70440")           // Compiler output
+    #    #define.AOTTitle            ("@SYS26991")           // AOT
+    #    #define.ProjectTitle        ('@SYS80304')           // Project
+    #    #define.ContentFrame        ('ContentFrame')
+    #
+    #// === Form Digger
+    #    #define.maxSubMenuColumns(42)
+    #
+    #// === Text
+    #    #define.ToolsetName("Dynamics AX 2012 Development toolset")
+    #
+    #// === Classes
+    #
+    #    #define.HKEditor        ("DEV_HKEditor")
+    #    #define.EditorScripts   ("EditorScripts")
+    #    #define.HKAOT           ("DEV_HKAOT")
+    #    #define.HKCommon        ("DEV_HKCommon")
+    #
+    #// === Extensions and components
+    #    #define.EditorSettingsForm('DEV.AX.EditorExtensions.EditorSettingsForm.exe')
+    #    #define.EditorExtensions('DEV_EditorExtensions_*')
+    #    #define.AssembliesExtensions('DEV_VSAssemblies_*')
+    #
+    #// === AOT
+    #    #define.DataSourcesNode('Data Sources')
+    #    #define.MethodsNode('Methods')
+    #    #define.TablesNode('Tables')
+    #    #define.ViewsNode('Views')
+    #
+    #    #define.TableNamePath(#TablesPath + "\\%1")
+    #    #define.TableFieldNamePath(#TablesPath + "\\%1\\Fields\\%2")
+    #    #define.TableFieldMethodPath(#TablesPath + "\\%1\\Methods\\%2")
+    #    #define.TableDataGroupNamePath(#TableNamePath + '\\Field Groups\\%2')
+    #
+    #    #define.MapNamePath(#TableMapsPath + "\\%1")
+    #    #define.ViewNamePath(#ViewsPath + "\\%1")
+    #    #define.ViewFieldNamePath(#ViewsPath + "\\%1\\Fields\\%2")
+    #
+    #    #define.ExtendedDataTypesNamePath(#ExtendedDataTypesPath + "\\%1")
+    #    #define.BaseEnumsNamePath(#BaseEnumsPath + "\\%1")
+    #
+    #    #define.ClassNamePath(#ClassesPath + "\\%1")
+    #    #define.ClassMethodPath(#ClassNamePath + "\\%2")
+    #
+    #    #define.FormNamePath(#FormsPath + "\\%1")
+    #    #define.FormDataSourcePath(#FormDataSourcesPath + '\\%2')
+    #    #define.TableFieldDS(#FormDataSourcesPath + "\\%2\\Fields\\%3")
+    #    #define.TableMethodDS(#FormDataSourcesPath + "\\%2\\Methods\\%3")
+    #
+    #    #define.ReportNamePath(#SSRSReportsPath + "\\%1")
+    #
+    #    #define.MenuItemsDisplayNamePath(#MenuItemsDisplayPath + "\\%1")
+    #    #define.MenuItemsOutputNamePath(#MenuItemsOutputPath + "\\%1")
+    #    #define.MenuItemsActionNamePath(#MenuItemsActionPath + "\\%1")
+    #    #define.MenuItemsNamePath(#MenuItemsPath + "\\%1\\%2")
+    #
+    #    #define.SecPrivilegeNamePath(#SecPrivilegesPath + '\\%1')
+    #    #define.SecDutieNamePath(#SecDutiesPath + '\\%1')
+    #
+    #    #define.SystemTablesNamePath(#SystemTablesPath + '\\%1')
+    #    #define.SystemExtendedDataTypesNamePath(#SystemTypesPath + "\\%1")
+    #    #define.SystemBaseEnumsNamePath(#SystemEnumsPath + "\\%1")
+    #    #define.SystemClassNamePath(#SystemClassesPath + '\\%1')
+    #
+    #// === Editor
+    #    #define.indent('    ')
+    #
+    #// === WinAPI
+    #
+    #    #define.UserDLL('USER32')
+    #    #define.KernelDLL('KERNEL32')
+    #    #define.ShellDLL('SHELL32')
+    #    #define.GDIDLL('GDI32')
+    #    #define.ComctlDLL('COMCTL32')
+    #
+    #    #define.MDIClient('MDIClient')
+    #
+    #    #define.GWL_STYLE(-16)
+    #
+    #    #define.E_POINTER(0x80004003)
+    #
+    #    #define.TCIF_IMAGE(0x0002)
+    #
+    #    #define.TCM_FIRST(0x1300)
+    #    #define.TCM_GETIMAGELIST(#TCM_FIRST + 2)
+    #    #define.TCM_SETIMAGELIST(#TCM_FIRST + 3)
+    #    #define.TCM_GETITEMCOUNT(#TCM_FIRST + 4)
+    #    #define.TCM_SETITEM(#TCM_FIRST + 6)
+    #    #define.TCM_GETITEMRECT(#TCM_FIRST + 10)
+    #    #define.TCM_SETITEMSIZE(#TCM_FIRST + 41)
+    #    #define.TCM_SETMINTABWIDTH(#TCM_FIRST + 49)
+    #    #define.TCM_GETCURSEL(#TCM_FIRST + 11)
+    #    #define.TCM_SETCURSEL(#TCM_FIRST + 12)
+    #    #define.TCM_HITTEST(#TCM_FIRST + 13)
+    #
+    #    #define.TCS_FIXEDWIDTH(0x0400)
+    #    #define.TCS_TOOLTIPS(0x4000)
+    #    #define.TCS_FORCELABELLEFT(0x0020)
+    #
+    #    #define.SWP_NOACTIVATE(0x10)
+    #
+    #    #define.WM_GETMINMAXINFO(0x24)
+    #    #define.WM_SYSKEYDOWN(0x0104)
+    #    #define.WM_SYSCHAR(0x0102)
+    #    #define.WM_SYSKEYUP(0x0105)
+    #
+    #    #define.WM_MDIGETACTIVE(0x0229)
+    #
+    #    #define.HWND_BOTTOM(1)
+    #
+    #// === Key Codes
+    #
+    #    #define.VK_BACKSLASH(0xE2)
+    #    #define.VK_CAPITAL(0x14)
+    #    #define.VK_DELETE(0x2E)
+    #    #define.VK_ESCAPE (0x1B)
+    #    #define.VK_LWIN(0x5B)
+    #    #define.VK_RWIN(0x5C)
+    #    #define.VK_SCROLL(0x91)
+    #
+    #    #define.cancel(3)
+    #    #define.alt(4)
+    #    #define.altgr(6)
+    #    #define.backSpace(8)
+    #    #define.tab(9)
+    #    #define.clear(12)
+    #    #define.return(13)
+    #    #define.shift(16)
+    #    #define.control(17)
+    #    #define.menu(18)
+    #    #define.pause(19)
+    #    #define.capital(20)
+    #    #define.escape(27)
+    #    #define.space(32)
+    #    #define.pageUp(33)
+    #    #define.pageDown(34)
+    #    #define.end(35)
+    #    #define.home(36)
+    #    #define.arrowLeft(37)
+    #    #define.arrowUp(38)
+    #    #define.arrowRight(39)
+    #    #define.arrowDown(40)
+    #    #define.select(41)
+    #    #define.print(42)
+    #    #define.insert(45)
+    #    #define.delete(46)
+    #    #define.numLock(144)
+    #
+    #    #define.VK_F1(0x70)
+    #    #define.VK_F2(0x71)
+    #    #define.VK_F3(0x72)
+    #    #define.VK_F4(0x73)
+    #    #define.VK_F5(0x74)
+    #    #define.VK_F6(0x75)
+    #    #define.VK_F7(0x76)
+    #    #define.VK_F8(0x77)
+    #    #define.VK_F9(0x78)
+    #    #define.VK_F10(0x79)
+    #    #define.VK_F11(0x7A)
+    #    #define.VK_F12(0x7B)
+    #    #define.VK_F13(0x7C)
+    #    #define.VK_F14(0x7D)
+    #    #define.VK_F15(0x7E)
+    #    #define.VK_F16(0x7F)
+    #    #define.VK_F17(0x80H)
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{A31E40E0-AAB5-4B01-A176-B5F84B665024}
+  ENDPROPERTIES
+  
+
+***Element: END

@@ -1,0 +1,69 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysImportLabel unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysImportLabel
+    PROPERTIES
+      Name                #SysImportLabel
+      Extends             #SysLabelEdit
+      RunOn               #Server
+      Origin              #{2D0E133D-0000-1000-8F35-5C7C1B51FE82}
+      LegacyId            #4925
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #label2Xml
+        #public str label2Xml(Set _languageSet, LabelId _labelId)
+        #{
+        #    SetIterator     setIterator;
+        #    str             xml;
+        #    LanguageId      languageId;
+        #    SysLabel        label;
+        #    ;
+        #    // >> DEV:MXK >>
+        #    //setIterator = new SetIterator(Set::create(_languageSet.pack()));
+        #    setIterator = new SetIterator(_languageSet ? Set::create(_languageSet.pack()) : DEV_Global::con2Set(['en-gb']));
+        #    // << DEV:MXK <<
+        #    setIterator.begin();
+        #    while (setIterator.more())
+        #    {
+        #        languageId = setIterator.value();
+        #
+        #        if (labelMap.exists(languageId))
+        #        {
+        #            label = labelMap.lookup(languageId);
+        #
+        #            if (label.exists(_labelId))
+        #            {
+        #                select firstonly tmpSysLabel
+        #                    index LabelIdx
+        #                    where tmpSysLabel.LabelId   == _labelId
+        #                       && tmpSysLabel.Language  == languageId;
+        #
+        #                if (!tmpSysLabel)
+        #                {
+        #                    tmpSysLabel.clear();
+        #                    tmpSysLabel.LabelId         = _labelId;
+        #                    tmpSysLabel.Language        = languageId;
+        #                    tmpSysLabel.Label           = label.extractString(_labelId);
+        #                    tmpSysLabel.Description     = label.extractComment(_labelId);
+        #                    tmpSysLabel.insert();
+        #                }
+        #
+        #                xml += tmpSysLabel.xml();
+        #            }
+        #        }
+        #        setIterator.next();
+        #    }
+        #    return xml;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

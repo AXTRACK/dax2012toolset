@@ -1,0 +1,274 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_Breakpoints unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_Breakpoints
+    PROPERTIES
+      Name                #DEV_Breakpoints
+      RunOn               #Client
+      Origin              #{C5820D6B-E95C-47AC-BCAA-44E6C99D103F}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #// >> DEV:MXK >>
+        #// DEV Utility: Class to switch Infolog and Box breakpoints.
+        #// AX 2012 R2 RU7
+        #class DEV_Breakpoints
+        #{
+        #    xRefPath            path;
+        #    Line                line;
+        #
+        #    Set                 breakpointSet;
+        #
+        #    container           bpCons;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #new
+        #// >> DEV:MXK >>
+        #protected void new()
+        #{
+        #    breakpointSet = DEV_Breakpoints::initPathSet();
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #parmBpCons
+        #// >> DEV:MXK >>
+        #public container parmBpCons(container _bpCons = bpCons)
+        #{
+        #    bpCons = _bpCons;
+        #
+        #    return bpCons;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #parmBreakpointSet
+        #public Set parmBreakpointSet(Set _breakpointSet = breakpointSet)
+        #{
+        #    breakpointSet = _breakpointSet;
+        #
+        #    return breakpointSet;
+        #}
+      ENDSOURCE
+      SOURCE #removeInfoBreak
+        #//>> DEV:MXK >>
+        #void removeInfoBreak()
+        #{
+        #    container       bpCon       = infolog.breakpoint();
+        #    container       newBpCon    = conNull();
+        #    int             i;
+        #
+        #    for (i = 1; i <= conlen(bpCon); i++)
+        #    {
+        #        if (breakpointSet.in(strfmt('%1', conpeek(bpCon, i))))
+        #        {
+        #            i += 2;
+        #        }
+        #        else
+        #        {
+        #            newBpCon = conIns(newBpCon, i, conPeek(bpCon, i));
+        #        }
+        #    }
+        #
+        #    infolog.breakpoint(newBpCon);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #run
+        #// >> DEV:MXK >>
+        #public void run()
+        #{
+        #    int             i;
+        #    container       bpCon;
+        #    container       bpConTmp;
+        #    boolean         enabled;
+        #
+        #    if (bpCons != conNull())
+        #    {
+        #        bpCon = infolog.breakpoint();
+        #
+        #        for(i=1; i<=conLen(bpCons); i++)
+        #        {
+        #            bpConTmp = conPeek(bpCons, i);
+        #
+        #            path = conPeek(bpConTmp, 1);
+        #            line = conPeek(bpConTmp, 2);
+        #            enabled = conPeek(bpConTmp, 3);
+        #
+        #            if (line != 0)
+        #            {
+        #                bpCon += [path];
+        #                bpCon += [line];
+        #                bpCon += [enabled];
+        #            }
+        #        }
+        #
+        #        infolog.breakpoint(bpCon);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #setInfoBreak
+        #//>> DEV:MXK >>
+        #void setInfoBreak()
+        #{
+        #    container       bpCon   = infolog.breakpoint();
+        #    SetEnumerator   se;
+        #
+        #    se = breakpointSet.getEnumerator();
+        #
+        #    while (se.moveNext())
+        #    {
+        #        bpCon += se.current();
+        #        bpCon += [1];
+        #        bpCon += [true];
+        #    }
+        #
+        #    infolog.breakpoint(bpCon);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #construct
+        #// >> DEV:MXK >>
+        #private static DEV_Breakpoints construct()
+        #{
+        #    return new DEV_Breakpoints();
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #initPathSet
+        #// >> DEV:MXK >>
+        #public static Set initPathSet()
+        #{
+        #    Set                 breakpointSet = new Set(Types::String);
+        #    container           con;
+        #    int                 i;
+        #
+        #    con =   [   @'\Classes\Info\add',
+        #                @'\Forms\SysBoxInfoOnce\Methods\setInformation',
+        #                @'\Forms\SysBoxForm\Methods\run',
+        #                @'\Classes\Box\info',
+        #                @'\Classes\Box\okCancel',
+        #                @'\Classes\Box\stop',
+        #                @'\Classes\Box\warning',
+        #                @'\Classes\Box\yesNo',
+        #                @'\Classes\Box\yesNoCancel'];
+        #
+        #    for (i = 1; i <= conlen(con); i++)
+        #    {
+        #        breakpointSet.add(conpeek(con, i));
+        #    }
+        #
+        #    return breakpointSet;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #isAllDisabled
+        #public static boolean isAllDisabled()
+        #{
+        #    boolean         ret     = true;
+        #    container       bpCon   = infolog.breakpoint();
+        #    int             i;
+        #
+        #    if (conlen(bpCon) > 1)
+        #    {
+        #        for (i = 4; i <= conlen(bpCon); i += 3)
+        #        {
+        #            if (conPeek(bpCon, i))
+        #            {
+        #                ret = false;
+        #                break;
+        #            }
+        #        }
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #isInfoBreak
+        #//>> DEV:MXK >>
+        #public static boolean isInfoBreak(Set _breakpointSet)
+        #{
+        #    container       bpCon   = infolog.breakpoint();
+        #    int             i;
+        #    boolean         ret;
+        #
+        #    if (conlen(bpCon) > 1)
+        #    {
+        #        for (i = 1; i <= conlen(bpCon); i++)
+        #        {
+        #            if (_breakpointSet.in(strfmt('%1', conpeek(bpCon, i))))
+        #            {
+        #                ret = true;
+        #                break;
+        #            }
+        #        }
+        #    }
+        #
+        #    return ret;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #// >> DEV:MXK >>
+        #public static void main(Args args)
+        #{
+        #    DEV_Breakpoints         breakpoints = DEV_Breakpoints::construct();
+        #
+        #    if (isDeveloper())
+        #    {
+        #        if (DEV_Breakpoints::isInfoBreak(breakpoints.parmBreakpointSet()))
+        #        {
+        #            breakpoints.removeInfoBreak();
+        #        }
+        #        else
+        #        {
+        #            breakpoints.setInfoBreak();
+        #        }
+        #    }
+        #    else
+        #    {
+        #        throw error("@SYS322185");
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #newFromContainer
+        #// >> DEV:MXK >>
+        #public static DEV_Breakpoints newFromContainer(container  _bpCons)
+        #{
+        #    DEV_Breakpoints     bp = DEV_Breakpoints::construct();
+        #
+        #    bp.parmBpCons(_bpCons);
+        #
+        #    return bp;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #toggleAll
+        #public static void toggleAll(boolean _enable)
+        #{
+        #    container       bpCon   = infolog.breakpoint();
+        #    int             i;
+        #
+        #    if (conlen(bpCon) > 1)
+        #    {
+        #        for (i = 4; i <= conlen(bpCon); i += 3)
+        #        {
+        #            bpCon = conPoke(bpCon, i, _enable);
+        #        }
+        #    }
+        #
+        #    infolog.breakpoint(bpCon);
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

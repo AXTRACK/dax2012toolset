@@ -1,0 +1,420 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #DEV_StartupForm
+  PROPERTIES
+    Name                #DEV_StartupForm
+    Origin              #{0FD94A5D-8575-4BDB-BE14-4747A2EC3638}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #// >> DEV:MXK >>
+      #public class FormRun extends ObjectRun
+      #{
+      #    boolean     showAll;
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #init
+      #public void init()
+      #{
+      #    super();
+      #
+      #    if (!isDeveloper())
+      #    {
+      #        DEV_StartupForm_ds.object(fieldNum(DEV_StartupForm, UserId)).visible(false);
+      #        DEV_StartupForm_ds.object(fieldNum(DEV_StartupForm, TreeNodePath)).allowEdit(false);
+      #    }
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #DEV_StartupForm
+          Table               #DEV_StartupForm
+          Index               #UserFormIdx
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #executeQuery
+          #public void executeQuery()
+          #{
+          #    QueryBuildDataSource                    qbds;
+          #    QueryBuildRange                         qbr;
+          #
+          #    qbds    = this.queryBuildDataSource();
+          #    qbr     = SysQuery::findOrCreateRange(qbds, fieldNum(DEV_StartupForm, UserId));
+          #
+          #    if (showAll)
+          #    {
+          #       qbds.clearRange(qbr.field());
+          #    }
+          #    else
+          #    {
+          #        qbr.value(SysQuery::value(curUserId()));
+          #    }
+          #
+          #    super();
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #Startup setup
+      HideToolbar         #Yes
+      SetCompany          #No
+      DataSource          #DEV_StartupForm
+      StatusBarStyle      #Simple
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL ACTIONPANE
+        PROPERTIES
+          Name                #ActionPane
+          ElementPosition     #715827882
+          Style               #Strip
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIONPANETAB
+        PROPERTIES
+          Name                #ActionPaneTab
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPane
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroupRun
+          ElementPosition     #1717986916
+          HierarchyParent     #ActionPaneTab
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #Filters
+          ElementPosition     #1288490187
+          HierarchyParent     #ActionPaneTab
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #RecordBasics
+          ElementPosition     #858993458
+          HierarchyParent     #ActionPaneTab
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #Grid
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          DataSource          #DEV_StartupForm
+          DataGroup           #AutoBrowse
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #AllUesersButton
+          AutoDeclaration     #Yes
+          HelpText            #@SYS28738
+          ElementPosition     #1431655764
+          HierarchyParent     #Filters
+          Text                #@SYS25441
+          ButtonDisplay       #Text & Image left
+          NormalImage         #10844
+          ImageLocation       #EmbeddedResource
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    showAll = !showAll;
+            #    DEV_StartupForm_ds.executeQuery();
+            #    AllUesersButton.normalImage(showAll ? '12414' : '10844');
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #OpenBtn
+          HelpText            #Open object.
+          ElementPosition     #1431655764
+          HierarchyParent     #ButtonGroupRun
+          Text                #Run
+          ButtonDisplay       #Text & Image left
+          NormalImage         #1009
+          ImageLocation       #EmbeddedResource
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    #TreeNodeSysNodeType
+            #    #AOT
+            #    #define.Main('Main')
+            #
+            #    TreeNode                        treeNode;
+            #    Args                            args            = new Args();
+            #    FormRun                         formRun;
+            #    DictClass                       dictClass;
+            #    SysDictClass                    sdc;
+            #    container                       con;
+            #
+            #    con = str2con(DEV_StartupForm.TreeNodePath, '\\');
+            #
+            #    if (subStr(DEV_StartupForm.TreeNodePath, 1, strLen(#ProjectSharedPath)) == #ProjectSharedPath)
+            #    {
+            #        treeNode = SysTreeNode::getSharedProject();
+            #
+            #        if (strLen(DEV_StartupForm.TreeNodePath) > strLen(#ProjectSharedPath))
+            #        {
+            #            treeNode = infolog.projectRootNode().AOTfindChild(conPeek(con, 3));
+            #        }
+            #    }
+            #    else if (subStr(DEV_StartupForm.TreeNodePath, 1, strLen(#ProjectPrivatePath)) == #ProjectPrivatePath)
+            #    {
+            #        treeNode = SysTreeNode::getPrivateProject();
+            #
+            #        if (strLen(DEV_StartupForm.TreeNodePath) > strLen(#ProjectPrivatePath))
+            #        {
+            #            treeNode = infolog.projectRootNode().AOTfindChild(conPeek(con, 3));
+            #        }
+            #    }
+            #
+            #    if (treeNode)
+            #    {
+            #        treeNode.AOTnewWindow();
+            #        return;
+            #    }
+            #
+            #    treeNode = infolog.findNode(DEV_StartupForm.TreeNodePath);
+            #
+            #    if (treeNode)
+            #    {
+            #        switch (treeNode.treeNodeType().id())
+            #        {
+            #            case #NT_FUNCITEM:
+            #                treeNode.AOTrun();
+            #            break;
+            #
+            #            case #NT_FORM:
+            #                args.name(treeNode.treeNodeName());
+            #                formRun = classfactory.formRunClass(args);
+            #                formRun.init();
+            #                formRun.run();
+            #                formRun.wait();
+            #                formRun.detach();
+            #            break;
+            #
+            #            case #NT_CLASS:
+            #                dictClass = new DictClass(className2Id(treeNode.treeNodeName()));
+            #
+            #                if (dictClass)
+            #                {
+            #                    sdc = new SysDictClass(className2Id(treeNode.treeNodeName()));
+            #
+            #                    if (sdc.hasStaticMethod(#Main))
+            #                    {
+            #                        dictClass.callStatic(#Main);
+            #                    }
+            #                }
+            #            break;
+            #
+            #            default:
+            #        }
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #Grid_Active
+          ElementPosition     #613566756
+          HierarchyParent     #Grid
+          BackgroundColor     #Window background
+          DataSource          #DEV_StartupForm
+          DataField           #Enabled
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #DeleteButton
+          ElementPosition     #1610612733
+          HierarchyParent     #RecordBasics
+          Text                #@SYS14425
+          ButtonDisplay       #Text & Image left
+          NormalImage         #10121
+          ImageLocation       #EmbeddedResource
+          SaveRecord          #No
+          Primary             #Yes
+          Command             #2832
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #NewButton
+          ElementPosition     #1073741822
+          HierarchyParent     #RecordBasics
+          ButtonDisplay       #Text & Image left
+          NormalImage         #11045
+          ImageLocation       #EmbeddedResource
+          Primary             #Yes
+          Command             #260
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: END

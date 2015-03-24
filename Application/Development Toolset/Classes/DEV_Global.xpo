@@ -1,0 +1,871 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_Global unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_Global
+    PROPERTIES
+      Name                #DEV_Global
+      Origin              #{1C43CA48-397A-4935-B81D-375838F9CDBE}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class DEV_Global
+        #{
+        #    #WinAPI
+        #    #DEV_Toolset
+        #}
+      ENDSOURCE
+      SOURCE #array2con
+        #// >> DEV:MXK >>
+        #static container array2con(anytype _array[], int _size)
+        #{
+        #    int         i;
+        #    container   ret;
+        #
+        #    for (i = 1; i <= _size; i++)
+        #    {
+        #        ret += _array[i];
+        #    }
+        #
+        #    return ret;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #callStack
+        #// >> DEV:MXK >>
+        #public static str callStack()
+        #{
+        #    #define.lineToken(' - line ')
+        #    container       c;
+        #    int             i;
+        #    str             msg;
+        #
+        #    c = xsession::xppCallStack();
+        #
+        #    for (i = 1; i <= conlen(c); i += 2)
+        #    {
+        #        msg += strfmt('%1%2%3', conpeek(c, i), #lineToken, conpeek(c, i + 1));
+        #    }
+        #
+        #    return msg;
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #clientPath
+        #// >> DEV:MXK >>
+        #public static str clientPath()
+        #{
+        #    return @'c:\Program Files (x86)\Microsoft Dynamics AX\60\Client\Bin\Ax32.exe';
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #con2array
+        #// >> DEV:MXK >>
+        #static anyType con2array(container _con)
+        #{
+        #    int         i;
+        #    int         size = conlen(_con);
+        #    anyType     ret[size];
+        #
+        #    for (i = 1; i <= size; i++)
+        #    {
+        #        ret[i] = conPeek(_con, i);
+        #    }
+        #
+        #    return ret;
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #con2Set
+        #// >> DEV:MXK >>
+        #public static Set con2Set(container _con)
+        #{
+        #    Set                 set = null;
+        #    int                 i;
+        #    Types               types;
+        #    boolean             typesIsOk = true;
+        #
+        #    if (conLen(_con))
+        #    {
+        #        types = typeOf(conPeek(_con, 1)); //Type of first element
+        #    }
+        #
+        #    for (i = 2; i <= conLen(_con); i++)
+        #    {
+        #        if (typeOf(conPeek(_con, i)) != types)
+        #        {
+        #            typesIsOk = false;
+        #        }
+        #    }
+        #
+        #    if (typesIsOk)
+        #    {
+        #        set = new Set(types);
+        #
+        #        for (i = 1; i <= conLen(_con); i++)
+        #        {
+        #            set.add(conPeek(_con, i));
+        #        }
+        #    }
+        #    return set;
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #controlByName
+        #/// returns control from form _form with the name _name
+        #static TreeNode controlByName(TreeNode _form, str _name)
+        #{
+        #    TreeNodeTraverser       i = new TreeNodeTraverser(_form, false);
+        #    TreeNode                node = i.next();
+        #
+        #    while (node)
+        #    {
+        #        if (match(@": +name: +#"+_name+': +', node.AOTgetProperties()))
+        #            return node;
+        #
+        #        node = i.next();
+        #    }
+        #
+        #    return null;
+        #}
+      ENDSOURCE
+      SOURCE #copyRecord
+        #// >> DEV:MXK >>
+        #static client server common copyRecord(common _buf)
+        #{
+        #    Common                  newRecord;
+        #    DictTable               dictTable   = new DictTable(_buf.tableId);
+        #    DictField               dictField;
+        #    FieldId                 fieldId;
+        #    int                     i;
+        #
+        #    newRecord = dictTable.makerecord();
+        #
+        #    for (i = 1; i <= dictTable.fieldCnt(); i++)
+        #    {
+        #        dictField = new dictField(_buf.TableId, dictTable.fieldCnt2Id(i));
+        #
+        #        if (dictField.isSystem())
+        #        {
+        #            continue;
+        #        }
+        #        else
+        #        {
+        #            fieldId = dictTable.fieldCnt2Id(i);
+        #            newRecord.(fieldId) = _buf.(fieldId);
+        #        }
+        #    }
+        #
+        #    return newRecord;
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #createProject
+        #public static SysProjectFilterRunBase createProject(SharedProjectName       _projectName,
+        #                                                    ProjectSharedPrivate    _projectType = ProjectSharedPrivate::ProjPrivate)
+        #{
+        #    ProjectNode                 projectNode;
+        #    SysProjectFilterRunBase     projectFilter;
+        #
+        #    SysUpgradeProject::delete(_projectName, _projectType);
+        #
+        #    projectNode = SysTreeNode::createProject(_projectName, _projectType);
+        #    projectFilter = new SysProjectFilterRunBase();
+        #    projectFilter.parmProjectNode(projectNode);
+        #    projectFilter.grouping(SysProjectGrouping::AOT);
+        #
+        #    return projectFilter;
+        #}
+      ENDSOURCE
+      SOURCE #curEnv
+        #// >> DEV:MXK >>
+        #public static TempStr curEnv()
+        #{
+        #    return DEV_UserParameters::findOrCreate().EnvName;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #currentSysContextMenu
+        #static SysContextMenu currentSysContextMenu()
+        #{
+        #    SysContextMenu      ret;
+        #    TreeNode            node;
+        #    hWnd                topmost = DEV_WinAPI::getTopWindow(DEV_WinAPI::mdiClient()); //MXK
+        #
+        #    if (DEV_Global::isEditor(topmost))
+        #        node = DEV_WinAPI::getCurMethod(topmost);
+        #
+        #    if (node)
+        #        ret = new SysContextMenuTreeNode(node);
+        #    else
+        #        ret = new SysContextMenuAOT();
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #editorPath
+        #// >> DEV:MXK >>
+        #public static str editorPath(HWND _hwnd, str _title = WinAPI::getWindowText(_hwnd))
+        #{
+        #    if (    DEV_UserParameters::findOrCreate().EnvFormCaption
+        #        &&  subStr(_title, 1, strLen(DEV_Global::curEnv()) + 1) == DEV_Global::curEnv())
+        #    {
+        #        _title = subStr(_title, strLen(DEV_Global::curEnv()) + 5, strLen(_title));
+        #    }
+        #
+        #    return subStr(_title, 1, strLen(_title) - strLen(#editorSuffix));
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #extractName
+        #// >> DEV:MXK >>
+        #static public TreeNodeName extractName(TreeNode _treeNode)
+        #{
+        #    #AOT
+        #    TreeNodeName            ret;
+        #    TreeNodePath            path;
+        #    container               con;
+        #
+        #    if (_treeNode)
+        #    {
+        #        path = _treeNode.treeNodePath();
+        #
+        #        con = str2con(path, #AOTDelimiter);
+        #        path = conPeek(con, conLen(con));
+        #
+        #        // Remove additional info from the Name like "Tab:Tab" => "Tab", "Currency(Currency)" => "Currency"
+        #        if (strFind(path, ':', 1, strLen(path)))
+        #        {
+        #            con = str2con(path, ':');
+        #            path  = conPeek(con, conLen(con));
+        #        }
+        #
+        #        if (strFind(path, '(', 1, strLen(path)))
+        #        {
+        #            con = str2con(path, '(');
+        #            path  = conPeek(con, 1);
+        #        }
+        #
+        #        ret = strRem(path, ']');
+        #    }
+        #
+        #    return ret;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #findAOTText
+        #public static void findAOTText(TreeNode _treeNode, FreeText _textToFind)
+        #{
+        #    Args                args = new Args(formstr(SysAOTFind));
+        #    FormRun             sysAOTFindFormRun;
+        #    FormStringControl   fsc;
+        #    FormButtonControl   fbc;
+        #    FormCheckBoxControl fcbc;
+        #    HWND                hwnd;
+        #
+        #    hwnd = _treeNode.AOTnewWindow();
+        #
+        #    sysAOTFindFormRun = classFactory.formRunClass(args);
+        #    sysAOTFindFormRun.init();
+        #    sysAOTFindFormRun.run();
+        #
+        #    // Set the text to find
+        #    fsc = sysAOTFindFormRun.design().controlName(identifierStr(ContainingText));
+        #    fsc.setFocus();
+        #    fsc.pasteText(_textToFind);
+        #
+        #    // Change parameter
+        #    fcbc = sysAOTFindFormRun.design().controlName(identifierStr(UseTreeSelection));
+        #    fcbc.setFocus();
+        #    fcbc.value(false);
+        #    fcbc.modified();
+        #
+        #    // Set the path to find
+        #    fsc = sysAOTFindFormRun.design().controlName(identifierStr(LookInRange));
+        #    fsc.setFocus();
+        #    fsc.pasteText(_treeNode.treeNodePath());
+        #
+        #    sysAOTFindFormRun.detach();
+        #
+        #    // Launch the search process
+        #    fbc = sysAOTFindFormRun.design().controlName(identifierStr(FindNow));
+        #    fbc.clicked();
+        #
+        #    DEV_WinAPI::closeWindow(hwnd);
+        #}
+      ENDSOURCE
+      SOURCE #formByName
+        #static TreeNode formByName(str _name)
+        #{
+        #    return TreeNode::findNode(@'\Forms\'+_name);
+        #}
+      ENDSOURCE
+      SOURCE #getOverlayImage
+        #// >> DEV:MXK >>
+        #static client ImageRes getOverlayImage(Types _type)
+        #{
+        #    #resAppl
+        #    ImageRes                        imageRes;
+        #
+        #    switch(_type)
+        #    {
+        #        case Types::String,
+        #             Types::VarString :
+        #            return #ImageOverlayString;
+        #
+        #        case Types::Enum:
+        #            return #ImageOverlayEnum;
+        #
+        #        case Types::Real:
+        #            return #ImageOverlayReal;
+        #
+        #        case Types::Date:
+        #            return #ImageOverlayDate;
+        #
+        #        case Types::Int64, Types::Integer :
+        #            return #ImageOverlayInteger;
+        #
+        #        case Types::Time :
+        #            return #ImageOverlayTime;
+        #
+        #        case Types::Container:
+        #            return #ImageOverlayContainer;
+        #
+        #        case Types::UtcDateTime :
+        #            return #ImageOverlayTime;//ImageOverlayDateTime;
+        #
+        #        default:
+        #            return 0;
+        #    }
+        #
+        #    return imageRes;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #getServerBinPath
+        #// >> DEV:MXK >>
+        #public static server FilePath getServerBinPath()
+        #{
+        #    return XInfo::directory(DirectoryType::Bin);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #getStartupProject
+        #public static ProjectName getStartupProject()
+        #{
+        #    UserInfo            userInfo;
+        #
+        #    select firstOnly startupProject from userInfo
+        #        where userInfo.Id == curUserId();
+        #
+        #    return userInfo.startupProject;
+        #}
+      ENDSOURCE
+      SOURCE #handleApplicationStartupPostPost
+        #// >> DEV:MXK >>
+        #public static void handleApplicationStartupPostPost(XppPrePostArgs _args)
+        #{
+        #    DEV_StartupForm::startupApplRun();
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #handleSysSetupFormRunRunPost
+        #// >> DEV:MXK >>
+        #public static void handleSysSetupFormRunRunPost(XppPrePostArgs _args)
+        #{
+        #    DEV_UserParameters      parameters      = DEV_UserParameters::findOrCreate();
+        #
+        #    int                     r, g, b;
+        #
+        #    FormDesign              design          = _args.getThis().design();
+        #    FormRun                 formRun         = _args.getThis();
+        #
+        #    TempStr                 curEnv          = DEV_Global::curEnv();
+        #
+        #    if (    parameters.EnvName
+        #        &&  parameters.EnvFormCaption
+        #        &&  design.caption())
+        #    {
+        #        design.caption(curEnv + ' - ' + design.caption());
+        #    }
+        #
+        #    if (parameters.EnvPaintStatusBar && parameters.EnvColor)
+        #    {
+        #        [r, g , b] = Hex2RGB(parameters.EnvColor);
+        #        formRun.setStatusBarBackgroundColor(254, r, g, b);
+        #    }
+        #
+        #    if (parameters.EnvPaintFormDesign && parameters.EnvColor)
+        #    {
+        #        design.colorScheme(FormColorScheme::RGB);
+        #        design.backgroundColor(WinAPI::RGBCon2int(Hex2RGB(parameters.EnvColor)));
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #isAOT
+        #// >> DEV:MXK >>
+        #static boolean isAOT(HWND _hwnd, str _title = WinAPI::getWindowText(_hwnd))
+        #{
+        #    return strStartsWith(_title, #AOTTitle) || strEndsWith(_title, "@SYS50498");
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #isCompiler
+        #// >> DEV:MXK >>
+        #static boolean isCompiler(HWND _hwnd, str _title = WinAPI::getWindowText(_hwnd))
+        #{
+        #    return DEV_Global::strEndsWith(_title, #CompilerOutputTitle);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #isDevWorkspace
+        #// >> DEV:MXK >>
+        #public static boolean isDevWorkspace()
+        #{
+        #    return WinApi::findWindowEx(DEV_WinAPI::mdiClient(), 0, #ContentFrame, '') == 0;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #isEditor
+        #// >> DEV:MXK >>
+        #static boolean isEditor(HWND _hwnd, str _title = WinAPI::getWindowText(_hwnd))
+        #{
+        #    return strEndsWith(_title, #EditorSuffix);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #isFindTitle
+        #// >> DEV:MXK >>
+        #static boolean isFindTitle(HWND _hwnd, str _title = WinAPI::getWindowText(_hwnd))
+        #{
+        #    return DEV_Global::strStartsWith(_title, #FindTitle);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #isImportTitle
+        #// >> DEV:MXK >>
+        #static boolean isImportTitle(HWND _hwnd, str _title = WinAPI::getWindowText(_hwnd))
+        #{
+        #    return strEndsWith(_title, #ImportTitle);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #isProjectRoot
+        #// >> DEV:MXK >>
+        #static boolean isProjectRoot(HWND _hwnd, str _title = WinAPI::getWindowText(_hwnd))
+        #{
+        #    return _title == '\\Projects';
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #isProjectTitle
+        #// >> DEV:MXK >>
+        #static boolean isProjectTitle(HWND _hwnd, str _title = WinAPI::getWindowText(_hwnd))
+        #{
+        #    return strStartsWith(_title, #ProjectTitle) || strStartsWith(_title, 'Upgrade project');
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #isPropertyWindow
+        #// >> DEV:MXK >>
+        #static boolean isPropertyWindow(HWND _hwnd)
+        #{
+        #    HWND        propertiesWindow;
+        #
+        #    if (appl.globalCache().isSet(identifierStr(propertiesWindow), 0))
+        #    {
+        #        propertiesWindow = appl.globalCache().get(identifierStr(propertiesWindow), 0);
+        #    }
+        #
+        #    return _hwnd == propertiesWindow;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #isTableBrowser
+        #// >> DEV:MXK >>
+        #static boolean isTableBrowser(HWND _hwnd, str _title = WinAPI::getWindowText(_hwnd))
+        #{
+        #    return strContains(_title, #TableBrowserTitle);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #isUsedByTitle
+        #// >> DEV:MXK >>
+        #static boolean isUsedByTitle(HWND _hwnd, str _title = WinAPI::getWindowText(_hwnd))
+        #{
+        #    return strContains(_title, #UsedByTitle);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #lastActiveForm
+        #// >> DEV:MXK >>
+        #public static FormRun lastActiveForm()
+        #{
+        #    return infolog.parmLastActivatedForm() ? infolog.parmLastActivatedForm().object(): null;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #lookupEmbeddedImg
+        #// >> DEV:MXK >>
+        #public static void lookupEmbeddedImg(ImageRes _imageRes)
+        #{
+        #    Args                args = new Args(formstr(DEV_xRefIcons));
+        #    FormRun             xRefIconsFormRun;
+        #    FormStringControl   fsc;
+        #    FormCheckBoxControl fcbc;
+        #
+        #    xRefIconsFormRun = classFactory.formRunClass(args);
+        #    xRefIconsFormRun.init();
+        #    xRefIconsFormRun.run();
+        #
+        #    // Set option for the Embedded
+        #    fcbc = xRefIconsFormRun.design().controlName(identifierStr(CheckBoxEmbedded));
+        #    fcbc.setFocus();
+        #    fcbc.checked(true);
+        #    fcbc.clicked();
+        #
+        #    // Set the image number and search
+        #    fsc = xRefIconsFormRun.design().controlName(identifierStr(SearchString));
+        #    fsc.setFocus();
+        #    fsc.pasteText(strFmt('%1', _imageRes));
+        #    fsc.modified();
+        #
+        #    xRefIconsFormRun.detach();
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #random
+        #// >> DEV:MXK >>
+        #public static int random(   int _minValue = 0,
+        #                            int _maxValue = 0)
+        #{
+        #    System.Random   random;
+        #    int             ret;
+        #
+        #    random  = new System.Random();
+        #
+        #    if (_minValue && _maxValue)
+        #    {
+        #        ret     =  random.Next(_minValue, _maxValue);
+        #    }
+        #    else if (_maxValue)
+        #    {
+        #        ret     =  random.Next(_maxValue);
+        #    }
+        #    else
+        #    {
+        #        ret     =  random.Next();
+        #    }
+        #
+        #    return ret;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #regMatch
+        #// >> DEV:MXK >>
+        #public static boolean regMatch(str _input, str _pattern)
+        #{
+        #    return  System.Text.RegularExpressions.Regex::IsMatch(_input, _pattern);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #runSysContextMenu
+        #static void runSysContextMenu(  identifiername  _menuItemName,
+        #                                MenuItemType    _menuItemType,
+        #                                Object          _caller,
+        #                                SysContextMenu  _context = DEV_Global::currentSysContextMenu()
+        #                                )//this.currentSysContextMenu())
+        #{
+        #    MenuFunction menuFunction;
+        #    Args         args;
+        #
+        #    if (_context)
+        #    {
+        #        args = new Args();
+        #        if(_context.verifyItem(_menuItemName, _menuItemType))
+        #        {
+        #            menuFunction = new MenuFunction(_menuItemName, _menuItemType);
+        #            args.parmObject(_context);
+        #            args.caller(_caller);
+        #            menuFunction.run(args);
+        #        }
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #sendAlert
+        #// >> DEV:MXK >>
+        #static server void sendAlert(   //AlertGroupId        _subscrGroup,
+        #                                EventSubject            _subject,
+        #                                EventMessage            _message,
+        #                                NoYesId                 _popup      = true,
+        #                                boolean                 _email      = true,
+        #                                EventAlertedFor         _alertedFor = 'System generated. Triggered by ' + curuserid(),
+        #                                TableId                 _tableId    = tablenum(UserInfo),
+        #                                FieldId                 _fieldId    = fieldnum(UserInfo, Id),
+        #                                EventTypeTrigger        _trigger    = EventTypeTrigger::FieldChanged)
+        #
+        #{
+        #    SysInetMail         sysInetMail;
+        #    EventInbox          inbox;
+        #    EventInboxId        inboxId;
+        #    //AlertGroupList      alertGroupList;
+        #
+        #    if (true)//!AlertGroupList::skipUserEvent())
+        #    {
+        #        /*while select alertGroupList
+        #            where alertGroupList.GroupId == _subscrGroup*/
+        #        {
+        #            inboxId = EventInbox::nextEventId();
+        #
+        #            inbox.initValue();
+        #            inbox.ShowPopup         = _popup;
+        #            inbox.Subject           = _subject;
+        #            inbox.Message           = _message;
+        #            inbox.AlertedFor        = _alertedFor;
+        #            inbox.SendEmail         = _email;
+        #            inbox.EmailRecipient    = SysUserInfo::find(curUserId()/*alertGroupList.UserId*/).Email;
+        #            if(_email && inbox.EmailRecipient)
+        #            {
+        #                sysInetMail = new SysInetMail();
+        #                sysInetMail.sendMail(inbox.EmailRecipient, _subject, _message + '\n' + _alertedFor, false);
+        #            }
+        #            inbox.UserId                = curUserId();//alertGroupList.UserId;
+        #            inbox.TypeId                = classnum(EventType);
+        #            //Enter Table and Field Details
+        #            inbox.AlertTableId          = _tableId; // Table for which Alert is Generated
+        #            inbox.AlertFieldId          = _fieldId; // Field for which Alert is Generated
+        #            inbox.TypeTrigger           = _trigger;
+        #            inbox.CompanyId             = curext();
+        #            inbox.InboxId               = inboxId;
+        #            inbox.AlertCreatedDateTime  = DateTimeUtil::getSystemDateTime();
+        #            inbox.insert();
+        #        }
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #setStatusBar
+        #public static void setStatusBar()
+        #{
+        #    container con = [
+        #    'Nothing is impossible for the person who doesn’t have to do it.',
+        #    'Never put off until tomorrow what you can put off until the day after.',
+        #    'Warning: dates in the calendar are closer than you think.',
+        #    'The first 90% of a project takes 90% of the time the last 10% takes the other 90%.',
+        #    'To estimate a project, work out how long it would take one person to do it then multiply that by the number of people on the project.',
+        #    'There are no good project managers – only lucky ones.',
+        #    'Planning without action is futile, action without planning is fatal.',
+        #    'If you don’t attack the risks, the risks will attack you.',
+        #    'If project content is allowed to change freely the rate of change will exceed the rate of progress.',
+        #    'If it wasn’t for the ‘last minute’, nothing would get done.',
+        #    'If an IT project works the first time, it is wrong.',
+        #    'Schedule – cost – quality: you can have any two.',
+        #    'A verbal contract isn’t worth the paper it’s written on.',
+        #    'A project gets a year late one day at a time.',
+        #    'A project as not over until the fat cheque is cashed.',
+        #    'A problem shared is a buck passed.',
+        #    'A minute saved at the start is just as effective as one saved at the end.',
+        #    'A system administrator has two problems: dumb users and smart users.',
+        #    'Keep pressing F5 it\'s so refreshing',
+        #    'ERP system will always do what you tell it to do, but rarely what you want to do.',
+        #    'ERP systems are like air conditioners. They work fine until you start opening windows.',
+        #    'There is an object-oriented way to become wealthy. It\'s called Inheritance.',
+        #    'Any project can be estimated accurately (once it\'s completed).',
+        #    'A user will tell you anything you ask about, but nothing more.',
+        #    'A user is somebody who tells you what they want the day you give them what they asked for.',
+        #    'There\'s never enough time to do it right first time but there\'s always enough time to go back and do it again.',
+        #    'The sooner you begin coding the later you finish.',
+        #    'Change is inevitable - except from vending machines.',
+        #    'The person who says it will take the longest and cost the most is likely the only one with a clue how to do the job.',
+        #    'If you don\'t know where you\'re going, any road will take you there.',
+        #    'The more you plan the luckier you get.',
+        #    'A minute saved at the start is just as effective as one saved at the end.',
+        #    'The user does not know what he wants untill he gets it. Then he knows what he does NOT want.',
+        #    'If everything seems to be going well, you obviously don\'t know what\'s going on.',
+        #    'If there is anything to do, do it!',
+        #    'If it can go wrong it will.',
+        #    'If there is a 50% chance of something going wrong then 9 times out of 10 it will.'];
+        #
+        #    xUserInfo::statusLine_CustomText(true);
+        #
+        #    infolog.writeCustomStatlineItem(conPeek(con, DEV_Global::random(1, conLen(con))));
+        #}
+      ENDSOURCE
+      SOURCE #showHint
+        #// >> DEV:MXK >>
+        #public static void showHint(str _information,
+        #                            str _owner,
+        #                            str _heading = 'Hint')
+        #{
+        #    #DEV_Toolset
+        #
+        #    if (isDeveloper() && DEV_UserParameters::findOrCreate().DisableHints == NoYes::No)
+        #    {
+        #        Box::infoOnceModal( #ToolsetName,
+        #                            _heading,
+        #                            _information,
+        #                            _owner);
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #str2con
+        #static container str2con(str _string, str _separator = ",")
+        #{
+        #    container   con;
+        #    int         pos, oldPos = 1;
+        #
+        #    do
+        #    {
+        #        pos    =  strScan(_string, _separator, pos ? pos + strLen(_separator) : 1, strLen(_string));
+        #        con    += subStr(_string, oldPos, pos ? pos - oldPos : strLen(_string) + 1 - oldPos);
+        #        oldPos =  pos + strLen(_separator);
+        #    }
+        #    while (pos);
+        #
+        #    return con;
+        #}
+      ENDSOURCE
+      SOURCE #strEndsWith
+        #// >> DEV:MXK >>
+        #static boolean strEndsWith(str _string, str _potentialEnd)
+        #{
+        #    if (subStr(_string, strLen(_string)/*+1*/-strLen(_potentialEnd), strLen(_potentialEnd)) == _potentialEnd)
+        #        return true;
+        #    return false;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #strStartsWith
+        #// >> DEV:MXK >>
+        #static public boolean strStartsWith(str _string, str _potentialStart)
+        #{
+        #    if (subStr(_string, 1, strLen(_potentialStart) + 1) == _potentialStart)
+        #        return true;
+        #    return false;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #strSubNum
+        #// >> DEV:MXK >>
+        #public static str strSubNum(str _txt)
+        #{
+        #    str         char;
+        #    str         ret;
+        #
+        #    while (strLen(_txt))
+        #    {
+        #        char    = subStr(_txt, strLen(_txt), 1);
+        #
+        #        if (str2IntOk(char))
+        #        {
+        #            ret     = char + ret;
+        #            _txt    = subStr(_txt, 1, strLen(_txt) - 1);
+        #        }
+        #        else
+        #        {
+        #            break;
+        #        }
+        #    }
+        #
+        #    return ret;
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #toStr
+        #/// returns the string representation of given argument
+        #static str toStr(AnyType _value)
+        #{
+        #    Object o;
+        #    int i;
+        #    str ret;
+        #
+        #    if(typeOf(_value)==Types::AnyType && !_value)
+        #        return '<NoResult>';
+        #    if(typeOf(_value)==Types::Class)
+        #    {
+        #        o=_value;
+        #        return strFmt('%1', o.toString());
+        #    }
+        #    if(typeOf(_value)==Types::Container)
+        #    {
+        #        for(i=1;i<=conLen(_value);i++)
+        #        {
+        #            if(ret)
+        #                ret+=", ";
+        #            ret += DEV_Global::toStr(conPeek(_value, i));
+        #        }
+        #        return "["+ret+"]";
+        #    }
+        #    if(typeOf(_value)==Types::String || typeOf(_value)==Types::VarString)
+        #    {
+        #        return strFmt("'%1'", _value);
+        #    }
+        #    return strFmt('%1', _value);
+        #}
+        #
+      ENDSOURCE
+      SOURCE #treeNode2TableId
+        #static TableId treeNode2TableId(TreeNode _node)
+        #{
+        #    TreeNode currentNode=_node;
+        #    TableID ret;
+        #    while (currentNode &&  !ret)
+        #    {
+        #        ret = SysTableBrowser::treeNode2TableId(currentNode);
+        #        currentNode = currentNode.AOTparent();
+        #    }
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #writeLog
+        #// >> DEV:MXK >>
+        #static void writeLog(str _txt = '')
+        #{
+        #    #SysTrace
+        #    container   traceContainer;
+        #    container   stack = xSession::xppCallStack();
+        #    int         currentStack;
+        #    str         result;
+        #
+        #    //build memo field;
+        #    for(currentStack = 1; currentStack <= conlen(stack); currentStack++)
+        #    {
+        #        if(currentStack mod 2 == 0)
+        #        {
+        #            result += strfmt(' - line  %1 \n',conpeek(stack,currentStack));
+        #        }
+        #        else
+        #        {
+        #             result +=  conpeek(stack,currentStack);
+        #        }
+        #    }
+        #
+        #    traceContainer = conpoke(traceContainer, #SYS_TRACE_SQL_EXECUTION_PLAN,'');
+        #    traceContainer = conpoke(traceContainer, #SYS_TRACE_SQL_EXECUTION_TIME,0);
+        #    traceContainer = conpoke(traceContainer, #SYS_TRACE_SQL_CATEGORY,SqlTraceCategory::Statement);
+        #    traceContainer = conpoke(traceContainer, #SYS_TRACE_SQL_STATEMENT,'');
+        #    traceContainer = conpoke(traceContainer, #SYS_TRACE_SQL_TEXT,'');
+        #    traceContainer = conpoke(traceContainer, #SYS_TRACE_SQL_TEXT_MORE,'');
+        #    traceContainer = conpoke(traceContainer, #SYS_TRACE_SQL_CALLSTACK, result);
+        #    traceContainer = conpoke(traceContainer, #SYS_TRACE_SQL_CODE,infolog.text() + '\n' + _txt);
+        #    SYSTraceTableSQL::CreateFromContainer(traceContainer);
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

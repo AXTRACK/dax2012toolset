@@ -1,0 +1,185 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_EditorFormat unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_EditorFormat
+    PROPERTIES
+      Name                #DEV_EditorFormat
+      Origin              #{AD8B5B2A-1ED7-4ADE-9ABA-1696759F74CB}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class DEV_EditorFormat
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #ensureSingleSpaces
+        #private static void ensureSingleSpaces(Editor e, int startLine = e.selectionStartLine(), int endLine = e.selectionEndLine())
+        #{
+        #    #xppTexts
+        #    int i, col;
+        #    int delChars = 0;
+        #    str line;
+        #    str tmp;
+        #    int leadingCharIdx = -1;
+        #    ;
+        #
+        #    // ensure only single character spacing
+        #    for (i = startLine; i <= endLine; i++)
+        #    {
+        #        e.gotoLine(i);
+        #        e.gotoCol(1);
+        #
+        #        line            = e.currentLine();
+        #        leadingCharIdx  = -1;
+        #        delChars        = 0;
+        #
+        #        // Skip leading white space
+        #        for (col = 0; col <= strlen(line); col++)
+        #        {
+        #            if (    leadingCharIdx == -1
+        #                &&  substr(line, col, 1) != ' ')
+        #            {
+        #                leadingCharIdx = col;
+        #                continue;
+        #            }
+        #
+        #            // not found first word yet
+        #            if (leadingCharIdx == -1) continue;
+        #
+        #            // end of line, so finish
+        #            if (substr(line, col, 1) == #semicolon) break;
+        #
+        #            // if we have found a double space
+        #            tmp = substr(line, col, 2);
+        #
+        #            if (tmp == '  ')
+        #            {
+        #                e.gotoCol(col-delChars);
+        #                e.deleteChars(1);
+        #                delChars++;
+        #                //col--;
+        #            }
+        #        }
+        #    }
+        #}
+        #
+      ENDSOURCE
+      SOURCE #formatToColumnLayout
+        #// <summary>
+        #/// Editor_Scripts_FormatToColumnLayout, 2009-01-24
+        #/// Formats selected block of variable assignments or declarations into column format
+        #/// </summary>
+        #/// <param name="e">Currenty open editor</param>
+        #static void formatToColumnLayout(Editor e)
+        #{
+        #    List                            lineInfoList;
+        #    ListIterator                    iterator;
+        #    DEV_EditorLineInfo              currLineInfo;
+        #
+        #    int                             startLine       = e.selectionStartLine();
+        #    int                             endLine         = e.selectionEndLine();
+        #
+        #    int                             i;
+        #    int                             lineNumber      = startLine;
+        #    int                             maxVarDeclFirstCharIdx;
+        #    str                             blankstr;
+        #
+        #    DEV_EditorFormat::EnsureSingleSpaces(e, startLine, endLine);
+        #
+        #    lineInfoList           = DEV_EditorFormat::RecordLineInfo(e, startLine, endLine);
+        #    iterator               = new ListIterator(lineInfoList);
+        #    maxVarDeclFirstCharIdx = DEV_EditorLineInfo::MaxVarDeclFirstCharIdx(lineInfoList);
+        #
+        #    e.unmark();
+        #
+        #    while (iterator.more())
+        #    {
+        #        blankstr = '';
+        #        currLineInfo = iterator.value();
+        #
+        #        if (currLineInfo != null)
+        #        {
+        #            e.gotoLine(lineNumber);
+        #
+        #            if (currLineInfo.parmVarDeclFirstCharIdx() < maxVarDeclFirstCharIdx)
+        #            {
+        #                e.gotoCol(currLineInfo.parmVarDeclFirstCharIdx());
+        #
+        #                for (i = 0; i < maxVarDeclFirstCharIdx - currLineInfo.parmVarDeclFirstCharIdx() + 12; i++ )
+        #                {
+        #                    blankstr += ' ';
+        #                }
+        #
+        #                e.insertString(blankstr);
+        #            }
+        #        }
+        #
+        #        iterator.next();
+        #        lineNumber++;
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #recordLineInfo
+        #private static List recordLineInfo(Editor e, int startLine = e.selectionStartLine(), int endLine = e.selectionEndLine())
+        #{
+        #    #xppTexts
+        #    List               lineInfoList = new List(Types::Class);
+        #    DEV_EditorLineInfo currLineInfo;
+        #    int                i, col;
+        #    str                line;
+        #    int                numWords = 0;
+        #    str                prevChar = ' ';
+        #    str                currChar;
+        #    ;
+        #
+        #    for (i = startLine; i <= endLine; i++)
+        #    {
+        #        currLineInfo = null;
+        #        e.gotoLine(i);
+        #        e.gotoCol(1);
+        #        line = e.currentLine();
+        #        numWords = 0;
+        #        prevChar = ' ';
+        #
+        #        // Skip leading white space
+        #        for (col = 0; col <= strlen(line); col++)
+        #        {
+        #            if (col > 1)
+        #            {
+        #                prevChar = substr(line, col-1, 1);
+        #            }
+        #            currChar = substr(line, col, 1);
+        #            // previous char was blank and this char is non-blank:
+        #            if (prevChar == ' ' && currChar != ' ')
+        #            {
+        #                numWords++;
+        #                if (numWords == 2)
+        #                {
+        #                    currLineInfo = DEV_EditorLineInfo::construct(col);
+        #                }
+        #            }
+        #
+        #            // end of line, so finish
+        #            if (substr(line, col, 1) == #semicolon)
+        #            {
+        #                break;
+        #            }
+        #        }
+        #
+        #        lineInfoList.addEnd(currLineInfo);
+        #    }
+        #    return lineInfoList;
+        #}
+        #
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

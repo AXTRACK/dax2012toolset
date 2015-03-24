@@ -1,0 +1,66 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #SysVersionControlCheckIn
+  PROPERTIES
+    Name                #SysVersionControlCheckIn
+    Origin              #{0B180000-0000-1000-6C98-A7ECEC045D6B}
+  ENDPROPERTIES
+  
+  METHODS
+  ENDMETHODS
+  OBJECTBANK
+  ENDOBJECTBANK
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    CONTAINER
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Overview_ItemPath
+          ElementPosition     #858993458
+          HierarchyParent     #Overview
+          DataSource          #SysVersionControlTmpItem
+          DataField           #ItemPath
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #mouseDblClick
+            #// >> DEV:MXK >>
+            #public int mouseDblClick(int _x, int _y, int _button, boolean _Ctrl, boolean _Shift)
+            #{
+            #    int ret;
+            #
+            #    ret = super(_x, _y, _button, _Ctrl, _Shift);
+            #
+            #    DEV_AOTNodeExpander::expandNode(null, SysVersionControlTmpItem.ItemPath);
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+  ENDPERMISSIONS
+  
+ENDFORM
+
+
+***Element: END

@@ -1,0 +1,1352 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #SysTableBrowser
+  PROPERTIES
+    Name                #SysTableBrowser
+    Origin              #{D2400099-3D83-4C2E-AA5C-811CDEEA50DD}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #class FormRun extends ObjectRun
+      #{
+      #    tableId tableId;
+      #    Source sqlcmd;
+      #    DictTable dictTable;
+      #
+      #    // >> DEV:MXK >>
+      #    #AOT
+      #    #DictField
+      #    #KeyPressed
+      #    #ResAppl
+      #    #WinAPI
+      #
+      #    #define.TooltipFilterByName('F2 toggles filtering by name\\label. F8 clears all filters.')
+      #    #define.TooltipFilterByType('F3 toggles filtering by type.')
+      #    #define.TooltipFilterMandatory('F4 toggles filtering by mandatory property.')
+      #    #define.TooltipFilterLabels('F6 toggles between name and label display.')
+      #    #define.TooltipOpenTable('Open currect table in AOT')
+      #
+      #    SysTableBrowser                     callerClass;
+      #
+      #    ImageListAppl_Aot                   imgListAOT;
+      #
+      #    container                           itemIdxContainer;
+      #    FormGridControl                     formGridControl;
+      #    FormControl                         control;
+      #    boolean                             isInfo;
+      #
+      #    int                                 lastPosFrom;
+      #    int                                 lastPosTo;
+      #    int                                 lastSel;
+      #
+      #    boolean                             canFilterGrid;
+      #    boolean                             isFilterGrid;
+      #    boolean                             isFilterByType;
+      #
+      #    str                                 appliedFilter;
+      #
+      #    List                                allFields;
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #defaultSqlCmdStatement
+      #// >> DEV:MXK >>
+      #str defaultSqlCmdStatement()
+      #{
+      #    return strFmt(@'SELECT * FROM %1', tableId2Name(tableId));
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #executeSQLPresetChange
+      #// >> DEV:MXK >>
+      #void executeSQLPresetChange()
+      #{
+      #    FormTreeItem                                    item;
+      #    int                                             selection;
+      #    str                                             expression;
+      #
+      #    dictTable = new DictTable(tableId);
+      #
+      #    selection = Tree.getFirstSelected() ? Tree.getFirstSelected() : Tree.getRoot();
+      #
+      #    if (selection)
+      #    {
+      #        item = Tree.getItem(selection);
+      #    }
+      #
+      #    switch (ExecuteSQLPreset.selection())
+      #    {
+      #        case 1:
+      #            if (item)
+      #            {
+      #                this.parmSQLStmt(strfmt('UPDATE_RECORDSET %1\nSETTING %2 = \'\'\nWHERE %1.RecId == %3',
+      #                                        tableId2Name(tableId),
+      #                                        item.text(),
+      #                                        ds.RecId));
+      #            }
+      #            break;
+      #        case 2:
+      #            if (item)
+      #            {
+      #                expression  = strfmt('SELECT %1 FROM %2 WHERE %2.RecId = %3', item.text(), tableId2Name(tableId), ds.RecId);
+      #
+      #                this.parmSQLStmt(strfmt('DELETE_FROM %1\nWHERE %1.%2 == \'\'',
+      #                                        tableId2Name(tableId),
+      #                                        item.text(),
+      #                                        SysTableBrowser::DEV_GetValue(expression)));
+      #
+      #                CodeAccessPermission::revertAssert();
+      #            }
+      #            break;
+      #        default:
+      #            this.parmSQLStmt(this.defaultSqlCmdStatement());
+      #    }
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #filterOnTyping
+      #public void filterOnTyping()
+      #{
+      #    if (appliedFilter != FilterName.valueStr())
+      #    {
+      #        element.filterTree(isFilterGrid, isFilterByType, ShowMandatoryFields.value(), ShowIndexedFields.value(), false);
+      #        appliedFilter = FilterName.valueStr();
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #filterTree
+      #// >> DEV:MXK >>
+      #void filterTree(boolean _filterByName       = false,
+      #                boolean _filterByType       = false,
+      #                boolean _filterMandatory    = false,
+      #                boolean _filterIndex        = false,
+      #                boolean _setFocus           = true)
+      #{
+      #    FormDesign                          design  = element.design();
+      #    FormControl                         buildCtrl;
+      #    FormControl                         formControl;
+      #    SysDictField                        dictField;
+      #    FieldId                             fieldId;
+      #    FormDataObject                      fdobj;
+      #    int                                 i, j;
+      #
+      #    ListEnumerator                      le = allFields.getEnumerator();
+      #
+      #    if (!formGridControl)
+      #    {
+      #        for (i = 1; i <= design.controlCount(); i++)
+      #        {
+      #            buildCtrl   = design.controlNum(i);
+      #            formControl = element.control(buildCtrl.id());
+      #
+      #            if (formControl.name() == 'Grid')
+      #            {
+      #                formGridControl = formControl;
+      #            }
+      #        }
+      #    }
+      #
+      #    itemIdxContainer = connull();
+      #
+      #    element.lockWindowUpdate(true);
+      #    if (    Tree.visible()
+      #        &&  dictTable)
+      #    {
+      #        Tree.setImagelist(imgListAOT.imageList());
+      #        Tree.deleteAll();
+      #
+      #        while (le.moveNext())
+      #        {
+      #            fieldId     = le.current();
+      #            dictField   = new SysDictField(dictTable.id(), fieldId);
+      #
+      #            for (j = 1; j <= dictField.arraySize(); j++)
+      #            {
+      #                fdobj       = ds_ds.object(fieldId, j);
+      #
+      #                if (    bitTest(dictField.flags(), #DBF_STORE)
+      #                    &&  fdobj)
+      #                {
+      #                    if (    _filterMandatory
+      #                        &&  (   dictField.mandatory()
+      #                            ||  dictField.isSystem())
+      #                        ||  (   _filterIndex
+      #                            &&  dictField.isIndexField(true))
+      #                        ||  (   _filterMandatory    == false
+      #                            &&  _filterIndex        == false
+      #                            &&  (   (   ShowLabels.value()
+      #                                    ?   strscan(dictField.label(j), FilterName.text(), 1, strlen(dictField.label(j)))
+      #                                    :   strscan(dictField.name(), FilterName.text(), 1, strlen(dictField.name())))
+      #                                ||  FilterName.text() == '')
+      #                            &&  (   (   _filterByType == true
+      #                                    &&  dictField.baseType() == FilterType.selection())
+      #                                ||  (   _filterByType == false))))
+      #                    {
+      #                        element.treeAdd(dictField, fdobj);
+      #                    }
+      #                    else
+      #                    {
+      #                        fdobj.visible(!_filterByName);
+      #                        itemIdxContainer += 0;
+      #                    }
+      #                }
+      #            }
+      #        }
+      #
+      #        if (formGridControl)
+      #        {
+      #           formGridControl.topMode(FormTop::TopEdge);
+      #        }
+      #    }
+      #
+      #    if (_setFocus)
+      #        FilterName.setSelection(lastPosFrom, lastPosTo);
+      #
+      #    element.lockWindowUpdate(false);
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #init
+      #public void init()
+      #{
+      #    super();
+      #    this.controlMethodOverload(true);
+      #
+      #    // >> DEV:MXK >>
+      #    if (this.args() && this.args().caller())
+      #    {
+      #        callerClass = this.args().caller();
+      #    }
+      #
+      #    ExecuteSQLPreset.add('SELECT');
+      #    ExecuteSQLPreset.add('UPDATE');
+      #    ExecuteSQLPreset.add('DELETE');
+      #    this.installMessageProc(#WM_KEYDOWN, FilterName.hWnd(), identifierstr(onEventKeyDown));
+      #
+      #    allFields       = callerClass.getAllFields();
+      #    imgListAOT      = new ImageListAppl_Aot();
+      #
+      #    Company.visible(SysDictTable::newTableId(ds.TableId).dataPrCompany());
+      #    Company.text(curext());
+      #    element.setButtons();
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #onEventKeyDown
+      #// >> DEV:MXK >>
+      #void onEventKeyDown(anyType _a     = '',
+      #                    anyType _b     = '',
+      #                    anyType _vkKey = '',
+      #                    anyType _d     = '',
+      #                    anyType _e     = '',
+      #                    anyType _f     = '')
+      #{
+      #    switch (_vkKey)
+      #    {
+      #        case #arrowUp:
+      #            Tree.select(Tree.getPrevVisible(Tree.getSelection() ? Tree.getSelection() : Tree.getFirstVisible()));
+      #
+      #            control = formGridControl.controlNum(conFind(itemIdxContainer, Tree.getSelection() ? Tree.getSelection() : Tree.getFirstVisible()));
+      #            isInfo  = false;
+      #            control.setFocus();
+      #            FilterName.setFocus();
+      #            break;
+      #
+      #        case #arrowDown:
+      #            Tree.select(Tree.getNextVisible(Tree.getSelection() ? Tree.getSelection() : Tree.getFirstVisible()));
+      #
+      #            control = formGridControl.controlNum(conFind(itemIdxContainer, Tree.getSelection() ? Tree.getSelection() : Tree.getFirstVisible()));
+      #            isInfo  = false;
+      #            control.setFocus();
+      #            FilterName.setFocus();
+      #            break;
+      #
+      #        case #F2:
+      #            if (canFilterGrid)
+      #            {
+      #                FilterByName.clicked();
+      #            }
+      #            else
+      #            {
+      #                RemoveFilterByName.clicked();
+      #            }
+      #            break;
+      #
+      #        case #F3:
+      #            if (isFilterByType)
+      #            {
+      #                RemoveFilterByType.clicked();
+      #            }
+      #            else
+      #            {
+      #                FilterByType.clicked();
+      #            }
+      #            break;
+      #
+      #        case #F4:
+      #            ShowMandatoryFields.value(!ShowMandatoryFields.value());
+      #            ShowMandatoryFields.modified();
+      #            break;
+      #
+      #        case #F6:
+      #            ShowLabels.value(!ShowLabels.value());
+      #            ShowLabels.modified();
+      #            break;
+      #
+      #        case #F8:
+      #            FilterName.text('');
+      #            appliedFilter = '';
+      #            ShowMandatoryFields.value(false);
+      #            ShowIndexedFields.value(false);
+      #            ShowLabels.value(false);
+      #
+      #            canFilterGrid   = false;
+      #            isFilterGrid    = false;
+      #            isFilterByType  = false;
+      #
+      #            element.setButtons();
+      #
+      #            element.filterTree();
+      #            break;
+      #
+      #        default:
+      #            break;
+      #    }
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #run
+      #void run()
+      #{
+      #    super();
+      #    dictTable = new DictTable(tableId);
+      #    this.parmSQLStmt('SELECT * FROM '+tableid2name(tableId));
+      #
+      #    // >> DEV:MXK >>
+      #    this.lockWindowUpdate(true);
+      #
+      #    this.parmSQLStmt(this.defaultSqlCmdStatement());
+      #
+      #    // Fields navigator
+      #    this.filterTree();
+      #
+      #    // Position window
+      #    if (DEV_UserParameters::exist() && DEV_UserParameters::find().WMEnabled)
+      #        DEV_HKCommon::leftSideTB(this.hWnd());
+      #
+      #    this.lockWindowUpdate(false);
+      #
+      #    this.task(2855);
+      #
+      #    Tree.enter();
+      #    FilterName.setFocus();
+      #
+      #    DEV_Global::showHint('You can filter field\'s tree and apply this filtering on the grid.\n' +
+      #                        'Built in hotkey available. See tooltips on the form.\n\n' +
+      #                        'Depending on the field properties the color on the grid will be different.\n' +
+      #                        'E.g. mandatory, system, disabled for editing or hidden fields are highlighted.\n\n' +
+      #                        'Use table browser with Form digger on a system tables to get information like enums etc.',
+      #                        this.name(),
+      #                        'Table browser');
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #setButtons
+      #// >> DEV:MXK >>
+      #public void setButtons()
+      #{
+      #    element.lock();
+      #
+      #    canFilterGrid = FilterName.valueStr() || isFilterByType || ShowMandatoryFields.value() || ShowIndexedFields.value();
+      #    FilterByName.enabled(canFilterGrid);
+      #    FilterByName.visible(!isFilterGrid);
+      #    RemoveFilterByName.visible(isFilterGrid);
+      #
+      #    FilterByType.visible(!isFilterByType);
+      #    RemoveFilterByType.visible(isFilterByType);
+      #
+      #    Tree.enter();
+      #    FilterName.setFocus();
+      #    FilterName.setSelection(lastPosFrom, lastPosTo);
+      #
+      #    element.unLock();
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+    SOURCE #task
+      #int task(int p1)
+      #{
+      #    #define.tab(2827)
+      #    #define.f5(2839)
+      #
+      #    FormControl cur = element.selectedControl();
+      #    int ret;
+      #
+      #    // >> DEV:MXK >>
+      #    #Task
+      #
+      #    if (p1 == #taskEsc)
+      #    {
+      #        if (SysQuery::queryHasRangesOrFilters(ds_qr.query()))
+      #            return 0;
+      #    }
+      #    // << DEV:MXK <<
+      #
+      #    if ((p1 == #tab) && (cur.hWnd() == SQL.hWnd()))
+      #    {
+      #        SQL.pasteText('    ', true);
+      #        SQL.updateWindow();
+      #        ret = 0;
+      #    }
+      #    else if (p1 == #f5)
+      #    {
+      #        ExecuteSQL.clicked();
+      #        ret = 1;
+      #    }
+      #    else
+      #        ret = super(p1);
+      #
+      #    return ret;
+      #}
+    ENDSOURCE
+    SOURCE #treeAdd
+      #void treeAdd(   DictField       _dictField,
+      #                FormDataObject  _fdobj)
+      #{
+      #    TreeItemIdx                         treeItemIdx;
+      #    FormTreeItem                        formTreeItem;
+      #    int                                 j;
+      #
+      #    treeItemIdx = SysFormTreeControl::addTreeItem(  Tree,
+      #                                                    ShowLabels.value() ? _dictField.label(j) : _dictField.name(),
+      #                                                    0,
+      #                                                    null,
+      #                                                    imgListAOT.image(#ImageField));
+      #    formTreeItem = Tree.getItem(treeItemIdx);
+      #    formTreeItem.stateBold(_dictField.mandatory());
+      #    formTreeItem.stateCut(!_dictField.allowEdit());
+      #    Tree.setItem(formTreeItem);
+      #
+      #    SysFormTreeControl::setOverlayImage(Tree, treeItemIdx, imgListAOT.image(DEV_Global::getOverlayImage(_dictField.baseType())));
+      #    itemIdxContainer += treeItemIdx;
+      #    _fdobj.visible(true);
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+  ENDOBJECTBANK
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Width               #Column width
+      Height              #Column height
+      Caption             #@SYS54191
+      WindowType          #Workspace
+      Columnspace         #0
+      HideIfEmpty         #No
+      AllowUserSetup      #Restricted
+      Scrollbars          #No
+      ViewEditMode        #Edit
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL GRID #allFieldsGrid
+        METHODS
+          SOURCE #toolTip
+            #public str toolTip()
+            #{
+            #    str ret;
+            #
+            #    ret = super();
+            #
+            #    ret = this.helpText();
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #FilterGroup
+          Width               #260
+          Height              #Column height
+          VerticalSpacing     #0
+          ElementPosition     #613566756
+          HierarchyParent     #GroupRightSide
+          FrameType           #Raised 3D
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Group
+          Left                #Right edge
+          ElementPosition     #1610612733
+          HierarchyParent     #SQLGrp
+          FrameType           #None
+          Columns             #3
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupExecute
+          ElementPosition     #1073741822
+          HierarchyParent     #Group
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupFilterType
+          Width               #260
+          Height              #Column height
+          VerticalSpacing     #0
+          ElementPosition     #1227133512
+          HierarchyParent     #GroupRightSide
+          FrameType           #Raised 3D
+          Columns             #3
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupFunctions
+          Width               #260
+          VerticalSpacing     #0
+          ElementPosition     #1840700268
+          HierarchyParent     #GroupRightSide
+          FrameType           #Raised 3D
+          TopMargin           #3
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupOptions
+          Width               #260
+          VerticalSpacing     #0
+          ElementPosition     #1533916890
+          HierarchyParent     #GroupRightSide
+          FrameType           #Raised 3D
+          TopMargin           #3
+          Columns             #3
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupRightSide
+          Left                #Right edge
+          Height              #Column height
+          VerticalSpacing     #0
+          ElementPosition     #1789569704
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #SQLGrp
+          Top                 #Bottom edge
+          Width               #Column width
+          Height              #100
+          VerticalSpacing     #0
+          ElementPosition     #1431655763
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #ExecuteSQL
+          AutoDeclaration     #Yes
+          Left                #Left edge
+          HelpText            #@SYS57538
+          ElementPosition     #1073741822
+          HierarchyParent     #GroupExecute
+          ButtonDisplay       #Image only
+          NormalImage         #1094
+          ImageLocation       #EmbeddedResource
+          DisabledImage       #1094
+          DisabledImageLocation #EmbeddedResource
+          BackStyle           #Transparent
+          ForegroundColor     #Button face (3D)
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    XppCompiler compiler = new XppCompiler();
+            #    if (sql.text())
+            #    {
+            #        // >> DEV:MXK >>
+            #        //sqlcmd = 'void SQLSTMT('+dictTable.name()+' '+dictTable.name()+')\n{\n'+sql.text()+';\n}\n';
+            #        sqlcmd = 'void execStatment(' + dictTable.name() + ' ' + dictTable.name() + ')\n{\n' + sql.text() + ';\n}\n';
+            #        // << DEV:MXK <<
+            #        if (compiler.compile(sqlcmd))
+            #        {
+            #            // >> DEV:MXK >>
+            #            //ds_ds.executeQuery();
+            #            if (strscan(sql.text(), @'DELETE_FROM', 1, strlen(sql.text())))
+            #            {
+            #                if (Box::yesNo('Delete records?', DialogButton::No) == DialogButton::Yes)
+            #                {
+            #                    ds_ds.executeQuery();
+            #                }
+            #            }
+            #            else if (strscan(sql.text(), @'UPDATE_RECORDSET', 1, strlen(sql.text())))
+            #            {
+            #                if (Box::yesNo('Update records?', DialogButton::No) == DialogButton::Yes)
+            #                {
+            #                    ds_ds.executeQuery();
+            #                }
+            #            }
+            #            else
+            #            {
+            #                ds_ds.executeQuery();
+            #            }
+            #            // << DEV:MXK <<
+            #        }
+            #        else
+            #        {
+            #            setprefix("@SYS57538");
+            #            info (sqlcmd);
+            #            error (compiler.errorText());
+            #        }
+            #    }
+            #    else
+            #    {
+            #        sqlcmd = '';
+            #        ds_ds.executeQuery();
+            #    }
+            #
+            #    super();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #FilterByName
+          AutoDeclaration     #Yes
+          Width               #25
+          Height              #25
+          ElementPosition     #1288490187
+          HierarchyParent     #FilterGroup
+          ButtonDisplay       #Image only
+          NormalImage         #1028
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    isFilterGrid = !isFilterGrid;
+            #    element.filterTree(isFilterGrid, isFilterByType, ShowMandatoryFields.value(), ShowIndexedFields.value());
+            #
+            #    element.setButtons();
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+          SOURCE #toolTip
+            #// >> DEV:MXK >>
+            #public str toolTip()
+            #{
+            #    str ret;
+            #
+            #    ret = super();
+            #
+            #    ret = #TooltipFilterByName;
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #FilterByType
+          AutoDeclaration     #Yes
+          Left                #Right edge
+          Width               #25
+          Height              #25
+          ElementPosition     #1288490187
+          HierarchyParent     #GroupFilterType
+          ButtonDisplay       #Image only
+          NormalImage         #1028
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    ShowMandatoryFields.value(false);
+            #
+            #    isFilterByType      = !isFilterByType;
+            #    element.filterTree(isFilterGrid, isFilterByType);
+            #
+            #    element.setButtons();
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+          SOURCE #toolTip
+            #// >> DEV:MXK >>
+            #public str toolTip()
+            #{
+            #    str ret;
+            #
+            #    ret = super();
+            #
+            #    ret = #TooltipFilterByType;
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #OpenTableInAOT
+          AutoDeclaration     #Yes
+          Left                #Auto (right)
+          Width               #25
+          Height              #25
+          ElementPosition     #1610612733
+          HierarchyParent     #GroupFunctions
+          ButtonDisplay       #Image only
+          NormalImage         #41007
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    SysDictTable::newTableId(ds.TableId).treeNode().AOTnewWindow();
+            #    element.setButtons();
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+          SOURCE #toolTip
+            #// >> DEV:MXK >>
+            #public str toolTip()
+            #{
+            #    str ret;
+            #
+            #    ret = super();
+            #
+            #    ret = #TooltipOpenTable;
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #RemoveFilterByName
+          AutoDeclaration     #Yes
+          Visible             #No
+          Width               #25
+          Height              #25
+          ElementPosition     #1717986916
+          HierarchyParent     #FilterGroup
+          ButtonDisplay       #Image only
+          NormalImage         #1089
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    super();
+            #
+            #    isFilterGrid = false;
+            #
+            #    element.filterTree(isFilterGrid, isFilterByType, ShowMandatoryFields.value(), ShowIndexedFields.value());
+            #
+            #    element.setButtons();
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+          SOURCE #toolTip
+            #// >> DEV:MXK >>
+            #public str toolTip()
+            #{
+            #    str ret;
+            #
+            #    ret = super();
+            #
+            #    ret = #TooltipFilterByName;
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #RemoveFilterByType
+          AutoDeclaration     #Yes
+          Visible             #No
+          Left                #Right edge
+          Width               #25
+          Height              #25
+          ElementPosition     #1717986916
+          HierarchyParent     #GroupFilterType
+          ButtonDisplay       #Image only
+          NormalImage         #1089
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    super();
+            #
+            #    isFilterByType = !isFilterByType;
+            #
+            #    element.filterTree(isFilterGrid, isFilterByType);
+            #
+            #    element.setButtons();
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+          SOURCE #toolTip
+            #// >> DEV:MXK >>
+            #public str toolTip()
+            #{
+            #    str ret;
+            #
+            #    ret = super();
+            #
+            #    ret = #TooltipFilterByType;
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #ShowIndexedFields
+          AutoDeclaration     #Yes
+          VerticalSpacing     #0
+          HelpText            #Shows hidden fields at the end of all other fields.
+          ElementPosition     #1288490187
+          HierarchyParent     #GroupOptions
+          Label               #Index
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #// >> DEV:MXK >>
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    if (isFilterByType)
+            #    {
+            #        RemoveFilterByType.clicked();
+            #    }
+            #
+            #    if (ShowMandatoryFields.value())
+            #    {
+            #        ShowMandatoryFields.value(0);
+            #    }
+            #
+            #    isFilterGrid = isFilterGrid ? !ShowIndexedFields.value() && FilterName.valueStr() : isFilterGrid;
+            #
+            #    element.filterTree(isFilterGrid, isFilterByType, ShowMandatoryFields.value(), ShowIndexedFields.value());
+            #
+            #    element.setButtons();
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #ShowLabels
+          AutoDeclaration     #Yes
+          VerticalSpacing     #0
+          HelpText            #Shows labels instead of the field names.
+          ElementPosition     #1717986916
+          HierarchyParent     #GroupOptions
+          Label               #Labels
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #// >> DEV:MXK >>
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    element.filterTree(isFilterGrid, isFilterByType, ShowMandatoryFields.value(), ShowIndexedFields.value());
+            #
+            #    element.setButtons();
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+          SOURCE #toolTip
+            #// >> DEV:MXK >>
+            #public str toolTip()
+            #{
+            #    str ret;
+            #
+            #    ret = super();
+            #
+            #    ret = #TooltipFilterLabels;
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #ShowMandatoryFields
+          AutoDeclaration     #Yes
+          VerticalSpacing     #0
+          HelpText            #Shows mandatory fields.
+          ElementPosition     #858993458
+          HierarchyParent     #GroupOptions
+          Label               #Mandatory
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #// >> DEV:MXK >>
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    if (isFilterByType)
+            #    {
+            #        RemoveFilterByType.clicked();
+            #    }
+            #
+            #    if (ShowIndexedFields.value())
+            #    {
+            #        ShowIndexedFields.value(0);
+            #    }
+            #
+            #    isFilterGrid = isFilterGrid ? !ShowMandatoryFields.value() && FilterName.valueStr() : isFilterGrid;
+            #
+            #    element.filterTree(isFilterGrid, isFilterByType, ShowMandatoryFields.value(), ShowIndexedFields.value());
+            #
+            #    element.setButtons();
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+          SOURCE #toolTip
+            #// >> DEV:MXK >>
+            #public str toolTip()
+            #{
+            #    str ret;
+            #
+            #    ret = super();
+            #
+            #    ret = #TooltipFilterMandatory;
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #FilterType
+          AutoDeclaration     #Yes
+          Left                #10
+          Width               #210
+          ElementPosition     #858993458
+          HierarchyParent     #GroupFilterType
+          ShowLabel           #No
+          Label               #Type
+          EnumType            #Types
+          ComboType           #List
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #selectionChange
+            #// >> DEV:MXK >>
+            #public int selectionChange()
+            #{
+            #    int ret;
+            #
+            #    ret = super();
+            #
+            #    ShowMandatoryFields.value(false);
+            #
+            #    isFilterByType = true;
+            #
+            #    element.filterTree(isFilterGrid, isFilterByType, ShowMandatoryFields.value(), ShowIndexedFields.value());
+            #
+            #    element.setButtons();
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL RADIOBUTTON
+        PROPERTIES
+          Name                #ExecuteSQLPreset
+          AutoDeclaration     #Yes
+          SecurityKey         #SysDevelopment
+          ElementPosition     #1610612733
+          HierarchyParent     #GroupExecute
+          DisplayLength       #0
+          RightMargin         #5
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #selectionChange
+            #public int selectionChange()
+            #{
+            #    int ret;
+            #
+            #    ret = super();
+            #
+            #    element.executeSQLPresetChange();
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Company
+          AutoDeclaration     #Yes
+          HelpText            #Select another company to browse table
+          ElementPosition     #1073741822
+          HierarchyParent     #GroupFunctions
+          ExtendedDataType    
+            ARRAY 
+              #DataAreaId
+              #
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #// >> DEV:MXK >>
+            #public boolean modified()
+            #{
+            #    SysTableBrowser     sysTableBrowser     = new SysTableBrowser();
+            #    boolean             ret;
+            #
+            #    ret = super();
+            #
+            #    if (    ret
+            #        &&  Company.valueStr()
+            #        &&  Company.valueStr() != curext()
+            #        &&  (select firstonly DataArea where DataArea.id == Company.valueStr()).RecId)
+            #    {
+            #        changeCompany(Company.valueStr())
+            #        {
+            #            sysTableBrowser.run(ds.TableId);
+            #        }
+            #
+            #        Company.text(curext());
+            #        element.setButtons();
+            #        //element.close();
+            #    }
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #FilterName
+          AutoDeclaration     #Yes
+          Left                #10
+          Width               #210
+          ElementPosition     #858993458
+          HierarchyParent     #FilterGroup
+          ShowLabel           #No
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #enter
+            #public void enter()
+            #{
+            #    super();
+            #
+            #    this.setSelection(lastPosFrom, lastPosTo);
+            #}
+          ENDSOURCE
+          SOURCE #textChange
+            #// >> DEV:MXK >>
+            #public void textChange()
+            #{
+            #    super();
+            #
+            #    [lastPosFrom, lastPosTo] = this.getSelection();
+            #
+            #    ShowMandatoryFields.value(false);
+            #    ShowIndexedFields.value(false);
+            #
+            #    isFilterGrid = false;
+            #
+            #    element.setTimeOut(identifierStr(filterOnTyping), 100);
+            #
+            #    element.setButtons();
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SQL
+          AutoDeclaration     #Yes
+          Width               #Column width
+          HelpText            #@SYS57539
+          ElementPosition     #1073741822
+          HierarchyParent     #SQLGrp
+          MultiLine           #Yes
+          Font                #Courier New
+          FontSize            #9
+          Bold                #Normal
+          ShowLabel           #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TREE
+        PROPERTIES
+          Name                #Tree
+          AllowEdit           #No
+          Width               #260
+          Height              #350
+          VerticalSpacing     #0
+          HelpText            #Double click on the field to navigate.
+          ElementPosition     #920350134
+          HierarchyParent     #GroupRightSide
+          HasButtons          #No
+          HasLines            #No
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #mouseDown
+            #public int mouseDown(int _x, int _y, int _button, boolean _Ctrl, boolean _Shift)
+            #{
+            #    TreeItemIdx                                 itemIdx;
+            #    int                                         ret;
+            #
+            #    ret = super(_x, _y, _button, _Ctrl, _Shift);
+            #
+            #    [itemIdx] = this.hitTest(_x, _y);
+            #
+            #    if (    formGridControl
+            #        &&  itemIdx)
+            #    {
+            #        control = formGridControl.controlNum(conFind(itemIdxContainer, itemIdx));
+            #        isInfo  = false;
+            #        control.setFocus();
+            #    }
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+          SOURCE #selectionChanged
+            #public void selectionChanged(FormTreeItem _OldItem, FormTreeItem _NewItem, FormTreeSelect _how)
+            #{
+            #    TreeItemIdx                                 itemIdx;
+            #
+            #    itemIdx = Tree.getSelection();
+            #
+            #    super(_OldItem, _NewItem, _how);
+            #
+            #    control = formGridControl.controlNum(conFind(itemIdxContainer, itemIdx));
+            #    isInfo  = false;
+            #    control.setFocus();
+            #    Tree.setFocus();
+            #
+            #    element.executeSQLPresetChange();
+            #}
+          ENDSOURCE
+          SOURCE #showContextMenu
+            #// >> DEV:MXK >>
+            #public int showContextMenu(int _menuHandle)
+            #{
+            #    TreeNode                            treeNode;
+            #    int                                 properties;
+            #    int                                 open;
+            #    int                                 selection;
+            #
+            #    PopupMenu                           popupMenu = new PopupMenu(this.hWnd());
+            #
+            #    treeNode = TreeNode::findNode(strfmt(#TablesPath + '\\' + #FieldPath, dictTable.name(), Tree.getItem(Tree.getFirstSelected()).text()));
+            #
+            #    if (!treeNode)
+            #        return 0;
+            #
+            #    popupMenu.insertBreak();
+            #
+            #    open        = popupMenu.insertItem("@SYS80095");
+            #    popupMenu.insertBreak();
+            #    properties  = popupMenu.insertItem("@SYS10344");
+            #    selection   = popupMenu.draw();
+            #
+            #    switch (selection)
+            #    {
+            #        case open:
+            #            DEV_AOTNodeExpander::expandNode(treeNode);
+            #            return 0;
+            #
+            #        case properties:
+            #            DEV_WinAPI::showProperties(treeNode.treeNodePath());
+            #            return 0;
+            #        default:
+            #            return selection;
+            #    }
+            #
+            #    return selection;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+  ENDPERMISSIONS
+  
+ENDFORM
+
+
+***Element: END

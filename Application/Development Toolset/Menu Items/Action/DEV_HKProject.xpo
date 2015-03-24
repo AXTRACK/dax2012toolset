@@ -1,0 +1,26 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FTM
+
+; Microsoft Dynamics AX MENUITEM : DEV_HKProject unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  MENUITEM #DEV_HKProject
+    Type: 3
+    PROPERTIES
+      Name                #DEV_HKProject
+      Label               #Add to project
+      HelpText            #Add last selected objects to project
+      ObjectType          #Class
+      Object              #DEV_HKProject
+      ConfigurationKey    #SysDevelopmentMorphX
+      SecurityKey         #SysDevelopment
+      Origin              #{A4265A13-45A9-431F-8A34-89AE1B21576B}
+    ENDPROPERTIES
+    
+  ENDMENUITEM
+  
+
+***Element: END

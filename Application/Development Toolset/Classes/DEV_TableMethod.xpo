@@ -1,0 +1,242 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_TableMethod unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_TableMethod
+    PROPERTIES
+      Name                #DEV_TableMethod
+      Origin              #{D4D4A42C-557A-4BA1-8D61-F39EAF46DA49}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #add2AOT
+        #private void add2AOT()
+        #{
+        #    TreeNode tableNode = dictTable.treeNode();
+        #    TreeNode newMethodNode;
+        #    #AOT
+        #    ;
+        #
+        #    newMethodNode = tableNode.AOTfindChild('Methods').AOTadd(name);
+        #    newMethodNode.AOTsetSource(source, true);
+        #    newMethodNode.AOTcompile();
+        #    newMethodNode.AOTsave();
+        #    tableNode.AOTsave();
+        #    info(strFmt('Method \'%1\' created', name), '', this.infoAction());
+        #}
+      ENDSOURCE
+      SOURCE #addIndexField
+        #public void addIndexField(SysDictField _dictField)
+        #{
+        #    ;
+        #    numOfIndexFields++;
+        #    dictFields.value(numOfIndexFields, _dictField);
+        #}
+      ENDSOURCE
+      SOURCE #addSummary
+        #// >> DEV:MXK >>
+        #protected abstract void addSummary()
+        #{
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #calcMaxTypeLength
+        #private void calcMaxTypeLength()
+        #{
+        #    int i;
+        #    int length;
+        #    ;
+        #
+        #    for (i = 1; i <= numOfIndexFields; i++)
+        #    {
+        #        length = strLen(this.fieldType(i));
+        #        maxTypeLength = max(maxTypeLength, length);
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #checkMethodNotExist
+        #protected boolean checkMethodNotExist()
+        #{
+        #    boolean ok = true;
+        #    ;
+        #
+        #    // tableHasStaticMethod() is not used because it return false
+        #    // if method exist but compilation ends with errors
+        #    if (TreeNode::findNode(this.treeNodePath()))
+        #    {
+        #        ok = checkFailed(strFmt('Method \'%1\' already exists', name),
+        #            '',
+        #            this.infoAction());
+        #    }
+        #
+        #    return ok;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #abstract class DEV_TableMethod
+        #{
+        #    UtilElementName name;
+        #    SysDictTable    dictTable;
+        #    Array           dictFields;
+        #    int             numOfIndexFields;
+        #    Source          source;
+        #    int             maxTypeLength;
+        #    boolean         addSummary;
+        #    DEV_SourceCode  code;
+        #    IdentifierName  tableVarName;
+        #
+        #    #define.exist("exist")
+        #    #define.find("find")
+        #    #define.findRecId("findRecId")
+        #    #define.checkExist("checkExist")
+        #    #define.txtNotExist("txtNotExist")
+        #}
+      ENDSOURCE
+      SOURCE #create
+        #public void create()
+        #{
+        #    if (this.checkMethodNotExist())
+        #    {
+        #        code            = new DEV_SourceCode();
+        #        tableVarName    = this.variableName(dictTable.name());
+        #
+        #        if (addSummary)
+        #        {
+        #            this.addSummary();
+        #        }
+        #
+        #        this.initSource();
+        #        this.add2AOT();
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #fieldName
+        #protected FieldName fieldName(int i)
+        #{
+        #    SysDictField dictField = dictFields.value(i);
+        #    ;
+        #
+        #    return dictField.name();
+        #}
+      ENDSOURCE
+      SOURCE #fieldType
+        #protected UtilElementName fieldType(int i)
+        #{
+        #    UtilElementName typeName;
+        #    SysDictField dictField = dictFields.value(i);
+        #
+        #    int id;
+        #    ;
+        #
+        #    if (dictField.typeId())
+        #    {
+        #        id = dictField.typeId();
+        #    }
+        #    else if (dictField.enumId())
+        #    {
+        #        id = dictField.enumId();
+        #    }
+        #
+        #    typeName = extendedTypeId2DisplayName(dictField.type(), id);
+        #
+        #    // If type is string without EDT, set string length.
+        #    // Unlimited strings cannot be used in where clause.
+        #    if (!id
+        #        && (dictField.type() == Types::String || dictField.type() == Types::RString))
+        #    {
+        #        typeName += strFmt(' %1', dictField.stringLen());
+        #    }
+        #
+        #    return typeName;
+        #}
+      ENDSOURCE
+      SOURCE #infoAction
+        #protected SysInfoAction_Editor infoAction()
+        #{
+        #    SysInfoAction_Editor action;
+        #    ;
+        #
+        #    action = SysInfoAction_Editor::newOpen(this.treeNodePath());
+        #    return action;
+        #}
+      ENDSOURCE
+      SOURCE #initSource
+        #protected abstract void initSource()
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #maxTypeLength
+        #protected int maxTypeLength()
+        #{
+        #    if (!maxTypeLength)
+        #    {
+        #        this.calcMaxTypeLength();
+        #    }
+        #
+        #    return maxTypeLength;
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #protected void new(SysDictTable _dictTable, boolean _addSummary = false)
+        #{
+        #    dictTable   = _dictTable;
+        #    dictFields  = new Array(Types::Class);
+        #    addSummary  = _addSummary;
+        #}
+      ENDSOURCE
+      SOURCE #parameterName
+        #protected IdentifierName parameterName(FieldName _fieldName)
+        #{
+        #    return '_' + this.variableName(_fieldName);
+        #}
+      ENDSOURCE
+      SOURCE #treeNodePath
+        #protected TreeNodePath treeNodePath()
+        #{
+        #    TreeNodePath path
+        #    #AOT
+        #    ;
+        #
+        #    path = strFmt(#MethodPath, dictTable.path(), name);
+        #    return path;
+        #}
+      ENDSOURCE
+      SOURCE #variableName
+        #protected IdentifierName variableName(FieldName _name)
+        #{
+        #    IdentifierName                          varName;
+        #    str                                     firstChar;
+        #    System.Text.RegularExpressions.Regex    regExHasLwr = new System.Text.RegularExpressions.Regex(@'[^A-Z]');
+        #
+        #    if (regExHasLwr.IsMatch(_name)) // Has lowercase letters
+        #    {
+        #        // Remove prefix
+        #        if (    strLen(_name) > 6
+        #            &&  subStr(_name, 4, 1) == '_'
+        #            &&  !regExHasLwr.IsMatch(subStr(_name, 1, 3)))
+        #        {
+        #            _name = subStr(_name, 5, strLen(_name));
+        #        }
+        #
+        #        firstChar = subStr(_name, 1, 1);
+        #
+        #        varName = strLwr(firstChar) + subStr(_name, 2, strLen(_name)-1);
+        #    }
+        #    else
+        #    {
+        #        varName = _name;
+        #    }
+        #
+        #    return varName;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

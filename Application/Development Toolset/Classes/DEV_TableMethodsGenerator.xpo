@@ -1,0 +1,512 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_TableMethodsGenerator unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_TableMethodsGenerator
+    PROPERTIES
+      Name                #DEV_TableMethodsGenerator
+      Extends             #RunBase
+      Origin              #{1C26967C-2CE7-4D63-897A-30B75E80866E}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #caption
+        #// >> DEV:MXK >>
+        #public ClassDescription caption()
+        #{
+        #    return 'Create methods';
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #checkIndex
+        #private boolean checkIndex()
+        #{
+        #    boolean         ret = true;
+        #    SysDictIndex    selectedIndex;
+        #    IndexId         indexId;
+        #
+        #    if (!indexName)
+        #    {
+        #        ret = checkFailed(
+        #            'Index not selected',
+        #            '',
+        #            SysInfoAction_newWindow::newTreeNodePath(dictTable.path()));
+        #    }
+        #    else
+        #    {
+        #        indexId = indexName2id(dictTable.id(), indexName);
+        #
+        #        if (indexId)
+        #        {
+        #            selectedIndex = new SysDictIndex(dictTable.id(), indexId);
+        #
+        #            if (!selectedIndex.numberOfFields())
+        #            {
+        #                ret = checkFailed(
+        #                    'Selected index is empty',
+        #                    '',
+        #                    SysInfoAction_newWindow::newTreeNodePath(dictTable.path()));
+        #            }
+        #        }
+        #        else
+        #        {
+        #            ret = checkFailed(
+        #                'Incorrect index name',
+        #                '',
+        #                SysInfoAction_newWindow::newTreeNodePath(dictTable.path()));
+        #        }
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class DEV_TableMethodsGenerator extends RunBase
+        #{
+        #    SysDictTable    dictTable;
+        #    List            dictFieldsList;
+        #    List            methodsList;
+        #
+        #    // >> DEV:MXK >>
+        #    DialogField     dialogIndexName;
+        #    DialogField     dialogCheckExists;
+        #    DialogField     dialogExist;
+        #    DialogField     dialogFind;
+        #    DialogField     dialogTxtNotExist;
+        #    DialogField     dialogFindRecId;
+        #    DialogField     dialogAddSummary;
+        #
+        #    TreeNodeName    indexName;
+        #    NoYesId         methodCheckExists;
+        #    NoYesId         methodExist;
+        #    NoYesId         methodFind;
+        #    NoYesId         methodTxtNotExist;
+        #    NoYesId         methodFindRecId;
+        #    NoYesId         optionAddSummary;
+        #
+        #    #define.CurrentVersion(1)
+        #    #localmacro.CurrentList
+        #        methodCheckExists,
+        #        methodExist,
+        #        methodFind,
+        #        methodTxtNotExist,
+        #        methodFindRecId,
+        #        optionAddSummary
+        #    #endmacro
+        #    // << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #dialog
+        #// >> DEV:MXK >>
+        #public Object dialog()
+        #{
+        #    #define.exist("exist")
+        #    #define.find("find")
+        #    #define.findRecId("findRecId")
+        #    #define.checkExist("checkExist")
+        #    #define.txtNotExist("txtNotExist")
+        #
+        #    Dialog              dialog;
+        #    FormStringControl   fsc;
+        #
+        #    dialog = super();
+        #
+        #    dialog.alwaysOnTop(true);
+        #    dialog.windowType(FormWindowType::Standard);
+        #
+        #    dialog.addGroup("@SYS12687");
+        #
+        #    dialogIndexName     = dialog.addField(extendedTypeStr(Name), 'Index', 'Select index with filds');
+        #    fsc = dialogIndexName.control();
+        #    fsc.lookupButton(FormLookupButton::Always);
+        #    dialogIndexName.registerOverrideMethod(methodStr(FormStringControl, lookup), methodStr(DEV_TableMethodsGenerator, dialogIndexName_lookup), this);
+        #
+        #    if (dictTable.primaryIndex())
+        #    {
+        #        dialogIndexName.value(indexId2name(dictTable.id(), dictTable.primaryIndex()));
+        #    }
+        #
+        #    dialogAddSummary    = dialog.addField(extendedTypeStr(NoYesId), 'Add method summary');
+        #
+        #    dialog.addGroup("@SYS25613");
+        #
+        #    dialogExist         = dialog.addField(extendedTypeStr(NoYesId), #exist);
+        #    dialogFind          = dialog.addField(extendedTypeStr(NoYesId), #find);
+        #    dialogFindRecId     = dialog.addField(extendedTypeStr(NoYesId), #findRecId);
+        #    dialogCheckExists   = dialog.addField(extendedTypeStr(NoYesId), #checkExist);
+        #    dialogTxtNotExist   = dialog.addField(extendedTypeStr(NoYesId), #txtNotExist);
+        #
+        #    this.dialogSelectCtrl();
+        #
+        #    return dialog;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #dialogIndexName_lookup
+        #public void dialogIndexName_lookup(FormStringControl _stringControl)
+        #{
+        #    FormRun         formRun;
+        #    Object          formRunObject;
+        #    Args            args;
+        #
+        #    SysDictIndex    sysDictIndex;
+        #    Map             indexMap = new Map(Types::Integer, Types::String);
+        #    int             i;
+        #    int             x, y;
+        #    boolean         enabled;
+        #
+        #    //_stringControl.text(indexId2name(dictTable.id(), pickIndex(dictTable.id())));
+        #
+        #    args = new Args(formStr(SysPick));
+        #    args.parm(' 3');
+        #
+        #    for (i = 1; i <= dictTable.indexCnt(); i++)
+        #    {
+        #        sysDictIndex = new SysDictIndex(dictTable.id(), dictTable.indexCnt2Id(i));
+        #        indexMap.insert(i, sysDictIndex.name());
+        #    }
+        #
+        #    args.parmObject(indexMap);
+        #
+        #    formRun = classfactory.formRunClass(args);
+        #    formRun.init();
+        #    formRun.design().widthValue(_stringControl.widthValue());
+        #    formRun.run();
+        #
+        #    // Position lookup
+        #    [x, y] = WinAPI::clientToScreen(_stringControl.hWnd(), _stringControl.widthValue(), 0);
+        #    WinAPI::setWindowPos(formRun.hWnd(), x - _stringControl.widthValue(), y + _stringControl.heightValue(), 0, 0, false, true);
+        #
+        #    formRunObject = formRun;
+        #    formRunObject.setColumnHeader('Index name');
+        #    formRunObject.setCaption('Select index');
+        #    formRun.wait(true);
+        #
+        #    if (formRunObject.selection())
+        #    {
+        #        _stringControl.text(indexMap.lookup(formRunObject.selection()));
+        #        _stringControl.setSelection(strLen(_stringControl.valueStr()), strLen(_stringControl.valueStr()));
+        #
+        #        indexName = _stringControl.valueStr();
+        #
+        #        if (indexName && this.checkIndex())
+        #        {
+        #            enabled = true;
+        #        }
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #generate
+        #public void generate()
+        #{
+        #    ListEnumerator      enumerator;
+        #    DEV_TableMethod     findMethod;
+        #
+        #    setPrefix(strFmt('Table %1', dictTable.name()));
+        #
+        #    if (this.validate())
+        #    {
+        #        this.initDefault();
+        #
+        #        enumerator = methodsList.getEnumerator();
+        #
+        #        while (enumerator.moveNext())
+        #        {
+        #            findMethod = enumerator.current();
+        #            findMethod.create();
+        #        }
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #getFromDialog
+        #// >> DEV:MXK >>
+        #public boolean getFromDialog()
+        #{
+        #    indexName           = dialogIndexName.value();
+        #    methodCheckExists   = dialogCheckExists.value();
+        #    methodExist         = dialogExist.value();
+        #    methodFind          = dialogFind.value();
+        #    methodTxtNotExist   = dialogTxtNotExist.value();
+        #    methodFindRecId     = dialogFindRecId.value();
+        #
+        #    optionAddSummary    = dialogAddSummary.value();
+        #
+        #    return true;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #initDefault
+        #private void initDefault()
+        #{
+        #    this.initMethods();
+        #    this.initIndexFields();
+        #    this.passOnIndexFields();
+        #}
+      ENDSOURCE
+      SOURCE #initIndexFields
+        #private void initIndexFields()
+        #{
+        #    FieldId         fieldId;
+        #    SysDictField    dictField;
+        #    SysDictIndex    selectedIndex;
+        #    int             i;
+        #
+        #    selectedIndex = new SysDictIndex(dictTable.id(), indexName2id(dictTable.id(), indexName));
+        #
+        #    for (i = 1; i <= selectedIndex.numberOfFields(); i++ )
+        #    {
+        #        fieldId = selectedIndex.field(i);
+        #
+        #        dictField = new SysDictField(dictTable.id(), fieldId);
+        #        dictFieldsList.addEnd(dictField);
+        #
+        #        fieldId = selectedIndex.field(fieldId);
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #initMethods
+        #private void initMethods()
+        #{
+        #    if (methodExist)
+        #    {
+        #        methodsList.addEnd(new DEV_TableMethod_Exist(dictTable, optionAddSummary));
+        #    }
+        #
+        #    if (methodFind)
+        #    {
+        #        methodsList.addEnd(new DEV_TableMethod_Find(dictTable, optionAddSummary));
+        #    }
+        #
+        #    if (methodFindRecId)
+        #    {
+        #        methodsList.addEnd(new DEV_TableMethod_FindRecId(dictTable, optionAddSummary));
+        #    }
+        #
+        #    if (methodCheckExists)
+        #    {
+        #        methodsList.addEnd(new DEV_TableMethod_CheckExist(dictTable, optionAddSummary));
+        #    }
+        #
+        #    if (methodTxtNotExist)
+        #    {
+        #        methodsList.addEnd(new DEV_TableMethod_TxtNotExist(dictTable, optionAddSummary));
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #lastValueDataAreaId
+        #// >> DEV:MXK >>
+        #public DataAreaId lastValueDataAreaId()
+        #{
+        #    DataAreaId ret;
+        #
+        #    //ret = super();
+        #
+        #    return ret;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #protected void new()
+        #{
+        #    super();
+        #
+        #    dictFieldsList = new List(Types::Class);
+        #    methodsList = new List(Types::Class);
+        #}
+      ENDSOURCE
+      SOURCE #pack
+        #// >> DEV:MXK >>
+        #public container pack()
+        #{
+        #    return [#CurrentVersion, #CurrentList];
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #parmDictTable
+        #public SysDictTable parmDictTable(SysDictTable _dictTable = dictTable)
+        #{
+        #    if (!prmIsDefault(_dictTable))
+        #    {
+        #        dictTable = _dictTable;
+        #    }
+        #
+        #    return dictTable;
+        #}
+      ENDSOURCE
+      SOURCE #passOnIndexFields
+        #private void passOnIndexFields()
+        #{
+        #    ListEnumerator methodsEnumerator;
+        #    ListEnumerator fieldsEnumerator;
+        #    DEV_TableMethod findMethod;
+        #    SysDictField dictField;
+        #    ;
+        #
+        #    methodsEnumerator = methodsList.getEnumerator();
+        #
+        #    while (methodsEnumerator.moveNext())
+        #    {
+        #        findMethod = methodsEnumerator.current();
+        #
+        #        fieldsEnumerator = dictFieldsList.getEnumerator();
+        #
+        #        while (fieldsEnumerator.moveNext())
+        #        {
+        #            dictField = fieldsEnumerator.current();
+        #            findMethod.addIndexField(dictField);
+        #        }
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #putToDialog
+        #// >> DEV:MXK >>
+        #protected void putToDialog()
+        #{
+        #    super();
+        #
+        #    dialogCheckExists.value(methodCheckExists);
+        #    dialogExist.value(methodExist);
+        #    dialogFind.value(methodFind);
+        #    dialogTxtNotExist.value(methodTxtNotExist);
+        #    dialogFindRecId.value(methodFindRecId);
+        #    dialogAddSummary.value(optionAddSummary);
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #unpack
+        #// >> DEV:MXK >>
+        #boolean unpack(container _packedClass)
+        #{
+        #    Integer     version     = RunBase::getVersion(_packedClass);
+        #
+        #    switch (version)
+        #    {
+        #        case #CurrentVersion:
+        #            [version, #CurrentList] = _packedClass;
+        #            break;
+        #        default:
+        #            return false;
+        #    }
+        #
+        #    return true;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #validate
+        #public boolean validate(Object calledFrom = null)  // The object/form which calls the method
+        #{
+        #    boolean ret = true;
+        #
+        #    if (!dictTable)
+        #    {
+        #        ret = checkFailed('Table not found');
+        #    }
+        #
+        #    if (ret)
+        #    {
+        #        ret = this.checkIndex();
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #construct
+        #public static DEV_TableMethodsGenerator construct()
+        #{
+        #    return new DEV_TableMethodsGenerator();
+        #}
+        #
+      ENDSOURCE
+      SOURCE #main
+        #public static void main(Args _args)
+        #{
+        #    SysContextMenu              sysContextMenu;
+        #    TreeNode                    treeNode;
+        #    DEV_TableMethodsGenerator   generator;
+        #
+        #    setPrefix('Table methods generator');
+        #
+        #    // called from context menu
+        #    if (_args && SysContextMenu::startedFrom(_args))
+        #    {
+        #        sysContextMenu  = _args.parmObject();
+        #        treeNode        = sysContextMenu.first();
+        #        generator       = DEV_TableMethodsGenerator::newTreeNode(treeNode);
+        #
+        #        if (generator.prompt())
+        #        {
+        #            while (treeNode)
+        #            {
+        #                try
+        #                {
+        #                    generator.generate();
+        #                }
+        #                catch (Exception::Error)
+        #                {
+        #                    // don't stop process, try next treeNode
+        #                    exceptionTextFallThrough();
+        #                }
+        #
+        #                treeNode = sysContextMenu.next();
+        #            }
+        #        }
+        #    }
+        #    // called with parameter of type SysDictTable
+        #    else if (_args && _args.parmObject()
+        #        && SysDictClass::isEqualOrSuperclass(classNum(SysDictTable), classIdGet(_args.parmObject())))
+        #    {
+        #        generator = DEV_TableMethodsGenerator::newDictTable(_args.parmObject());
+        #        generator.generate();
+        #    }
+        #    else
+        #    {
+        #        throw error(Error::missingParameter(null));
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #newDictTable
+        #public static DEV_TableMethodsGenerator newDictTable(SysDictTable _dictTable)
+        #{
+        #    DEV_TableMethodsGenerator generator;
+        #    ;
+        #
+        #    generator = DEV_TableMethodsGenerator::construct();
+        #    generator.parmDictTable(_dictTable);
+        #
+        #    return generator;
+        #}
+      ENDSOURCE
+      SOURCE #newTreeNode
+        #public static DEV_TableMethodsGenerator newTreeNode(TreeNode _treeNode)
+        #{
+        #    DEV_TableMethodsGenerator generator;
+        #    SysDictTable dictTable;
+        #    ;
+        #
+        #    if (!_treeNode)
+        #    {
+        #        throw error('TreeNode is not initialized');
+        #    }
+        #
+        #    if (_treeNode.utilElement().RecordType != UtilElementType::Table)
+        #    {
+        #        throw error(strFmt('Object \'%1\' is not table', _treeNode.AOTname()));
+        #    }
+        #
+        #    dictTable = new SysDictTable(tablename2id(_treeNode.AOTname()));
+        #
+        #    generator = DEV_TableMethodsGenerator::construct();
+        #    generator.parmDictTable(dictTable);
+        #
+        #    return generator;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

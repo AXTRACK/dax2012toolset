@@ -1,0 +1,159 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_TableMethod_Find unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_TableMethod_Find
+    PROPERTIES
+      Name                #DEV_TableMethod_Find
+      Extends             #DEV_TableMethod
+      Origin              #{AA40A6E7-3205-42D7-BED9-2ACC3AA52DED}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #addSummary
+        #protected void addSummary()
+        #{
+        #    code.line('/// <summary>');
+        #    code.line(strFmt('///    Finds the specified record in the <c>%1</c> table.', dictTable.name()));
+        #    code.line('/// </summary>');
+        #    code.line('/// <param name="_recId">');
+        #    code.line(strFmt('///    The record ID of the <c>%1</c> record to find.', dictTable.name()));
+        #    code.line('/// </param>');
+        #    code.line('/// <param name="_forupdate">');
+        #    code.line('///    A boolean value that indicates whether to read the record for update; optional.');
+        #    code.line('/// </param>');
+        #    code.line('/// <param name="_concurrencyModel">');
+        #    code.line('///    The concurrency model option to use when reading the record; optional.');
+        #    code.line('/// </param>');
+        #    code.line('/// <returns>');
+        #    code.line(strFmt('///    The specified record in the <c>%1</c> table; otherwise, an empty record.', dictTable.name()));
+        #    code.line('/// </returns>');
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class DEV_TableMethod_Find extends DEV_TableMethod
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #initSource
+        #protected void initSource()
+        #{
+        #    int colLayoutFromPosition;
+        #    int i;
+        #
+        #    // header
+        #    code.line(strFmt('public static %1 %2(', dictTable.name(), name));
+        #
+        #    code.indentInc();
+        #        colLayoutFromPosition = max(this.maxTypeLength(), strLen(enumStr(ConcurrencyModel)));
+        #        for (i = 1; i <= numOfIndexFields; i++)
+        #        {
+        #            code.line(code.columnLayout(
+        #                this.fieldType(i),
+        #                this.parameterName(this.fieldName(i)) + ',',
+        #                colLayoutFromPosition));
+        #        }
+        #        code.line(code.columnLayout(
+        #            'boolean',
+        #            '_forUpdate = false,',
+        #            colLayoutFromPosition));
+        #        code.line(code.columnLayout(
+        #            enumStr(ConcurrencyModel),
+        #            strFmt('_concurrencyModel = %1::Auto)', enumStr(ConcurrencyModel)),
+        #            colLayoutFromPosition));
+        #    code.indentDec();
+        #
+        #    code.blockStart();
+        #
+        #        // variable declaration
+        #        code.line(strFmt('%1\t%2;', dictTable.name(), tableVarName));
+        #        //code.line(';');
+        #        code.newLine();
+        #
+        #        // body
+        #
+        #        // check parameters
+        #        code.text('if (' + (numOfIndexFields > 1 ? '\t' : ''));
+        #        code.text(this.parameterName(this.fieldName(1)));
+        #
+        #        code.indentInc();
+        #            for (i = 2; i <= numOfIndexFields; i++)
+        #            {
+        #                code.newLine();
+        #                code.text(strFmt('&&  %1', this.parameterName(this.fieldName(i))));
+        #            }
+        #            code.text(')');
+        #        code.indentDec();
+        #        code.newLine();
+        #
+        #        code.blockStart(); // block: params ok
+        #
+        #            // set forupdate
+        #            code.line('if (_forUpdate)');
+        #            code.blockStart();
+        #
+        #                code.line(strFmt('%1.selectForUpdate(_forUpdate);', tableVarName));
+        #                code.newLine();
+        #
+        #                code.line('if (_concurrencyModel != ConcurrencyModel::Auto)');
+        #
+        #                code.blockStart();
+        #                    code.line(strFmt('%1.concurrencyModel(_concurrencyModel);', tableVarName));
+        #                code.blockEnd();
+        #
+        #            code.blockEnd();
+        #
+        #            code.newLine();
+        #
+        #            // select
+        #            code.line(strFmt('select firstOnly %1', tableVarName));
+        #            code.indentInc();
+        #
+        #                // where
+        #                code.text(strFmt('where%1.%2== %3',
+        #                    (numOfIndexFields > 1 ? '\t\t' : ' ') + tableVarName,
+        #                    this.fieldName(1) + (numOfIndexFields > 1 ? '\t' : ' '),
+        #                    this.parameterName(this.fieldName(1))));
+        #
+        #                code.indentInc();
+        #                    for (i = 2; i <= numOfIndexFields; i++)
+        #                    {
+        #                        code.newLine();
+        #                        code.text(strFmt('\t&&\t%1.%2\t== %3',
+        #                            tableVarName,
+        #                            this.fieldName(i),
+        #                            this.parameterName(this.fieldName(i))));
+        #                    }
+        #                code.indentDec();
+        #                code.line(';');
+        #            code.indentDec();
+        #
+        #        code.blockEnd(); // block end: params ok
+        #
+        #        code.newLine();
+        #
+        #        code.line(strFmt('return %1;', tableVarName));
+        #
+        #    code.blockEnd();
+        #
+        #    source = code.toString();
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #public void new(SysDictTable _dictTable,
+        #                boolean     _addSummary = false)
+        #{
+        #    super(_dictTable, _addSummary);
+        #
+        #    name = #find;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

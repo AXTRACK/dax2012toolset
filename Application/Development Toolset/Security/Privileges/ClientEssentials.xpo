@@ -1,0 +1,926 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: SPV
+
+; Microsoft Dynamics AX PRIVILEGE : ClientEssentials unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  PRIVILEGE #ClientEssentials
+    PROPERTIES
+      Name                #ClientEssentials
+      Label               #@SYS323382
+      Description         #@SYS323383
+      Origin              #{FA4042A0-7724-4F41-A891-2C1656F9EF55}
+    ENDPROPERTIES
+    
+    ENTRYPOINTS #Entry Points
+      ENTRYPOINT #Calculator
+        PROPERTIES
+          Name                #Calculator
+          ObjectType          #MenuItemAction
+          ObjectName          #Calculator
+          AccessLevel         #Delete
+        ENDPROPERTIES
+        
+      ENDENTRYPOINT
+      
+    ENTRYPOINT #DocuActionNew
+      PROPERTIES
+        Name                #DocuActionNew
+        ObjectType          #MenuItemAction
+        ObjectName          #DocuActionNew
+        AccessLevel         #Delete
+      ENDPROPERTIES
+      
+    ENDENTRYPOINT
+    
+  ENTRYPOINT #DocuActionOpen
+    PROPERTIES
+      Name                #DocuActionOpen
+      ObjectType          #MenuItemAction
+      ObjectName          #DocuActionOpen
+      AccessLevel         #Delete
+    ENDPROPERTIES
+    
+  ENDENTRYPOINT
+  
+ENTRYPOINT #DocuActionOption
+  PROPERTIES
+    Name                #DocuActionOption
+    ObjectType          #MenuItemAction
+    ObjectName          #DocuActionOption
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #DocuActionPrint
+  PROPERTIES
+    Name                #DocuActionPrint
+    ObjectType          #MenuItemAction
+    ObjectName          #DocuActionPrint
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #DocuOpenFile
+  PROPERTIES
+    Name                #DocuOpenFile
+    ObjectType          #MenuItemDisplay
+    ObjectName          #DocuOpenFile
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #DocuOptionView
+  PROPERTIES
+    Name                #DocuOptionView
+    ObjectType          #MenuItemDisplay
+    ObjectName          #DocuOptionView
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #DocuReference
+  PROPERTIES
+    Name                #DocuReference
+    ObjectType          #MenuItemDisplay
+    ObjectName          #DocuReference
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #DocuView
+  PROPERTIES
+    Name                #DocuView
+    ObjectType          #MenuItemDisplay
+    ObjectName          #DocuView
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #DocuViewAction
+  PROPERTIES
+    Name                #DocuViewAction
+    ObjectType          #MenuItemDisplay
+    ObjectName          #DocuViewAction
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #EPDefaultRoleCenter
+  PROPERTIES
+    Name                #EPDefaultRoleCenter
+    ObjectType          #WebUrlItem
+    ObjectName          #EPDefaultRoleCenter
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #EventRule
+  PROPERTIES
+    Name                #EventRule
+    ObjectType          #MenuItemDisplay
+    ObjectName          #EventRule
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysCurrencySelect
+  PROPERTIES
+    Name                #SysCurrencySelect
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SYSCURRENCYSELECT
+    AccessLevel         #Read
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysFavoritesCreateDefaultFavGroup
+  PROPERTIES
+    Name                #SysFavoritesCreateDefaultFavGroup
+    ObjectType          #MenuItemAction
+    ObjectName          #SysFavoritesCreateDefaultFavGroup
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysFavoritesCreateFavGroup
+  PROPERTIES
+    Name                #SysFavoritesCreateFavGroup
+    ObjectType          #MenuItemAction
+    ObjectName          #SysFavoritesCreateFavGroup
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysFavoritesCreateFolder
+  PROPERTIES
+    Name                #SysFavoritesCreateFolder
+    ObjectType          #MenuItemAction
+    ObjectName          #SysFavoritesCreateFolder
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysFavoritesCreateFolderInGroup
+  PROPERTIES
+    Name                #SysFavoritesCreateFolderInGroup
+    ObjectType          #MenuItemAction
+    ObjectName          #SysFavoritesCreateFolderInGroup
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysFavoritesDeleteFavGroup
+  PROPERTIES
+    Name                #SysFavoritesDeleteFavGroup
+    ObjectType          #MenuItemAction
+    ObjectName          #SysFavoritesDeleteFavGroup
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysFavoritesDeleteFavorite
+  PROPERTIES
+    Name                #SysFavoritesDeleteFavorite
+    ObjectType          #MenuItemAction
+    ObjectName          #SysFavoritesDeleteFavorite
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysFavoritesOrganizeFavorites
+  PROPERTIES
+    Name                #SysFavoritesOrganizeFavorites
+    ObjectType          #MenuItemAction
+    ObjectName          #SysFavoritesOrganizeFavorites
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysFavoritesRenameFavorite
+  PROPERTIES
+    Name                #SysFavoritesRenameFavorite
+    ObjectType          #MenuItemAction
+    ObjectName          #SysFavoritesRenameFavorite
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysFavoritesRenameGroup
+  PROPERTIES
+    Name                #SysFavoritesRenameGroup
+    ObjectType          #MenuItemAction
+    ObjectName          #SysFavoritesRenameGroup
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysHelpConfiguration
+  PROPERTIES
+    Name                #SysHelpConfiguration
+    ObjectType          #ServiceOperation
+    ObjectName          #SysHelpConfiguration
+    ObjectChildName     #getHelpServerLocation
+    AccessLevel         #Invoke
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysInfoLog
+  PROPERTIES
+    Name                #SysInfoLog
+    ObjectType          #MenuItemOutput
+    ObjectName          #SysInfoLog
+    AccessLevel         #Read
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysLastValue
+  PROPERTIES
+    Name                #SysLastValue
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysLastValue
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysLaunchGettingStarted
+  PROPERTIES
+    Name                #SysLaunchGettingStarted
+    ObjectType          #MenuItemAction
+    ObjectName          #SysLaunchGettingStarted
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysModelsInstalled
+  PROPERTIES
+    Name                #SysModelsInstalled
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysModelsInstalled
+    AccessLevel         #Read
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysNavPaneOptionsDialog
+  PROPERTIES
+    Name                #SysNavPaneOptionsDialog
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysNavPaneOptionsDialog
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysNavPaneOptionsDialog(Action)
+  PROPERTIES
+    Name                #SysNavPaneOptionsDialog(Action)
+    ObjectType          #MenuItemAction
+    ObjectName          #SysNavPaneOptionsDialog
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysPrintArchiveUser
+  PROPERTIES
+    Name                #SysPrintArchiveUser
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysPrintArchiveUser
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysPrivacyStatement
+  PROPERTIES
+    Name                #SysPrivacyStatement
+    ObjectType          #MenuItemAction
+    ObjectName          #SysPrivacyStatement
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysReadMoreCEIPUrl
+  PROPERTIES
+    Name                #SysReadMoreCEIPUrl
+    ObjectType          #MenuItemAction
+    ObjectName          #SysReadMoreCEIPUrl
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysReportAutoWizardNew
+  PROPERTIES
+    Name                #SysReportAutoWizardNew
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysReportAutoWizardNew
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysSetupBasic
+  PROPERTIES
+    Name                #SysSetupBasic
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysSetupBasic
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysSetupForm
+  PROPERTIES
+    Name                #SysSetupForm
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysSetupForm
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysTaskRecorderDocGenerator
+  PROPERTIES
+    Name                #SysTaskRecorderDocGenerator
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysTaskRecorderDocGenerator
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysTaskRecorderExport
+  PROPERTIES
+    Name                #SysTaskRecorderExport
+    ObjectType          #MenuItemAction
+    ObjectName          #SysTaskRecorderExport
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysTaskRecorderFramework
+  PROPERTIES
+    Name                #SysTaskRecorderFramework
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysTaskRecorderFramework
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysTaskRecorderFrameworkLevels
+  PROPERTIES
+    Name                #SysTaskRecorderFrameworkLevels
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysTaskRecorderFrameworkLevels
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysTaskRecorderImportData
+  PROPERTIES
+    Name                #SysTaskRecorderImportData
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysTaskRecorderImportData
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysTaskRecorderIndustry
+  PROPERTIES
+    Name                #SysTaskRecorderIndustry
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysTaskRecorderIndustry
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysTaskRecorderNodeDetail
+  PROPERTIES
+    Name                #SysTaskRecorderNodeDetail
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysTaskRecorderNodeDetail
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysTaskRecorderParameters
+  PROPERTIES
+    Name                #SysTaskRecorderParameters
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysTaskRecorderParameters
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysTaskRecorderSaveLeafNode
+  PROPERTIES
+    Name                #SysTaskRecorderSaveLeafNode
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysTaskRecorderSaveLeafNode
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysTaskRecorderSaveTask
+  PROPERTIES
+    Name                #SysTaskRecorderSaveTask
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysTaskRecorderSaveTask
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysTaskRecorderScripts
+  PROPERTIES
+    Name                #SysTaskRecorderScripts
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysTaskRecorderScripts
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysTaskRecorderToolbar
+  PROPERTIES
+    Name                #SysTaskRecorderToolbar
+    ObjectType          #MenuItemAction
+    ObjectName          #SysTaskRecorderToolbar
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SystemDate
+  PROPERTIES
+    Name                #SystemDate
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SystemDate
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SystemInfo
+  PROPERTIES
+    Name                #SystemInfo
+    ObjectType          #MenuItemAction
+    ObjectName          #SystemInfo
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysToolTipPreview
+  PROPERTIES
+    Name                #SysToolTipPreview
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysToolTipPreview
+    AccessLevel         #Read
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysUserSetup
+  PROPERTIES
+    Name                #SysUserSetup
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysUserSetup
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysUserSetupToolbar
+  PROPERTIES
+    Name                #SysUserSetupToolbar
+    ObjectType          #MenuItemDisplay
+    ObjectName          #SysUserSetupToolbar
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysWizardBack
+  PROPERTIES
+    Name                #SysWizardBack
+    ObjectType          #MenuItemAction
+    ObjectName          #SysWizardBack
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysWizardCancel
+  PROPERTIES
+    Name                #SysWizardCancel
+    ObjectType          #MenuItemAction
+    ObjectName          #SysWizardCancel
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysWizardFinish
+  PROPERTIES
+    Name                #SysWizardFinish
+    ObjectType          #MenuItemAction
+    ObjectName          #SysWizardFinish
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #SysWizardNext
+  PROPERTIES
+    Name                #SysWizardNext
+    ObjectType          #MenuItemAction
+    ObjectName          #SysWizardNext
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #TaxThaiGovCertificationWorkflowAP
+  PROPERTIES
+    Name                #TaxThaiGovCertificationWorkflowAP
+    ObjectType          #MenuItemAction
+    ObjectName          #TaxThaiGovCertificationWorkflowAP
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #TaxThaiGovCertificationWorkflowAR
+  PROPERTIES
+    Name                #TaxThaiGovCertificationWorkflowAR
+    ObjectType          #MenuItemAction
+    ObjectName          #TaxThaiGovCertificationWorkflowAR
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #TaxThaiGovCertificationWorkflowSetup
+  PROPERTIES
+    Name                #TaxThaiGovCertificationWorkflowSetup
+    ObjectType          #MenuItemAction
+    ObjectName          #TaxThaiGovCertificationWorkflowSetup
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENDENTRYPOINTS
+
+PERMISSIONSET #Permissions
+  PROPERTIES
+  ENDPROPERTIES
+  
+  TABLES #Tables
+    TABLE #DataArea
+      PROPERTIES
+        Table               #DataArea
+        EffectiveAccess     #Read
+        ManagedBy           #Manual
+      ENDPROPERTIES
+      
+    ENDTABLE
+    
+  TABLE #DEV_FormDiggerTmpData
+    PROPERTIES
+      Table               #DEV_FormDiggerTmpData
+      EffectiveAccess     #Read
+    ENDPROPERTIES
+    
+  ENDTABLE
+  
+TABLE #DirPartyLocation
+  PROPERTIES
+    Table               #DirPartyLocation
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #DirPersonUser
+  PROPERTIES
+    Table               #DirPersonUser
+    EffectiveAccess     #Read
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #DocuOpenFile
+  PROPERTIES
+    Table               #DocuOpenFile
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #DocuRef
+  PROPERTIES
+    Table               #DocuRef
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #EventRule
+  PROPERTIES
+    Table               #EventRule
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #EventRuleData
+  PROPERTIES
+    Table               #EventRuleData
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #LogisticsElectronicAddress
+  PROPERTIES
+    Table               #LogisticsElectronicAddress
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #LogisticsLocation
+  PROPERTIES
+    Table               #LogisticsLocation
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #NumberSequenceDatatype
+  PROPERTIES
+    Table               #NumberSequenceDatatype
+    EffectiveAccess     #Read
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #NumberSequenceDatatypeParameterType
+  PROPERTIES
+    Table               #NumberSequenceDatatypeParameterType
+    EffectiveAccess     #Read
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #NumberSequenceScope
+  PROPERTIES
+    Table               #NumberSequenceScope
+    EffectiveAccess     #Create
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #PrintJobHeader
+  PROPERTIES
+    Table               #PrintJobHeader
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #SubQuery
+  PROPERTIES
+    Table               #SubQuery
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #SysClientPerf
+  PROPERTIES
+    Table               #SysClientPerf
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #SysCue
+  PROPERTIES
+    Table               #SysCue
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #SysInetThemeTable
+  PROPERTIES
+    Table               #SysInetThemeTable
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #SysLastValue
+  PROPERTIES
+    Table               #SysLastValue
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #SysSearchName
+  PROPERTIES
+    Table               #SysSearchName
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #SysSearchPath
+  PROPERTIES
+    Table               #SysSearchPath
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #SysSearchRef
+  PROPERTIES
+    Table               #SysSearchRef
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #SysUserInfo
+  PROPERTIES
+    Table               #SysUserInfo
+    EffectiveAccess     #Update
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #TmpSysQuery
+  PROPERTIES
+    Table               #TmpSysQuery
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #TmpSysQueryCompanyRange
+  PROPERTIES
+    Table               #TmpSysQueryCompanyRange
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #TmpSysQueryValidTimeRange
+  PROPERTIES
+    Table               #TmpSysQueryValidTimeRange
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #TmpUtil
+  PROPERTIES
+    Table               #TmpUtil
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #UserExternalParty
+  PROPERTIES
+    Table               #UserExternalParty
+    EffectiveAccess     #Read
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #UserInfo
+  PROPERTIES
+    Table               #UserInfo
+    EffectiveAccess     #Update
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #UserInfoStartupModel
+  PROPERTIES
+    Table               #UserInfoStartupModel
+    EffectiveAccess     #Create
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #VirtualDataAreaList
+  PROPERTIES
+    Table               #VirtualDataAreaList
+    EffectiveAccess     #Read
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #WorkflowWorkItemCommentTable
+  PROPERTIES
+    Table               #WorkflowWorkItemCommentTable
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #WorkflowWorkItemDelegationParameters
+  PROPERTIES
+    Table               #WorkflowWorkItemDelegationParameters
+    EffectiveAccess     #Delete
+    ManagedBy           #Manual
+  ENDPROPERTIES
+  
+ENDTABLE
+
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+FORMS #Forms
+ENDFORMS
+
+ENDPERMISSIONSET
+
+ENDPRIVILEGE
+
+
+***Element: END

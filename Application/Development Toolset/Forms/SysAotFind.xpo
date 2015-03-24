@@ -1,0 +1,1018 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #SysAotFind
+  PROPERTIES
+    Name                #SysAotFind
+    Origin              #{D123A851-028D-4C91-9E0C-B99C87AE04AB}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #addSourceLines
+      #void addSourceLines(DocNode _treeNodeWithSource)
+      #{
+      #    #resource
+      #    str          source;
+      #    str 250      sourceLine[];
+      #    int          i;
+      #    int          p;
+      #    boolean      moreThanOne;
+      #    FormListItem formListItem;
+      #    str          data;
+      #
+      #    // >> DEV:MXK >>
+      #    System.Text.RegularExpressions.Regex    regex;
+      #    System.Text.RegularExpressions.Match    regMatch;
+      #    boolean                                 isMatch;
+      #    // << DEV:MXK <<
+      #
+      #    if (showSource.value() == true && _treeNodeWithSource && containingText.text())
+      #    {
+      #        if (SysTreeNode::hasSource(_treeNodeWithSource))
+      #            source = _treeNodeWithSource.AOTgetSource();
+      #        else
+      #            source = _treeNodeWithSource.AOTgetProperties();
+      #
+      #        while (source)
+      #        {
+      #            i++;
+      #            p = strFind(source, '\n', 1, maxInt());
+      #            if (!p)
+      #                p = strLen(source);
+      #            sourceLine[i] = subStr(source, 1, p);
+      #            sourceLine[i] = SysUtil::unpackSourceLine(sourceLine[i]);
+      #            // >> DEV:MXK >>
+      #            //if (match(containingText.text(), sourceLine[i]))
+      #            if (DEV_MatchCase.value() || DEV_MatchWholeWord.value())
+      #            {
+      #                regex       = new System.Text.RegularExpressions.Regex(DEV_MatchWholeWord.value()
+      #                                                                        ? '\\b' + containingText.text() + '\\b'
+      #                                                                        : containingText.text());
+      #                regMatch    = regex.Match(sourceLine[i]);
+      #                isMatch     = regMatch.get_Success();
+      #            }
+      #            else
+      #            {
+      #                isMatch = match(containingText.text(), sourceLine[i]);
+      #            }
+      #
+      #            if (isMatch)
+      #            // << DEV:MXK <<
+      #            {
+      #                if (moreThanOne)
+      #                {
+      #                    data = strFmt('%1', i) + _treeNodeWithSource.treeNodePath();
+      #                    // BP deviation documented
+      #                    formListItem = new FormListItem(_treeNodeWithSource.treeNodeName(), imageListAppl.image(#RES_TEXT), data);
+      #                    formListItem.idx(idx + 1);
+      #                    formListItem.indent(1);
+      #                    idx = resultListView.addItem(formListItem);
+      #                }
+      #                // BP deviation documented
+      #                formListItem = new FormListItem(strFmt('[%1] %2', i, subStr(sourceLine[i], 1, strLen(sourceLine[i]) - 1)));
+      #                formListItem.subItem(1);
+      #                formListItem.idx(idx);
+      #                resultListView.setItem(formListItem);
+      #
+      #                moreThanOne = true;
+      #            }
+      #            source = strDel(source, 1, p);
+      #        }
+      #    }
+      #    return;
+      #}
+      #
+    ENDSOURCE
+    SOURCE #DEV_ExpendSelectedItem
+      #// >> DEV:MXK >>
+      #public void DEV_ExpendSelectedItem()
+      #{
+      #    int                     itemIdx;
+      #    FormListItem            selectedItem;
+      #    str                     selectedData;
+      #    TreeNode                selectedNode;
+      #
+      #    itemIdx = resultListView.getNextItem(FormListNext::Selected);
+      #
+      #    if (itemIdx != -1)
+      #    {
+      #        selectedItem = resultListView.getItem(itemIdx);
+      #        selectedData = selectedItem.data();
+      #        selectedNode = TreeNode::findNode(selectedData);
+      #
+      #        if (selectedNode)
+      #        {
+      #            if (SysTreeNode::hasSource(selectedNode) == false)
+      #            {
+      #                DEV_AOTNodeExpander::expandNode(null, selectedData);
+      #            }
+      #        }
+      #    }
+      #// << DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #endSearch
+      #void endSearch()
+      #{
+      #    FormListItem formListItem;
+      #
+      #    if (searchDepth == 0)
+      #    {
+      #        timeOutMode = false;
+      #        this.setSearchMode();
+      #    }
+      #    else
+      #    {
+      #        if (sysUtilScanSource) //  not finish yet
+      #        {
+      #            this.nextApplObject();
+      #        }
+      #    }
+      #
+      #    if (!timeOutMode)
+      #    {
+      #        hitsText.text(strFmt("@SYS53184",  strFmt("@SYS26824", counterHits),
+      #                                           strFmt("@SYS60806", time2StrHMS(timeNow() - startTime))));
+      #
+      #        animate.stop();
+      #
+      #        formListItem = resultListView.getItem(0);
+      #        if (formListItem)
+      #        {
+      #            resultListView.setFocus();
+      #            formListItem.stateFocus(true);
+      #            formListItem.stateSelected(true);
+      #            resultListView.setItem(formListItem);
+      #
+      #            infolog.activateWindow(element.hWnd());
+      #            infolog.setWindowOrder(element.hWnd());
+      #        }
+      #
+      #        /*if (propertiesWindowHidden)
+      #            xInfo::getPropertiesWindow().Activate(PropWindowDisplayState::Show);*/ // DEV:MXK
+      #
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #findNow
+      #void findNow()
+      #{
+      #    TmpPropertySelection propertySelection;
+      #    str filterMethodText;
+      #    int columnIdx;
+      #    ;
+      #
+      #    // Make the Form ready
+      #    startLengthyOperation();
+      #    animate.play();
+      #    startTime = timeNow();
+      #    timeUpdated = startTime;
+      #    applObjectCache = null; // don't use old cached information
+      #    propertiesWindowHidden = false;
+      #
+      #    // Don't proceed if search criterions were not specified.
+      #    if (!resultListView.visible())
+      #    {
+      #        element.lock();
+      #        resultListView.visible(true);
+      #        element.resetSize();
+      #        element.unLock();
+      #    }
+      #
+      #    if (showSource.value())
+      #    {
+      #        if (resultListView.getColumnWidth(1) < 20)
+      #        {
+      #            resultListView.setColumnWidth(1, 300);
+      #        }
+      #    }
+      #    else
+      #    {
+      #        if (resultListView.getColumnWidth(1) >= 20)
+      #        {
+      #            resultListView.setColumnWidth(1, 0);
+      #        }
+      #    }
+      #
+      #    // First delete old added headers for the previous selected properties
+      #    for (columnIdx = maxColumnIdx; maxColumnIdx > #NumberOfPredefinedColumns; maxColumnIdx--)
+      #    {
+      #        resultListView.deleteColumn(columnIdx-#OffsetForPropertyColumns);
+      #    }
+      #    maxColumnIdx = #NumberOfPredefinedColumns;
+      #    selectedProperties = null;
+      #
+      #    if (search.selection() == 0)  // all nodes
+      #    {
+      #        // Add headers for the selected properties
+      #        propertySelection.setTmpData(tmpPropertySelection);
+      #        while select propertySelection
+      #            index Selected
+      #            where propertySelection.Selected == true
+      #        {
+      #            maxColumnIdx++;
+      #
+      #            resultListView.addColumn(maxColumnIdx-#OffsetForPropertyColumns,
+      #                new FormListColumn(propertySelection.Property, maxColumnIdx-#OffsetForPropertyColumns, 80));
+      #            selectedProperties.data(propertySelection.data());
+      #            selectedProperties.insert();
+      #        }
+      #    }
+      #
+      #    //element.design().caption(strFmt("@SYS53335", search.getText(search.selection()))); // DEV:MXK
+      #
+      #    counterNoOfFinds ++;
+      #    if (counterNoOfFinds == 1)
+      #    {
+      #        firstFind = true;  // You can test for the first find situation, but it aint really used for anything any more
+      #    }
+      #    else
+      #    {
+      #        resultListView.deleteAll();
+      #        counterHits = 0;
+      #        firstFind = false;
+      #    }
+      #
+      #    this.setInitialContext();
+      #
+      #    if (!this.checkSelections())
+      #    {
+      #        animate.stop();
+      #        warning("@SYS94085");
+      #        return;
+      #    }
+      #
+      #    if (useFilterMethod)
+      #        filterMethodText = filterMethod.text();
+      #    else
+      #        filterMethodText = "";
+      #
+      #    sysTreeNodeSearch.setCriterias(named.text(),
+      #                                   containingText.text(),
+      #                                   dateRange.text(),
+      #                                   byRange.text(),
+      #                                   search.selection(),
+      #                                   includeEmpty.value(),
+      #                                   applObjectTypeRange.text(),
+      #                                   applObjectLayerRange.text(),
+      #                                   runModeRange.text(),
+      #                                   sizeRange.text(),
+      #                                   filterMethodText,
+      #                                   selectedProperties);
+      #
+      #    sysTreeNodeSearch.applObjectCache(applObjectCache);
+      #
+      #    if (useTreeSelection.value() == NoYes::Yes)     // use the selection from the sysContextMenu
+      #    {
+      #        this.searchContext();
+      #    }
+      #    else
+      #    if (lookInRange.text() == initialTopNode.treeNodePath())   // might be a Project node, which can't be findNode'ed
+      #    {
+      #        this.searchContextNode(initialTopNode);
+      #    }
+      #    else                                                // use the specified look in range to search in
+      #    {
+      #        this.searchContextNode(TreeNode::findNode(lookInRange.text()));
+      #    }
+      #}
+      #
+    ENDSOURCE
+    SOURCE #init
+      #void init()
+      #{
+      #    TextBuffer          textBuffer = new TextBuffer(); // >> DEV:MXK
+      #    FormListColumn      formListColumn;
+      #
+      #    if (element.args().caller() &&
+      #        classIdGet(element.args().caller()) == classNum(SysTreeSearch))
+      #    {
+      #        sysTreeSearch = element.args().caller(); // indicates that we have been started in AOT by the kernel technique (AOT Ctrl-F etc.)
+      #    }
+      #
+      #    this.setInitialContext();
+      #
+      #    super();
+      #
+      #    // >> DEV:MXK  >>
+      #    DEV_Search.text("@SYS25613");
+      #
+      #    if (    textBuffer.fromClipboard()
+      #        &&  textBuffer.size() <= 200
+      #        && !strScan(textBuffer.getText(), '\n', 1, textBuffer.size()))
+      #    {
+      #        ContainingText.text(textBuffer.getText());
+      #        ContainingText.setSelection(0, 100);
+      #    }
+      #    ShowSource.value(1);
+      #    // << DEV:MXK <<
+      #    byRange.label(fieldPName(UtilElements, ModifiedBy));
+      #    applObjectLayerRange.label("@SYS56472");
+      #
+      #    this.setAsNewSearch();
+      #
+      #    sysTreeNodeSearch = new SysTreeNodeSearch(); // search backend
+      #
+      #    // Format the result list view
+      #    resultListView.visible(false);
+      #    imageListAppl = new ImageListAppl_Aot();
+      #    resultListView.setImagelist(imageListAppl.imageList());
+      #    resultListView.addColumn( 1, new FormListColumn("@SYS7399", 1, 110));
+      #
+      #    sourceColumn = new FormListColumn("@SYS53336",2);
+      #    sourceColumn.width(0);
+      #    resultListView.addColumn( 2, sourceColumn);
+      #    resultListView.addColumn( 3, new FormListColumn("@SYS7406", 3, 200));
+      #
+      #    formListColumn = new FormListColumn('', 4);
+      #    formListColumn.format(FormListFormat::Right);
+      #    formListColumn.text("@SYS11678");
+      #    formListColumn.width(60);
+      #    resultListView.addColumn( 4, formListColumn);
+      #    resultListView.addColumn( 5, new FormListColumn("@SYS53642", 5, 50));
+      #    resultListView.addColumn( 6, new FormListColumn(fieldPName(UtilElements,ModifiedDateTime),  6,  80));
+      #    resultListView.addColumn( 7, new FormListColumn(fieldPName(UtilElements,ModifiedBy),        7,  80));
+      #    resultListView.addColumn( 8, new FormListColumn(fieldPName(UtilElements,RecordType),        8, 120));
+      #    resultListView.addColumn( 9, new FormListColumn("@SYS24724",                                9, 100));
+      #
+      #    formListColumn = new FormListColumn('', 10);
+      #    formListColumn.format(FormListFormat::Right);
+      #    formListColumn.text("@SYS23543");
+      #    formListColumn.width(60);
+      #    resultListView.addColumn(10, formListColumn);
+      #    useFilterMethod = true;
+      #    maxColumnIdx = #NumberOfPredefinedColumns;
+      #}
+    ENDSOURCE
+    SOURCE #reportProgress
+      #void reportProgress(str _nodeBeingSearched)
+      #{
+      #    if (timeNow() > (timeUpdated + 1))      // to reduce time spent on updating the window
+      #    {
+      #        hitsText.text(strFmt("@SYS53184", strFmt("@SYS26824", counterHits), strFmt("@SYS68533", _nodeBeingSearched)));
+      #        hitsText.updateWindow();
+      #
+      #        timeUpdated = timeNow();
+      #
+      #        /*if (!propertiesWindowHidden && xInfo::getPropertiesWindow().IsVisible()) // DEV:MXK
+      #        {
+      #            propertiesWindowHidden = true;
+      #            xInfo::getPropertiesWindow().Activate(PropWindowDisplayState::Hide);
+      #        }*/
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #run
+      #void run()
+      #{
+      #    element.design().caption(strFmt("@SYS53335", search.getText(search.selection())));
+      #
+      #    super();
+      #
+      #    named.setFocus();
+      #
+      #    lookInRange.setText();
+      #
+      #    this.design().heightValue(
+      #        criteria.heightValue()+
+      #        this.design().topMarginValue()+
+      #        this.design().bottomMarginValue());
+      #
+      #    // >> DEV:MXK >>
+      #    ContainingText.setFocus();
+      #
+      #    if (DEV_UserParameters::exist() && DEV_UserParameters::find().WMEnabled)
+      #    {
+      #        DEV_HKCommon::leftSideFind(element.hWnd());
+      #    }
+      #
+      #    DEV_Global::showHint('New options are avilable like match case or search the whole word.\n' +
+      #                        'From the search results you can create a project or set breakpoints on the selected lines.\n' +
+      #                        'Most development forms that display AOT path can expend this path by mouse double click.',
+      #                        this.name(),
+      #                        'Find');
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+    SOURCE #searchNode
+      #// BP deviation documented
+      #// this method is called every time a potential node is found by the search engine
+      #void searchNode(TreeNode _treeNode)
+      #{
+      #    FormListItem    formListItem;
+      #    SysApplicationObjectPathInfo pathInfo;
+      #    int             headerIdx;
+      #    int             subItem;
+      #    UtilElements    pathInfoElement;
+      #
+      #    if (!includeProxyNodes && this.isProxyNode(_treeNode))
+      #        return;
+      #
+      #    if (!sysTreeNodeSearch.isNodeInRange(_treeNode,
+      #                                        // >> DEV:MXK >>
+      #                                        DEV_MatchCase.value(),
+      #                                        DEV_MatchWholeWord.value()))
+      #                                        // << DEV:MXK <<
+      #        return;
+      #
+      #    counterHits ++;
+      #
+      #    pathInfo = new SysApplicationObjectPathInfo(_treeNode.treeNodePath(), applObjectCache, _treeNode);
+      #    pathInfoElement = pathInfo.utilElementsLight();
+      #
+      #    // BP deviation documented
+      #    formListItem = new FormListItem(_treeNode.treeNodeName());
+      #    formListItem.image(imageListAppl.image(_treeNode.AOTbitmapId()));
+      #    formListItem.overlayImage(imageListAppl.image(_treeNode.AOToverlayBitmapId()));
+      #    formListItem.data(pathInfo.path());
+      #    formListItem.idx(idx+1);
+      #    // BP deviation documented
+      #    idx = resultListView.addItem(formListItem);
+      #    headerIdx = idx;
+      #
+      #    if (showSource.value() == true)
+      #    {
+      #        this.addSourceLines(_treeNode);
+      #    }
+      #
+      #    // BP deviation documented
+      #    formListItem = new FormListItem(_treeNode.AOTparent().treeNodePath());
+      #    formListItem.subItem(2);
+      #    formListItem.idx(headerIdx);
+      #    resultListView.setItem(formListItem);
+      #
+      #    // BP deviation documented
+      #    formListItem = new FormListItem(pathInfo.sourceSizeTxt());
+      #    formListItem.subItem(3);
+      #    formListItem.idx(headerIdx);
+      #    resultListView.setItem(formListItem);
+      #
+      #    // BP deviation documented
+      #    formListItem = new FormListItem(pathInfo.runModeTxt());      // C/s
+      #    formListItem.subItem(4);
+      #    formListItem.idx(headerIdx);
+      #    resultListView.setItem(formListItem);
+      #
+      #    // BP deviation documented
+      #    formListItem = new FormListItem(datetime2str(pathInfoElement.ModifiedDateTime, DateFlags::None));
+      #    formListItem.subItem(5);
+      #    formListItem.idx(headerIdx);
+      #    resultListView.setItem(formListItem);
+      #
+      #    // BP deviation documented
+      #    formListItem = new FormListItem(pathInfoElement.ModifiedBy);
+      #    formListItem.subItem(6);
+      #    formListItem.idx(headerIdx);
+      #    resultListView.setItem(formListItem);
+      #
+      #    // Add the selected properties
+      #    subItem = 6;
+      #    while select selectedProperties
+      #    {
+      #        subItem++;
+      #        // BP deviation documented
+      #        formListItem = new FormListItem(findProperty(_treeNode.AOTgetProperties(),selectedProperties.Property));
+      #        formListItem.subItem(subItem);
+      #        formListItem.idx(headerIdx);
+      #        resultListView.setItem(formListItem);
+      #    }
+      #
+      #    // system related info, nice to know but not essential for daily use!
+      #    subItem++;
+      #    // BP deviation documented
+      #    formListItem = new FormListItem(strFmt('%1',pathInfoElement.RecordType));
+      #    formListItem.subItem(subItem);
+      #    formListItem.idx(headerIdx);
+      #    resultListView.setItem(formListItem);
+      #
+      #    subItem++;
+      #    // BP deviation documented
+      #    formListItem = new FormListItem(classId2Name(_treeNode.handle()));
+      #    formListItem.subItem(subItem);
+      #    formListItem.idx(headerIdx);
+      #    resultListView.setItem(formListItem);
+      #
+      #    subItem++;
+      #    // BP deviation documented
+      #    formListItem = new FormListItem(strFmt('%1', _treeNode.treeNodeType().id()));
+      #    formListItem.subItem(subItem);
+      #    formListItem.idx(headerIdx);
+      #    resultListView.setItem(formListItem);
+      #
+      #    // update the view
+      #    if (resultListView.getCount() <= resultListView.getCountPerPage() + 1)
+      #        resultListView.updateWindow();
+      #
+      #    this.reportProgress(strFmt('%1: %3 %2', pathInfoElement.RecordType,
+      #                                            pathInfoElement.Name,
+      #                                            xUtilElements::parentName(pathInfoElement)));
+      #}
+    ENDSOURCE
+    SOURCE #task
+      #int task(int p1)
+      #{
+      #    #AOT
+      #    #Task
+      #    int ret = 1;
+      #
+      #        if ((p1==#TaskEnter) && (resultListView.name() == this.selectedControl().name()))
+      #        {
+      #            // >> DEV:MXK >>
+      #            element.DEV_ExpendSelectedItem();
+      #            // << DEV:MXK <<
+      #            // We don't allow you to edit System Documentation nodes
+      #            if (subStr(initialTopNode.treeNodePath(),0,strLen(#SystemDocPath)) != #SystemDocPath)
+      #            {
+      #                element.editSelectedItems();
+      #            }
+      #            else
+      #            {
+      #                element.openSelectedItems();
+      #            }
+      #        }
+      #        else
+      #        {
+      #            ret = super(p1);
+      #        }
+      #    return ret;
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+  ENDOBJECTBANK
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Height              #Column height
+      Caption             #@SYS5260
+      Frame               #Dialog
+      WindowResize        #Dynamic
+      WindowType          #Workspace
+      HideToolbar         #Yes
+      SetCompany          #No
+      LeftMargin          #0
+      RightMargin         #0
+      ViewEditMode        #Edit
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL GROUP
+        PROPERTIES
+          Name                #DEV_GroupOptions
+          Width               #Column width
+          ElementPosition     #536870910
+          HierarchyParent     #TabPageName
+          Columns             #3
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Results
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1610612734
+          HierarchyParent     #Form
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #DEV_CreateProject
+          HelpText            #Creates project with all found elements.
+          ElementPosition     #1861152493
+          HierarchyParent     #ButtonGroup
+          Text                #Create project
+          MultiSelect         #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    #TreeNodeSysNodeType
+            #    #define.ProjectName('DEV_FindByProject')
+            #
+            #    Set                         treeNodeLocalPaths;
+            #    SetEnumerator               treeNodeLocalPathEnumerator;
+            #
+            #    SysProjectFilterRunBase     projectFilter;
+            #    UtilElements                utilElements;
+            #
+            #    Dialog                      dialog;
+            #    DialogField                 dialogField;
+            #
+            #    int                         itemIdx;
+            #    int                         p;
+            #    FormListItem                selectedItem;
+            #    TreeNode                    selectedNode;
+            #    str                         selectedData;
+            #
+            #    treeNodeLocalPaths = new Set(Types::String);
+            #
+            #    itemIdx = resultListView.getNextItem(FormListNext::All);
+            #
+            #    while (itemIdx != -1)
+            #    {
+            #        selectedItem = resultListView.getItem(itemIdx);
+            #        selectedData = selectedItem.data();
+            #        p = strFind(selectedData, '\\', 1, maxInt());
+            #        if (p > 1)
+            #        {
+            #            selectedData = subStr(selectedData, p, maxInt());
+            #        }
+            #        selectedNode = TreeNode::findNode(selectedData);
+            #        treeNodeLocalPaths.add(selectedNode.treeNodePath());
+            #        itemIdx = resultListView.getNextItem(FormListNext::All, itemIdx);
+            #    }
+            #
+            #    if (treeNodeLocalPaths.elements() == 0)
+            #    {
+            #        info('No AOT objects to include into Project.');
+            #        return;
+            #    }
+            #
+            #    dialog      = new dialog("@SYS53207"); // Create project
+            #    dialogField = dialog.addFieldValue(extendedTypeStr(ProjectName), #ProjectName);
+            #
+            #    if (dialog.run())
+            #    {
+            #        startLengthyOperation();
+            #
+            #        treeNodeLocalPathEnumerator = treeNodeLocalPaths.getEnumerator();
+            #
+            #        while (treeNodeLocalPathEnumerator.moveNext())
+            #        {
+            #            utilElements = xUtilElements::findTreeNode(
+            #                treeNode::findNode(
+            #                    SysTreeNode::applObjectPath(
+            #                    treeNodeLocalPathEnumerator.current())),
+            #                false);
+            #
+            #            if (!projectFilter)
+            #                projectFilter = DEV_Global::createProject(any2str(dialogField.value()));
+            #
+            #            if (    utilElements.RecordType == UtilElementType::SharedProject
+            #                ||  utilElements.RecordType == UtilElementType::PrivateProject
+            #                ||  utilElements.RecordType == UtilElementType::ClassInternalHeader
+            #                ||  utilElements.RecordType == UtilElementType::TableInternalHeader
+            #                || !projectFilter.doUtilElements(utilElements))
+            #            {
+            #                info(strfmt("@SYS316339", strfmt('%1 %2', utilElements.RecordType, utilElements.Name)));
+            #            }
+            #        }
+            #
+            #        projectFilter.write();
+            #
+            #        info(strFmt('Project created: %1', projectFilter.parmProjectNode().name()));
+            #
+            #        endLengthyOperation();
+            #    }
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #DEV_SetBreakpoint
+          HelpText            #Sets a breakpoint for the selected line.
+          ElementPosition     #1574821340
+          HierarchyParent     #ButtonGroup
+          Text                #Set breakpoint
+          MultiSelect         #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    container               bpCons;
+            #    container               bpCon;
+            #
+            #    int                     itemIdx;
+            #    int                     p;
+            #    int                     i;
+            #    int                     j;
+            #    FormListItem            selectedItem;
+            #    TreeNode                selectedNode;
+            #    str                     selectedData;
+            #    Source                  source;
+            #    SourceLine              sourceLine[];
+            #
+            #    lastEditTreeNodeWithSource = null;
+            #    itemIdx = resultListView.getNextItem(FormListNext::Selected);
+            #
+            #    while (itemIdx != -1)
+            #    {
+            #        selectedItem = resultListView.getItem(itemIdx);
+            #        selectedData = selectedItem.data();
+            #
+            #        // try to find a line number put'ed in before the Path (!)
+            #        p = strFind(selectedData, '\\', 1, strLen(selectedData));
+            #        i = 0;
+            #        if (p > 1)
+            #        {
+            #            i = str2int(selectedData);
+            #            selectedData = subStr(selectedData, p, strLen(selectedData));
+            #        }
+            #
+            #        selectedNode = TreeNode::findNode(selectedData);
+            #        if (selectedNode)
+            #        {
+            #            if (SysTreeNode::hasSource(selectedNode))
+            #            {
+            #                source = SysUtil::unpackSource(selectedNode.AOTgetSource());
+            #
+            #                j = 0;
+            #
+            #                while (source)
+            #                {
+            #                    j++;
+            #                    p = strFind(source, '\n', 1, maxInt());
+            #                    if (!p)
+            #                    {
+            #                        p = strLen(source);
+            #                    }
+            #                    sourceLine[j] = subStr(source, 1, p);
+            #                    source = strDel(source, 1, p);
+            #
+            #                    if (match(containingText.text(), sourceLine[j]))
+            #                    {
+            #                        break;
+            #                    }
+            #                }
+            #                //if (lastEditTreeNodeWithSource)
+            #                {
+            #                    bpCon = conNull();
+            #                    bpCon += [selectedNode.treeNodePath()];
+            #                    bpCon += [j];
+            #                    bpCon += [true];
+            #
+            #                    bpcons += [bpCon];
+            #                }
+            #
+            #                lastEditTreeNodeWithSource = selectedNode;
+            #                lastEditLine = i;
+            #            }
+            #        }
+            #        itemIdx = resultListView.getNextItem(FormListNext::Selected, itemIdx);
+            #    }
+            #
+            #    DEV_Breakpoints::newFromContainer(bpcons).run();
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #FindNow
+          AutoDeclaration     #Yes
+          HelpText            #@SYS76776
+          ElementPosition     #644245092
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS26822
+          DefaultButton       #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    // >> DEV:MXK >>
+            #    int             x1, y1, x2, y2;
+            #    // << DEV:MXK <<
+            #    element.findNow();
+            #
+            #    // >> DEV:MXK >>
+            #    if (DEV_UserParameters::exist() && DEV_UserParameters::find().WMEnabled)
+            #    {
+            #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+            #        element.design().height(y2 - y1 - 200);
+            #    }
+            #    // << DEV:MXK <<
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #NewSearch
+          AutoDeclaration     #Yes
+          Visible             #No
+          HelpText            #@SYS58500
+          ElementPosition     #966367638
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS26823
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DEV_MatchCase
+          AutoDeclaration     #Yes
+          Left                #Right edge
+          HelpText            #@SYS29119
+          ElementPosition     #1288490187
+          HierarchyParent     #DEV_GroupOptions
+          Label               #@SYS25748
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DEV_MatchWholeWord
+          AutoDeclaration     #Yes
+          Left                #Right edge
+          HelpText            #@SYS68013
+          ElementPosition     #1717986916
+          HierarchyParent     #DEV_GroupOptions
+          Label               #@SYS68013
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #Search
+          AutoDeclaration     #Yes
+          Visible             #No
+          ElementPosition     #805306365
+          HierarchyParent     #TabPageName
+          Selection           #1
+          Text                
+            ARRAY INDEX Items 
+              #@SYS53333
+              #@SYS25613
+            ENDARRAY
+          Item                #2
+          Items               #2
+          Label               #@SYS3340
+          ComboType           #List
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL LISTVIEW #ResultListView
+        METHODS
+          SOURCE #mouseDblClick
+            #int mouseDblClick(int x, int y, int button, boolean ctrl, boolean shift)
+            #{
+            #    #AOT
+            #
+            #    // >> DEV:MXK >>
+            #    element.DEV_ExpendSelectedItem();
+            #    // << DEV:MXK <<
+            #
+            #    // We don't allow you to edit System Documentation nodes
+            #    if (subStr(initialTopNode.treeNodePath(),0,strLen(#SystemDocPath)) != #SystemDocPath)
+            #    {
+            #        element.editSelectedItems();
+            #    }
+            #    else
+            #    {
+            #        element.openSelectedItems();
+            #    }
+            #    return 0;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL RADIOBUTTON
+        PROPERTIES
+          Name                #DEV_Search
+          AutoDeclaration     #Yes
+          ElementPosition     #858993458
+          HierarchyParent     #DEV_GroupOptions
+          Selection           #1
+          Text                
+            ARRAY INDEX Items 
+              #@SYS53333
+              #
+            ENDARRAY
+          Item                #2
+          Items               #2
+          Caption             #@SYS3340
+          Columns             #2
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #gotFocus
+            #public void gotFocus()
+            #{
+            #    super();
+            #    lookInRange.setText();
+            #}
+          ENDSOURCE
+          SOURCE #selectionChange
+            #int selectionChange()
+            #{
+            #    int ret = super();
+            #    TmpPropertySelection propertySelection;
+            #
+            #    element.lock();
+            #
+            #    if (this.selection() == 0)  // Nodes
+            #    {
+            #        // >> DEV:MXK >>
+            #        Search.selection(0);
+            #        Search.selectionChange();
+            #
+            #        if (Named.valueStr() == '')
+            #        {
+            #            Named.text(ContainingText.valueStr());
+            #            ContainingText.text('');
+            #            Named.setFocus();
+            #            Named.setSelection(0, strlen(Named.valueStr()));
+            #        }
+            #        // >> DEV:MXK <<
+            #        includeEmpty.enabled(false);
+            #        propertySelection.setTmpData(tmpPropertySelection);
+            #        select firstonly propertySelection;
+            #        if (!propertySelection)
+            #        {
+            #            element.fillPropertyTable();
+            #        }
+            #        tabPagePropertySelection.visible(true);
+            #    }
+            #    else
+            #    {
+            #        // >> DEV:MXK >>
+            #        Search.selection(1);
+            #        Search.selectionChange();
+            #
+            #        if (ContainingText.valueStr() == '')
+            #        {
+            #            ContainingText.text(Named.valueStr());
+            #            Named.text('');
+            #            ContainingText.setFocus();
+            #            ContainingText.setSelection(0, strlen(ContainingText.valueStr()));
+            #        }
+            #        // >> DEV:MXK <<
+            #        includeEmpty.enabled(true);
+            #        tabPagePropertySelection.visible(false);
+            #    }
+            #
+            #    element.resetSize();
+            #    element.unLock();
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+  ENDPERMISSIONS
+  
+ENDFORM
+
+
+***Element: END

@@ -1,0 +1,248 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: DBT
+
+; Microsoft Dynamics AX Table : DEV_xRefElements unloaded
+; --------------------------------------------------------------------------------
+  TABLEVERSION 1
+  
+  TABLE #DEV_xRefElements
+    EnforceFKRelation 1
+    PROPERTIES
+      Name                #DEV_xRefElements
+      Label               #@SYS115382
+      FormRef             #DEV_xRefSearch
+      TitleField1         #Label
+      TitleField2         #ImageRes
+      CacheLookup         #FoundAndEmpty
+      CreateRecIdIndex    #Yes
+      SaveDataPerCompany  #No
+      PrimaryIndex        #SurrogateKey
+      ClusterIndex        #TypeIdx
+      Origin              #{96502C8A-8FE3-4985-828D-E84C199CB8BB}
+    ENDPROPERTIES
+    
+    FIELDS
+      FIELD #ElementLabel
+        STRING
+        PROPERTIES
+          Name                #ElementLabel
+          Label               #@SYS25058
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_xRefElements
+          Origin              #{9A524202-BC81-49B6-B010-BA845B9A8BCC}
+          ExtendedDataType    #LabelDescription
+          StringSize          #255
+        ENDPROPERTIES
+        
+      FIELD #ElementName
+        STRING
+        PROPERTIES
+          Name                #ElementName
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_xRefElements
+          Origin              #{A9627E08-B464-4E5E-9D95-94EE18098BDC}
+          ExtendedDataType    #UtilElementName
+          StringSize          #40
+        ENDPROPERTIES
+        
+      FIELD #Embedded
+        ENUM
+        PROPERTIES
+          Name                #Embedded
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Visible             #No
+          Table               #DEV_xRefElements
+          Origin              #{CECE2113-14AA-4BB6-91B1-6DF81A67289C}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #FullPath
+        STRING
+        PROPERTIES
+          Name                #FullPath
+          Label               #@SYS7406
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_xRefElements
+          Origin              #{5D893D35-0348-4284-9FF0-F45695414052}
+          StringSize          #500
+        ENDPROPERTIES
+        
+      FIELD #HelpText
+        STRING
+        PROPERTIES
+          Name                #HelpText
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_xRefElements
+          Origin              #{327AC19F-D902-4486-858A-CA45539B069D}
+          ExtendedDataType    #HelpTxt
+          StringSize          #255
+        ENDPROPERTIES
+        
+      FIELD #ImageRes
+        INT
+        PROPERTIES
+          Name                #ImageRes
+          Label               #@SYS115378
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_xRefElements
+          Origin              #{63967523-7892-4F1A-A338-9D0F878D6B4B}
+          ExtendedDataType    #ImageRes
+        ENDPROPERTIES
+        
+      FIELD #Label
+        STRING
+        PROPERTIES
+          Name                #Label
+          Label               #@SYS25058
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_xRefElements
+          Origin              #{17B504FF-28FB-4576-8B6B-E6C5D90DC5AA}
+          ExtendedDataType    #LabelDescription
+          StringSize          #255
+        ENDPROPERTIES
+        
+      FIELD #Name
+        STRING
+        PROPERTIES
+          Name                #Name
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_xRefElements
+          Origin              #{8A70A143-1397-4A5D-A70D-26FAE9DCD80A}
+          ExtendedDataType    #UtilElementName
+          StringSize          #40
+        ENDPROPERTIES
+        
+      FIELD #Type
+        ENUM
+        PROPERTIES
+          Name                #Type
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_xRefElements
+          Origin              #{CA6B1BEF-44A2-4E67-AC9F-0640CDC80E2D}
+          EnumType            #UtilElementType
+        ENDPROPERTIES
+        
+    ENDFIELDS
+    GROUPS
+      GROUP #AutoSummary
+        PROPERTIES
+          Name                #AutoSummary
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #ImageRes
+          #Label
+          #HelpText
+          #FullPath
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoReport
+        PROPERTIES
+          Name                #AutoReport
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #ImageRes
+          #Label
+          #HelpText
+          #FullPath
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoLookup
+        PROPERTIES
+          Name                #AutoLookup
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #ImageRes
+          #Label
+          #HelpText
+          #FullPath
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoBrowse
+        PROPERTIES
+          Name                #AutoBrowse
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #ImageRes
+          #Label
+          #HelpText
+          #FullPath
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #BaseEnum
+        PROPERTIES
+          Name                #BaseEnum
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Name
+          #Label
+          #HelpText
+          #ElementName
+          #ElementLabel
+          #FullPath
+        ENDGROUPFIELDS
+      ENDGROUP
+    ENDGROUPS
+    
+    INDICES
+      #LabelIdx
+      PROPERTIES
+        Name                #LabelIdx
+        Origin              #{A373FD1D-CEF1-48B9-AB2D-EBD01A1E3AC6}
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #Label
+      ENDINDEXFIELDS
+      
+      #ImageResIdx
+      PROPERTIES
+        Name                #ImageResIdx
+        Origin              #{6E611F47-0319-484E-9718-636857F830B4}
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #ImageRes
+      ENDINDEXFIELDS
+      
+      #TypeIdx
+      PROPERTIES
+        Name                #TypeIdx
+        Origin              #{A0E63C1D-DD62-4833-9DAE-ABE0C654B516}
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #Type
+      ENDINDEXFIELDS
+      
+    ENDINDICES
+    FULLTEXTINDICES
+    ENDFULLTEXTINDICES
+    REFERENCES
+    ENDREFERENCES
+    
+    DELETEACTIONS
+    ENDDELETEACTIONS
+    
+    METHODS
+    ENDMETHODS
+  ENDTABLE
+  
+
+***Element: END

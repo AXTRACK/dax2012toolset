@@ -1,0 +1,199 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_AOTNodeExpander unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_AOTNodeExpander
+    PROPERTIES
+      Name                #DEV_AOTNodeExpander
+      Origin              #{A391D099-906D-425A-A8B7-6524A07C0439}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class DEV_AOTNodeExpander
+        #{
+        #    #AOT
+        #    #WinAPI
+        #    #KeyPressed
+        #}
+        #
+      ENDSOURCE
+      SOURCE #expandNode
+        #public static HWND expandNode(  TreeNode    _treeNode       = null,
+        #                                TempStr     _treeNodePath   = '')
+        #{
+        #    HWND                treeNodeHandle;
+        #    HWND                treeHandle;
+        #    TreeNode            targetTreeNode;
+        #    ProjectNode         projectNode;
+        #
+        #    if (!isDeveloper())
+        #        return 0;
+        #
+        #    if (_treeNode || _treeNodePath)
+        #    {
+        #        targetTreeNode   = _treeNode ? _treeNode : TreeNode::findNode(_treeNodePath);
+        #
+        #        if (    targetTreeNode.treeNodeType().isUtilElement()
+        #            &&  targetTreeNode.utilElement().recordType == UtilElementType::SharedProject)
+        #        {
+        #            projectNode = targetTreeNode;
+        #            projectNode.AOTrun();
+        #        }
+        #        else if (targetTreeNode)
+        #        {
+        #            treeHandle = DEV_AOTNodeExpander::process(targetTreeNode);
+        #        }
+        #
+        #        treeNodeHandle = DEV_WinAPI::getTopWindow(DEV_WinAPI::mdiClient());
+        #    }
+        #    else
+        #    {
+        #        warning(strFmt("@SYS319315", _treeNode ? _treeNode.AOTname() : _treeNodePath));
+        #    }
+        #
+        #    return treeNodeHandle;
+        #}
+      ENDSOURCE
+      SOURCE #getTreePane
+        #static HWND getTreePane(HWND hwnd)
+        #{
+        #    return WinAPI::findWindowEx(hwnd, 0, 'AxPaneWnd', '');
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #public static void main(Args args)
+        #{
+        #    Common              record;
+        #    TableId             tableId;
+        #    FieldName           fieldName;
+        #
+        #    if (args && args.record())
+        #    {
+        #        record = args.record();
+        #
+        #        if (record)
+        #        {
+        #            tableId     = record.TableId;
+        #            fieldName   = fieldId2name(tableNum(TmpCompilerOutput),
+        #                                       fieldNum(TmpCompilerOutput, TreeNodePath));
+        #
+        #            DEV_AOTNodeExpander::ExpandNode(record.(fieldName2id(tableId, fieldName)));
+        #        }
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #moveFirstChild
+        #static TreeNode moveFirstChild(HWND _parentHandle)
+        #{
+        #    WinAPI::sendMessageEx(_parentHandle, #WM_KEYDOWN, #arrowright, 0);
+        #
+        #    return new LastAOTSelection().first();
+        #}
+      ENDSOURCE
+      SOURCE #moveNextSibling
+        #static TreeNode moveNextSibling(HWND _parentHandle)
+        #{
+        #    WinAPI::sendMessageEx(_parentHandle, #WM_KEYDOWN, #arrowdown, 0);
+        #
+        #    return new LastAOTSelection().first();
+        #}
+      ENDSOURCE
+      SOURCE #newParentWindow
+        #static HWND newParentWindow(TreeNode _targetTreeNode)
+        #{
+        #    HWND                ret;
+        #    TreeNodePath        parentTreeNodePath;
+        #    TreeNode            parentTreeNode;
+        #
+        #    if (_targetTreeNode)
+        #    {
+        #        parentTreeNodePath  = xUtilElements::getNodePathRough(xUtilElements::parentElement(xUtilElements::findTreeNode(_targetTreeNode)));
+        #        parentTreeNode      = TreeNode::findNode(parentTreeNodePath);
+        #        ret                 = parentTreeNode.AOTnewWindow();
+        #    }
+        #
+        #    return ret ? ret : 0;
+        #}
+        #
+        #
+      ENDSOURCE
+      SOURCE #process
+        #static HWND process(TreeNode _targetTreeNode)
+        #{
+        #    TreeNodePath        parentTreeNodePath;
+        #    TreeNode            parentTreeNode;
+        #    HWND                treeNodeHandle;
+        #    HWND                treeHandle;
+        #
+        #    container           currentTreeNodePathCon;
+        #    container           targetTreeNodePathCon;
+        #
+        #    TreeNodePath        treeNodePathPrev;
+        #    TreeNodeName        searchTreeNodeName;
+        #    TreeNodeName        currentTreeNodeName;
+        #    TreeNode            currentTreeNode;
+        #
+        #    int                 i;
+        #
+        #    if (_targetTreeNode)
+        #    {
+        #        currentTreeNode         = _targetTreeNode;
+        #
+        #        do
+        #        {
+        #            parentTreeNodePath      = xUtilElements::getNodePathRough(xUtilElements::parentElement(xUtilElements::findTreeNode(_targetTreeNode)));
+        #            currentTreeNode         = currentTreeNode.AOTparent();
+        #            parentTreeNodePath      = parentTreeNodePath ? parentTreeNodePath : currentTreeNode.treeNodePath();
+        #        } while (parentTreeNodePath == '' || currentTreeNode == null);
+        #
+        #        parentTreeNode          = TreeNode::findNode(parentTreeNodePath);
+        #        treeNodeHandle          = parentTreeNode.AOTnewWindow();
+        #        treeHandle              = DEV_AOTNodeExpander::getTreePane(treeNodeHandle);
+        #
+        #        targetTreeNodePathCon   = str2con(_targetTreeNode.treeNodePath(), #AOTRootPath);
+        #        currentTreeNodePathCon  = str2con(parentTreeNodePath, #AOTRootPath);
+        #
+        #        for (i = 1; i <= conlen(targetTreeNodePathCon); i++)
+        #        {
+        #            searchTreeNodeName      = conpeek(targetTreeNodePathCon, i);
+        #
+        #            currentTreeNode         = parentTreeNode;
+        #            currentTreeNodePathCon  = str2con(currentTreeNode.treeNodePath(), #AOTRootPath);
+        #
+        #            if (conlen(currentTreeNodePathCon) < i)
+        #            {
+        #                currentTreeNode         = DEV_AOTNodeExpander::moveFirstChild(treeHandle);
+        #                currentTreeNodePathCon  = str2con(currentTreeNode.treeNodePath(), #AOTRootPath);
+        #            }
+        #
+        #            currentTreeNodeName = conpeek(currentTreeNodePathCon, i);
+        #
+        #            while (currentTreeNodeName != searchTreeNodeName)
+        #            {
+        #                treeNodePathPrev    = currentTreeNode.treeNodePath();
+        #                currentTreeNode     = DEV_AOTNodeExpander::moveNextSibling(treeHandle);
+        #
+        #                if (treeNodePathPrev == currentTreeNode.treeNodePath())
+        #                {
+        #                    break;
+        #                }
+        #
+        #                currentTreeNodePathCon  = str2con(currentTreeNode.treeNodePath(), #AOTRootPath);
+        #                currentTreeNodeName     = conpeek(currentTreeNodePathCon, conlen(currentTreeNodePathCon));
+        #            }
+        #        }
+        #    }
+        #
+        #    return treeHandle;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

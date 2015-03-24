@@ -1,0 +1,315 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: DBT
+
+; Microsoft Dynamics AX Table : DEV_Projects unloaded
+; --------------------------------------------------------------------------------
+  TABLEVERSION 1
+  
+  TABLE #DEV_Projects
+    EnforceFKRelation 0
+    PROPERTIES
+      Name                #DEV_Projects
+      FormRef             #DEV_Projects
+      TitleField1         #Id
+      TitleField2         #Name
+      ConfigurationKey    #SysDevelopmentMorphX
+      SecurityKey         #SysDevelopment
+      MaxAccessMode       #Edit
+      CacheLookup         #FoundAndEmpty
+      CreateRecIdIndex    #Yes
+      SaveDataPerCompany  #No
+      TableGroup          #Transaction
+      PrimaryIndex        #NameIdx
+      ClusterIndex        #NameIdx
+      ModifiedDateTime    #Yes
+      DEL_modifiedTime    #Yes
+      CreatedDateTime     #Yes
+      DEL_createdTime     #Yes
+      Origin              #{632FB7F5-E635-4FBD-B822-6ABB4362C8A6}
+    ENDPROPERTIES
+    
+    FIELDS
+      FIELD #Description
+        STRING
+        PROPERTIES
+          Name                #Description
+          Label               #@SYS35300
+          Table               #DEV_Projects
+          Origin              #{DF9AF632-31D1-4B8F-BF3F-7F5869F907B3}
+          ExtendedDataType    #Description
+          StringSize          #60
+        ENDPROPERTIES
+        
+      FIELD #EndDateTime
+        DATETIME
+        PROPERTIES
+          Name                #EndDateTime
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_Projects
+          Origin              #{4B497A3F-CF9D-406C-B24E-A1DB019AF6C8}
+          ExtendedDataType    #EndDateTime
+        ENDPROPERTIES
+        
+      FIELD #Id
+        STRING
+        PROPERTIES
+          Name                #Id
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_Projects
+          Origin              #{79D75FD0-BDAF-44D1-8170-14B61231C1D5}
+          ExtendedDataType    #ProjId
+          StringSize          #20
+        ENDPROPERTIES
+        
+      FIELD #Layer
+        ENUM
+        PROPERTIES
+          Name                #Layer
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_Projects
+          Origin              #{DC77951F-0FC2-49E5-8FE9-B04C857292ED}
+          EnumType            #UtilEntryLevel
+        ENDPROPERTIES
+        
+      FIELD #Name
+        STRING
+        PROPERTIES
+          Name                #Name
+          Mandatory           #Yes
+          AllowEdit           #No
+          Table               #DEV_Projects
+          Origin              #{45A2A628-DDFA-49B1-9B8B-66E3952EA158}
+          ExtendedDataType    #ProjName
+          StringSize          #60
+        ENDPROPERTIES
+        
+      FIELD #Num
+        STRING
+        PROPERTIES
+          Name                #Num
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_Projects
+          Origin              #{E1E22B4C-BADC-4212-A54D-B2FDB4AE0E4B}
+          ExtendedDataType    #Num
+          StringSize          #20
+        ENDPROPERTIES
+        
+      FIELD #StartDateTime
+        DATETIME
+        PROPERTIES
+          Name                #StartDateTime
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_Projects
+          Origin              #{C318545D-EAFF-4D8A-9DB5-7009E2E0B441}
+          ExtendedDataType    #FromDateTime
+        ENDPROPERTIES
+        
+      FIELD #UserCreated
+        STRING
+        PROPERTIES
+          Name                #UserCreated
+          Label               #@SYS2192
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_Projects
+          Origin              #{0EF01A32-32D3-4FFA-A8E3-E04389D5BB21}
+          ExtendedDataType    #UserId
+          StringSize          #8
+        ENDPROPERTIES
+        
+      FIELD #UserModified
+        STRING
+        PROPERTIES
+          Name                #UserModified
+          Label               #@SYS109191
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_Projects
+          Origin              #{3EBA112A-0DF2-4E3F-8C18-D52715A199F8}
+          ExtendedDataType    #UserId
+          StringSize          #8
+        ENDPROPERTIES
+        
+    ENDFIELDS
+    GROUPS
+      GROUP #AutoSummary
+        PROPERTIES
+          Name                #AutoSummary
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Description
+          #EndDateTime
+          #Id
+          #Name
+          #Num
+          #StartDateTime
+          #Layer
+          #UserCreated
+          #UserModified
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoReport
+        PROPERTIES
+          Name                #AutoReport
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Description
+          #EndDateTime
+          #Id
+          #Name
+          #Num
+          #StartDateTime
+          #Layer
+          #UserCreated
+          #UserModified
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoLookup
+        PROPERTIES
+          Name                #AutoLookup
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Description
+          #EndDateTime
+          #Id
+          #Name
+          #Num
+          #StartDateTime
+          #Layer
+          #UserModified
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoBrowse
+        PROPERTIES
+          Name                #AutoBrowse
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Description
+          #EndDateTime
+          #Id
+          #Name
+          #Num
+          #StartDateTime
+          #Layer
+          #UserCreated
+          #UserModified
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #General
+        PROPERTIES
+          Name                #General
+          Label               #General
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Num
+          #Layer
+          #Id
+          #Name
+          #Description
+          #StartDateTime
+          #EndDateTime
+          #UserCreated
+          #UserModified
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Overview
+        PROPERTIES
+          Name                #Overview
+          Label               #Overview
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Num
+          #Layer
+          #Id
+          #Name
+          #Description
+          #StartDateTime
+          #EndDateTime
+          #UserCreated
+          #UserModified
+        ENDGROUPFIELDS
+      ENDGROUP
+    ENDGROUPS
+    
+    INDICES
+      #NameIdx
+      PROPERTIES
+        Name                #NameIdx
+        AllowDuplicates     #No
+        Origin              #{710E3DE5-BAB0-4865-A3C6-9006333E5D8A}
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #Name
+      ENDINDEXFIELDS
+      
+      #NumIdx
+      PROPERTIES
+        Name                #NumIdx
+        Origin              #{B84749F7-4CEB-4814-BE88-5A4845957799}
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #Num
+      ENDINDEXFIELDS
+      
+    ENDINDICES
+    FULLTEXTINDICES
+    ENDFULLTEXTINDICES
+    REFERENCES
+    ENDREFERENCES
+    
+    DELETEACTIONS
+    ENDDELETEACTIONS
+    
+    METHODS
+      SOURCE #initValue
+        #public void initValue()
+        #{
+        #    super();
+        #}
+      ENDSOURCE
+      SOURCE #exist
+        #public static boolean exist(Name _name)
+        #{
+        #    return _name && (select     DEV_Projects
+        #                        index NameIdx
+        #                        where   DEV_Projects.Name == _name).RecId != 0;
+        #}
+      ENDSOURCE
+      SOURCE #find
+        #public static DEV_Projects find(Name    _name,
+        #                                boolean _update = false)
+        #{
+        #    DEV_Projects    projects;
+        #
+        #    if (_name)
+        #    {
+        #        projects.selectForUpdate(_update);
+        #
+        #        select firstonly projects
+        #            index NameIdx
+        #            where projects.Name == _name;
+        #    }
+        #
+        #    return projects;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDTABLE
+  
+
+***Element: END

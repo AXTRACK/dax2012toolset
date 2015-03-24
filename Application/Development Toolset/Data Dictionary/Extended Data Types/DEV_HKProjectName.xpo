@@ -1,0 +1,47 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: UTS
+
+; Microsoft Dynamics AX String: DEV_HKProjectName unloaded
+; --------------------------------------------------------------------------------
+  USERTYPEVERSION 6
+  
+  USERTYPE #DEV_HKProjectName
+  STRING
+    PROPERTIES
+      Name                #DEV_HKProjectName
+      Label               #@SYS4534
+      AnalysisUsage       #Auto
+      AnalysisDefaultTotal #Auto
+      Origin              #{C945F393-D04D-45B0-9AD1-8936B48C1316}
+      Extends             #TreeNodeName
+      StringSize          #40
+    ENDPROPERTIES
+    
+    TYPEELEMENTS
+    ENDTYPEELEMENTS
+    
+    TYPEREFERENCES
+      TYPEREFERENCETYPE DATASET
+      PROPERTIES
+        Table               #UtilElements
+        RelatedField        #name
+      ENDPROPERTIES
+      
+      TYPEREFERENCETYPE EXTERNFIXED
+      PROPERTIES
+        Table               #UtilElements
+        RelatedField        #recordType
+        Value               #37
+      ENDPROPERTIES
+      
+    ENDTYPEREFERENCES
+    
+    TYPELOOKUPS
+    ENDTYPELOOKUPS
+    
+  ENDUSERTYPE
+  
+
+***Element: END

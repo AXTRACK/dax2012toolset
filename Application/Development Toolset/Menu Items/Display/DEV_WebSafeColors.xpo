@@ -1,0 +1,25 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FTM
+
+; Microsoft Dynamics AX MENUITEM : DEV_WebSafeColors unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  MENUITEM #DEV_WebSafeColors
+    Type: 1
+    PROPERTIES
+      Name                #DEV_WebSafeColors
+      Label               #Pick color
+      HelpText            #Allows to select color and copy related code to clipboard
+      Object              #DEV_WebSafeColors
+      NormalImage         #7714
+      ImageLocation       #EmbeddedResource
+      Origin              #{BC2BB960-8D5E-4212-9A2F-4A981B3CA2D6}
+    ENDPROPERTIES
+    
+  ENDMENUITEM
+  
+
+***Element: END

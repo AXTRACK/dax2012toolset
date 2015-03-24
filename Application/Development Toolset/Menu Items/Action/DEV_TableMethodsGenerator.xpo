@@ -1,0 +1,27 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FTM
+
+; Microsoft Dynamics AX MENUITEM : DEV_TableMethodsGenerator unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  MENUITEM #DEV_TableMethodsGenerator
+    Type: 3
+    PROPERTIES
+      Name                #DEV_TableMethodsGenerator
+      Label               #Create table methods
+      HelpText            #Create selected methods on table.
+      ObjectType          #Class
+      Object              #DEV_TableMethodsGenerator
+      RunOn               #Client
+      ConfigurationKey    #SysDevelopmentXPP
+      SecurityKey         #SysDevelopment
+      Origin              #{ECC4F076-2182-409A-877D-FBF83AD0219E}
+    ENDPROPERTIES
+    
+  ENDMENUITEM
+  
+
+***Element: END

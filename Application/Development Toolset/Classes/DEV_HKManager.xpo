@@ -1,0 +1,866 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_HKManager unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_HKManager
+    PROPERTIES
+      Name                #DEV_HKManager
+      Extends             #RunBase
+      Origin              #{E713F370-DABD-4FFA-A76B-043390FF91DB}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #callEditorInstance
+        #void callEditorInstance()
+        #{
+        #    // >> DEV:MXK >>
+        #    /*HWnd    hWndEditor = DEV_HKManager::hWnd_Editor();
+        #    int     lParam;
+        #
+        #    #define.WM_KEYDOWN(0x0100)
+        #
+        #    if (!hWndEditor)
+        #        return;
+        #
+        #    lParam = DEV_HKManager::mapVirtualKey(DEV_HKKey::Ctrl, 0) << 16;
+        #    WinAPI::postMessage(hWndEditor, #WM_KEYDOWN, DEV_HKKey::Ctrl, lParam);
+        #
+        #    lParam = DEV_HKManager::mapVirtualKey(DEV_HKKey::G, 0) << 16;
+        #    WinAPI::postMessage(hWndEditor, #WM_KEYDOWN, DEV_HKKey::G, lParam);*/
+        #
+        #    DEV_WindowsInput.InputSimulator         isim;
+        #    DEV_WindowsInput.IKeyboardSimulator     iksim;
+        #
+        #    if (    WinAPI::isControlButtonDown()
+        #        ||  WinAPI::isShiftButtonDown()
+        #        ||  DEV_WinAPI::isAltButtonDown())
+        #    {
+        #        return;
+        #    }
+        #
+        #    if (DEV_Global::isEditor(DEV_WinAPI::getTopWindow()))
+        #    {
+        #        isim    = new DEV_WindowsInput.InputSimulator();
+        #        iksim   = isim.get_Keyboard();
+        #
+        #        iksim.ModifiedKeyStroke(DEV_WindowsInput.Native.VirtualKeyCode::LMENU, DEV_WindowsInput.Native.VirtualKeyCode::VK_R);
+        #        iksim.KeyPress(DEV_WindowsInput.Native.VirtualKeyCode::ESCAPE);
+        #    }
+        #    // << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #checkScope
+        #boolean checkScope(DEV_HKSetup _hkSetup)
+        #{
+        #    boolean     ret;
+        #
+        #    if (infolog.hWnd() != DEV_WinAPI::getActiveWindow())
+        #        return false;
+        #
+        #    switch (_hkSetup.ActionType)
+        #    {
+        #        case DEV_HKActionType::OpenForm :
+        #        case DEV_HKActionType::OpenTable:
+        #        case DEV_HKActionType::RunClass :
+        #        case DEV_HKActionType::RunJob   :
+        #            ret = true;
+        #            break;
+        #
+        #        case DEV_HKActionType::AOTAction:
+        #            ret = DEV_HKManager::hWnd_AOT()     != 0;
+        #            break;
+        #
+        #        case DEV_HKActionType::EditorAction:
+        #        case DEV_HKActionType::EditorScript:
+        #            ret = DEV_Global::isEditor(DEV_WinAPI::getTopWindow()); // DEV_HKManager::hWnd_Editor()  != 0; // DEV:MXK
+        #            break;
+        #
+        #        // >> DEV:MXK >>
+        #        case DEV_HKActionType::Common:
+        #            ret = true;
+        #            break;
+        #        // << DEV:MXK <<
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class DEV_HKManager extends RunBase
+        #{
+        #    #AOT
+        #    #File
+        #    #DEV_Toolset
+        #
+        #    DEV_HKSetup         hkSetup, hkSetupBuf;
+        #    Editor              editor;
+        #
+        #    boolean             hkEnabled;
+        #    boolean             scriptInProgress;
+        #
+        #    ListEnumerator      keyEnumerator;
+        #
+        #    #define.CurrentVersion(1)
+        #
+        #    #localmacro.CurrentList
+        #        hkEnabled
+        #    #endmacro
+        #}
+      ENDSOURCE
+      SOURCE #dialog
+        #public Object dialog()
+        #{
+        #    return Dialog::newFormnameRunbase(formstr(DEV_HKSetup), this);
+        #}
+      ENDSOURCE
+      SOURCE #editor
+        #//method fired by kernel!
+        #void editor(Editor _editor)
+        #{
+        #    editor = _editor;
+        #}
+      ENDSOURCE
+      SOURCE #initKeyEnumerator
+        #void initKeyEnumerator()
+        #{
+        #    List    list = new List(Types::Record);
+        #
+        #    while select hkSetup
+        #      where     hkSetup.Enabled == NoYes::Yes
+        #            // >> DEV:MXK >>
+        #            &&  hkSetup.UserId  == curUserId()
+        #            // << DEV:MXK <<
+        #    {
+        #        list.addStart(hkSetup);
+        #    }
+        #
+        #    keyEnumerator = list.getEnumerator();
+        #}
+      ENDSOURCE
+      SOURCE #initParmDefault
+        #public void initParmDefault()
+        #{
+        #    hkSetup     =  DEV_HKSetup::defaultHKSetup();
+        #    hkEnabled   =  true;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #isHotKeyDown
+        #boolean isHotKeyDown(DEV_HKSetup _hkSetup)
+        #{
+        #    return DEV_WinAPI::getAsyncKeyState(_hkSetup.Key1,
+        #                                    _hkSetup.Key2,
+        #                                    _hkSetup.Key3);
+        #}
+      ENDSOURCE
+      SOURCE #pack
+        #public container pack()
+        #{
+        #    container   setupRecordCon;
+        #
+        #    while select hkSetup
+        #        // >> DEV:MXK >>
+        #        where hkSetup.UserId == curUserId()
+        #        // << DEV:MXK <<
+        #    {
+        #        setupRecordCon += [buf2con(hkSetup)];
+        #    }
+        #
+        #    return [#CurrentVersion, #CurrentList] + [setupRecordCon];
+        #}
+      ENDSOURCE
+      SOURCE #parmHkEnabled
+        #public boolean parmHkEnabled(boolean _hkEnabled = hkEnabled)
+        #{
+        #    hkEnabled = _hkEnabled;
+        #
+        #    return hkEnabled;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #parmHkSetup
+        #public DEV_HKSetup parmHkSetup(DEV_HKSetup _hkSetup = hkSetup)
+        #{
+        #    hkSetup = _hkSetup;
+        #
+        #    return hkSetup;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #parmHkSetupBuf
+        #public DEV_HKSetup parmHkSetupBuf(DEV_HKSetup _hkSetupBuf = hkSetupBuf)
+        #{
+        #    hkSetupBuf = _hkSetupBuf;
+        #
+        #    return hkSetupBuf;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #run
+        #void run(boolean _firedByKernel = true)
+        #{
+        #    if (!hkEnabled || _firedByKernel || scriptInProgress)
+        #        return;
+        #
+        #    if (!keyEnumerator)
+        #        this.initKeyEnumerator();
+        #
+        #    keyEnumerator.reset();
+        #
+        #    while (keyEnumerator.moveNext())
+        #    {
+        #        hkSetup.data(keyEnumerator.current());
+        #
+        #        //if (WinAPI::isControlButtonDown()) // ForDebug
+        #
+        #        if (this.isHotKeyDown(hkSetup) && this.checkScope(hkSetup))
+        #        {
+        #            startLengthyOperation();
+        #
+        #            while (this.isHotKeyDown(hkSetup))
+        #                continue;
+        #
+        #            endLengthyOperation();
+        #
+        #            hkSetupBuf.data(hkSetup);
+        #
+        #            this.runScript();
+        #        }
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #runAOTaction
+        #void runAOTaction()
+        #{
+        #    SysDictClass        sysDictClass;
+        #
+        #    sysDictClass = new sysDictClass(className2Id(classstr(DEV_HKAOT)));
+        #
+        #    if (sysDictClass && sysDictClass.hasStaticMethod(hkSetupBuf.ActionElementName))
+        #    {
+        #        // BP deviation documented
+        #        sysDictClass.callStatic(hkSetupBuf.ActionElementName);
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #runCommon
+        #// >> DEV:MXK >>
+        #void runCommon()
+        #{
+        #    SysDictClass        sysDictClass;
+        #
+        #    sysDictClass = new sysDictClass(className2Id(classstr(DEV_HKCommon)));
+        #
+        #    if (sysDictClass && sysDictClass.hasStaticMethod(hkSetupBuf.ActionElementName))
+        #    {
+        #        // BP deviation documented
+        #        sysDictClass.callStatic(hkSetupBuf.ActionElementName);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #runEditorAction
+        #void runEditorAction()
+        #{
+        #    SysDictClass    sysDictClass;
+        #    EditorScripts   editorScripts;
+        #
+        #    // >> DEV:MXK >>
+        #    if (appl.globalCache().isSet(classStr(EditorScripts), 1))
+        #    {
+        #        editor = appl.globalCache().get(classStr(EditorScripts), 1);
+        #
+        #        if (editor == null)
+        #            return;
+        #    // << DEV:MXK <<
+        #
+        #        if (hkSetupBuf.ActionType == DEV_HKActionType::EditorAction)
+        #        {
+        #            sysDictClass = new sysDictClass(classnum(#HKEditor));
+        #            if (sysDictClass && sysDictClass.hasStaticMethod(hkSetupBuf.ActionElementName))
+        #            {
+        #                // BP deviation documented
+        #                sysDictClass.callStatic(hkSetupBuf.ActionElementName, editor);
+        #            }
+        #        }
+        #        else if (hkSetupBuf.ActionType == DEV_HKActionType::EditorScript)
+        #        {
+        #            sysDictClass = new sysDictClass(classnum(#EditorScripts));
+        #            if (sysDictClass && sysDictClass.hasObjectMethod(hkSetupBuf.ActionElementName))
+        #            {
+        #                // BP deviation documented
+        #                editorScripts = sysDictClass.makeObject();
+        #
+        #                if (editorScripts)
+        #                {
+        #                    // BP deviation documented
+        #                    sysDictClass.callObject(hkSetupBuf.ActionElementName, editorScripts, editor);
+        #                }
+        #            }
+        #        }
+        #        else
+        #        {
+        #            throw error (Error::wrongUseOfFunction(funcname()));
+        #        }
+        #
+        #        appl.globalCache().remove(classStr(EditorScripts), 1); // DEV:MXK
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #runOpenForm
+        #void runOpenForm()
+        #{
+        #    Args    args = new Args(hkSetupBuf.ActionElementName);
+        #    FormRun formRun;
+        #
+        #    formRun = ClassFactory::formRunClassOnClient(args);
+        #    formRun.init();
+        #    formRun.run();
+        #    formRun.detach();
+        #}
+      ENDSOURCE
+      SOURCE #runOpenTable
+        #void runOpenTable()
+        #{
+        #    new SysTableBrowser().run(tableName2id(hkSetupBuf.ActionElementName));
+        #}
+      ENDSOURCE
+      SOURCE #runRunClass
+        #void runRunClass()
+        #{
+        #    TreeNode            classNode;
+        #
+        #    classNode = TreeNode::findNode(strFmt("%1%2%3", #ClassesPath, #AOTDelimiter, hkSetupBuf.ActionElementName));
+        #
+        #    if (classNode)
+        #    {
+        #        classNode.AOTrun();
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #runRunJob
+        #void runRunJob()
+        #{
+        #    TreeNode jobNode;
+        #
+        #    jobNode = TreeNode::findNode(strFmt("%1%2%3", #JobsPath, #AOTDelimiter, hkSetupBuf.ActionElementName));
+        #
+        #    if (jobNode)
+        #        jobNode.AOTrun();
+        #}
+      ENDSOURCE
+      SOURCE #runScript
+        #void runScript()
+        #{
+        #    HWND        hwnd = DEV_WinAPI::getActiveWindow();
+        #
+        #    switch (hkSetupBuf.ActionType)
+        #    {
+        #        case DEV_HKActionType::AOTAction:
+        #                this.runAOTaction();
+        #            break;
+        #
+        #        case DEV_HKActionType::EditorAction:
+        #        case DEV_HKActionType::EditorScript:
+        #            if (DEV_HKManager::validateVSAssemblies())
+        #            {
+        #                this.setTimeOut(identifierStr(callEditorInstance), 100);
+        #                this.setTimeOut(identifierStr(runEditorAction), 150);
+        #            }
+        #            break;
+        #
+        #        case DEV_HKActionType::OpenForm:
+        #                this.runOpenForm();
+        #            break;
+        #
+        #        case DEV_HKActionType::OpenTable:
+        #                this.runOpenTable();
+        #            break;
+        #
+        #        case DEV_HKActionType::RunClass:
+        #                this.runRunClass();
+        #            break;
+        #
+        #        case DEV_HKActionType::RunJob:
+        #                this.runRunJob();
+        #            break;
+        #
+        #        // >> DEV:MXK >>
+        #        case DEV_HKActionType::Common:
+        #                this.runCommon();
+        #            break;
+        #        // << DEV:MXK <<
+        #
+        #        default:
+        #            throw error (strFmt('No run handler installed in %1', funcname()));
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #saveLast
+        #public void saveLast()
+        #{
+        #    super();
+        #
+        #    this.initKeyEnumerator();
+        #}
+      ENDSOURCE
+      SOURCE #showForm
+        #//method is fired by kernel
+        #void showForm(boolean _showIt)
+        #{
+        #    this.runEditorAction();
+        #}
+      ENDSOURCE
+      SOURCE #unpack
+        #public boolean unpack(container packedClass)
+        #{
+        #    Version     version     = runbase::getVersion(packedClass);
+        #    container   setupRecordCon;
+        #
+        #    switch (version)
+        #    {
+        #        case #CurrentVersion:
+        #            [version, #CurrentList, setupRecordCon] = packedClass;
+        #            break;
+        #        default:
+        #            return false;
+        #    }
+        #
+        #    while (conlen(setupRecordCon))
+        #    {
+        #        hkSetup.clear();
+        #        con2buf(conPeek(setupRecordCon, 1), hkSetup);
+        #        hkSetup.insert();
+        #
+        #        setupRecordCon = condel(setupRecordCon, 1, 1);
+        #    }
+        #
+        #    return true;
+        #}
+      ENDSOURCE
+      SOURCE #validate
+        #// BP Deviation Documented
+        #public boolean validate(Object calledFrom = null)
+        #{
+        #    boolean         ret;
+        #    DialogButton    dialogButton;
+        #    str             boxPromptText;
+        #
+        #    ret = super(calledFrom);
+        #
+        #    if (ret && !hkEnabled)
+        #    {
+        #        boxPromptText  = 'You are in turning off the hotkey functionality.\n';
+        #        boxPromptText += 'Note, that you can resume it only by manual HKRunTime class run.\n';
+        #        boxPromptText += 'Do you want to continue?\n';
+        #
+        #        dialogButton = Box::yesNo(boxPromptText,
+        #                                  DialogButton::No,
+        #                                  'Hotekey framework setup');
+        #
+        #        if (dialogButton == DialogButton::No)
+        #            ret = false;
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #editorCatchObject
+        #static Object editorCatchObject(Args _args)
+        #{
+        #    DEV_HKManager   hkManager = DEV_HKManager::startHKManager();
+        #    Object          hkRunTimeObject;
+        #
+        #    hkRunTimeObject = new DEV_HKManager();
+        #    hkRunTimeObject.parmHkSetupBuf(hkManager.parmHkSetupBuf());
+        #
+        #    return hkRunTimeObject;
+        #}
+      ENDSOURCE
+      SOURCE #extDeploy
+        #// >> DEV:MXK >>
+        #public static boolean extDeploy(FilePath _folderPath, str _resourceName)
+        #{
+        #    ResourceNode    resourceNode;
+        #    boolean         ret;
+        #
+        #    new FileIOPermission(_folderPath, #IO_WRITE).assert();
+        #
+        #    resourceNode = SysResource::getResourceNode(_resourceName);
+        #
+        #    if (resourceNode)
+        #    {
+        #        resourceNode.AOTload();
+        #        ret = SysResource::exportResource(resourceNode, _folderPath);
+        #
+        #        if (ret)
+        #            info(strFmt('Resource %1 deployed.',  _resourceName));
+        #    }
+        #    else
+        #    {
+        #        ret = checkFailed(strFmt('Resource %1 not found.', _resourceName));
+        #    }
+        #
+        #    CodeAccessPermission::revertAssert();
+        #
+        #    return ret;
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #getFileName
+        #// >> DEV:MXK >>
+        #public static FileName getFileName(str _resource)
+        #{
+        #    ResourceNode    resourceNode = SysResource::getResourceNode(_resource);
+        #    FileName        fileName;
+        #
+        #    if (resourceNode)
+        #    {
+        #        resourceNode.AOTload();
+        #        fileName = resourceNode.filename();
+        #    }
+        #    else
+        #    {
+        #        error(strFmt('Resource %1 not found.', _resource));
+        #    }
+        #
+        #    return fileName;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #handleEditorScriptsPre
+        #// >> DEV:MXK >>
+        #/// <summary>
+        #/// Pre event handler for the getApplicableScripts method of <c>EditorScripts</c>
+        #/// </summary>
+        #/// <param name="_args">
+        #///     <c>XppPrePostArgs</c> class.
+        #/// </param>
+        #public static void handleEditorScriptsPre(XppPrePostArgs _args)
+        #{
+        #    Editor      editor = _args.getArgNum(1);
+        #
+        #    appl.globalCache().set(classStr(EditorScripts), 1, editor);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #hWnd_AOT
+        #static hWnd hWnd_AOT()
+        #{
+        #    HWND        hWnd, hWndParent;
+        #    Binary      buffer = new Binary(4);
+        #
+        #    hWnd        = DEV_WinAPI::mdiClient();
+        #    hWndParent  = DEV_HKManager::sendMessageEx(hWnd, #WM_MDIGETACTIVE, 0, buffer);
+        #
+        #    if (WinAPI::findWindowEx(hWndParent, 0, identifierstr(AxListViewCtrl), '')) // possible, this is editor's window
+        #        return 0;
+        #
+        #    hWnd        = WinAPI::findWindowEx(hWndParent, 0, identifierstr(AxChildFrame), '');
+        #
+        #    if (hWnd)
+        #    {
+        #        hWnd = WinAPI::findWindowEx(hWnd, 0, identifierstr(AxToolBarCtrl), '');
+        #
+        #        if (hWnd)
+        #        {
+        #            hWnd = WinAPI::findWindowEx(hWndParent, 0, identifierstr(AxPaneWnd), '');
+        #        }
+        #    }
+        #
+        #    return hWnd ? hWndParent : 0;
+        #}
+      ENDSOURCE
+      SOURCE #hWnd_editor
+        #// returns HWnd of active editor window, if focus on it
+        #static HWnd hWnd_editor()
+        #{
+        #    HWND        hWnd;
+        #    HWND        mainEditorHWnd, childEditorHWnd;
+        #
+        #    hWnd = DEV_WinAPI::getActiveWindow();
+        #
+        #    hWnd = WinAPI::findWindowEx(hWnd, 0, #MDIClient, '');
+        #
+        #    hWnd = DEV_HKManager::sendMessageEx(hWnd, #WM_MDIGETACTIVE, 0);
+        #
+        #    if (hWnd)
+        #    {
+        #        mainEditorHWnd  = WinAPI::findWindowEx(hWnd, 0, identifierstr(AxEdTabCtrl), '');
+        #
+        #        childEditorHWnd = WinAPI::findWindowEx(mainEditorHWnd, 0, '', '');
+        #
+        #        while (childEditorHWnd && !DEV_WinAPI::isWindowVisible(childEditorHWnd))
+        #        {
+        #            childEditorHWnd = WinAPI::findWindowEx(mainEditorHWnd, childEditorHWnd, '', '');
+        #        }
+        #    }
+        #
+        #    return childEditorHWnd;
+        #}
+      ENDSOURCE
+      SOURCE #hWnd_editorParent
+        #static HWnd hWnd_editorParent()
+        #{
+        #    HWND        hWnd;
+        #
+        #    hWnd = DEV_HKManager::hWnd_GetWindowParent(DEV_HKManager::hWnd_Editor());
+        #
+        #    if (hWnd)
+        #    {
+        #        hWnd = DEV_HKManager::hWnd_GetWindowParent(hWnd);
+        #    }
+        #
+        #    return hWnd;
+        #}
+      ENDSOURCE
+      SOURCE #hWnd_getWindowParent
+        #static HWND hWnd_getWindowParent(HWND _handle)
+        #{
+        #    // BP deviation documented
+        #    DLL         winApiDLL    = new DLL(#UserDLL);
+        #    DLLFunction getParent    = new DLLFunction(winApiDLL, identifierstr(GetParent));
+        #
+        #    getParent.returns(ExtTypes::DWord);
+        #
+        #    getParent.arg(ExtTypes::DWord);
+        #
+        #    // BP deviation documented
+        #    return getParent.call(_handle);
+        #}
+        #
+      ENDSOURCE
+      SOURCE #hWnd_isAOTinEditMode
+        #static boolean hWnd_isAOTinEditMode()
+        #{
+        #    HWND        hWnd, hWndParent;
+        #    Binary      buffer = new Binary(4);
+        #    boolean     ret;
+        #
+        #    hWnd        = DEV_WinAPI::mdiClient();
+        #    hWndParent  = DEV_HKManager::sendMessageEx(hWnd, #WM_MDIGETACTIVE, 0, buffer);
+        #    hWnd        = WinAPI::findWindowEx(hWndParent, 0, identifierstr(AxChildFrame), '');
+        #
+        #    if (hWnd)
+        #    {
+        #        hWnd = WinAPI::findWindowEx(hWnd, 0, identifierstr(AxToolBarCtrl), '');
+        #
+        #        if (hWnd)
+        #        {
+        #            hWnd = WinAPI::findWindowEx(hWndParent, 0, identifierstr(AxPaneWnd), '');
+        #
+        #            if (hWnd)
+        #            {
+        #                hWnd = WinAPI::findWindowEx(hWnd, 0, identifierstr(AxPaneWnd), '');
+        #
+        #                if (hWnd)
+        #                {
+        #                    hWnd = WinAPI::findWindowEx(hWnd, 0, identifierstr(AxEdit), '');
+        #
+        #                    if (hWnd)
+        #                    {
+        #                        ret = true;
+        #                    }
+        #                }
+        #            }
+        #        }
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #hWnd_isMDIActive
+        #static boolean hWnd_isMDIActive()
+        #{
+        #    HWND        hWnd;
+        #    boolean     ret = true;
+        #
+        #    hWnd = WinAPI::getFocus();
+        #
+        #    while (hWnd)
+        #    {
+        #        if (WinAPI::getWindowText(hWnd) == identifierstr(PrimaryMargin))
+        #        {
+        #            ret = false;
+        #            break;
+        #        }
+        #
+        #        hWnd = DEV_HKManager::hWnd_getWindowParent(hWnd);
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #client public static void main(Args _args)
+        #{
+        #    DEV_HKManager::startHKManager().prompt();
+        #}
+        #
+      ENDSOURCE
+      SOURCE #mapVirtualKey
+        #client static int mapVirtualKey(int _uCode, int _uMapType)
+        #{
+        #    DLL         winApiDLL          = new DLL(#UserDLL);
+        #    DLLFunction mapVirtualKey      = new DLLFunction(winApiDLL, identifierstr(MapVirtualKeyA));
+        #
+        #    mapVirtualKey.arg(ExtTypes::DWORD);
+        #    mapVirtualKey.arg(ExtTypes::DWORD);
+        #    mapVirtualKey.returns(ExtTypes::DWORD);
+        #
+        #    return mapVirtualKey.call(_uCode, _uMapType);
+        #}
+        #
+      ENDSOURCE
+      SOURCE #sendMessageEx
+        #static int sendMessageEx( HWnd   _hWnd,
+        #                          int    _msg,
+        #                          int    _wParam,
+        #                          Binary _lParam = new Binary(4))
+        #{
+        #    // BP deviation documented
+        #    DLL         winApiDLL   = new DLL(#UserDLL);
+        #    DLLFunction sendMessage = new DLLFunction(winApiDLL, identifierstr(SendMessageA));
+        #
+        #    sendMessage.returns( ExtTypes::DWord);
+        #
+        #    sendMessage.arg( ExtTypes::DWord,
+        #                     ExtTypes::DWord,
+        #                     ExtTypes::DWord,
+        #                     ExtTypes::Pointer);
+        #
+        #    // BP deviation documented
+        #    return sendMessage.call(_hWnd, _msg, _wParam, _lParam);
+        #}
+        #
+      ENDSOURCE
+      SOURCE #startHKManager
+        #static DEV_HKManager startHKManager()
+        #{
+        #    DEV_HKManager   hkManager;
+        #
+        #    if (infolog.globalCache().isSet(funcname(), funcname()))
+        #    {
+        #        hkManager = infolog.globalCache().get(funcname(), funcname());
+        #    }
+        #
+        #    if (!hkManager)
+        #    {
+        #        hkManager = new DEV_HKManager();
+        #        hkManager.getLast();
+        #
+        #        infolog.globalCache().set(funcname(), funcname(), hkManager);
+        #    }
+        #
+        #    return hkManager;
+        #}
+      ENDSOURCE
+      SOURCE #validateEditorComponents
+        #// >> DEV:MXK >>
+        #public static boolean validateEditorComponents()
+        #{
+        #    UtilElements    utilElements;
+        #    FilePath        folderPath  = xInfo::directory(DirectoryType::Bin) + #EditorComponents + #FilePathDelimiter;
+        #    ResourceNode    resourceNode;
+        #    boolean         ret = true;
+        #
+        #    while select utilElements
+        #        group by name, recordType
+        #        where       utilElements.recordType ==      UtilElementType::Resource
+        #                &&  utilElements.name       like    #EditorExtensions
+        #    {
+        #        resourceNode = SysResource::getResourceNode(utilElements.name);
+        #        resourceNode.AOTload();
+        #        ret         = ret && WinAPI::fileExists(folderPath + resourceNode.filename());
+        #        resourceNode.treeNodeRelease();
+        #    }
+        #
+        #    if ( !  ret
+        #        &&  Box::confirm('One or more files is missing. Deploy missing files?', 'Editor extensions', 'Require client restart'))
+        #    {
+        #        try
+        #        {
+        #            ret = true;
+        #
+        #            while select utilElements
+        #                group by name, recordType
+        #                where       utilElements.recordType ==      UtilElementType::Resource
+        #                        &&  utilElements.name       like    #EditorExtensions
+        #            {
+        #                resourceNode = SysResource::getResourceNode(utilElements.name);
+        #                resourceNode.AOTload();
+        #                ret         = ret && DEV_HKManager::extDeploy(folderPath, utilElements.name);
+        #            }
+        #
+        #            if (ret)
+        #                info('All files deployed successfully. Please restart client to apply changes.');
+        #        }
+        #        catch (Exception::Error)
+        #        {
+        #            ret = checkFailed('One or more files not been deployed. Please contact your system administrator.');
+        #        }
+        #    }
+        #
+        #    return ret;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #validateVSAssemblies
+        #// >> DEV:MXK >>
+        #public static boolean validateVSAssemblies()
+        #{
+        #    UtilElements    utilElements;
+        #    FilePath        folderPath  = DEV_Global::getServerBinPath() + #VSAssemblies + #FilePathDelimiter;
+        #    ResourceNode    resourceNode;
+        #    boolean         ret = true;
+        #
+        #    while select utilElements
+        #        group by name, recordType
+        #        where       utilElements.recordType ==      UtilElementType::Resource
+        #                &&  utilElements.name       like    #AssembliesExtensions
+        #    {
+        #        resourceNode = SysResource::getResourceNode(utilElements.name);
+        #        resourceNode.AOTload();
+        #        ret         = ret && WinAPI::fileExists(folderPath + resourceNode.filename());
+        #        resourceNode.treeNodeRelease();
+        #    }
+        #
+        #    if ( !  ret
+        #        &&  Box::confirm('One or more files is missing. Deploy missing files?', 'Editor HK', 'Require client restart'))
+        #    {
+        #        try
+        #        {
+        #            ret = true;
+        #
+        #            while select utilElements
+        #                group by name, recordType
+        #                where       utilElements.recordType ==      UtilElementType::Resource
+        #                        &&  utilElements.name       like    #AssembliesExtensions
+        #            {
+        #                resourceNode = SysResource::getResourceNode(utilElements.name);
+        #                resourceNode.AOTload();
+        #                ret         = ret && DEV_HKManager::extDeploy(folderPath, utilElements.name);
+        #            }
+        #
+        #            if (ret)
+        #                info('All files deployed successfully. Please restart client to apply changes.');
+        #        }
+        #        catch (Exception::Error)
+        #        {
+        #            ret = checkFailed('One or more files not been deployed. Please contact your system administrator.');
+        #        }
+        #    }
+        #
+        #    return ret;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

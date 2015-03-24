@@ -1,0 +1,256 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: xRefUpdate unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #xRefUpdate
+    PROPERTIES
+      Name                #xRefUpdate
+      Extends             #SysUtilElementsTraverse
+      Origin              #{2D0A02D9-0000-1000-B4B1-E47555706461}
+      LegacyId            #729
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #// This is a framework class. Customizing this class may cause problems with future upgrades to the software.
+        #public class xRefUpdate extends SysUtilElementsTraverse
+        #{
+        #    #DEFINE.CurrentVersion(3)
+        #    DialogField dialogTruncateXrefTables;
+        #    boolean     truncateXrefTables;
+        #    DialogField dialogFullTree;
+        #    boolean     fullTree;
+        #    DialogField dialogSelective;
+        #    boolean     selective;
+        #
+        #    AOSClientMode  aosClientMode;
+        #    int            updatedTime;
+        #    date           updatedDate;
+        #
+        #    DialogField dialogUpdateTableRelation;
+        #    boolean     updateTableRelation;
+        #    DialogField dialogUpdateTypeHierarcy;
+        #    TmpUtil     utilElementsToBexRefed;
+        #
+        #    // >> DEV:MXK >>
+        #    DialogField dialogUpdateProjects;
+        #    boolean     updateProjects;
+        #    // << DEV:MXK <<
+        #
+        #    int dummy;
+        #
+        #    #localmacro.CurrentList
+        #        TruncateXrefTables,
+        #        FullTree,
+        #        Selective,
+        #        UpdateTableRelation,
+        #        updateProjects // DEV:MXK
+        #    #endmacro
+        #
+        #}
+      ENDSOURCE
+      SOURCE #dialog
+        #Object dialog(DialogRunbase _dialog = null, boolean _forceOnClient = false)
+        #{
+        #    DialogRunbase   dialogRunbase = super();
+        #    DialogGroup     callAndReadWrite;
+        #
+        #    callAndReadWrite = dialogRunbase.addGroup("@SYS67736");
+        #
+        #    dialogTruncateXrefTables    = dialogRunbase.addField(enumstr(NoYes),"@SYS3947","@SYS27046");
+        #    dialogTruncateXrefTables.value(truncateXrefTables);
+        #
+        #    dialogFullTree              = dialogRunbase.addField(enumstr(NoYes),"@SYS25976","@SYS67737");
+        #    dialogFullTree.value(fullTree);
+        #
+        #    dialogSelective             = dialogRunbase.addField(enumstr(NoYes),"@SYS28953", "@SYS67738");
+        #    dialogSelective.value(selective);
+        #
+        #    dialogRunbase.addGroup("@SYS67741");
+        #
+        #    dialogUpdateTableRelation   = dialogRunbase.addField(extendedtypestr(xRefUpdateTableRelation));
+        #    dialogUpdateTableRelation.value(updateTableRelation);
+        #
+        #    // >> DEV:MXK >>
+        #    dialogUpdateProjects        = dialogRunbase.addField(enumStr(NoYes), 'Update project references', 'All projects will be cross-referenced');
+        #    dialogUpdateProjects.value(updateProjects);
+        #    // << DEV:MXK <<
+        #
+        #    return dialogRunbase;
+        #}
+      ENDSOURCE
+      SOURCE #getFromDialog
+        #boolean getFromDialog()
+        #{
+        #    truncateXrefTables  = dialogTruncateXrefTables.value();
+        #    fullTree            = dialogFullTree.value();
+        #    selective           = dialogSelective.value();
+        #    updateTableRelation = dialogUpdateTableRelation.value();
+        #    updateProjects      = dialogUpdateProjects.value(); // DEV:MXK
+        #
+        #    return super();
+        #}
+      ENDSOURCE
+      SOURCE #isUpdateProjects
+        #// >> DEV:MXK >>
+        #/// <summary>
+        #/// Gets the state that controls whether the cross-reference generation should include updates to projects.
+        #/// </summary>
+        #/// <returns>
+        #/// True if projects cross-references has to be included; otherwise false.
+        #/// </returns>
+        #public boolean isUpdateProjects()
+        #{
+        #    return updateProjects;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #run
+        #/// <summary>
+        #/// Contains the code that does the actual job of the class.
+        #/// </summary>
+        #void run()
+        #{
+        #    #AOT
+        #    FromTime startTime = timenow();
+        #    TreeNode rootNode = TreeNode::rootNode();
+        #
+        #    // flush any old outdated Application Object info
+        #    dictionaryFlush();
+        #    Dictionary::aodFlush();
+        #    flush UtilElements, UtilIdElements;
+        #
+        #    if (fullTree)
+        #    {
+        #        truncateXrefTables = false;
+        #        xRefCreate::setXRefAll(true);
+        #        rootNode.AOTmakeXref(1,true);
+        #        xRefCreate::setXRefAll(false);
+        #    }
+        #    if (selective)
+        #    {
+        #        // if any thing that can't be xRef'ed by them self - like utilElements different from methods with tables as parents -
+        #        // xRef the parent (- but only once!)
+        #        super();
+        #        this.xRefUtilElementsPostponed();
+        #    }
+        #    xRefCreate::insertxReferences(true);
+        #
+        #    // >> DEV:MXK >>
+        #    if (updateProjects)
+        #    {
+        #        DEV_Maintain::updateProjectCrossRef();
+        #    }
+        #    // << DEV:MXK <<
+        #
+        #    info(strfmt("@SYS60806", timeConsumed(startTime, timeNow())));
+        #}
+      ENDSOURCE
+      SOURCE #setUpdateProjects
+        #// >> DEV:MXK >>
+        #/// <summary>
+        #/// Sets the state that controls whether the cross-reference generation should include updates to projects.
+        #/// </summary>
+        #/// <returns>
+        #/// True if projects cross-references has to be included; otherwise false.
+        #/// </returns>
+        #public void setUpdateProjects(boolean _updateProjects)
+        #{
+        #    updateProjects = _updateProjects;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #updateAll
+        #void updateAll()
+        #{
+        #    truncateXrefTables  = true;
+        #    fullTree            = true;
+        #    selective           = false;
+        #    updateTableRelation = true;
+        #    updateProjects      = true;  // DEV:MXK
+        #
+        #    this.run();
+        #}
+        #
+      ENDSOURCE
+      SOURCE #main
+        #static void main(Args args)
+        #{
+        #    xRefUpdate xRefUpdate = new xRefUpdate();
+        #    int64 batchid;
+        #    xRefDialogUpdate xRefDialogUpdate;
+        #
+        #    ;
+        #    setprefix(xRefUpdate.caption());
+        #    appl.globalCache().set(classstr(xRefUpdate), '', xRefUpdate);
+        #
+        #    xRefUpdate.aosClientMode(Session::aosClientMode());
+        #
+        #    // Clean the table used for updating the progress bar
+        #    ttsBegin;
+        #    delete_from xRefDialogUpdate;
+        #    xRefDialogUpdate.Path = '';
+        #    xRefDialogUpdate.insert();
+        #    ttsCommit;
+        #
+        #    if (SysContextMenu::startedFrom(args))
+        #    {
+        #        xRefUpdate.runSysContextMenu(args.parmObject());
+        #    }
+        #    else
+        #    {
+        #        if (args.name() == classstr(SysCompileAll))
+        #        {
+        #            xRefUpdate.progressInit("@SYS3947",3,#AviFileDel);
+        #            xRefUpdate::truncateXrefTables(xRefUpdate.parmProgress());
+        #            xRefUpdate.progressInit(strfmt("@SYS25755",TreeNode::rootNode().treeNodePath()),0,#AviFileCopy);
+        #            batchid = xRefUpdateIL::updateAllXref(true,false,true,true); // DEV:MXK
+        #            xRefUpdate::updateProgressBar(xRefUpdate,batchid,30*1000);
+        #            new xRefTableRelationUpdate().run();
+        #        }
+        #        else
+        #        {
+        #            xRefUpdate.getLast();
+        #            if (xRefUpdate.prompt())
+        #            {
+        #                if (xRefUpdate.isXrefTablesTruncated())
+        #                {
+        #                    xRefUpdate.progressInit("@SYS3947",3,#AviFileDel);
+        #                    xRefUpdate::truncateXrefTables(xRefUpdate.parmProgress());
+        #                }
+        #
+        #                if(xRefUpdate.isFullTree() || xRefUpdate.isSelective())
+        #                {
+        #                    xRefUpdate.progressInit(strfmt("@SYS25755",TreeNode::rootNode().treeNodePath()),0,#AviFileCopy);
+        #                    batchid = xRefUpdateIL::updateAllXref(  xRefUpdate.isFullTree(),
+        #                                                            xRefUpdate.isSelective(),
+        #                                                            xRefUpdate.isUpdateTableRelation(),
+        #                                                            xRefUpdate.isUpdateProjects()); // DEV:MXK
+        #                    xRefUpdate::updateProgressBar(xRefUpdate,batchid,1*1000);
+        #                }
+        #                if (xRefUpdate.isUpdateTableRelation())
+        #                {
+        #                    new xRefTableRelationUpdate().run();
+        #                }
+        #                // >> DEV:MXK >>
+        #                if (xRefUpdate.isUpdateProjects())
+        #                {
+        #                    DEV_Maintain::updateProjectCrossRef();
+        #                }
+        #                // << DEV:MXK <<
+        #            }
+        #        }
+        #    }
+        #
+        #    appl.globalCache().remove(classstr(xRefUpdate), '');
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

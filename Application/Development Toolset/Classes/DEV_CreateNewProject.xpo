@@ -1,0 +1,822 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_CreateNewProject unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_CreateNewProject
+    PROPERTIES
+      Name                #DEV_CreateNewProject
+      Extends             #RunBase
+      Origin              #{F2F037EF-78CE-41D0-9617-5BB3B4A46BB7}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class dev_CreateNewProject extends RunBase
+        #{
+        #    #AOT
+        #    ProjectSharedPrivate    projectType;
+        #    TreeNodeName            projectPrefix;
+        #    TreeNodeName            projectName;
+        #    container               selectedProjectNodes;
+        #    NoYes                   usePrefix;
+        #    TreeNodeName            projectPrefixValue;
+        #    NoYes                   warnAboutNameDuplicates;
+        #    NoYes                   updateExistingProject;
+        #    Map                     objectTypeName;
+        #    container               currentListOld;
+        #    // >> DEV:MXK >>
+        #    NoYesId                 startupProject;
+        #
+        #    //#define.ParamsCount(48)     // The number of project nodes
+        #    //#define.CurrentVersion(24)
+        #    #define.ParamsCount(51)     // The number of project nodes
+        #    #define.CurrentVersion(25)
+        #    // << DEV:MXK <<
+        #
+        #    #localmacro.CurrentList
+        #        projectType,
+        #        projectPrefix,
+        #        projectName,
+        #        selectedProjectNodes,
+        #        usePrefix,
+        #        warnAboutNameDuplicates,
+        #        updateExistingProject,
+        #        // >> DEV:MXK >>
+        #        startupProject
+        #        // << DEV:MXK <<
+        #    #endmacro
+        #}
+      ENDSOURCE
+      SOURCE #convertProjectPrefix
+        ##define.datePrefix("%d")
+        ##define.userPrefix("%u")
+        #public TreeNodeName convertProjectPrefix(TreeNodeName _projectPrefix)
+        #{
+        #    TreeNodeName    projectPrefixNew;
+        #    ;
+        #    projectPrefixNew = strReplace(_projectPrefix, #datePrefix, date2str(systemDateGet(), 123, 2, 0, 2, 0, 4, DateFlags::None));
+        #    projectPrefixNew = strReplace(projectPrefixNew, #userPrefix, curUserId());
+        #
+        #    return projectPrefixNew;
+        #}
+      ENDSOURCE
+      SOURCE #dialog
+        #public Object dialog()
+        #{
+        #    DialogRunbase       dialog = Dialog::newFormnameRunbase(formStr(DEV_CreateNewProjectDlg), this);
+        #    TreeNode            treeNode;
+        #    LastAotSelection    lastAotSelection;
+        #    ;
+        #
+        #    //dialog = super(dialog);
+        #
+        #    warnAboutNameDuplicates = NoYes::Yes;
+        #    updateExistingProject = NoYes::No;
+        #
+        #    if (DEV_WinAPI::isAltButtonDown())
+        #    {
+        #        lastAotSelection = new LastAotSelection();
+        #        treeNode = lastAotSelection.first();
+        #        if (treeNode && SysTreeNode::isProject(treeNode))
+        #        {
+        #            if (this.initFromAOTProject(treeNode))
+        #            {
+        #                warnAboutNameDuplicates = NoYes::No;
+        #                updateExistingProject = NoYes::Yes;
+        #            }
+        #            else
+        #                selectedProjectNodes = conNull();
+        #        }
+        #    }
+        #
+        #        /*
+        #    if (!selectedProjectNodes || conLen(selectedProjectNodes) != #ParamsCount)
+        #        this.initParmDefault();
+        #        */
+        #    return dialog;
+        #}
+      ENDSOURCE
+      SOURCE #dialogMake
+        #public Object dialogMake()
+        #{
+        #    Object ret;
+        #
+        #    ret = super();
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #initFromAOTProject
+        #NoYes initFromAOTProject(TreeNode _project)
+        #{
+        #    ProjectNode     project = _project;
+        #    TreeNodeName    projectPrefixNew;
+        #    ProjectNode     dataDictNode;
+        #    ProjectNode     menuItemNode;
+        #    ProjectNode     vsProjectNode, workflowNode, securityNode, partsNode;
+        #    int             totalMenuItems;
+        #    int             totalMore;
+        #    int             totalWorkflow, totalSec, totalParts, totalVSProject;
+        #    ;
+        #    if (!project)
+        #        return checkFailed(@"The selected project could not be initialized. Default settings used");
+        #
+        #    // >> DEV:MXK >>
+        #    //projectType = project.applObjectType() == UtilElementType::SharedProject ? ProjectSharedPrivate::ProjShared : ProjectSharedPrivate::ProjPrivate;
+        #    /*projectType = project.AOTparent().AOTname() == "Private" ?
+        #                  ProjectSharedPrivate::ProjPrivate : ProjectSharedPrivate::ProjShared;*/
+        #    // Fix runtime error - now also can be run from project node when no parent node
+        #    projectType = project.utilElement().RecordType == UtilElementType::SharedProject ? ProjectSharedPrivate::ProjShared : ProjectSharedPrivate::ProjPrivate;
+        #    // << DEV:MXK <<
+        #
+        #    projectPrefixNew = this.convertProjectPrefix(projectPrefix);
+        #    if (projectPrefixNew && subStr(project.treeNodeName(), 1, strLen(projectPrefixNew)) == projectPrefixNew)
+        #    {
+        #        usePrefix = NoYes::Yes;
+        #        projectName = strDel(project.treeNodeName(), 1, strLen(projectPrefixNew));
+        #    }
+        #    else
+        #    {
+        #        usePrefix = NoYes::No;
+        #        projectName = project.treeNodeName();
+        #    }
+        #
+        #    selectedProjectNodes = conNull();
+        #    project = project.loadForInspection();
+        #
+        #    dataDictNode = project.AOTfindChild(TreeNode::findNode(#DataDictionaryPath).treeNodeName());
+        #    if (dataDictNode)
+        #    {
+        #        selectedProjectNodes += UnknownNoYes::Unknown; //Data Dictionary
+        #        selectedProjectNodes += dataDictNode.AOTfindChild(TreeNode::findNode(#TablesPath).treeNodeName())               ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #        selectedProjectNodes += dataDictNode.AOTfindChild(TreeNode::findNode(#TableMapsPath).treeNodeName())            ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #        selectedProjectNodes += dataDictNode.AOTfindChild(TreeNode::findNode(#ViewsPath).treeNodeName())                ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #        selectedProjectNodes += dataDictNode.AOTfindChild(TreeNode::findNode(#ExtendedDataTypesPath).treeNodeName())    ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #        selectedProjectNodes += dataDictNode.AOTfindChild(TreeNode::findNode(#BaseEnumsPath).treeNodeName())            ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #
+        #        selectedProjectNodes += UnknownNoYes::Unknown; //More...
+        #        selectedProjectNodes += dataDictNode.AOTfindChild(TreeNode::findNode(#LicenseCodesPath).treeNodeName())         ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #        totalMore += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += dataDictNode.AOTfindChild(TreeNode::findNode(#ConfigurationKeysPath).treeNodeName())    ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #        totalMore += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += dataDictNode.AOTfindChild(TreeNode::findNode(#TableCollectionsPath).treeNodeName())     ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #        totalMore += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += dataDictNode.AOTfindChild(TreeNode::findNode(#PerspectivesPath).treeNodeName())     ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #        totalMore += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #
+        #        if (totalMore == 4) //All five were NoYes::No (value = 1)
+        #            selectedProjectNodes = conPoke(selectedProjectNodes, 7, UnknownNoYes::No);
+        #        if (totalMore == 8) //All five were NoYes::Yes (value = 2)
+        #            selectedProjectNodes = conPoke(selectedProjectNodes, 7, UnknownNoYes::Yes);
+        #
+        #        if (!conFind(selectedProjectNodes, UnknownNoYes::No))
+        #            selectedProjectNodes = conPoke(selectedProjectNodes, 1, UnknownNoYes::Yes);
+        #        if (!conFind(selectedProjectNodes, UnknownNoYes::Yes))
+        #            selectedProjectNodes = conPoke(selectedProjectNodes, 1, UnknownNoYes::No);
+        #    }
+        #    else
+        #    {
+        #        selectedProjectNodes = [UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No,
+        #                                UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No];
+        #    }
+        #
+        #    selectedProjectNodes += project.AOTfindChild(TreeNode::findNode(#MacrosPath).treeNodeName())                        ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #    selectedProjectNodes += project.AOTfindChild(TreeNode::findNode(#ClassesPath).treeNodeName())                       ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #    selectedProjectNodes += project.AOTfindChild(TreeNode::findNode(#FormsPath).treeNodeName())                         ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #
+        #    partsNode = project.AOTfindChild(TreeNode::findNode(#PartsPath).treeNodeName());
+        #    if (partsNode)
+        #    {
+        #        selectedProjectNodes += UnknownNoYes::Unknown;  // Parts
+        #        selectedProjectNodes += partsNode.AOTfindChild(TreeNode::findNode(#InfoPartsPath).treeNodeName())        ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalParts += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += partsNode.AOTfindChild(TreeNode::findNode(#FormPartsPath).treeNodeName()) ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalParts += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += partsNode.AOTfindChild(TreeNode::findNode(#CuesPath).treeNodeName())        ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalParts += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += partsNode.AOTfindChild(TreeNode::findNode(#CueGroupsPath).treeNodeName())    ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalParts += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        if (totalParts == 4)
+        #        {
+        #            selectedProjectNodes = conPoke(selectedProjectNodes, 15, UnknownNoYes::No);
+        #        }
+        #        else if (totalParts == 8)
+        #        {
+        #            selectedProjectNodes = conPoke(selectedProjectNodes, 15, UnknownNoYes::Yes);
+        #        }
+        #    }
+        #    else
+        #    {
+        #        selectedProjectNodes = conIns(selectedProjectNodes, 15, UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No,
+        #                                                                UnknownNoYes::No, UnknownNoYes::No);
+        #    }
+        #
+        #    selectedProjectNodes += project.AOTfindChild(TreeNode::findNode(#SSRSReportsRootPath).treeNodeName())               ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #    selectedProjectNodes += project.AOTfindChild(TreeNode::findNode(#SSRSReportsPath).treeNodeName())                   ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #
+        #    vsProjectNode = project.AOTfindChild(TreeNode::findNode(#VSProjectsPath).treeNodeName());
+        #    if (vsProjectNode)
+        #    {
+        #        selectedProjectNodes += UnknownNoYes::Unknown;
+        #        selectedProjectNodes += vsProjectNode.AOTfindChild(TreeNode::findNode(#VSProjectsAXModelPath).treeNodeName())     ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalVSProject += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += vsProjectNode.AOTfindChild(TreeNode::findNode(#VSProjectsCSharpPath).treeNodeName())      ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalVSProject += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedPRojectNodes += vsProjectNode.AOTfindChild(TreeNode::findNode(#VSProjectsAnalysisPath).treeNodeName())    ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalVSProject += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #
+        #        if (totalVSProject == 3)
+        #        {
+        #            selectedProjectNodes = conPoke(selectedProjectNodes,22,UnknownNoYes::No);
+        #        }
+        #        else if (totalVSProject == 6)
+        #        {
+        #            selectedProjectNodes = conPoke(selectedProjectNodes,22,UnknownNoYes::Yes);
+        #        }
+        #    }
+        #    else
+        #    {
+        #        selectedProjectNodes = conIns(selectedProjectNodes, 22, UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No);
+        #    }
+        #
+        #    selectedProjectNodes += project.AOTfindChild(TreeNode::findNode(#QueriesPath).treeNodeName())                       ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #    selectedProjectNodes += project.AOTfindChild(TreeNode::findNode(#JobsPath).treeNodeName())                          ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #    selectedProjectNodes += project.AOTfindChild(TreeNode::findNode(#MenusPath).treeNodeName())                         ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #
+        #    menuItemNode = project.AOTfindChild(TreeNode::findNode(#MenuItemsPath).treeNodeName());
+        #    if (menuItemNode)
+        #    {
+        #        selectedProjectNodes += UnknownNoYes::Unknown;  // Menu Item
+        #        selectedProjectNodes += menuItemNode.AOTfindChild(TreeNode::findNode(#MenuItemsDisplayPath).treeNodeName())     ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #        totalMenuItems += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += menuItemNode.AOTfindChild(TreeNode::findNode(#MenuItemsOutputPath).treeNodeName())      ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #        totalMenuItems += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += menuItemNode.AOTfindChild(TreeNode::findNode(#MenuItemsActionPath).treeNodeName())      ? UnknownNoYes::Yes :  UnknownNoYes::No;
+        #        totalMenuItems += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        if (totalMenuItems == 3)
+        #            selectedProjectNodes = conPoke(selectedProjectNodes, 29, UnknownNoYes::No);
+        #        if (totalMenuItems == 6)
+        #            selectedProjectNodes = conPoke(selectedProjectNodes, 29, UnknownNoYes::Yes);
+        #    }
+        #    else
+        #    {
+        #        selectedProjectNodes = conIns(selectedProjectNodes, 29, UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No);
+        #    }
+        #
+        #    selectedProjectNodes += project.AOTfindChild(TreeNode::findNode(#ServicesPath).treeNodeName())              ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #    selectedProjectNodes += project.AOTfindChild(TreeNode::findNode(#ServiceGroupsPath).treeNodeName())         ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #
+        #    workflowNode = project.AOTfindChild(TreeNode::findNode(#WorkflowPath).treeNodeName());
+        #    if (workflowNode)
+        #    {
+        #        selectedProjectNodes += UnknownNoYes::Unknown;  // Workflow
+        #        selectedProjectNodes += workflowNode.AOTfindChild(TreeNode::findNode(#WorkflowCategoriesPAth).treeNodeName())   ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalWorkflow += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += workflowNode.AOTfindChild(TreeNode::findNode(#WorkflowApprovalTasksPath).treeNodeName()) ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalWorkflow += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += workflowNode.AOTfindChild(TreeNode::findNode(#WorkflowTasksPath).treeNodeName())        ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalWorkflow += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += workflowNode.AOTfindChild(TreeNode::findNode(#WorkflowAutomatedTasksPath).treeNodeName()) ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalWorkflow += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += workflowNode.AOTfindChild(TreeNode::findNode(#WorkflowTypesPath).treeNodeName())        ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalWorkflow += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += workflowNode.AOTfindChild(TreeNode::findNode(#WorkflowProvidersPath).treeNodeName())    ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalWorkflow += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        if (totalWorkflow == 6)
+        #        {
+        #            selectedProjectNodes = conPoke(selectedProjectNodes, 35, UnknownNoYes::No);
+        #        }
+        #        else if (totalWorkflow == 12)
+        #        {
+        #            selectedProjectNodes = conPoke(selectedProjectNodes, 35, UnknownNoYes::Yes);
+        #        }
+        #    }
+        #    else
+        #    {
+        #        selectedProjectNodes = conIns(selectedProjectNodes, 35, UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No,
+        #                                                                UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No);
+        #    }
+        #
+        #    securityNode = project.AOTfindChild(TreeNode::findNode(#SecurityPath).treeNodeName());
+        #    if (securityNode)
+        #    {
+        #        selectedProjectNodes += UnknownNoYes::Unknown;  // Security
+        #        selectedProjectNodes += securityNode.AOTfindChild(TreeNode::findNode(#SecCodePermissionsPath).treeNodeName())   ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalSec += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += securityNode.AOTfindChild(TreeNode::findNode(#SecPrivilegesPAth).treeNodeName()) ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalSec += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += securityNode.AOTfindChild(TreeNode::findNode(#SecDutiesPAth).treeNodeName())        ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalSec += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += securityNode.AOTfindChild(TreeNode::findNode(#SecRolesPath).treeNodeName()) ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalSec += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += securityNode.AOTfindChild(TreeNode::findNode(#SecPRocessCyclesPath).treeNodeName())        ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalSec += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        selectedProjectNodes += securityNode.AOTfindChild(TreeNode::findNode(#SecPoliciesPath).treeNodeName())    ? UnknownNoYes::Yes : UnknownNoYes::No;
+        #        totalSec += conPeek(selectedProjectNodes, conLen(selectedProjectNodes));
+        #        if (totalSec == 6)
+        #        {
+        #            selectedProjectNodes = conPoke(selectedProjectNodes, 42, UnknownNoYes::No);
+        #        }
+        #        else if (totalSec == 12)
+        #        {
+        #            selectedProjectNodes = conPoke(selectedProjectNodes, 42, UnknownNoYes::Yes);
+        #        }
+        #    }
+        #    else
+        #    {
+        #        selectedProjectNodes = conIns(selectedProjectNodes, 42, UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No,
+        #                                                                UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No, UnknownNoYes::No);
+        #    }
+        #
+        #
+        #
+        #
+        #
+        #    return NoYes::Yes;
+        #}
+      ENDSOURCE
+      SOURCE #initParmDefault
+        #public void initParmDefault()
+        #{
+        #    ;
+        #    super();
+        #
+        #    if (projectPrefix == '')
+        #    {
+        #        projectType             = ProjectSharedPrivate::ProjShared;
+        #        projectPrefix           = DEV_UserParameters::find().ProjectPrefix;
+        #    }
+        #    projectName             = SysTreeNode::getSharedProject().newObjectName();
+        #    selectedProjectNodes    = [
+        #                                UnknownNoYes::Unknown,  //01 - Data Dictionary
+        #                                UnknownNoYes::Yes,      //02 - Tables
+        #                                UnknownNoYes::No,       //03 - Table Maps
+        #                                UnknownNoYes::No,       //04 - Views
+        #                                UnknownNoYes::Yes,      //05 - Extended Data Types
+        #                                UnknownNoYes::Yes,      //06 - Base Enums
+        #                                UnknownNoYes::No,       //07 - More...
+        #                                UnknownNoYes::No,       //08 - License Codes
+        #                                UnknownNoYes::No,       //09 - Configuration Keys
+        #                                //UnknownNoYes::No,       //10 - Security Keys
+        #                                UnknownNoYes::No,       //10 - Table Collections
+        #                                UnknownNoYes::No,       //11 - Perspectives
+        #                                UnknownNoYes::No,       //12 - Macros
+        #                                UnknownNoYes::Yes,      //13 - Classes
+        #                                UnknownNoYes::Yes,      //14 - Forms
+        #                                UnknownNoYes::Unknown,  //15 - Parts
+        #                                UnknownNoYes::Yes,      //16 - InfoParts
+        #                                UnknownNoYes::Yes,      //17 - FormParts,
+        #                                UnknownNoYes::No,       //18 - Cues,
+        #                                UnknownNoYes::No,       //19 - Cue groups
+        #                                UnknownNoYes::No,       //20 - SSRS Reports
+        #                                UnknownNoYes::No,       //21 - Reports
+        #                                UnknownNoYes::No,       //22 - Visual studio projects
+        #                                UnknownNoYes::No,       //23 - Visual studio project types
+        #                                UnknownNoYes::No,       //24 - Visual studio project types
+        #                                UnknownNoYes::No,       //25 - Visual studio project types
+        #                                UnknownNoYes::Yes,      //26 - Queries
+        #                                UnknownNoYes::Yes,      //27 - Jobs
+        #                                UnknownNoYes::Yes,      //28 - Menus
+        #                                UnknownNoYes::Yes,      //29 - Menu Items
+        #                                UnknownNoYes::Yes,      //30 - Display
+        #                                UnknownNoYes::Yes,      //31 - Output
+        #                                UnknownNoYes::Yes,      //32 - Action,
+        #                                UnknownNoYes::No,       //33 - Service
+        #                                UnknownNoYes::No,       //34 - Service Groups
+        #                                UnknownNoYes::No,       //35 - Workflow
+        #                                UnknownNoYes::No,       //36 - Workflow Categories
+        #                                UnknownNoYes::No,       //37 - Workflow Approvals
+        #                                UnknownNoYes::No,       //38 - Workflow Tasks
+        #                                UnknownNoYes::No,       //39 - Workflow Automated tasks,
+        #                                UnknownNoYes::No,       //40 - Workflow Types
+        #                                UnknownNoYes::No,       //41 - Workflow providers
+        #                                UnknownNoYes::Unknown,  //42 - Security
+        #                                UnknownNoYes::No,       //43 - Sec Code permissions
+        #                                UnknownNoYes::Yes,      //44 - Sec Privileges
+        #                                UnknownNoYes::Yes,      //45 - Sec duties
+        #                                UnknownNoYes::Yes,      //46 - Sec Roles
+        #                                UnknownNoYes::No,       //47 - Sec Process cycles
+        #                                UnknownNoYes::No,       //48 - Policies
+        #                                // >> DEV:MXK >>
+        #                                UnknownNoYes::No,       //49 - Resources
+        #                                UnknownNoYes::No,       //50 - Label Files
+        #                                UnknownNoYes::No        //51 - References
+        #                                // << DEV:MXK <<
+        #                              ];
+        #
+        #    usePrefix                 = DEV_UserParameters::find().ProjectPrefix ? NoYes::Yes : NoYes::No;
+        #    warnAboutNameDuplicates   = NoYes::Yes;
+        #    updateExistingProject     = NoYes::No;
+        #}
+      ENDSOURCE
+      SOURCE #pack
+        #public container pack()
+        #{
+        #    if (updateExistingProject)
+        #        return currentListOld;
+        #    return [#CurrentVersion, #CurrentList];
+        #}
+      ENDSOURCE
+      SOURCE #parmFormControlValues
+        #container parmFormControlValues(container _values  = [#CurrentList])
+        #{
+        #    ;
+        #    [#CurrentList] = _values;
+        #
+        #    projectPrefixValue = this.convertProjectPrefix(projectPrefix);
+        #
+        #    return [#CurrentList];
+        #}
+      ENDSOURCE
+      SOURCE #run
+        #public void run()
+        #{
+        #    ProjectNode         projNode;
+        #    TreeNode            projNodeRoot;
+        #    ProjectGroupNode    dataDictNode;
+        #    ProjectGroupNode    menuItemsNode;
+        #    ProjectGroupNode    ssrsReportRootNode, vsProjectNode, workflowNode, securityNode, partsNode;
+        #    container           conObjects;
+        #    int                 nIndex;
+        #    // >> DEV:MXK >>
+        #    UserInfo            userInfo;
+        #    // << DEV:MXK <<
+        #
+        #    //Method creates a new Shared/Private project
+        #    TreeNode createNewSharedPrivateProject()
+        #    {
+        #        ProjectNode      upgradeNode;
+        #        TreeNode         treeNodeProject;
+        #        str              projName;
+        #        ;
+        #
+        #        if (projectType == ProjectSharedPrivate::ProjPrivate)
+        #            treeNodeProject = SysTreeNode::getPrivateProject();
+        #        else
+        #            treeNodeProject = SysTreeNode::getSharedProject();
+        #
+        #        if (projectName)
+        #            projName  = usePrefix ? projectPrefixValue + projectName : projectName;
+        #        else
+        #        {
+        #            projName = treeNodeProject.newObjectName();
+        #            warning(strFmt(@"The project was created with a default name: %1", projName));
+        #        }
+        #
+        #        if (!treeNodeProject.AOTfindChild(projName))
+        #            treeNodeProject.AOTadd(projName);
+        #
+        #        upgradeNode = treeNodeProject.AOTfindChild(projName);
+        #
+        #        return upgradeNode.getRunNode();
+        #    }
+        #    //Methods creates sub groups in the Project Node
+        #    ProjectGroupNode createGroup(int _nIndex, str _nodeName, ProjectGroupNode parent)
+        #    {
+        #        TreeNodeName     projNodeName = SysTreeNode::pathName(_nodeName);
+        #        TreeNodeName     origName;
+        #        ProjectGroupNode child;
+        #        GroupNodeType    groupNodeType;
+        #        boolean          isGroupNode = false;
+        #
+        #        #if.ReportLibrariesPath
+        #            origName        = projNodeName;
+        #            projNodeName    = strRem(projNodeName, ' ');
+        #        #endif
+        #
+        #        if (parent)
+        #            child = parent.AOTfindChild(projNodeName);
+        #
+        #        if (parent && !child)
+        #        {
+        #            //Create only selected project nodes
+        #            if (conPeek(selectedProjectNodes, _nIndex) == UnknownNoYes::No)
+        #                return child;
+        #
+        #            if (classIdGet(parent) != classNum(ProjectNode))
+        #            {
+        #                groupNodeType = parent.projectGroupType();
+        #                parent.projectGroupType(GroupNodeType::All);
+        #                isGroupNode = true;
+        #            }
+        #
+        #            parent.AOTadd(projNodeName);
+        #            child = parent.AOTfindChild(projNodeName);
+        #
+        #            // Add back the proper label to the node
+        #            #if.ReportLibrariesPath
+        #                child.name(origName);
+        #            #endif
+        #
+        #            if (isGroupNode)
+        #                parent.projectGroupType(groupNodeType);
+        #        }
+        #
+        #        if (child)
+        #        {
+        #            child.projectGroupType(SysTreeNode::path2ProjectGroupNodeType(_nodeName));
+        #
+        #            if (objectTypeName && objectTypeName.exists(_nIndex))
+        #            {
+        #                conObjects = objectTypeName.lookup(_nIndex);
+        #
+        #                for (nIndex = 1; nIndex <= conLen(conObjects); nIndex += 2)
+        #                {
+        #                    if (!child.findGroupMember(conPeek(conObjects, nIndex), conPeek(conObjects, nIndex + 1), NoYes::No))
+        #                        child.addUtilNode(conPeek(conObjects, nIndex + 1), conPeek(conObjects, nIndex));
+        #                }
+        #            }
+        #        }
+        #        return child;
+        #    }
+        #
+        #    projNode      = createNewSharedPrivateProject();
+        #    projNode.lockUpdate();
+        #    projNodeRoot = projNode;
+        #
+        #    // >> DEV:MXK >>
+        #                    createGroup(49, #ReferencesPath,        projNodeRoot);
+        #                    createGroup(50, #LabelFilesPath,        projNodeRoot);
+        #                    createGroup(51, #ResourcesPath,         projNodeRoot);
+        #    // << DEV:MXK <<
+        #
+        #    securityNode  = createGroup(42, #SecurityPath,          projNodeRoot);
+        #                    createGroup(48, #SecPoliciesPath,       securityNode);
+        #                    createGroup(47, #SecProcessCyclesPath,  securityNode);
+        #                    createGroup(46, #SecRolesPath,          securityNode);
+        #                    createGroup(45, #SecDutiesPath,         securityNode);
+        #                    createGroup(44, #SecPrivilegesPath,     securityNode);
+        #                    createGroup(43, #SecCodePermissionsPath,securityNode);
+        #
+        #    workflowNode  = createGroup(35, #WorkflowPath,          projNodeRoot);
+        #                    createGroup(41, #WorkflowProvidersPath, workflowNode);
+        #                    createGroup(40, #WorkflowTypesPath,     workflowNode);
+        #                    createGroup(39, #WorkflowAutomatedTasksPath,    workflowNode);
+        #                    createGroup(38, #WorkflowTasksPath,     workflowNode);
+        #                    createGroup(37, #WorkflowApprovalTasksPath, workflowNode);
+        #                    createGroup(36, #WorkflowCategoriesPath,workflowNode);
+        #
+        #                    createGroup(34, #ServiceGroupsPath,     projNodeRoot);
+        #                    createGroup(33, #ServicesPath,           projNodeRoot);
+        #
+        #    menuItemsNode = createGroup(29, #MenuItemsPath,         projNodeRoot);
+        #                    createGroup(32, #MenuItemsActionPath,   menuItemsNode);
+        #                    createGroup(31, #MenuItemsOutputPath,   menuItemsNode);
+        #                    createGroup(30, #MenuItemsDisplayPath,  menuItemsNode);
+        #
+        #                    createGroup(28, #MenusPath,             projNodeRoot);
+        #                    // >> DEV:MXK >>
+        #                    // Fix
+        #                    //createGroup(26, #JobsPath,              projNodeRoot);
+        #                    //createGroup(25, #QueriesPath,           projNodeRoot);
+        #                    createGroup(27, #JobsPath,              projNodeRoot);
+        #                    createGroup(26, #QueriesPath,           projNodeRoot);
+        #                    // << DEV:MXK <<
+        #
+        #    vsProjectNode = createGroup(22, #VSProjectsPath,        projNodeRoot);
+        #                    createGroup(25, #VSProjectsAnalysisPath,vsProjectNode);
+        #                    createGroup(24, #VSProjectsCSharpPath,  vsProjectNode);
+        #                    createGroup(23, #VSProjectsAXModelPath, vsProjectNode);
+        #
+        #    ssrsReportRootNode = createGroup(20, #SSRSReportsRootPath, projNodeRoot);
+        #                    createGroup(21, #SSRSReportsPath,       ssrsReportRootNode);
+        #
+        #    partsNode     = createGroup(15, #PartsPath,             projNodeRoot);
+        #                    createGroup(19, #CueGroupsPath,         partsNode);
+        #                    createGroup(18, #CuesPath,              partsNode);
+        #                    createGroup(17, #FormPartsPath,         partsNode);
+        #                    createGroup(16, #InfoPartsPath,         partsNode);
+        #
+        #                    //createGroup(16, #ReportsPath,           projNodeRoot);
+        #                    createGroup(14, #FormsPath,             projNodeRoot);
+        #                    createGroup(13, #ClassesPath,           projNodeRoot);
+        #                    createGroup(12, #MacrosPath,            projNodeRoot);
+        #    dataDictNode  = createGroup(01, #DataDictionaryPath,    projNodeRoot);
+        #                    createGroup(11, #PerspectivesPath,      dataDictNode);
+        #                    createGroup(10, #TableCollectionsPath,  dataDictNode);
+        #                    createGroup(09, #ConfigurationKeysPath, dataDictNode);
+        #                    createGroup(08, #LicenseCodesPath,      dataDictNode);
+        #                    // 07 = More... = no need
+        #                    createGroup(06, #BaseEnumsPath,         dataDictNode);
+        #                    createGroup(05, #ExtendedDataTypesPath, dataDictNode);
+        #                    createGroup(04, #ViewsPath,             dataDictNode);
+        #                    createGroup(03, #TableMapsPath,         dataDictNode);
+        #                    createGroup(02, #TablesPath,            dataDictNode);
+        #
+        #    projNode.AOTsave();
+        #    projNode.unlockUpdate();
+        #
+        #    // >> DEV:MXK >>
+        #    if (startupProject)
+        #    {
+        #        ttsBegin;
+        #
+        #        select forupdate userInfo
+        #            where       userInfo.id                 == curUserId();
+        #
+        #        userInfo.StartupProject = projNode.name();
+        #        userInfo.Update();
+        #
+        #        ttsCommit;
+        #    }
+        #    // << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #setObjectTypeName
+        #void setObjectTypeName(container _packedMap)
+        #{
+        #    ;
+        #    objectTypeName = Map::create(_packedMap);
+        #}
+      ENDSOURCE
+      SOURCE #unpack
+        #public boolean unpack(container packedClass)
+        #{
+        #    Version version = RunBase::getVersion(packedClass);
+        #
+        #    switch (version)
+        #    {
+        #        case #CurrentVersion:
+        #            [version, #CurrentList] = packedClass;
+        #            currentListOld = packedClass;
+        #            break;
+        #        default:
+        #            return false;
+        #    }
+        #
+        #    return true;
+        #}
+      ENDSOURCE
+      SOURCE #validate
+        #public boolean validate(Object calledFrom = null)
+        #{
+        #    boolean         ret;
+        #    int             lenMax = new SysDictType(extendedTypeNum(TreeNodeName)).stringLen();
+        #    TreeNodeName    projName;
+        #    ;
+        #
+        #    ret = super(calledFrom);
+        #
+        #    if (ret && projectName)
+        #    {
+        #        projName = usePrefix ? projectPrefixValue + projectName : projectName;
+        #
+        #        if (strLen(projName) > lenMax)
+        #            return checkFailed(strFmt(@"The name of the project is too long. Maximum length, including prefix is %1", lenMax));
+        #
+        #        if (!TreeNode::isValidObjectName(projName))
+        #            return checkFailed(strFmt(@"The name of the project (%1) contains illegal characters", projName));
+        #
+        #        if (warnAboutNameDuplicates &&
+        #            ((projectType == ProjectSharedPrivate::ProjShared && SysTreeNode::getSharedProject().AOTfindChild(projName)) ||
+        #            (projectType == ProjectSharedPrivate::ProjPrivate && SysTreeNode::getPrivateProject().AOTfindChild(projName))))
+        #        {
+        #            if (Box::yesNo(strFmt(@"The name of the project you entered (%1) already exists.%2Do you want to update the existing project?", projName, '\n'),
+        #                    DialogButton::No, @"Verify the name of the project") == DialogButton::No)
+        #            {
+        #                return checkFailed("@SYS93289");
+        #            }
+        #        }
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #construct
+        #public static DEV_CreateNewProject construct()
+        #{
+        #    return new DEV_CreateNewProject();
+        #}
+        #
+      ENDSOURCE
+      SOURCE #main
+        #static void main(Args _args)
+        #{
+        #    DEV_CreateNewProject   axCreateNewProject;
+        #
+        #    if (isDeveloper())
+        #    {
+        #        axCreateNewProject = DEV_CreateNewProject::construct();
+        #
+        #        if (axCreateNewProject.prompt())
+        #        {
+        #            axCreateNewProject.run();
+        #        }
+        #    }
+        #    // >> DEV:MXK >>
+        #    else
+        #    {
+        #        throw error("@SYS322185");
+        #    }
+        #    // << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #objectsNotInTFS
+        #// >> DEV:MXK >>
+        #public static void objectsNotInTFS()
+        #{
+        #    #SysVersionControl
+        #    #define.ProjectName('DEV_ObjectsNotInTFS')
+        #
+        #    SysVersionControlSystem         sysVersionControlSystem = versionControl.parmSysVersionControlSystem();
+        #    SysVersionControllable          sysVersionControllable;
+        #
+        #    UtilEntryLevel                  curLayer                = currentAOLayer();
+        #    ModelId                         curModelId              = xInfo::getCurrentModelId();
+        #
+        #    SysModelElementData             elemData;
+        #    SysModelElementData             parentData;
+        #    SysModelElement                 parent;
+        #    SysModelElement                 child;
+        #
+        #    TreeNode                        treeNode;
+        #    UtilElements                    utilElements;
+        #
+        #    SysProjectFilterRunBase         projectFilter;
+        #
+        #    Dialog                          dialog;
+        #    DialogField                     dialogField;
+        #
+        #    if (!SysVersionControlParameters::isVCSEnabled() || !sysVersionControlSystem)
+        #        throw error("@SYS135983" + ' ' + strfmt("@SYS120745", "@SYS85914"), '', SysInfoAction_Formrun::newFormname(formstr(SysVersionControlParametersDev)));
+        #
+        #    // Set options to skip cache lookup of file names
+        #    infolog.globalCache().set(#VCSCache, #NoPrompt,true);
+        #
+        #    dialog      = new dialog("@SYS53207"); // Create project
+        #    dialogField = dialog.addFieldValue(extendedTypeStr(ProjectName), #ProjectName);
+        #
+        #    if (dialog.run())
+        #    {
+        #        startLengthyOperation();
+        #
+        #        while select RootModelElement from child
+        #            group by child.RootModelElement, elemData.ModelId
+        #            join ModelId from elemData
+        #                where       elemData.ModelElement == child.RecId
+        #                        // Layer numbers in SysModel* views are offset by +1
+        #                        &&  elemData.Layer       == (curLayer + 1)
+        #                        // Remove the following line to include all models
+        #                        //&&  elemData.ModelId     == curModelId
+        #        {
+        #            // Get lowest layer copy of parent
+        #            select firstOnly parent
+        #                order by parentData.Layer
+        #                    where parent.RecId == child.RootModelElement
+        #                join parentData
+        #                    where parentData.ModelElement == parent.RecId;
+        #
+        #            treeNode = SysTreeNode::findNodeInLayer(parent.ElementType,
+        #                                                    parent.name,
+        #                                                    0,
+        #                                                    parentData.Layer - 1);
+        #
+        #            if (!treeNode)
+        #                continue;
+        #
+        #            sysVersionControllable = SysTreeNode::newTreeNode(treeNode);
+        #
+        #            if (    !sysVersionControllable
+        #                ||  !sysVersionControlSystem.allowCreate(sysVersionControllable))
+        #            {
+        #                treeNode.treeNodeRelease();
+        #                continue;
+        #            }
+        #
+        #            if (!projectFilter)
+        #                projectFilter = DEV_Global::createProject(any2str(dialogField.value()));
+        #
+        #            utilElements = xUtilElements::findTreeNode( treeNode::findNode( SysTreeNode::applObjectPath(
+        #                                                                            treeNode.treeNodePath())),
+        #                                                        false);
+        #
+        #            if (    utilElements.RecordType == UtilElementType::SharedProject
+        #                ||  utilElements.RecordType == UtilElementType::PrivateProject
+        #                ||  utilElements.RecordType == UtilElementType::ClassInternalHeader
+        #                ||  utilElements.RecordType == UtilElementType::TableInternalHeader
+        #                || !projectFilter.doUtilElements(utilElements))
+        #            {
+        #                info(strfmt("@SYS316339", strfmt('%1 %2', utilElements.RecordType, utilElements.Name)));
+        #            }
+        #
+        #            treeNode.treeNodeRelease();
+        #        }
+        #
+        #        projectFilter.write();
+        #
+        #        info(strFmt('Project created: %1', projectFilter.parmProjectNode().name()));
+        #
+        #        endLengthyOperation();
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

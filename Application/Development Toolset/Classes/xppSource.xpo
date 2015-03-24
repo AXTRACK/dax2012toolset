@@ -1,0 +1,108 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: xppSource unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #xppSource
+    PROPERTIES
+      Name                #xppSource
+      Origin              #{2D090B94-0000-1000-1FDE-7F536F757263}
+      LegacyId            #2964
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #info
+        #// >> DEV:MXK >>
+        #Source info()
+        #{
+        #    source += 'info(strFmt(\'%1\', ));';
+        #
+        #    return source;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #query
+        #// >> DEV:MXK >>
+        #Source query()
+        #{
+        #    source  =       'Query                    q = new Query();\n'
+        #                +   '\tQueryBuildDataSource     qbds;\n'
+        #                +   '\tQueryBuildRange          qbr;\n\n'
+        #
+        #                +   '\tqbds = q.addDataSource(tableNum());\n'
+        #                +   '\tqbr  = SysQuery::findOrCreateRange(qbds, fieldNum(, ));\n'
+        #                +   '\tqbr.value(SysQuery:);\n'
+        #                +   '\tqbr.status(RangeStatus:);\n';
+        #
+        #    return source;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #tryRun
+        #// >> DEV:MXK >>
+        #Source tryRun()
+        #{
+        #    source  =       '#OCCRetryCount\n\n'
+        #                +   '\tif (! this.validate())\n'
+        #                +   '\t\tthrow error(\"@SYS18447\");\n\n'
+        #                +   '\tstartLengthyOperation();\n\n'
+        #                +   '\ttry\n'
+        #                +   '\t{\n'
+        #                +   '\t\tttsBegin;\n\n'
+        #                +   '\t\t\n\n'
+        #                +   '\t\tttsCommit;\n'
+        #                +   '\t}\n'
+        #                +   '\tcatch (Exception::Error)\n'
+        #                +   '\t{\n'
+        #                +   '\t\texceptionTextFallThrough();\n'
+        #                +   '\t}\n'
+        #                +   '\tcatch (Exception::Deadlock)\n'
+        #                +   '\t{\n'
+        #                +   '\t\tretry;\n'
+        #                +   '\t}\n'
+        #                +   '\tcatch (Exception::UpdateConflict)\n'
+        #                +   '\t{\n'
+        #                +   '\t\tif (appl.ttsLevel() == 0)\n'
+        #                +   '\t\t{\n'
+        #                +   '\t\t\tif (xSession::currentRetryCount() >= #RetryNum)\n'
+        #                +   '\t\t\t{\n'
+        #                +   '\t\t\t\tthrow Exception::UpdateConflictNotRecovered;\n'
+        #                +   '\t\t\t}\n'
+        #                +   '\t\t\telse\n'
+        #                +   '\t\t\t{\n'
+        #                +   '\t\t\t\tretry;\n'
+        #                +   '\t\t\t}\n'
+        #                +   '\t\t}\n'
+        #                +   '\t\telse\n'
+        #                +   '\t\t{\n'
+        #                +   '\t\t\tthrow Exception::UpdateConflict;\n'
+        #                +   '\t\t}\n'
+        #                +   '\t}';
+        #
+        #    return source;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #whileRecord
+        #// >> DEV:MXK >>
+        #Source whileRecord()
+        #{
+        #    source  =       'TableName record = TableName_ds.getFirst(true) as TableName;\n\n'
+        #                +   '\twhile (record)\n'
+        #                +   '\t{\n'
+        #                +   '\t\t// TODO\n\n'
+        #                +   '\t\trecord = TableName_ds.getNext() as TableName;\n'
+        #                +   '\t}\n';
+        #
+        #    return source;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

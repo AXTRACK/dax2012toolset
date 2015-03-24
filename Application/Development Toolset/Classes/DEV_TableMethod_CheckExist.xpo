@@ -1,0 +1,141 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_TableMethod_CheckExist unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_TableMethod_CheckExist
+    PROPERTIES
+      Name                #DEV_TableMethod_CheckExist
+      Extends             #DEV_TableMethod
+      Origin              #{F045AA0B-D55C-489A-893C-D0F72493F0F5}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #addSummary
+        #protected void addSummary()
+        #{
+        #    code.line('/// <summary>');
+        #    code.line(strFmt('///    Determines whether the specified record exists in the <c>%1</c> table; if not,', dictTable.name()));
+        #    code.line('///    an error message is displayed.');
+        #    code.line('/// </summary>');
+        #    code.line('/// <param name="_recId">');
+        #    code.line(strFmt('///    The record ID of the <c>%1</c> record to check for existence.', dictTable.name()));
+        #    code.line('/// </param>');
+        #    code.line('/// <returns>');
+        #    code.line('///    true if the specified record exists; otherwise, false.');
+        #    code.line('/// </returns>');
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class DEV_TableMethod_CheckExist extends DEV_TableMethod
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #initSource
+        #protected void initSource()
+        #{
+        #    int i;
+        #
+        #    code.text(strFmt('public static boolean %1(', name));
+        #
+        #    if (numOfIndexFields == 1)
+        #    {
+        #        code.line(strFmt(
+        #            '%1 %2)',
+        #            this.fieldType(1),
+        #            this.parameterName(this.fieldName(1))));
+        #    }
+        #    else
+        #    {
+        #        code.indentInc();
+        #            code.newLine();
+        #            for (i = 1; i <= numOfIndexFields; i++)
+        #            {
+        #                code.text(code.columnLayout(
+        #                    this.fieldType(i),
+        #                    this.parameterName(this.fieldName(i)),
+        #                    this.maxTypeLength()));
+        #
+        #                if (i != numOfIndexFields)
+        #                {
+        #                    code.line(',');
+        #                }
+        #            }
+        #            code.line(')');
+        #        code.indentDec();
+        #    }
+        #
+        #    code.blockStart();
+        #
+        #        // variable declaration
+        #        //code.line('boolean ret = true;');
+        #        //code.line(';');
+        #        //code.newLine();
+        #
+        #        // check existence
+        #        code.text(strFmt('if (%1 && !%2::exist(', this.parameterName(this.fieldName(1)), dictTable.name()));
+        #
+        #        if (numOfIndexFields != 1)
+        #        {
+        #            code.newLine();
+        #        }
+        #
+        #        code.indentInc();
+        #            for (i = 1; i <= numOfIndexFields; i++)
+        #            {
+        #                code.text(this.parameterName(this.fieldName(i)));
+        #
+        #                if (i != numOfIndexFields)
+        #                {
+        #                    code.line(',');
+        #                }
+        #            }
+        #            code.line('))');
+        #        code.indentDec();
+        #
+        #        // if not exist, print warning
+        #        code.blockStart();
+        #            code.line('return checkFailed(strFmt(');
+        #
+        #            code.indentInc();
+        #                code.line(strFmt('%1::txtNotExist(),',
+        #                    dictTable.name()));
+        #                for (i = 1; i <= numOfIndexFields; i++)
+        #                {
+        #                    code.text(this.parameterName(this.fieldName(i)));
+        #                    if (i != numOfIndexFields)
+        #                    {
+        #                        code.line(',');
+        #                    }
+        #                }
+        #
+        #            code.indentDec();
+        #            code.line('));');
+        #        code.blockEnd();
+        #
+        #        code.newLine();
+        #
+        #        code.line('return true;');
+        #
+        #    code.blockEnd();
+        #
+        #    source = code.toString();
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #public void new(SysDictTable _dictTable,
+        #                boolean     _addSummary = false)
+        #{
+        #    super(_dictTable, _addSummary);
+        #
+        #    name = #checkExist;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

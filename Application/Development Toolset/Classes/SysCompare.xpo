@@ -1,0 +1,459 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysCompare unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysCompare
+    PROPERTIES
+      Name                #SysCompare
+      RunOn               #Client
+      Origin              #{2D0A0403-0000-1000-598A-F2526F6D7061}
+      LegacyId            #1027
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #// This is a framework class. Customizing this class may cause problems with future upgrades to the software.
+        #//AOSRunMode::Client
+        #public class SysCompare
+        #{
+        #//
+        #    FormRun                    formRun;
+        #    FormDesign                 formDesign;
+        #    FormActiveXControl         html;
+        #    FormCheckBoxControl        includeEmptyControl;
+        #    FormCheckBoxControl        suppressWhiteSpaceControl;
+        #    FormCheckBoxControl        showDifferencesOnlyControl;
+        #    FormCheckBoxControl        caseSensitiveControl;
+        #    FormCheckBoxControl        lineNumbersControl;
+        #    FormComboBoxControl        comboBox1;
+        #    FormComboBoxControl        comboBox2;
+        #    FormTreeControl            tree;
+        #    FormGroupControl           dataGroup;
+        #
+        #    str                        htmltext;
+        #    SysComparable              topComparable1, topComparable2;
+        #
+        #    SysComparable              currentComparable1, currentComparable2;
+        #    SysCompareItem             currentItem;
+        #    boolean                    suppressWhiteSpace;
+        #    boolean                    showDifferencesOnly;
+        #    boolean                    caseSensitive;
+        #    boolean                    showLineNumbers;
+        #    TmpTree                    tableTree;
+        #    str                        description[2];
+        #    int                        nodeCount;
+        #    SysCompareContextProvider  context;
+        #    Map                        comparableMap1, comparableMap2;
+        #    Map                        childMap;
+        #    Map                        insertMap1;
+        #    Map                        insertMap2;
+        #    Map                        removeMap1;
+        #    Map                        removeMap2;
+        #    Map                        moveMap1;
+        #    Map                        moveMap2;
+        #    SysMergeDirection          mergeDirection;
+        #    Set                        ref2Set;
+        #    SysCompareThemeProvider    themeProvider;
+        #    str                        colorSame;
+        #    str                        colorOriginal;
+        #    str                        colorText1;
+        #    str                        colorText2;
+        #
+        ##define.IMG_CHECK_ALL(0)
+        ##define.IMG_DIFFERENCE(1)
+        ##define.IMG_CHECK_RED(2)
+        ##define.IMG_CHECK_BLUE(3)
+        ##define.IMG_CHECK_SOME(4)
+        #
+        ##define.MergeInsert('insert')  //Must be 6 characters
+        ##define.MergeRemove('remove')  //Must be 6 characters
+        ##define.MergeMoveIn('movein')  //Must be 6 characters
+        ##define.MergeMoveOut('movout') //Must be 6 characters
+        ##define.MergeDeleteTop('deltop') //Must be 6 characters
+        #
+        ##define.StyleHeaderText('headerText')
+        ##define.StyleDiffText('diffText')
+        #
+        ##define.SpecialMarkupStart('·')
+        ##define.SpecialMarkupEnd('°')
+        #
+        #    // >> DEV:MXK >>
+        #    FormGroupControl            criteriaGroup;
+        #    FormCheckBoxControl         autoStartControl;
+        #    FormCheckBoxControl         expendTreeControl;
+        #    FormCheckBoxControl         hideOptionsControl;
+        #    FormComboBoxControl         layerComboControl;
+        #    FormComboBoxControl         customLayer1ComboControl;
+        #    FormComboBoxControl         customLayer2ComboControl;
+        #    // >> DEV:MXK <<
+        #}
+        #
+      ENDSOURCE
+      SOURCE #DEV_LayerNodeCnt
+        #// >> DEV:MXK >>
+        #int DEV_LayerNodeCnt(   TreeNodePath    _treeNodePath,
+        #                        UtilEntryLevel  _layer = UtilEntryLevel::sys)
+        #{
+        #    int                         i = -1;
+        #    TreeNode                    treeNode;
+        #    UtilEntryLevel              layerCnt;
+        #
+        #    treeNode = TreeNode::findNode(_treeNodePath);
+        #
+        #    if (treeNode && SysTreeNode::existsInLayer(treeNode, _layer))
+        #    {
+        #        for (layerCnt = UtilEntryLevel::usp; layerCnt >= _layer; layerCnt--)
+        #        {
+        #            if (SysTreeNode::existsInLayer(treeNode, layerCnt))
+        #                i++;
+        #        }
+        #    }
+        #
+        #    return (i < 0 ? 0 : i);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #DEV_SetWindow
+        #// >> DEV:MXK >>
+        #void DEV_SetWindow()
+        #{
+        #    int                                 x1, y1, x2, y2;
+        #
+        #    if (DEV_UserParameters::exist() && DEV_UserParameters::find().WMEnabled)
+        #    {
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #
+        #        WinApi::setWindowPos(formRun.hWnd(), 100, 50, x2 - x1, y2 - y1);
+        #        formDesign.width(1400);
+        #        formDesign.height(y2 - y1 - 100);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #getCombo
+        #protected SysComparable getCombo(SysCompareType _type)
+        #{
+        #    SysComparable comparable;
+        #
+        #    if (_type == SysCompareType::Text1
+        #    // >> DEV:MXK >>
+        #        &&  comboBox1.getText(comboBox1.selection()))
+        #    // << DEV:MXK <<
+        #    {
+        #        description[1] = comboBox1.getText(comboBox1.selection());
+        #        comparable = comparableMap1.lookup(description[1]);
+        #    }
+        #    else
+        #    // >> DEV:MXK >>
+        #    if (comboBox2.getText(comboBox2.selection()))
+        #    // << DEV:MXK <<
+        #    {
+        #        description[2] = comboBox2.getText(comboBox2.selection());
+        #        comparable = comparableMap2.lookup(description[2]);
+        #    }
+        #    comparable.onComparableSelected();
+        #    return comparable;
+        #}
+      ENDSOURCE
+      SOURCE #init
+        #protected void init(boolean silent = false)
+        #{
+        #    #resource
+        #    #define.black  ('000000')
+        #    #define.blue   ('0000ff')
+        #    #define.red    ('ff0000')
+        #    #define.green  ('00dd00')
+        #
+        #    Args args;
+        #    Imagelist equalList;
+        #
+        #    if (context)
+        #    {
+        #        themeProvider = context as SysCompareThemeProvider;
+        #    }
+        #
+        #    if (silent)
+        #    {
+        #        suppressWhiteSpace = true;
+        #        showDifferencesOnly = true;
+        #        caseSensitive = false;
+        #        showLineNumbers = false;
+        #
+        #    }
+        #    else
+        #    {
+        #        args = new Args(formstr(SysCompareForm));
+        #        args.caller(this);
+        #        formRun                    = classfactory.formRunClass(args);
+        #        formRun.init();
+        #        formDesign                 = formRun.design();
+        #
+        #        html                       = formDesign.controlName('HTML');
+        #        comboBox1                  = formDesign.controlName('ComboBox1');
+        #        comboBox2                  = formDesign.controlName('ComboBox2');
+        #        tree                       = formDesign.controlName('Tree');
+        #        includeEmptyControl        = formDesign.controlName('IncludeEmpty');
+        #        suppressWhiteSpaceControl  = formDesign.controlName('SuppressWhiteSpace');
+        #        showDifferencesOnlyControl = formDesign.controlName('SuppressEqual');
+        #        caseSensitiveControl       = formDesign.controlName('CaseSensitive');
+        #        lineNumbersControl         = formDesign.controlName('LineNumbers');
+        #        dataGroup                  = formDesign.controlName('Data');
+        #        // >> DEV:MXK >>
+        #        criteriaGroup               = formDesign.controlName('Criteria');
+        #        autoStartControl            = formDesign.controlName('AutoStart');
+        #        expendTreeControl           = formDesign.controlName('ExpendTree');
+        #        hideOptionsControl          = formDesign.controlName('HideOption');
+        #        layerComboControl           = formDesign.controlName('LayerOption');
+        #        customLayer1ComboControl    = formDesign.controlName('CustomLayer1');
+        #        customLayer2ComboControl    = formDesign.controlName('CustomLayer2');
+        #        // >> DEV:MXK <<
+        #
+        #        equalList = new Imagelist(Imagelist::smallIconWidth(), Imagelist::smallIconHeight());
+        #
+        #        // default images
+        #        equalList.add(new Image(#RES_CHECK_ALL));
+        #        equalList.add(new Image(#RES_DIFFERENCE));
+        #        equalList.add(new Image(#RES_CHECK_RED));
+        #        equalList.add(new Image(#RES_CHECK_BLUE));
+        #        equalList.add(new Image(#RES_CHECK_SOME));
+        #
+        #        if (themeProvider)
+        #        {
+        #            // theme provider may replace or add to imagelist
+        #            equalList = themeProvider.imageList(equalList);
+        #            [colorOriginal, colorSame, colorText1, colorText2] = themeProvider.colorList();
+        #            themeProvider.customizeFormDesign(formDesign);
+        #        }
+        #        else
+        #        {
+        #            [colorOriginal, colorSame, colorText1, colorText2] = [#green, #black, #red, #blue];
+        #        }
+        #
+        #        tree.setImagelist(equalList);
+        #        formRun.run();
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #run
+        #void run()
+        #{
+        #    // >> DEV:MXK >>
+        #    boolean                     isFromXPO;
+        #    boolean                     isOldExists;
+        #    boolean                     isWashed;
+        #    boolean                     canCompare = true;
+        #
+        #    int                         i, j;
+        #    SysTreeNodeCompareContext   treeNodeContext = context as SysTreeNodeCompareContext;
+        #    TreeNode                    baseTreeNode1;
+        #    TreeNode                    baseTreeNode2;
+        #    // << DEV:MXK <<
+        #    startLengthyOperation();
+        #    tree.deleteAll();
+        #    html.clear();
+        #    formRun.detach();
+        #    // >> DEV:MXK >>
+        #    if (    treeNodeContext
+        #        &&  treeNodeContext.parmTreeNode1()
+        #        &&  treeNodeContext.parmTreeNode2())
+        #    {
+        #        baseTreeNode1 = treeNodeContext.parmTreeNode1();
+        #        baseTreeNode2 = treeNodeContext.parmTreeNode2();
+        #
+        #        // XPO import node selected
+        #        if (baseTreeNode2.applObjectLayerMask() == 0)
+        #        {
+        #            isFromXPO = true;
+        #        }
+        #
+        #        // Same object selected for compare
+        #        if (    baseTreeNode2
+        #            &&  baseTreeNode2 == baseTreeNode1)
+        #        {
+        #            comboBox2.selection(comboBox2.items() > 0 ? comboBox2.items() - 1 : 0);
+        #
+        #            isWashed    = strContains(comboBox2.valueStr(), '(Washed)');
+        #            isOldExists = baseTreeNode1.applObjectOldLayerMask() != 0;
+        #
+        #            if (isFromXPO)
+        #            {
+        #                comboBox1.selection(comboBox1.items() - 1);
+        #            }
+        #            else
+        #            {
+        #                switch (layerComboControl.selection())
+        #                {
+        #                    case DEV_CompareMode::TopLayers :
+        #                        comboBox1.selection(comboBox1.items() > 0 ? 1 : 0);
+        #                        comboBox2.selection(0);
+        #                        break;
+        #
+        #                    case DEV_CompareMode::BottomLayers :
+        #                        comboBox1.selection(comboBox1.items() > 0 ? comboBox1.items() - 1 : 0);
+        #
+        #                        if (    isWashed
+        #                            &&  comboBox2.items() > 2
+        #                            ||  comboBox2.items() > 1)
+        #                        {
+        #                            comboBox2.selection(comboBox2.items() - (isWashed ? 3 : 2));
+        #                        }
+        #                        else
+        #                        {
+        #                            canCompare = false;
+        #                        }
+        #                        break;
+        #
+        #                    case DEV_CompareMode::Custom :
+        #                        i = this.DEV_LayerNodeCnt(baseTreeNode1.treeNodePath(), customLayer1ComboControl.selection());
+        #                        j = this.DEV_LayerNodeCnt(baseTreeNode2.treeNodePath(), customLayer2ComboControl.selection());
+        #
+        #                        if (i && j)
+        #                        {
+        #                            comboBox1.selection(i);
+        #                            comboBox2.selection(j);
+        #                        }
+        #                        else
+        #                        {
+        #                            canCompare = false;
+        #                        }
+        #                        break;
+        #
+        #                    case DEV_CompareMode::CustomVsTop :
+        #                        i = this.DEV_LayerNodeCnt(baseTreeNode1.treeNodePath(), customLayer1ComboControl.selection());
+        #
+        #                        if (i)
+        #                        {
+        #                            comboBox1.selection(i);
+        #                            comboBox2.selection(0);
+        #                        }
+        #                        else
+        #                        {
+        #                            canCompare = false;
+        #                        }
+        #                        break;
+        #
+        #                    case DEV_CompareMode::CustomVsBottom :
+        #                        i = this.DEV_LayerNodeCnt(baseTreeNode1.treeNodePath(), customLayer1ComboControl.selection());
+        #                        j = this.DEV_LayerNodeCnt(baseTreeNode2.treeNodePath());
+        #
+        #                        if (i && j)
+        #                        {
+        #                            comboBox1.selection(i);
+        #                            comboBox2.selection(j);
+        #                        }
+        #                        else
+        #                        {
+        #                            canCompare = false;
+        #                        }
+        #                        break;
+        #
+        #                    default :
+        #                        canCompare = false;
+        #                }
+        #            }
+        #
+        #        }
+        #    }
+        #
+        #    if (canCompare && autoStartControl.value())
+        #    {
+        #        this.startCompare();
+        #    }
+        #    // << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #startCompare
+        #void startCompare()
+        #{
+        #    SysTreeNode sysTreeNode1, sysTreeNode2;
+        #    TreeNode treeNode1 , treeNode2;
+        #    container   c;  //>> DEV:MXK
+        #
+        #    startLengthyOperation();
+        #
+        #    suppressWhiteSpace  = suppressWhiteSpaceControl.value();
+        #    showDifferencesOnly = showDifferencesOnlyControl.value();
+        #    caseSensitive       = caseSensitiveControl.value();
+        #    showLineNumbers     = lineNumbersControl.value();
+        #
+        #    context.parmCaseSensitive(caseSensitive);
+        #    context.parmSuppressWhitespace(suppressWhiteSpace);
+        #    context.parmShowLineNumbers(showLineNumbers);
+        #    context.parmShowDifferencesOnly(showDifferencesOnly);
+        #
+        #    tree.deleteAll();
+        #    html.clear();
+        #
+        #    currentItem = null;
+        #    currentComparable1 = null;
+        #    currentComparable2 = null;
+        #
+        #    childMap = new Map(Types::String, Types::Class);
+        #    ref2Set  = new Set(Types::Integer);
+        #
+        #    topComparable1 = this.getCombo(SysCompareType::Text1);
+        #    topComparable2 = this.getCombo(SysCompareType::Text2);
+        #
+        #    sysTreeNode1 = topComparable1 as SysTreeNode;
+        #    sysTreeNode2 = topComparable2 as SysTreeNode;
+        #
+        #    if(sysTreeNode1 != null && sysTreeNode2 != null)
+        #    {
+        #        treeNode1 = sysTreeNode1.getWrappedTreeNode();
+        #        treeNode2 = sysTreeNode2.getWrappedTreeNode();
+        #    }
+        #
+        #    // Do custom compare if we are comparing SSRS reports
+        #    if (treeNode1 != null && treeNode1.treeNodeType().isUtilElement() &&
+        #            treeNode1.utilElement().RecordType == UtilElementType::SSRSReport &&
+        #            treeNode2 != null && treeNode2.treeNodeType().isUtilElement() &&
+        #            treeNode2.utilElement().RecordType == UtilElementType::SSRSReport)
+        #    {
+        #        topComparable1 = SrsSysComparableReport::getComparableReport(treeNode1 as SSRSReportConceptNode);
+        #        topComparable2 = SrsSysComparableReport::getComparableReport(treeNode2 as SSRSReportConceptNode);
+        #        context = SrsSysCompareReportContext::newMergeables(topComparable1 as SrsSysComparableReport, topComparable2 as SrsSysComparableReport);
+        #    }
+        #
+        #    context.onCompareStart(topComparable1, topComparable2);
+        #    mergeDirection = context.mergeDirection(topComparable1, topComparable2);
+        #
+        #    this.buildTree();
+        #    // >> DEV:MXK >>
+        #    if (expendTreeControl.value())
+        #    {
+        #        SysFormTreeControl::expandTree(tree, tree.getRoot());
+        #    }
+        #
+        #    if (hideOptionsControl.value())
+        #    {
+        #        criteriaGroup.frameOptionButton(3);
+        #        criteriaGroup.optionValue(0);
+        #        criteriaGroup.caption(ComboBox1.valueStr() + ' vs ' + ComboBox2.valueStr());
+        #    }
+        #
+        #    if (DEV_UserParameters::findOrCreate().WMEnabled)
+        #    {
+        #        this.DEV_SetWindow();
+        #    }
+        #
+        #    c = str2con(ComboBox1.valueStr(), '\\');
+        #    WinAPI::setWindowText(formRun.hWnd(), 'Comparison:' + conpeek(c, conlen(c)));
+        #    // >> DEV:MXK <<
+        #
+        #    formRun.lock();
+        #    dataGroup.visible(true);
+        #    tree.visible(context.showTreePane());
+        #    formRun.resetSize();
+        #    formRun.unLock();
+        #
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

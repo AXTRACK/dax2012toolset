@@ -1,0 +1,25 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FTM
+
+; Microsoft Dynamics AX MENUITEM : DEV_Projects unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  MENUITEM #DEV_Projects
+    Type: 1
+    PROPERTIES
+      Name                #DEV_Projects
+      Label               #@SYS114879
+      HelpText            #Allow to view and manage custom projects.
+      Object              #DEV_Projects
+      NormalImage         #7890
+      ImageLocation       #EmbeddedResource
+      Origin              #{626EEA4C-A514-4771-8310-7E735AD0E6FF}
+    ENDPROPERTIES
+    
+  ENDMENUITEM
+  
+
+***Element: END

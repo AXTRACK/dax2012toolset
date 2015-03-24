@@ -1,0 +1,1021 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: DBT
+
+; Microsoft Dynamics AX Table : DEV_UserParameters unloaded
+; --------------------------------------------------------------------------------
+  TABLEVERSION 1
+  
+  TABLE #DEV_UserParameters
+    EnforceFKRelation 1
+    PROPERTIES
+      Name                #DEV_UserParameters
+      Label               #Development parameters
+      TitleField1         #UserId
+      TitleField2         #EnvName
+      TableContents       #Base data
+      CacheLookup         #FoundAndEmpty
+      CreateRecIdIndex    #Yes
+      SaveDataPerCompany  #No
+      PrimaryIndex        #SurrogateKey
+      ClusterIndex        #UserIdx
+      Origin              #{0B735F0C-C4F0-42B7-9BA5-4375B12D82C5}
+    ENDPROPERTIES
+    
+    FIELDS
+      FIELD #CommentAdminControlled
+        ENUM
+        PROPERTIES
+          Name                #CommentAdminControlled
+          Label               #Admin controlled
+          HelpText            #If enabled all comment options will be controlled by Admin user
+          Table               #DEV_UserParameters
+          Origin              #{228255FE-09DC-4799-8CE4-714C3FA7121A}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #CommentDeveloperAlias
+        STRING
+        PROPERTIES
+          Name                #CommentDeveloperAlias
+          Label               #Developer alias
+          HelpText            #If specified will replace User ID
+          Table               #DEV_UserParameters
+          Origin              #{D614F2E6-343B-4D6D-B20C-3074F8C2CD68}
+          ExtendedDataType    #UserName
+          StringSize          #60
+        ENDPROPERTIES
+        
+      FIELD #CommentEndFmt
+        STRING
+        PROPERTIES
+          Name                #CommentEndFmt
+          Label               #Comment end
+          HelpText            #Format of the end comment
+          Table               #DEV_UserParameters
+          Origin              #{723F9324-26D8-48AE-806A-EDB9E6AC241B}
+          ExtendedDataType    #FormatTxt
+          StringSize          #255
+        ENDPROPERTIES
+        
+      FIELD #CommentFreeTxt
+        STRING
+        PROPERTIES
+          Name                #CommentFreeTxt
+          Label               #@SYS3697
+          HelpText            #Free text code comment value like Company name etc.
+          Table               #DEV_UserParameters
+          Origin              #{50736A17-B051-4192-96E2-299EFF2903F5}
+          ExtendedDataType    #CompanyName
+          StringSize          #60
+        ENDPROPERTIES
+        
+      FIELD #CommentLineFmt
+        STRING
+        PROPERTIES
+          Name                #CommentLineFmt
+          Label               #Comment line
+          HelpText            #Format of the line comment
+          Table               #DEV_UserParameters
+          Origin              #{2FB83ABB-61A2-4586-8891-6D2229084014}
+          ExtendedDataType    #FormatTxt
+          StringSize          #255
+        ENDPROPERTIES
+        
+      FIELD #CommentStartFmt
+        STRING
+        PROPERTIES
+          Name                #CommentStartFmt
+          Label               #Comment start
+          HelpText            #Format of the start comment
+          Table               #DEV_UserParameters
+          Origin              #{7D3601C2-005F-4083-9FDF-2FE5ED7C84CB}
+          ExtendedDataType    #FormatTxt
+          StringSize          #255
+        ENDPROPERTIES
+        
+      FIELD #DisableHints
+        ENUM
+        PROPERTIES
+          Name                #DisableHints
+          Label               #Turn off hints
+          HelpText            #Select this option to stop showing hints
+          Table               #DEV_UserParameters
+          Origin              #{76EB8EF2-440C-4FD5-B21E-C5E45E9CBD84}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #DisableOnError
+        ENUM
+        PROPERTIES
+          Name                #DisableOnError
+          Label               #Disable HK on error
+          HelpText            #If enabled will prevent reoccuring errors in HK method.
+          Table               #DEV_UserParameters
+          Origin              #{CD069E82-B4C1-49C2-BB24-C2B13B438AB5}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #EnvAdminControlled
+        ENUM
+        PROPERTIES
+          Name                #EnvAdminControlled
+          Label               #Admin controlled
+          HelpText            #If enabled all environment highlight options will be controlled by Admin user
+          Table               #DEV_UserParameters
+          Origin              #{AA4C3D0C-0E07-4CB2-AF9B-F828C94C63BA}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #EnvColor
+        STRING
+        PROPERTIES
+          Name                #EnvColor
+          Table               #DEV_UserParameters
+          Origin              #{6A3632ED-C6C2-4EB5-92BA-01323587E2B1}
+          ExtendedDataType    #Color
+          StringSize          #9
+        ENDPROPERTIES
+        
+      FIELD #EnvFormCaption
+        ENUM
+        PROPERTIES
+          Name                #EnvFormCaption
+          Label               #Form caption
+          HelpText            #If enabled AX forms caption will include environment type.
+          Table               #DEV_UserParameters
+          Origin              #{73176513-B355-433F-B9D2-07E06D472811}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #EnvMainCaption
+        ENUM
+        PROPERTIES
+          Name                #EnvMainCaption
+          Label               #Main caption
+          HelpText            #If enabled AX main windows caption will include environment type.
+          Table               #DEV_UserParameters
+          Origin              #{C6C428E6-3E75-4BDF-9481-3DB34B0F1FB9}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #EnvName
+        STRING
+        PROPERTIES
+          Name                #EnvName
+          Label               #@SYS131300
+          HelpText            #Short name for the current environment
+          Table               #DEV_UserParameters
+          Origin              #{A76666CB-0BE9-4E17-8013-AC094B5356C5}
+          ExtendedDataType    #NameControl
+          StringSize          #4
+        ENDPROPERTIES
+        
+      FIELD #EnvPaintFormDesign
+        ENUM
+        PROPERTIES
+          Name                #EnvPaintFormDesign
+          Label               #Paint forms
+          HelpText            #If enabled AX forms will be colored per environment type.
+          Table               #DEV_UserParameters
+          Origin              #{B0C65A60-726A-4ECB-9FF5-AA2AF69FE853}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #EnvPaintStatusBar
+        ENUM
+        PROPERTIES
+          Name                #EnvPaintStatusBar
+          Label               #Paint statusbar
+          HelpText            #If enabled AX forms status bar will be colored per environment type.
+          Table               #DEV_UserParameters
+          Origin              #{5A6C10C2-C385-4E73-81EA-7B6DBA097660}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #ExportFilePath
+        STRING
+        PROPERTIES
+          Name                #ExportFilePath
+          Label               #@SYS95311
+          HelpText            #Default export path
+          Table               #DEV_UserParameters
+          Origin              #{E6BDDE06-F05D-461A-9454-24382578AAC7}
+          ExtendedDataType    #FilePath
+          StringSize          #259
+        ENDPROPERTIES
+        
+      FIELD #FDEnabled
+        ENUM
+        PROPERTIES
+          Name                #FDEnabled
+          Label               #Form digger
+          HelpText            #If enabled Form digger functionality is active.
+          Table               #DEV_UserParameters
+          Origin              #{FD09D5B6-7DBD-4AD3-ABFE-97C356CE34CB}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #HideHKButtons
+        ENUM
+        PROPERTIES
+          Name                #HideHKButtons
+          Label               #Hide HK buttons
+          HelpText            #If enabled will hide all buttons with enabled hotkeys.
+          Table               #DEV_UserParameters
+          Origin              #{529A8E95-4525-4E9F-85B2-9B639FA239B1}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #HKEnabled
+        ENUM
+        PROPERTIES
+          Name                #HKEnabled
+          Label               #Hotkey framework
+          HelpText            #If enabled Hotkey Framework will be triggered across system.
+          Table               #DEV_UserParameters
+          Origin              #{004E82EB-CE85-4937-B104-A7B8BF933F35}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #ImpExpPathAdminDefault
+        ENUM
+        PROPERTIES
+          Name                #ImpExpPathAdminDefault
+          Label               #Admin default
+          HelpText            #If enabled Admin user setup will be used as a default values for other users
+          Table               #DEV_UserParameters
+          Origin              #{59C21BAB-AC8C-4902-9199-096E25CD5A76}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #ImportFilePath
+        STRING
+        PROPERTIES
+          Name                #ImportFilePath
+          Label               #Import path
+          HelpText            #Default import path
+          Table               #DEV_UserParameters
+          Origin              #{82F98C17-3660-451E-B9A7-B8935C25C40D}
+          ExtendedDataType    #FilePath
+          StringSize          #259
+        ENDPROPERTIES
+        
+      FIELD #OpenDevWorkspace
+        ENUM
+        PROPERTIES
+          Name                #OpenDevWorkspace
+          Label               #Dev workspace
+          HelpText            #If enabled first Development workspace will be opened automaticaly.
+          Table               #DEV_UserParameters
+          Origin              #{0EBA3B28-2252-4230-A8BB-FEDA646D393A}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #ProjectPrefix
+        STRING
+        PROPERTIES
+          Name                #ProjectPrefix
+          Label               #Project prefix
+          HelpText            #Project manager parameter
+          Table               #DEV_UserParameters
+          Origin              #{FA1834C0-DF29-4CEE-824F-D27DD71EBB02}
+          ExtendedDataType    #NameControl
+          StringSize          #4
+        ENDPROPERTIES
+        
+      FIELD #ShortCommentAdminControlled
+        ENUM
+        PROPERTIES
+          Name                #ShortCommentAdminControlled
+          Label               #Admin controlled
+          HelpText            #If enabled all comment options will be controlled by Admin user
+          Table               #DEV_UserParameters
+          Origin              #{3EFCE80C-117C-47DB-88C3-6FF35450454B}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #ShortCommentDeveloperAlias
+        STRING
+        PROPERTIES
+          Name                #ShortCommentDeveloperAlias
+          Label               #Developer alias
+          HelpText            #If specified will replace User ID
+          Table               #DEV_UserParameters
+          Origin              #{55A46E91-5CA6-4FA7-8A91-79CAE953B04B}
+          ExtendedDataType    #UserName
+          StringSize          #60
+        ENDPROPERTIES
+        
+      FIELD #ShortCommentEndFmt
+        STRING
+        PROPERTIES
+          Name                #ShortCommentEndFmt
+          Label               #Comment end
+          HelpText            #Format of the end comment
+          Table               #DEV_UserParameters
+          Origin              #{65C93F1A-104A-4356-AB23-F57E8D52715E}
+          ExtendedDataType    #FormatTxt
+          StringSize          #255
+        ENDPROPERTIES
+        
+      FIELD #ShortCommentFreeTxt
+        STRING
+        PROPERTIES
+          Name                #ShortCommentFreeTxt
+          Label               #@SYS3697
+          HelpText            #Free text code comment value like Company name etc.
+          Table               #DEV_UserParameters
+          Origin              #{FC812FE3-74D6-42A0-830F-21E9AE0FF705}
+          ExtendedDataType    #CompanyName
+          StringSize          #60
+        ENDPROPERTIES
+        
+      FIELD #ShortCommentLineFmt
+        STRING
+        PROPERTIES
+          Name                #ShortCommentLineFmt
+          Label               #Comment line
+          HelpText            #Format of the line comment
+          Table               #DEV_UserParameters
+          Origin              #{0DE6492F-D037-4323-8B37-C5F024EF903D}
+          ExtendedDataType    #FormatTxt
+          StringSize          #255
+        ENDPROPERTIES
+        
+      FIELD #ShortCommentStartFmt
+        STRING
+        PROPERTIES
+          Name                #ShortCommentStartFmt
+          Label               #Comment start
+          HelpText            #Format of the start comment
+          Table               #DEV_UserParameters
+          Origin              #{736EC088-D20C-4EC9-8E64-123D21C4A533}
+          ExtendedDataType    #FormatTxt
+          StringSize          #255
+        ENDPROPERTIES
+        
+      FIELD #TBEnabled
+        ENUM
+        PROPERTIES
+          Name                #TBEnabled
+          Label               #Development toolbar
+          HelpText            #If enabled Development toolbar will autostart on each Development workspace.
+          Table               #DEV_UserParameters
+          Origin              #{CEB5CAFB-6189-4BF7-ABA7-BE825BEA4284}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #UserId
+        STRING
+        PROPERTIES
+          Name                #UserId
+          Mandatory           #Yes
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_UserParameters
+          Origin              #{FA5E0A5B-B25F-42C3-803E-916A7EE2420C}
+          ExtendedDataType    #UserId
+          StringSize          #8
+        ENDPROPERTIES
+        
+      FIELD #WMEnabled
+        ENUM
+        PROPERTIES
+          Name                #WMEnabled
+          Label               #Window management
+          HelpText            #If enabled AX windows will be positioned.
+          Table               #DEV_UserParameters
+          Origin              #{20D7F342-A890-4DE1-877F-5911CE83C548}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+    ENDFIELDS
+    GROUPS
+      GROUP #AutoSummary
+        PROPERTIES
+          Name                #AutoSummary
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #TBEnabled
+          #HKEnabled
+          #FDEnabled
+          #WMEnabled
+          #EnvMainCaption
+          #EnvFormCaption
+          #EnvPaintStatusBar
+          #EnvPaintFormDesign
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoReport
+        PROPERTIES
+          Name                #AutoReport
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #TBEnabled
+          #FDEnabled
+          #HKEnabled
+          #WMEnabled
+          #EnvMainCaption
+          #EnvFormCaption
+          #EnvPaintStatusBar
+          #EnvPaintFormDesign
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoLookup
+        PROPERTIES
+          Name                #AutoLookup
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #TBEnabled
+          #FDEnabled
+          #HKEnabled
+          #WMEnabled
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoBrowse
+        PROPERTIES
+          Name                #AutoBrowse
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #TBEnabled
+          #FDEnabled
+          #HKEnabled
+          #WMEnabled
+          #EnvMainCaption
+          #EnvFormCaption
+          #EnvPaintStatusBar
+          #EnvPaintFormDesign
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #EnvHighlight
+        PROPERTIES
+          Name                #EnvHighlight
+          Label               #Highlight environment
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #EnvAdminControlled
+          #EnvMainCaption
+          #EnvFormCaption
+          #EnvPaintStatusBar
+          #EnvPaintFormDesign
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Environment
+        PROPERTIES
+          Name                #Environment
+          Label               #@SYS52596
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #EnvName
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #ImpExpPath
+        PROPERTIES
+          Name                #ImpExpPath
+          Label               #@SYS104272
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #ImpExpPathAdminDefault
+          #ExportFilePath
+          #ImportFilePath
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Miscellaneous
+        PROPERTIES
+          Name                #Miscellaneous
+          Label               #@SYS331686
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #OpenDevWorkspace
+          #DisableOnError
+          #HideHKButtons
+          #DisableHints
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Plugins
+        PROPERTIES
+          Name                #Plugins
+          Label               #Plugins
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #TBEnabled
+          #FDEnabled
+          #HKEnabled
+          #WMEnabled
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #ProjectComments
+        PROPERTIES
+          Name                #ProjectComments
+          Label               #@SYS80304
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CommentAdminControlled
+          #CommentFreeTxt
+          #CommentDeveloperAlias
+          #CommentLineFmt
+          #CommentStartFmt
+          #CommentEndFmt
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #ShortComments
+        PROPERTIES
+          Name                #ShortComments
+          Label               #Short
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #ShortCommentAdminControlled
+          #ShortCommentFreeTxt
+          #ShortCommentDeveloperAlias
+          #ShortCommentLineFmt
+          #ShortCommentStartFmt
+          #ShortCommentEndFmt
+        ENDGROUPFIELDS
+      ENDGROUP
+    ENDGROUPS
+    
+    INDICES
+      #UserIdx
+      PROPERTIES
+        Name                #UserIdx
+        AllowDuplicates     #No
+        Origin              #{80AC4E6E-5923-4E19-AF02-0D38AB954C84}
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #UserId
+      ENDINDEXFIELDS
+      
+    ENDINDICES
+    FULLTEXTINDICES
+    ENDFULLTEXTINDICES
+    REFERENCES
+    ENDREFERENCES
+    
+    DELETEACTIONS
+    ENDDELETEACTIONS
+    
+    METHODS
+      SOURCE #initValue
+        #public void initValue(UserId _userId = curUserId())
+        #{
+        #    #DEV_Toolset
+        #
+        #    DEV_UserParameters      adminParameters;
+        #    boolean                 isDev = isDeveloper();
+        #
+        #    super();
+        #
+        #    if (_userId != #DEV_AdminUser)
+        #        adminParameters = DEV_UserParameters::findOrCreate(#DEV_AdminUser);
+        #
+        #    this.UserId                     = _userId;
+        #
+        #    // Set Highlight environment options
+        #    this.EnvName                    = adminParameters.EnvName;
+        #    this.EnvMainCaption             = adminParameters.EnvMainCaption;
+        #    this.EnvFormCaption             = adminParameters.EnvFormCaption;
+        #    this.EnvColor                   = adminParameters.EnvColor ? adminParameters.EnvColor : #EnvDefaultColour;
+        #    this.EnvPaintStatusBar          = adminParameters.EnvPaintStatusBar;
+        #    this.EnvPaintFormDesign         = adminParameters.EnvPaintFormDesign;
+        #
+        #    // Set import\export xpo path
+        #    if (adminParameters.ImpExpPathAdminDefault)
+        #    {
+        #        this.ImportFilePath         = adminParameters.ImportFilePath;
+        #        this.ExportFilePath         = adminParameters.ExportFilePath;
+        #    }
+        #
+        #    // Set extensions
+        #    this.TBEnabled                  = isDev;
+        #    this.FDEnabled                  = true; // Form digger will be available for all users
+        #    this.HKEnabled                  = isDev;
+        #    this.HideHKButtons              = true;
+        #
+        #    this.ProjectPrefix          = #ProjectPrefix;
+        #
+        #    // Set project comment format
+        #    if (adminParameters.CommentAdminControlled)
+        #    {
+        #        this.CommentLineFmt         = adminParameters.CommentLineFmt;
+        #        this.CommentStartFmt        = adminParameters.CommentStartFmt;
+        #        this.CommentEndFmt          = adminParameters.CommentEndFmt;
+        #    }
+        #    else
+        #    {
+        #        this.CommentLineFmt         = "// %1:%2 (%3) - %4";
+        #        this.CommentStartFmt        = "// >> %1:%2 (%3) - %4 >>";
+        #        this.CommentEndFmt          = "// << %1:%2 (%3) - %4 <<";
+        #    }
+        #
+        #    // Set short comment format
+        #    if (adminParameters.ShortCommentAdminControlled)
+        #    {
+        #        this.ShortCommentLineFmt    = adminParameters.ShortCommentLineFmt;
+        #        this.ShortCommentStartFmt   = adminParameters.ShortCommentStartFmt;
+        #        this.ShortCommentEndFmt     = adminParameters.ShortCommentEndFmt;
+        #    }
+        #    else
+        #    {
+        #        this.ShortCommentLineFmt    = "// %1:%2";
+        #        this.ShortCommentStartFmt   = "// >> %1:%2 >>";
+        #        this.ShortCommentEndFmt     = "// << %1:%2 <<";
+        #    }
+        #
+        #    // Init default HK
+        #    DEV_HKSetup::defaultHKSetup();
+        #}
+      ENDSOURCE
+      SOURCE #modifiedField
+        #public void modifiedField(FieldId _fieldId)
+        #{
+        #    #DEV_Toolset
+        #
+        #    DEV_UserParameters      parameters;
+        #    DEV_UserParameters      adminParameters = (this.UserId == #DEV_AdminUser) ? this : DEV_UserParameters::find(#DEV_AdminUser);
+        #    boolean                 isAdminUser     = (curUserId() == #DEV_AdminUser);
+        #
+        #    super(_fieldId);
+        #
+        #    if (isAdminUser)
+        #    switch (_fieldId)
+        #    {
+        #        // >> Environment >>
+        #        case fieldNum(DEV_UserParameters, EnvName):
+        #            ttsBegin;
+        #            update_recordSet parameters
+        #                setting EnvName = adminParameters.EnvName
+        #                where parameters.UserId != #DEV_AdminUser;
+        #            ttsCommit;
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, EnvAdminControlled):
+        #            if (isAdminUser && adminParameters.EnvAdminControlled)
+        #            {
+        #                ttsBegin;
+        #                update_recordSet parameters
+        #                    setting EnvMainCaption      = adminParameters.EnvMainCaption,
+        #                            EnvFormCaption      = adminParameters.EnvFormCaption,
+        #                            EnvPaintStatusBar   = adminParameters.EnvPaintStatusBar,
+        #                            EnvPaintFormDesign  = adminParameters.EnvPaintFormDesign
+        #                    where parameters.UserId != #DEV_AdminUser;
+        #                ttsCommit;
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, EnvMainCaption):
+        #            if (adminParameters.EnvAdminControlled)
+        #            {
+        #                ttsBegin;
+        #                update_recordSet parameters
+        #                    setting EnvMainCaption = adminParameters.EnvMainCaption
+        #                    where parameters.UserId != #DEV_AdminUser;
+        #                ttsCommit;
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, EnvFormCaption):
+        #            if (adminParameters.EnvAdminControlled)
+        #            {
+        #                ttsBegin;
+        #                update_recordSet parameters
+        #                    setting EnvFormCaption = adminParameters.EnvFormCaption
+        #                    where parameters.UserId != #DEV_AdminUser;
+        #                ttsCommit;
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, EnvPaintStatusBar):
+        #            if (adminParameters.EnvAdminControlled)
+        #            {
+        #                ttsBegin;
+        #                update_recordSet parameters
+        #                    setting EnvPaintStatusBar = adminParameters.EnvPaintStatusBar
+        #                    where parameters.UserId != #DEV_AdminUser;
+        #                ttsCommit;
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, EnvPaintFormDesign):
+        #            if (adminParameters.EnvAdminControlled)
+        #            {
+        #                ttsBegin;
+        #                update_recordSet parameters
+        #                    setting EnvPaintFormDesign = adminParameters.EnvPaintFormDesign
+        #                    where parameters.UserId != #DEV_AdminUser;
+        #                ttsCommit;
+        #            }
+        #            break;
+        #        // << Environment <<
+        #
+        #        // >> Comments >>
+        #        case fieldNum(DEV_UserParameters, CommentAdminControlled):
+        #            if (isAdminUser && adminParameters.CommentAdminControlled)
+        #            {
+        #                ttsBegin;
+        #                update_recordSet parameters
+        #                    setting CommentFreeTxt      = adminParameters.CommentFreeTxt,
+        #                            CommentLineFmt      = adminParameters.CommentLineFmt,
+        #                            CommentStartFmt     = adminParameters.CommentStartFmt,
+        #                            CommentEndFmt       = adminParameters.CommentEndFmt
+        #                    where parameters.UserId != #DEV_AdminUser;
+        #                ttsCommit;
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, CommentFreeTxt):
+        #            if (adminParameters.CommentAdminControlled)
+        #            {
+        #                ttsBegin;
+        #                update_recordSet parameters
+        #                    setting CommentFreeTxt  = adminParameters.CommentFreeTxt
+        #                    where parameters.UserId != #DEV_AdminUser;
+        #                ttsCommit;
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, CommentLineFmt):
+        #            if (adminParameters.CommentAdminControlled)
+        #            {
+        #                ttsBegin;
+        #                update_recordSet parameters
+        #                    setting CommentLineFmt  = adminParameters.CommentLineFmt
+        #                    where parameters.UserId != #DEV_AdminUser;
+        #                ttsCommit;
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, CommentStartFmt):
+        #            if (adminParameters.CommentAdminControlled)
+        #            {
+        #                ttsBegin;
+        #                update_recordSet parameters
+        #                    setting CommentStartFmt = adminParameters.CommentStartFmt
+        #                    where parameters.UserId != #DEV_AdminUser;
+        #                ttsCommit;
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, CommentEndFmt):
+        #            if (adminParameters.CommentAdminControlled)
+        #            {
+        #                ttsBegin;
+        #                update_recordSet parameters
+        #                    setting CommentEndFmt   = adminParameters.CommentEndFmt
+        #                    where parameters.UserId != #DEV_AdminUser;
+        #                ttsCommit;
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, ShortCommentAdminControlled):
+        #            if (isAdminUser && adminParameters.ShortCommentAdminControlled)
+        #            {
+        #                ttsBegin;
+        #                update_recordSet parameters
+        #                    setting ShortCommentFreeTxt     = adminParameters.ShortCommentFreeTxt,
+        #                            ShortCommentLineFmt     = adminParameters.ShortCommentLineFmt,
+        #                            ShortCommentStartFmt    = adminParameters.ShortCommentStartFmt,
+        #                            ShortCommentEndFmt      = adminParameters.ShortCommentEndFmt
+        #                    where parameters.UserId != #DEV_AdminUser;
+        #                ttsCommit;
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, ShortCommentFreeTxt):
+        #            if (adminParameters.ShortCommentAdminControlled)
+        #            {
+        #                ttsBegin;
+        #                update_recordSet parameters
+        #                    setting ShortCommentFreeTxt = adminParameters.ShortCommentFreeTxt
+        #                    where parameters.UserId     != #DEV_AdminUser;
+        #                ttsCommit;
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, ShortCommentLineFmt):
+        #            if (adminParameters.ShortCommentAdminControlled)
+        #            {
+        #                ttsBegin;
+        #                update_recordSet parameters
+        #                    setting ShortCommentLineFmt = adminParameters.ShortCommentLineFmt
+        #                    where parameters.UserId     != #DEV_AdminUser;
+        #                ttsCommit;
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, ShortCommentStartFmt):
+        #            if (adminParameters.ShortCommentAdminControlled)
+        #            {
+        #                ttsBegin;
+        #                update_recordSet parameters
+        #                    setting ShortCommentStartFmt    = adminParameters.ShortCommentStartFmt
+        #                    where parameters.UserId         != #DEV_AdminUser;
+        #                ttsCommit;
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, ShortCommentEndFmt):
+        #            if (adminParameters.ShortCommentAdminControlled)
+        #            {
+        #                ttsBegin;
+        #                update_recordSet parameters
+        #                    setting ShortCommentEndFmt  = adminParameters.ShortCommentEndFmt
+        #                    where parameters.UserId     != #DEV_AdminUser;
+        #                ttsCommit;
+        #            }
+        #            break;
+        #        // << Comments <<
+        #    }
+        #}
+        #
+      ENDSOURCE
+      SOURCE #validateField
+        #public boolean validateField(FieldId _fieldIdToCheck)
+        #{
+        #    #DEV_Toolset
+        #
+        #    boolean                 ret;
+        #    boolean                 isAdminUser = (curUserId() == #DEV_AdminUser);
+        #
+        #    ret = super(_fieldIdToCheck);
+        #
+        #    switch (_fieldIdToCheck)
+        #    {
+        #        // >> Environment >>
+        #        case fieldNum(DEV_UserParameters, EnvName):
+        #            if (isAdminUser)
+        #            {
+        #                if (this.EnvName == '')
+        #                {
+        #                    warning('With an empty Environment name the highlight option will be switched off for all users.');
+        #                }
+        #                else
+        #                {
+        #                    info('New Environment name will be extended by all users.');
+        #                }
+        #            }
+        #            else
+        #            {
+        #                ret = checkFailed(strFmt('This field is controlled by %1 user account', #DEV_AdminUser));
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, EnvAdminControlled):
+        #            if (isAdminUser)
+        #            {
+        #                ret = Box::confirm('Highlight options will be overwritten for all users. Proceed?');
+        #            }
+        #            else
+        #            {
+        #                ret = checkFailed(strFmt('This field is controlled by %1 user account', #DEV_AdminUser));
+        #            }
+        #            break;
+        #        // << Environment <<
+        #
+        #        // >> Comments >>
+        #        case fieldNum(DEV_UserParameters, CommentAdminControlled):
+        #            if (isAdminUser)
+        #            {
+        #                ret = Box::confirm('Comments options will be overwritten for all users. Proceed?');
+        #            }
+        #            else
+        #            {
+        #                ret = checkFailed(strFmt('This field is controlled by %1 user account', #DEV_AdminUser));
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, CommentFreeTxt):
+        #        case fieldNum(DEV_UserParameters, CommentLineFmt):
+        #        case fieldNum(DEV_UserParameters, CommentStartFmt):
+        #        case fieldNum(DEV_UserParameters, CommentEndFmt):
+        #            if (!isAdminUser && DEV_UserParameters::find(#DEV_AdminUser).CommentAdminControlled)
+        #            {
+        #                ret = checkFailed(strFmt('This field is controlled by %1 user account', #DEV_AdminUser));
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, ShortCommentAdminControlled):
+        #            if (isAdminUser)
+        #            {
+        #                ret = Box::confirm('Comments options will be overwritten for all users. Proceed?');
+        #            }
+        #            else
+        #            {
+        #                ret = checkFailed(strFmt('This field is controlled by %1 user account', #DEV_AdminUser));
+        #            }
+        #            break;
+        #
+        #        case fieldNum(DEV_UserParameters, ShortCommentFreeTxt):
+        #        case fieldNum(DEV_UserParameters, ShortCommentLineFmt):
+        #        case fieldNum(DEV_UserParameters, ShortCommentStartFmt):
+        #        case fieldNum(DEV_UserParameters, ShortCommentEndFmt):
+        #            if (!isAdminUser && DEV_UserParameters::find(#DEV_AdminUser).ShortCommentAdminControlled)
+        #            {
+        #                ret = checkFailed(strFmt('This field is controlled by %1 user account', #DEV_AdminUser));
+        #            }
+        #            break;
+        #        // << Comments <<
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #exist
+        #public static boolean exist(UserId _userId = curUserId())
+        #{
+        #    DEV_UserParameters      parameters;
+        #
+        #    select firstOnly RecId from parameters
+        #        where parameters.UserId == _userId;
+        #
+        #    return parameters.RecId != 0;
+        #}
+      ENDSOURCE
+      SOURCE #find
+        #public static DEV_UserParameters find(  UserId  _userId     = curUserId(),
+        #                                        boolean _forUpdate  = false)
+        #{
+        #    DEV_UserParameters      parameters;
+        #
+        #    parameters.selectForUpdate(_forUpdate);
+        #
+        #    select firstOnly parameters
+        #        where parameters.UserId == _userId;
+        #
+        #    return parameters;
+        #}
+      ENDSOURCE
+      SOURCE #findOrCreate
+        #public static DEV_UserParameters findOrCreate(UserId _userId = curUserId())
+        #{
+        #    DEV_UserParameters      parameters;
+        #
+        #    if (DEV_UserParameters::exist(_userId))
+        #    {
+        #        parameters = DEV_UserParameters::find(_userId);
+        #    }
+        #    else
+        #    {
+        #        ttsBegin;
+        #        parameters.initValue(_userId);
+        #        parameters.insert();
+        #        ttsCommit;
+        #
+        #        if (isDeveloper() && curUserId() == _userId)
+        #        {
+        #            DEV_UserParameters::firstRun();
+        #        }
+        #    }
+        #
+        #    return parameters;
+        #}
+      ENDSOURCE
+      SOURCE #firstRun
+        #static client void firstRun()
+        #{
+        #    #DEV_Toolset
+        #
+        #    DEV_Global::showHint('This is where you can setup your environment. All settings are saved per user.\n' +
+        #                        'The hotkey to open this Form from a Development workspace is F10.\n\n' +
+        #                        'To get more information on this toolset open About TabPage.',
+        #                        funcName(),
+        #                        'Parameters');
+        #
+        #    infolog.globalCache().set(#ToolsetName, identifierStr(firstRun), true);
+        #    DEV_HKManager::main(new Args());
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDTABLE
+  
+
+***Element: END

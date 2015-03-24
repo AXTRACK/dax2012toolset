@@ -1,0 +1,1287 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #DEV_CreateNewProjectDlg
+  PROPERTIES
+    Name                #DEV_CreateNewProjectDlg
+    Origin              #{284E4EA6-89A7-4AC8-8D96-69E9BD1178FC}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #//<DEV_CreateNewProject_IKash date=2007-09-03 txt='DEV_CreateNewProject Tool (also a Tabax extension plugin)'>
+      ##AOT
+      ##ResAppl
+      #public class FormRun extends ObjectRun
+      #{
+      #    DEV_CreateNewProject        axCreateNewProject;
+      #    ImageListAppl_Aot           imageListSmallAOT;
+      #    ImageListAppl_checkbox      imageListAppl_checkbox;
+      #    container                   aotPathes;
+      #    int                         maxNameLen;
+      #
+      #    ProjectSharedPrivate        projectType;
+      #    TreeNodeName                projectPrefix;
+      #    TreeNodeName                projectName;
+      #    container                   selectedProjectNodes;
+      #    NoYes                       usePrefixValue;
+      #    NoYes                       warnAboutNameDuplicates;
+      #    NoYes                       updateExistingProject;
+      #    Map                         objectTypeName;
+      #
+      #    TreeNodeName                projectPrefixOrig;
+      #    TreeNodeName                projectNameOrig;
+      #    ProjectSharedPrivate        projectTypeOrig;
+      #    NoYes                       usePrefixOrig;
+      #    // >> DEV:MXK >>
+      #    NoYesId                     startupProject;
+      #    NoYesId                     startupProjectOrig;
+      #    // << DEV:MXK <<
+      #
+      #    #localmacro.FormControlValues
+      #        projectType,
+      #        projectPrefix,
+      #        projectName,
+      #        selectedProjectNodes,
+      #        usePrefixValue,
+      #        warnAboutNameDuplicates,
+      #        updateExistingProject,
+      #        // >> DEV:MXK >>
+      #        startupProject
+      #        // << DEV:MXK <<
+      #    #endmacro
+      #}
+    ENDSOURCE
+    SOURCE #addObject2Tree
+      #void addObject2Tree(TreeNode _treeNode)
+      #{
+      #    TreeNodePath    treeNodePath;
+      #    int             i;
+      #    container       con;
+      #    int             nItem, nChild, nIndex, nChildLevel2;
+      #    FormTreeItem    formTreeItem;
+      #
+      #    ;
+      #    treeNodePath = subStr(_treeNode.treeNodePath(), 1, strLen(_treeNode.treeNodePath()) - strLen(_treeNode.treeNodeName()) - 1);
+      #
+      #    for (i = 1; i <= conLen(this.pathes()); i++)
+      #    {
+      #        con = conPeek(this.pathes(), i);
+      #        if (conPeek(con, 1) == treeNodePath)
+      #        {
+      #            nIndex = i;
+      #            break;
+      #        }
+      #    }
+      #    if (nIndex < 1) //means, that the group node name with the selected object is not found in pathes
+      #        return;
+      #
+      #    nItem = treeSettings.getChild(treeSettings.getRoot());
+      #    while (nItem)
+      #    {
+      #        if (typeOf(treeSettings.getItem(nItem).data()) == Types::String && treeSettings.getItem(nItem).data() == treeNodePath)
+      #        {
+      #            SysFormTreeControl::addTreeItem(treeSettings, _treeNode.treeNodeName(), nItem, _treeNode.treeNodeType().id(),//_treeNode.treeNodePath(),
+      #                                            imageListSmallAOT.image(ImageListAppl_Aot::utilElementType2Image(_treeNode.treeNodeType().id())), false, this.getNodeStateImage(nIndex));
+      #
+      #            formTreeItem = treeSettings.getItem(nItem);
+      #            formTreeItem.children(true);
+      #            treeSettings.setItem(formTreeItem);
+      #            return;
+      #        }
+      #        nChild = treeSettings.getChild(nItem);
+      #        while (nChild)
+      #        {
+      #            if (typeOf(treeSettings.getItem(nChild).data()) == Types::String && treeSettings.getItem(nChild).data() == treeNodePath)
+      #            {
+      #                SysFormTreeControl::addTreeItem(treeSettings, _treeNode.treeNodeName(), nChild, _treeNode.treeNodeType().id(),//_treeNode.treeNodePath(),
+      #                                                imageListSmallAOT.image(ImageListAppl_Aot::utilElementType2Image(_treeNode.treeNodeType().id())), false, this.getNodeStateImage(nIndex));
+      #                formTreeItem = treeSettings.getItem(nChild);
+      #                formTreeItem.children(true);
+      #                treeSettings.setItem(formTreeItem);
+      #                return;
+      #            }
+      #            nChildLevel2 = treeSettings.getChild(nChild);
+      #            while (nChildLevel2)
+      #            {
+      #                if (typeOf(treeSettings.getItem(nChildLevel2).data()) == Types::String && treeSettings.getItem(nChildLevel2).data() == treeNodePath)
+      #                {
+      #                    SysFormTreeControl::addTreeItem(treeSettings, _treeNode.treeNodeName(), nChildLevel2, _treeNode.treeNodeType().id(),//_treeNode.treeNodePath(),
+      #                                                    imageListSmallAOT.image(ImageListAppl_Aot::utilElementType2Image(_treeNode.treeNodeType().id())), false, this.getNodeStateImage(nIndex));
+      #                    formTreeItem = treeSettings.getItem(nChildLevel2);
+      #                    formTreeItem.children(true);
+      #                    treeSettings.setItem(formTreeItem);
+      #                    return;
+      #                }
+      #                nChildLevel2 = treeSettings.getNextSibling(nChildLevel2);
+      #            }
+      #            nChild = treeSettings.getNextSibling(nChild);
+      #        }
+      #        nItem = treeSettings.getNextSibling(nItem);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #addProjectObjects2Tree
+      ##TreeNodeSysNodeType
+      #void addProjectObjects2Tree()
+      #{
+      #    TreeNodeName        findProjectName;
+      #    Object              prjListNode;
+      #    ProjectNode         prjNode;
+      #    TreeNode            treeNode;
+      #    TreeNodeIterator    treeNodeIterator;
+      #
+      #    void    getProjectGroup(ProjectGroupNode parentNode)
+      #    {
+      #        TreeNode                treeNodeLocal;
+      #        TreeNodeIterator        treeNodeIteratorLocal;
+      #        ;
+      #        treeNodeIteratorLocal = parentNode.AOTiterator();
+      #        treeNodeLocal = treeNodeIteratorLocal.next();
+      #        while (treeNodeLocal)
+      #        {
+      #            if (treeNodeLocal.treeNodeType().id() == #NT_PROJECT_GROUP)
+      #                getProjectGroup(treeNodeLocal);
+      #            else
+      #            {
+      #                element.addObject2Tree(treeNodeLocal);
+      #            }
+      #            treeNodeLocal = treeNodeIteratorLocal.next();
+      #        }
+      #    }
+      #    ;
+      #    prjListNode = projectTypeOrig == ProjectSharedPrivate::ProjPrivate ?
+      #        SysTreeNode::getPrivateProject() : SysTreeNode::getSharedProject();
+      #
+      #    if (usePrefixOrig)
+      #        findProjectName = axCreateNewProject.convertProjectPrefix(projectPrefixOrig);
+      #    findProjectName += projectNameOrig;
+      #
+      #    prjNode = prjListNode.aoTfindChild(findProjectName);
+      #
+      #    if (!prjNode)
+      #    {
+      #        error(strFmt(@"A %1 project %2 was not found", cbProjectType.selection() == ProjectSharedPrivate::ProjPrivate ?
+      #            @"Private" : @"Shared", projectNameOrig));
+      #        return;
+      #    }
+      #
+      #    prjNode = prjNode.loadForInspection();
+      #    startLengthyOperation();
+      #    treeNodeIterator = prjNode.AOTiterator();
+      #
+      #    treeNode = treeNodeIterator.next();
+      #    while (treeNode)
+      #    {
+      #        if (treeNode.treeNodeType().id() == #NT_PROJECT_GROUP)
+      #        {
+      #            getProjectGroup(treeNode);
+      #        }
+      #        else
+      #        {
+      #            element.addObject2Tree(treeNode);
+      #        }
+      #        treeNode = treeNodeIterator.next();
+      #    }
+      #    endLengthyOperation();
+      #    buttonCopyProjectObjects.enabled(NoYes::No);
+      #}
+    ENDSOURCE
+    SOURCE #addTreeNode
+      #TreeItemIdx addTreeNode(str _nodePath, int _nIndex, int _parentIdx, boolean _hasChildren = false)
+      #{
+      #    int     img;
+      #    int     dummy;
+      #    ;
+      #    [dummy, img] = conPeek(this.pathes(), _nIndex);
+      #    dummy = dummy; //BP Deviation Fix
+      #    return SysFormTreeControl::addTreeItem(treeSettings,                        //FormTreeControl
+      #                                           SysTreeNode::pathName(_nodePath),    //Item Name
+      #                                           _parentIdx,                          //Parent Index
+      #                                           _nodePath,                           //Item Data
+      #                                           imageListSmallAOT.image(img),        //Item Image
+      #                                           _hasChildren,                        //has Child nodes?
+      #                                           element.getNodeStateImage(_nIndex)); //Item checkbox image
+      #}
+    ENDSOURCE
+    SOURCE #closeOk
+      #void closeOk()
+      #{
+      #    DialogRunbase dialog = element.args().caller();
+      #    ;
+      #    element.sendDataToClass();
+      #
+      #    dialog.updateServer();
+      #
+      #    if (axCreateNewProject.checkCloseDialog())
+      #        super();
+      #}
+      #
+    ENDSOURCE
+    SOURCE #fillTree
+      #void fillTree()
+      #{
+      #    TreeItemIdx     rootIdx;
+      #    TreeItemIdx     dataDictionaryIdx;
+      #    TreeItemIdx     menuItemsIdx;
+      #    TreeItemIdx     moreIdx;
+      #    TreeItemIdx     ssrsReportRootIdx;
+      #    TreeItemIdx     vsProjectIdx;
+      #    TreeItemIdx     workflowIdx;
+      #    TreeItemIdx     securityIdx;
+      #    TreeItemIdx     partsIdx;
+      #    Line            curLine = 8;
+      #    ;
+      #    treeSettings.deleteAll();
+      #
+      #    rootIdx = SysFormTreeControl::addTreeItem(treeSettings, @"Project", FormTreeAdd::Root, @"Project",
+      #        imageListSmallAOT.image(#ImageProject), true, element.getRootStateImage());
+      #
+      #    dataDictionaryIdx   = element.addTreeNode(#DataDictionaryPath,      1, rootIdx, true);
+      #    element.addTreeNode(#TablesPath,              2, dataDictionaryIdx);
+      #    element.addTreeNode(#TableMapsPath,           3, dataDictionaryIdx);
+      #    element.addTreeNode(#ViewsPath,               4, dataDictionaryIdx);
+      #    element.addTreeNode(#ExtendedDataTypesPath,   5, dataDictionaryIdx);
+      #    element.addTreeNode(#BaseEnumsPath,           6, dataDictionaryIdx);
+      #
+      #    moreIdx = SysFormTreeControl::addTreeItem(treeSettings, @"More...", dataDictionaryIdx, @"More...",
+      #        imageListSmallAOT.image(#ImageDataDictionary), true, element.getNodeStateImage(7));
+      #
+      #    element.addTreeNode(#LicenseCodesPath,        curLine, moreIdx);    curLine++;
+      #    element.addTreeNode(#ConfigurationKeysPath,   curLine, moreIdx);    curLine++;
+      #    element.addTreeNode(#TableCollectionsPath,    curLine, moreIdx);    curLine++;
+      #    element.addTreeNode(#PerspectivesPath,        curLine, moreIdx);    curLine++;
+      #
+      #    element.addTreeNode(#MacrosPath,              12, rootIdx);
+      #    element.addTreeNode(#ClassesPath,             13, rootIdx);
+      #    element.addTreeNode(#FormsPath,               14, rootIdx);
+      #
+      #    partsIdx            = element.addTreeNode(#PartsPath,               15, rootIdx);
+      #    element.addTreeNode(#InfoPartsPath,           16, partsIdx);
+      #    element.addTreeNode(#FormPartsPath,           17, partsIdx);
+      #    element.addTreeNode(#CuesPath,                18, partsIdx);
+      #    element.addTreeNode(#CueGroupsPath,           19, partsIdx);
+      #
+      #    ssrsReportRootIdx   = element.addTreeNode(#SSRSReportsRootPath, 20, rootIdx);
+      #    element.addTreeNode(#SSRSReportsPath,         21, ssrsReportRootIdx);
+      #
+      #    vsProjectIdx        = element.addTreeNode(#VSProjectsPath,  22, rootIdx);
+      #    element.addTreeNode(#VSProjectsAXModelPath,   23, vsProjectIdx);
+      #    element.addTreeNode(#VSProjectsCSharpPath,    24, vsProjectIdx);
+      #    element.addTreeNode(#VSProjectsAnalysisPath,  25, vsProjectIdx);
+      #
+      #    element.addTreeNode(#QueriesPath,             26, rootIdx);
+      #    element.addTreeNode(#JobsPath,                27, rootIdx);
+      #    element.addTreeNode(#MenusPath,               28, rootIdx);
+      #
+      #    menuItemsIdx        = element.addTreeNode(#MenuItemsPath, 29, rootIdx, true);
+      #    element.addTreeNode(#MenuItemsDisplayPath,    30, menuItemsIdx);
+      #    element.addTreeNode(#MenuItemsOutputPath,     31, menuItemsIdx);
+      #    element.addTreeNode(#MenuItemsActionPath,     32, menuItemsIdx);
+      #
+      #    element.addTreeNode(#ServicesPath,            33, rootIdx);
+      #    element.addTreeNode(#ServiceGroupsPath,       34, rootIdx);
+      #
+      #    workflowIdx         = element.addTreeNode(#WorkflowPath,  35, rootIdx);
+      #    element.addTreeNode(#WorkflowCategoriesPath,  36, workflowIdx);
+      #    element.addTreeNode(#WorkflowApprovalTasksPath, 37, workflowIdx);
+      #    element.addTreeNode(#WorkflowTasksPath,       38, workflowIdx);
+      #    element.addTreeNode(#WorkflowAutomatedTasksPath, 39, workflowIdx);
+      #    element.addTreeNode(#WorkflowTypesPath,       40, workflowIdx);
+      #    element.addTreeNode(#WorkflowProvidersPath,   41, workflowIdx);
+      #
+      #    securityIdx         = element.addTreeNode(#SecurityPath,    42, rootIdx);
+      #    element.addTreeNode(#SecCodePermissionsPath,  43, securityIdx);
+      #    element.addTreeNode(#SecPrivilegesPath,       44, securityIdx);
+      #    element.addTreeNode(#SecDutiesPath,           45, securityIdx);
+      #    element.addTreeNode(#SecRolesPath,            46, securityIdx);
+      #    element.addTreeNode(#SecProcessCyclesPath,    47, securityIdx);
+      #    element.addTreeNode(#SecPoliciesPath,         48, securityIdx);
+      #
+      #    // >> DEV:MXK >>
+      #    element.addTreeNode(#ResourcesPath,             49, rootIdx);
+      #    element.addTreeNode(#LabelFilesPath,            50, rootIdx);
+      #    element.addTreeNode(#ReferencesPath,            51, rootIdx);
+      #    // << DEV:MXK <<
+      #
+      #    SysFormTreeControl::expandTree(treeSettings, rootIdx);
+      #    SysFormTreeControl::expandTree(treeSettings, dataDictionaryIdx);
+      #    SysFormTreeControl::expandTree(treeSettings, menuItemsIdx);
+      #    SysFormTreeControl::collapseTree(treeSettings, moreIdx);
+      #    SysFormTreeControl::collapseTree(treeSettings, partsIdx);
+      #    SysFormTreeControl::collapseTree(treeSettings, vsProjectIdx);
+      #    SysFormTreeControl::collapseTree(treeSettings, workflowIdx);
+      #    SysFormTreeControl::collapseTree(treeSettings, securityIdx);
+      #
+      #    treeSettings.select(rootIdx);
+      #}
+    ENDSOURCE
+    SOURCE #getNodeStateImage
+      #int getNodeStateImage(int _nIndex)
+      #{
+      #    ;
+      #    switch (conPeek(selectedProjectNodes, _nIndex))
+      #    {
+      #        case UnknownNoYes::Unknown  :
+      #            return imageListAppl_checkbox.image(#ImageCheckSome);
+      #
+      #        case UnknownNoYes::Yes      :
+      #            return imageListAppl_checkbox.image(#ImageCheckAll);
+      #    }
+      #    return imageListAppl_checkbox.image(#ImageCheckNone);
+      #}
+    ENDSOURCE
+    SOURCE #getNodeStateValue
+      #int getNodeStateValue(int _nIndex)
+      #{
+      #    FormTreeItem formTreeItem = treeSettings.getItem(_nIndex);
+      #    ;
+      #
+      #    switch (formTreeItem.stateImage())
+      #    {
+      #        case imageListAppl_checkbox.image(#ImageCheckAll) :
+      #            return UnknownNoYes::Yes;
+      #
+      #        case imageListAppl_checkbox.image(#ImageCheckNone) :
+      #            return UnknownNoYes::No;
+      #    }
+      #    return UnknownNoYes::Unknown;
+      #}
+    ENDSOURCE
+    SOURCE #getRootStateImage
+      #int getRootStateImage()
+      #{
+      #    ;
+      #    if (!conFind(selectedProjectNodes, UnknownNoYes::No))
+      #        return imageListAppl_checkbox.image(#ImageCheckAll);
+      #
+      #    if (!conFind(selectedProjectNodes, UnknownNoYes::Yes))
+      #        return imageListAppl_checkbox.image(#ImageCheckNone);
+      #
+      #    return imageListAppl_checkbox.image(#ImageCheckSome);
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #public void init()
+      #{
+      #    ;
+      #    if (!element.args().caller())
+      #        throw error(strFmt(@"Method '%1.%2()' was called incorrectly", this.name(), funcName()));
+      #
+      #    axCreateNewProject =  element.args().caller().runbase();
+      #
+      #    super();
+      #
+      #    maxNameLen = new SysDictType(extendedTypeNum(TreeNodeName)).stringLen();
+      #    this.initFromCallerClass();
+      #    this.validateProjectName(szProjectNamePrefix.valueStr(), szProjectName.valueStr());
+      #}
+    ENDSOURCE
+    SOURCE #initFromCallerClass
+      #void initFromCallerClass()
+      #{
+      #    ;
+      #    [#FormControlValues] = axCreateNewProject.parmFormControlValues();
+      #
+      #    szProjectNamePrefix.text(projectPrefix);
+      #    cbProjectType.selection(projectType);
+      #    szProjectName.text(projectName);
+      #    usePrefix.value(usePrefixValue);
+      #    szProjectNamePrefix.enabled(usePrefixValue);
+      #    // >> DEV:MXK >>
+      #    cbstartupProject.value(startupProject);
+      #    // << DEV:MXK <<
+      #
+      #    element.setCaptionText();
+      #
+      #    if (updateExistingProject && !warnAboutNameDuplicates)
+      #    {
+      #        projectPrefixOrig = projectPrefix;
+      #        projectNameOrig = projectName;
+      #        projectTypeOrig = projectType;
+      #        usePrefixOrig   = usePrefixValue;
+      #        // >> DEV:MXK >>
+      #        startupProjectOrig = startupProject;
+      #        // << DEV:MXK <<
+      #    }
+      #
+      #    if (projectPrefix != "")
+      #    {
+      #        usePrefix.value(true);
+      #        szProjectNamePrefix.enabled(true);
+      #    }
+      #
+      #    this.initImageLists();
+      #    this.fillTree();
+      #}
+    ENDSOURCE
+    SOURCE #initImageLists
+      #void initImageLists()
+      #{
+      #    int i;
+      #    int img;
+      #    str dummy;
+      #    ;
+      #
+      #    imageListSmallAOT       = new ImageListAppl_Aot();
+      #    imageListAppl_checkbox  = new ImageListAppl_checkbox();
+      #
+      #    if (updateExistingProject && !warnAboutNameDuplicates)
+      #    {
+      #        imageListSmallAOT.build();
+      #        objectTypeName = new Map(Types::Integer, Types::Container);
+      #    }
+      #    else
+      #    {
+      #        imageListSmallAOT.add(#ImageProject);
+      #        for(i = 1; i <= conLen(this.pathes()); i++)
+      #        {
+      #            [dummy, img] = conPeek(this.pathes(), i);
+      #            imageListSmallAOT.add(img);
+      #        }
+      #    }
+      #    dummy = dummy; //BP Deviation Fix
+      #    treeSettings.setImagelist(imageListSmallAOT.imageList());
+      #    treeSettings.setStateImagelist(imageListAppl_checkbox.imageList());
+      #}
+    ENDSOURCE
+    SOURCE #pathes
+      #container pathes()
+      #{
+      #    ;
+      #    if (!aotPathes)
+      #    {
+      #        aotPathes =
+      #        [
+      #            [#DataDictionaryPath,       #imageDataDictionary],
+      #            [#TablesPath,               #imageTables],
+      #            // >> DEV:MXK >>
+      #            //[#TableMapsPath,            #imageTableMaps],
+      #            [#TableMapsPath,            #imageTableMap],
+      #            // << DEV:MXK <<
+      #            [#ViewsPath,                #ImageViews],
+      #            [#ExtendedDataTypesPath,    #imageEDTs],
+      #            [#BaseEnumsPath,            #imageBaseEnums],
+      #            [#DataDictionaryPath,       #imageDataDictionary],
+      #            [#LicenseCodesPath,         #ImageLicenseCodes],
+      #            [#ConfigurationKeysPath,    #ImageConfigurationKeys],
+      #            [#TableCollectionsPath,     #ImageTableCollections],
+      #            [#PerspectivesPath,         #ImagePerspectiveList],
+      #            [#MacrosPath,               #imageMacros],
+      #            [#ClassesPath,              #imageClasses],
+      #            [#FormsPath,                #imageForms],
+      #
+      #            [#PartsPath,                #imageParts],
+      #            [#InfoPartsPath,            #imageInfoParts],
+      #            [#FormPartsPath,            #imageFormParts],
+      #            [#CuesPath,                 #imageCues],
+      #            [#CueGroupsPath,            #imageCueGroups],
+      #
+      #            [#SSRSReportsRootPath,      #imageReports],
+      #            [#SSRSReportsPath,          #imageReports],
+      #
+      #            [#VSProjectsPath,           #imageVSProjects],
+      #            [#VSProjectsAXModelPath,    #imageVSProjectType],
+      #            [#VSProjectsCSharpPath,     #imageVSProjectType],
+      #            [#VSProjectsAnalysisPath,   #imageVSProjectType],
+      #
+      #            [#QueriesPath,              #imageQueries],
+      #            [#JobsPath,                 #imageJobs],
+      #            [#MenusPath,                #imageMenus],
+      #            [#MenuItemsPath,            #imageMenuItems],
+      #            [#MenuItemsDisplayPath,     #ImageMenuDisplayItems],
+      #            [#MenuItemsOutputPath,      #imageMenuOutputItems],
+      #            [#MenuItemsActionPath,      #imageMenuActionItems],
+      #
+      #            [#ServicesPath,             #ImageAifServices],
+      #            [#ServiceGroupsPath,        #ImageAifServices],
+      #
+      #            [#WorkflowPath,             #imageWorkflow],
+      #            [#WorkflowCategoriesPath,   #imageWorkflowCategoryList],
+      #            [#WorkflowApprovalTasksPath,#imageWorkflowApprovalTaskList],
+      #            [#WorkflowTasksPath,        #imageWorkflowTaskList],
+      #            [#WorkflowAutomatedTasksPath,#imageWorkflowAutomatedTaskList],
+      #            [#WorkflowTypesPath,        #imageWorkflowTemplateList],
+      #            [#WorkflowProvidersPath,    #imageWorkflowProviderList],
+      #
+      #            [#SecurityPath,             #imageSecurity],
+      #            [#SecCodePermissionsPath,   #imageSecurityCodePermissions],
+      #            [#SecPrivilegesPath,        #imageSecurityKeys],
+      #            [#SecDutiesPath,            #imageSecurityDuties],
+      #            [#SecRolesPath,             #imageSecurityRoles],
+      #            [#SecProcessCyclesPath,     #imageSecurityProcessCycles],
+      #            [#SecPoliciesPath,          #imageSecurityPolicies],
+      #
+      #            // >> DEV:MXK >>
+      #            [#ResourcesPath,            #ImageResources],
+      #            [#LabelFilesPath,           #ImageLabelFiles],
+      #            [#ReferencesPath,           #ImageReferences]
+      #            // << DEV:MXK <<
+      #        ];
+      #    }
+      #    return aotPathes;
+      #}
+    ENDSOURCE
+    SOURCE #readSelectedNodes
+      #container readSelectedNodes(container _selectedNodes, int _item)
+      #{
+      #    FormTreeItem    formTreeItem;
+      #    container       conSelected = _selectedNodes;
+      #    container       conObjects;
+      #    int             nItem;
+      #    int             nIndex;
+      #    ;
+      #    nItem = treeSettings.getChild(_item);
+      #    while (nItem)
+      #    {
+      #        formTreeItem = treeSettings.getItem(nItem);
+      #        if (typeOf(formTreeItem.data()) == Types::String)
+      #            conSelected += [element.getNodeStateValue(nItem)];
+      #        else if (formTreeItem.stateImage() == imageListAppl_checkbox.image(#ImageCheckAll))
+      #        {
+      #            nIndex = conLen(conSelected);
+      #            if (objectTypeName.exists(nIndex))
+      #                conObjects = objectTypeName.lookup(nIndex);
+      #            conObjects += formTreeItem.text();
+      #            conObjects += formTreeItem.data();
+      #
+      #            objectTypeName.insert(nIndex, conObjects);
+      #        }
+      #        if (treeSettings.getChild(nItem))
+      #            conSelected = element.readSelectedNodes(conSelected, nItem);
+      #
+      #        nItem = treeSettings.getNextSibling(nItem);
+      #    }
+      #    return conSelected;
+      #}
+    ENDSOURCE
+    SOURCE #runBase
+      #RunBase runBase()
+      #{
+      #    return axCreateNewProject;
+      #}
+      #
+    ENDSOURCE
+    SOURCE #sendDataToClass
+      #void sendDataToClass()
+      #{
+      #    ;
+      #    selectedProjectNodes = element.readSelectedNodes(conNull(), treeSettings.getRoot());
+      #
+      #    projectType          = cbProjectType.selection();
+      #    projectName          = szProjectName.valueStr();
+      #    projectPrefix        = szProjectNamePrefix.valueStr();
+      #    usePrefixValue       = usePrefix.value();
+      #    // >> DEV:MXK >>
+      #    startupProject       = cbStartupProject.value();
+      #    // << DEV:MXK <<
+      #
+      #    axCreateNewProject.parmFormControlValues([#FormControlValues]);
+      #
+      #    if (updateExistingProject && warnAboutNameDuplicates && objectTypeName.elements() > 0)
+      #    {
+      #        axCreateNewProject.setObjectTypeName(objectTypeName.pack());
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #setCaptionText
+      #void setCaptionText()
+      #{
+      #    ;
+      #    if (warnAboutNameDuplicates)
+      #    {
+      #        if (cbProjectType.selection() == ProjectSharedPrivate::ProjPrivate)
+      #            element.design().caption(@"Create a new Private project");
+      #        else
+      #            element.design().caption(@"Create a new Shared project");
+      #    }
+      #    else
+      #    {
+      #        element.design().caption(@"Update an existing project");
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #validateProjectName
+      #void validateProjectName(str _projectPrefix, str _projectName)
+      #{
+      #    str             validateName;
+      #    FormTreeItem    rootNode;
+      #    ;
+      #    if (usePrefix.value())
+      #        validateName = axCreateNewProject.convertProjectPrefix(_projectPrefix);
+      #    validateName += _projectName;
+      #
+      #    if ((maxNameLen < strLen(validateName)) ||
+      #        (!TreeNode::isValidObjectName(validateName)))
+      #    {
+      #        projectNameValid.imageResource(1031);
+      #    }
+      #    else
+      #    {
+      #        if (warnAboutNameDuplicates &&
+      #            ((cbProjectType.selection() == ProjectSharedPrivate::ProjShared && SysTreeNode::getSharedProject().AOTfindChild(validateName)) ||
+      #            (cbProjectType.selection() == ProjectSharedPrivate::ProjPrivate && SysTreeNode::getPrivateProject().AOTfindChild(validateName))))
+      #        {
+      #            projectNameValid.imageResource(1031);
+      #        }
+      #        else
+      #        {
+      #            projectNameValid.imageResource(1030);
+      #        }
+      #    }
+      #    rootNode = treeSettings.getItem(treeSettings.getRoot());
+      #    // BP Deviation Documented
+      #    rootNode.text(validateName);
+      #    treeSettings.setItem(rootNode);
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Width               #Column width
+      Height              #Column height
+      Caption             #Create a new Shared/Private Project
+      Frame               #Dialog
+      WindowType          #Popup
+      HideToolbar         #Yes
+      BackgroundColor     #Button face (3D)
+      Columns             #2
+      ArrangeGuide        
+        ARRAY INDEX Columns 
+          #0
+          #0
+        ENDARRAY
+      AllowUserSetup      #Restricted
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #BottomButtonGrp
+          Left                #Auto (right)
+          ElementPosition     #1431655764
+          HierarchyParent     #BottomGrp
+          SizeWidth           #No
+          BackStyle           #Opaque
+          ArrangeMethod       #Horizontal, flush right
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #RightButtonGrp
+          ElementPosition     #1789569705
+          HierarchyParent     #TabPage
+          BackStyle           #Opaque
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #BottomGrp
+          Top                 #Bottom edge
+          Width               #Column width
+          ElementPosition     #1431655764
+          FrameType           #Edged 3D Line
+          BackStyle           #Opaque
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #dialogStartGrp
+          Visible             #No
+          ElementPosition     #715827882
+          HierarchyParent     #TabPage
+          FrameType           #None
+          BackStyle           #Opaque
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #ProjectNameGrp
+          ElementPosition     #1073741823
+          HierarchyParent     #TabPage
+          FrameType           #None
+          BackStyle           #Opaque
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+          AlignChildren       #No
+          AlignChild          #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #ProjectNamePrefix
+          ElementPosition     #858993458
+          HierarchyParent     #ProjectTypePrefixGrp
+          FrameType           #None
+          BackStyle           #Opaque
+          Columns             #2
+          Columnspace         #0
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+          AlignChildren       #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #ProjectTypePrefixGrp
+          ElementPosition     #1073741822
+          HierarchyParent     #SettingsMainGrp
+          FrameType           #None
+          BackStyle           #Opaque
+          Columns             #3
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+            ENDARRAY
+          AlignChild          #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #SettingsGrp
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1610612733
+          HierarchyParent     #SettingsMainGrp
+          FrameType           #None
+          BackStyle           #Opaque
+          AlignChild          #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #SettingsMainGrp
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #Column height
+          Skip                #Yes
+          ElementPosition     #1431655764
+          HierarchyParent     #TabPage
+          FrameType           #Raised 3D
+          Caption             #Options
+          BackStyle           #Opaque
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TAB
+        PROPERTIES
+          Name                #Tab
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #715827882
+          BackgroundColor     #Button face (3D)
+          BackStyle           #Opaque
+          ShowTabs            #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #TabPage
+          ElementPosition     #1431655764
+          HierarchyParent     #Tab
+          BackgroundColor     #Button face (3D)
+          BackStyle           #Opaque
+          Caption             #@SYS2952
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #ButtonCopyProjectObjects
+          AutoDeclaration     #Yes
+          Enabled             #No
+          HelpText            #Copy objects from the selected Project
+          ElementPosition     #858993458
+          HierarchyParent     #BottomButtonGrp
+          Text                #Copy Objects
+          ShowShortCut        #No
+          BackStyle           #Opaque
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    super();
+            #
+            #    element.addProjectObjects2Tree();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #cbStartupProject
+          AutoDeclaration     #Yes
+          ElementPosition     #1717986916
+          HierarchyParent     #ProjectTypePrefixGrp
+          BackStyle           #Opaque
+          Label               #Startup
+          LabelAlignment      #Right
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #UsePrefix
+          AutoDeclaration     #Yes
+          Skip                #Yes
+          ElementPosition     #1073741822
+          HierarchyParent     #ProjectNamePrefix
+          Value               #1
+          BackStyle           #Opaque
+          LabelForegroundColor #Window text
+          ShowLabel           #No
+          LabelAlignment      #Right
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    szProjectNamePrefix.enabled(this.value());
+            #
+            #    if (updateExistingProject && !warnAboutNameDuplicates)
+            #    {
+            #        warnAboutNameDuplicates = NoYes::Yes;
+            #        buttonCopyProjectObjects.enabled(NoYes::Yes);
+            #    }
+            #    element.setCaptionText();
+            #
+            #    element.validateProjectName(szProjectNamePrefix.valueStr(), szProjectName.valueStr());
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #cbProjectType
+          AutoDeclaration     #Yes
+          HelpText            #Create a shared or a private project?
+          ElementPosition     #1288490187
+          HierarchyParent     #ProjectTypePrefixGrp
+          Text                
+            ARRAY INDEX Items 
+              #Shared
+              #Private
+            ENDARRAY
+          Item                #1
+          Items               #2
+          BackStyle           #Opaque
+          LabelForegroundColor #Window text
+          Label               #Type
+          LabelAlignment      #Right
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #selectionChange
+            #public int selectionChange()
+            #{
+            #    int ret;
+            #
+            #    ret = super();
+            #
+            #    if (updateExistingProject && !warnAboutNameDuplicates)
+            #    {
+            #        warnAboutNameDuplicates = NoYes::Yes;
+            #        buttonCopyProjectObjects.enabled(NoYes::Yes);
+            #    }
+            #    element.setCaptionText();
+            #
+            #    element.validateProjectName(szProjectNamePrefix.valueStr(), szProjectName.valueStr());
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #CommandButtonCancel
+          ElementPosition     #1717986916
+          HierarchyParent     #BottomButtonGrp
+          ShowShortCut        #No
+          BackStyle           #Opaque
+          Command             #264
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #CommandButtonOK
+          ElementPosition     #1288490187
+          HierarchyParent     #BottomButtonGrp
+          ShowShortCut        #No
+          DefaultButton       #Yes
+          BackStyle           #Opaque
+          Command             #263
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #szProjectName
+          AutoDeclaration     #Yes
+          Width               #200
+          HelpText            #Project name
+          ElementPosition     #1073741822
+          HierarchyParent     #ProjectNameGrp
+          BackStyle           #Opaque
+          LabelForegroundColor #Window text
+          Label               #Name
+          LabelAlignment      #Right
+          ExtendedDataType    
+            ARRAY 
+              #TreeNodeName
+              #
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #textChange
+            #public void textChange()
+            #{
+            #    super();
+            #
+            #    if (updateExistingProject && !warnAboutNameDuplicates)
+            #    {
+            #        warnAboutNameDuplicates = NoYes::Yes;
+            #        buttonCopyProjectObjects.enabled(NoYes::Yes);
+            #    }
+            #    element.setCaptionText();
+            #
+            #    element.validateProjectName(szProjectNamePrefix.valueStr(), szProjectName.valueStr());
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #szProjectNamePrefix
+          AutoDeclaration     #Yes
+          HelpText            #Input a prefix that will be automatically added to the name of the project
+          ElementPosition     #1610612733
+          HierarchyParent     #ProjectNamePrefix
+          LimitText           #20
+          DisplayLength       #10
+          BackStyle           #Opaque
+          LabelForegroundColor #Window text
+          Label               #Prefix
+          LabelAlignment      #Right
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #textChange
+            #public void textChange()
+            #{
+            #    super();
+            #
+            #    if (updateExistingProject && !warnAboutNameDuplicates)
+            #    {
+            #        warnAboutNameDuplicates = NoYes::Yes;
+            #        buttonCopyProjectObjects.enabled(NoYes::Yes);
+            #    }
+            #    element.setCaptionText();
+            #
+            #    element.validateProjectName(szProjectNamePrefix.valueStr(), szProjectName.valueStr());
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TREE
+        PROPERTIES
+          Name                #TreeSettings
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          HierarchyParent     #SettingsGrp
+          LinesAtRoot         #No
+          BackStyle           #Opaque
+          Bold                #Normal
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #mouseDblClick
+            #public int mouseDblClick(int _x, int _y, int _button, boolean _ctrl, boolean _shift)
+            #{
+            #    #define.FOCUS_CHECKBOX(64)
+            #    int             ret;
+            #    int             idx;
+            #    int             focus;
+            #    FormTreeItem    formTreeItem;
+            #    ;
+            #    if (_shift || _ctrl || _button != 1)
+            #        return 1;
+            #
+            #    ret = super(_x, _y, _button, _ctrl, _shift);
+            #
+            #    [idx, focus] = this.hitTest(_x, _y);
+            #
+            #    if (focus & #FOCUS_CHECKBOX && this.getItem(idx))
+            #    {
+            #        formTreeItem = this.getItem(idx);
+            #
+            #        SysFormTreeControl::changeStateImage_CheckBox(this, formTreeItem.idx());
+            #    }
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+          SOURCE #mouseDown
+            #public int mouseDown(int _x, int _y, int _button, boolean _ctrl, boolean _shift)
+            #{
+            #    #define.FOCUS_CHECKBOX(64)
+            #        #FormListControl
+            #    int             ret;
+            #    int             focus;
+            #    TreeItemIdx     idx;
+            #    FormTreeItem    formTreeItem;
+            #    ;
+            #    ret = super(_x, _y, _button, _ctrl, _shift);
+            #
+            #    [idx, focus] = this.hitTest(_x, _y);
+            #
+            #    if (focus & #FOCUS_CHECKBOX && this.getItem(idx))
+            #    {
+            #        formTreeItem = this.getItem(idx);
+            #
+            #        SysFormTreeControl::changeStateImage_CheckBox(this, formTreeItem.idx());
+            #    }
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL WINDOW
+        PROPERTIES
+          Name                #ProjectNameValid
+          AutoDeclaration     #Yes
+          Height              #Column height
+          Skip                #Yes
+          ElementPosition     #1610612733
+          HierarchyParent     #ProjectNameGrp
+          ImageResource       #1031
+          Imagemode           #Size to fit
+          BackStyle           #Transparent
+          BackgroundColor     #Button face (3D)
+          ForegroundColor     #Button text
+          ShowLabel           #No
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #toolTip
+            #public str toolTip()
+            #{
+            #    str validateName;
+            #    ;
+            #    if (usePrefix.value())
+            #    {
+            #        validateName = axCreateNewProject.convertProjectPrefix(szProjectNamePrefix.valueStr());
+            #        if (validateName && !TreeNode::isValidObjectName(validateName))
+            #            return @"The Project prefix contains illegal characters";
+            #    }
+            #    validateName += szProjectName.valueStr();
+            #
+            #    if (maxNameLen < strLen(validateName))
+            #        return @"The name of the project is too long";
+            #
+            #    if (warnAboutNameDuplicates &&
+            #        ((cbProjectType.selection() == ProjectSharedPrivate::ProjShared && SysTreeNode::getSharedProject().AOTfindChild(validateName)) ||
+            #        (cbProjectType.selection() == ProjectSharedPrivate::ProjPrivate && SysTreeNode::getPrivateProject().AOTfindChild(validateName))))
+            #        return @"Project with such name already exists";
+            #
+            #    if (!TreeNode::isValidObjectName(validateName))
+            #        return @"The name of the project contains illegal characters";
+            #
+            #    return @"The Project Name is valid";
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: END

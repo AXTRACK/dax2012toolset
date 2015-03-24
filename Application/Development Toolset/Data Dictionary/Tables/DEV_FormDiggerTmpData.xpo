@@ -1,0 +1,402 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: DBT
+
+; Microsoft Dynamics AX Table : DEV_FormDiggerTmpData unloaded
+; --------------------------------------------------------------------------------
+  TABLEVERSION 1
+  
+  TABLE #DEV_FormDiggerTmpData
+    EnforceFKRelation 0
+    PROPERTIES
+      Name                #DEV_FormDiggerTmpData
+      Label               #@SYS73294
+      TableType           #InMemory
+      TableContents       #Base data
+      SaveDataPerCompany  #No
+      ClusterIndex        #IdFormatIdx
+      Origin              #{2CF8C6D6-14C4-4B15-B9F4-1E64DBAB9C35}
+    ENDPROPERTIES
+    
+    FIELDS
+      FIELD #BaseTypeImg
+        INT
+        PROPERTIES
+          Name                #BaseTypeImg
+          Label               #Img
+          HelpText            #Data type
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{6B083C2A-ABD7-48DD-A1A4-8FFB5797E3E8}
+          ExtendedDataType    #ImageRes
+        ENDPROPERTIES
+        
+      FIELD #ControlType
+        ENUM
+        PROPERTIES
+          Name                #ControlType
+          Label               #@SYS1201
+          HelpText            #@SYS1201
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{CA0C242B-A576-4320-8924-6CC9DE74E3ED}
+          EnumType            #FormControlType
+        ENDPROPERTIES
+        
+      FIELD #CtrlName
+        STRING
+        PROPERTIES
+          Name                #CtrlName
+          Label               #@SYS308801
+          AllowEdit           #No
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{79DAD471-E52D-4F33-AB8B-6EB013CC1B3F}
+          ExtendedDataType    #Name
+          StringSize          #60
+        ENDPROPERTIES
+        
+      FIELD #DataSourceName
+        STRING
+        PROPERTIES
+          Name                #DataSourceName
+          Label               #@SYS26774
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{370E4537-6E9A-47E4-92FF-34E8F8AD15AB}
+          ExtendedDataType    #TreeNodeName
+          StringSize          #40
+        ENDPROPERTIES
+        
+      FIELD #DataSourceTable
+        STRING
+        PROPERTIES
+          Name                #DataSourceTable
+          Label               #@SYS26825
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{A704B363-F3A6-495D-8A68-F056CD62C432}
+          ExtendedDataType    #TreeNodeName
+          StringSize          #40
+        ENDPROPERTIES
+        
+      FIELD #EDT
+        STRING
+        PROPERTIES
+          Name                #EDT
+          Label               #@SYS124318
+          HelpText            #@SYS5619
+          AllowEdit           #No
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{18979D10-533A-44D2-848D-0FB306EDCAAB}
+          ExtendedDataType    #TreeNodeName
+          StringSize          #40
+        ENDPROPERTIES
+        
+      FIELD #Enum
+        STRING
+        PROPERTIES
+          Name                #Enum
+          Label               #@SYS106481
+          HelpText            #Base enum
+          AllowEdit           #No
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{F6FD7CC5-31AC-441D-9A10-885C49449527}
+          ExtendedDataType    #TreeNodeName
+          StringSize          #40
+        ENDPROPERTIES
+        
+      FIELD #FieldMethodName
+        STRING
+        PROPERTIES
+          Name                #FieldMethodName
+          Label               #@SYS8498
+          HelpText            #Table field or method
+          AllowEdit           #No
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{F8087982-10C8-45B1-B171-8757C055F24A}
+          ExtendedDataType    #TreeNodeName
+          StringSize          #40
+        ENDPROPERTIES
+        
+      FIELD #FormatTxt
+        STRING
+        PROPERTIES
+          Name                #FormatTxt
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{CDE99347-B7AF-4B1D-BDBD-BCBB4DE4D793}
+          ExtendedDataType    #FormatTxt
+          StringSize          #255
+        ENDPROPERTIES
+        
+      FIELD #Id
+        INT
+        PROPERTIES
+          Name                #Id
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{7F68FF11-0638-4A67-A0EE-619F86BA4E02}
+          ExtendedDataType    #Counter
+        ENDPROPERTIES
+        
+      FIELD #ImageRes
+        INT
+        PROPERTIES
+          Name                #ImageRes
+          Label               #Img
+          HelpText            #@SYS54567
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{4E943603-C437-44C1-9F4D-89F5B75EDD3F}
+          ExtendedDataType    #ImageRes
+        ENDPROPERTIES
+        
+      FIELD #IsDataBound
+        ENUM
+        PROPERTIES
+          Name                #IsDataBound
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{28DC75DE-DD79-4286-ADA6-71BEA6EB9A1F}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #IsMethod
+        ENUM
+        PROPERTIES
+          Name                #IsMethod
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{0951CA1B-3388-46E3-8E9B-A7C037AE805A}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #IsVisible
+        ENUM
+        PROPERTIES
+          Name                #IsVisible
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{3F41D47C-F9C0-4A3C-9567-BE70ACCBE2B4}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #LanguageId
+        STRING
+        PROPERTIES
+          Name                #LanguageId
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{2368EF68-2C0E-4987-BDD6-241881FE9D73}
+          ExtendedDataType    #LanguageId
+          StringSize          #7
+        ENDPROPERTIES
+        
+      FIELD #Name
+        STRING
+        PROPERTIES
+          Name                #Name
+          Label               #@SYS25058
+          AllowEdit           #No
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{2906194E-2030-4E8D-8C0B-3073DC8D2C5D}
+          ExtendedDataType    #Name
+          StringSize          #60
+        ENDPROPERTIES
+        
+      FIELD #ParentId
+        INT
+        PROPERTIES
+          Name                #ParentId
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{6CBAEDA5-F8DF-43CD-8F4B-3046DF53E287}
+          ExtendedDataType    #Counter
+        ENDPROPERTIES
+        
+      FIELD #setupRecord
+        ENUM
+        PROPERTIES
+          Name                #setupRecord
+          Label               #@SYS2186
+          HelpText            #@SYS2186
+          Table               #DEV_FormDiggerTmpData
+          Origin              #{671431EC-BB0E-4661-9CD6-8F891668A069}
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+    ENDFIELDS
+    GROUPS
+      GROUP #AutoReport
+        PROPERTIES
+          Name                #AutoReport
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Id
+          #Name
+          #ParentId
+          #FieldMethodName
+          #IsMethod
+          #IsVisible
+          #IsDataBound
+          #ControlType
+          #ImageRes
+          #FormatTxt
+          #setupRecord
+          #LanguageId
+          #DataSourceName
+          #DataSourceTable
+          #CtrlName
+          #EDT
+          #Enum
+        ENDGROUPFIELDS
+      ENDGROUP
+    ENDGROUPS
+    
+    INDICES
+      #IdFormatIdx
+      PROPERTIES
+        Name                #IdFormatIdx
+        Origin              #{47DFA918-2CF0-47C6-A92F-4044A4BC9DAA}
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #Id
+        #ControlType
+        #setupRecord
+        #LanguageId
+      ENDINDEXFIELDS
+      
+    ENDINDICES
+    FULLTEXTINDICES
+    ENDFULLTEXTINDICES
+    REFERENCES
+    ENDREFERENCES
+    
+    DELETEACTIONS
+    ENDDELETEACTIONS
+    
+    METHODS
+      SOURCE #initFromFormControl
+        #void initFromFormControl( Object    _formControl,
+        #                          FormRun   _fr,
+        #                          int       _parentId = 0)
+        #{
+        #    FormBuildDataSource     formDataSource;
+        #    // >> DEV:MXK >>
+        #    DictField               dictField;
+        #    Object                  formControlParent;
+        #    // << DEV:MXK <<
+        #
+        #    if ( !_formControl)
+        #        return;
+        #
+        #    this.Name        = _formControl.userPromptText() ? _formControl.userPromptText() : _formControl.labelText();
+        #    this.Id          = _formControl.id();
+        #    this.ParentId    = _parentId;
+        #    // >> DEV:MXK >>
+        #    this.CtrlName    = _formControl.name();
+        #    // << DEV:MXK <<
+        #    this.ControlType = SysFormRun::controlType(classIdGet(_formControl));
+        #    this.ImageRes    = new ImageListAppl_Form().formControlType2Image(this.ControlType);
+        #
+        #    if (DEV_FormDigger::formControlIsDataBound(_formControl))
+        #    {
+        #        this.IsDataBound        = NoYes::Yes;
+        #
+        #        if (_formControl.dataSource())
+        #        {
+        #            formDataSource = _fr.form().dataSource(_formControl.dataSource());
+        #
+        #            if (formDataSource)
+        #            {
+        #                this.DataSourceName  = formDataSource.name();
+        #                this.DataSourceTable = tableId2name(formDataSource.table());
+        #            }
+        #        }
+        #
+        #        // >> DEV:MXK >>
+        #        if (!SysTest::hasMethod(_formControl, identifierStr(dataField)))
+        #            return;
+        #        // << DEV:MXK <<
+        #
+        #        if (_formControl.dataField() && formDataSource)
+        #        {
+        #            this.FieldMethodName = fieldId2name(formDataSource.table(), _formControl.dataField());
+        #            // >> DEV:MXK >>
+        #            dictField           = new DictField(formDataSource.table(), _formControl.dataField());
+        #
+        #            if (dictField)
+        #            {
+        #                this.EDT            = extendedTypeId2name(dictField.typeId());
+        #                this.Enum           = enumId2Name(dictField.enumId());
+        #                this.BaseTypeImg    = new ImageListAppl_Report().findOverlayImage(
+        #                                                this.EDT ? extendedTypeId2Type(extendedTypeName2Id(this.EDT))
+        #                                            :   this.Enum ? Types::Enum : 0);
+        #            }
+        #            // << DEV:MXK <<
+        #        }
+        #        else
+        #        {
+        #            this.FieldMethodName = _formControl.dataMethod();
+        #            this.IsMethod        = NoYes::Yes;
+        #        }
+        #    }
+        #
+        #    // >> DEV:MXK >>
+        #    // FormControlType::ReferenceGroup
+        #    if (_parentId)
+        #    {
+        #        formControlParent   =_fr.form().design().control(_parentId);
+        #
+        #        if (SysFormRun::controlType(classIdGet(formControlParent)) == FormControlType::ReferenceGroup)
+        #        {
+        #            this.IsDataBound        = NoYes::Yes;
+        #
+        #            if (formControlParent.dataSource())
+        #            {
+        #                formDataSource = _fr.form().dataSource(formControlParent.dataSource());
+        #
+        #                if (formDataSource)
+        #                {
+        #                    this.DataSourceName  = formDataSource.name();
+        #                    this.DataSourceTable = tableId2name(formDataSource.table());
+        #                }
+        #            }
+        #
+        #            if (formDataSource && formControlParent.referenceField())
+        #            {
+        #                this.FieldMethodName = fieldId2name(formDataSource.table(), formControlParent.referenceField());
+        #                dictField           = new DictField(formDataSource.table(), formControlParent.referenceField());
+        #
+        #                if (dictField)
+        #                {
+        #                    this.EDT            = extendedTypeId2name(dictField.typeId());
+        #                    this.Enum           = enumId2Name(dictField.enumId());
+        #                    this.BaseTypeImg    = new ImageListAppl_Report().findOverlayImage(
+        #                                                    this.EDT ? extendedTypeId2Type(extendedTypeName2Id(this.EDT))
+        #                                                :   this.Enum ? Types::Enum : 0);
+        #                }
+        #            }
+        #
+        #            if (formControlParent.label())
+        #            {
+        #                this.Name = formControlParent.label();
+        #            }
+        #            else if (dictField && dictField.label())
+        #            {
+        #                this.Name = dictField.label();
+        #            }
+        #        }
+        #    }
+        #    // << DEV:MXK <<
+        #}
+      ENDSOURCE
+      SOURCE #find
+        #static client DEV_FormDiggerTmpData find(   int                     _id,
+        #                                            DEV_FormDiggerTmpData   _formDiggerTmpData)
+        #{
+        #    select firstonly _formDiggerTmpData
+        #      where _formDiggerTmpData.Id == _id;
+        #
+        #    return _formDiggerTmpData;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDTABLE
+  
+
+***Element: END

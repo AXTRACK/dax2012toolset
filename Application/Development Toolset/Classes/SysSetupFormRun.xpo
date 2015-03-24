@@ -1,0 +1,38 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysSetupFormRun unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysSetupFormRun
+    PROPERTIES
+      Name                #SysSetupFormRun
+      Extends             #FormRun
+      RunOn               #Client
+      Origin              #{2D0F0283-0000-1000-B5DF-784DC362FB4F}
+      LegacyId            #643
+    ENDPROPERTIES
+    
+    METHODS
+    ENDMETHODS
+    EVENTS
+      METHOD #task
+        EVENTHANDLERS
+          EVENTHANDLER #DEV_FormDigger
+            PROPERTIES
+              CalledWhen          #Post
+              Class               #DEV_FormDigger
+              Method              #handleSysSetupFormRunTaskPost
+              AOTlink             #\Classes\DEV_FormDigger\handleSysSetupFormRunTaskPost
+            ENDPROPERTIES
+            
+          ENDEVENTHANDLER
+        ENDEVENTHANDLERS
+      ENDMETHOD
+    ENDEVENTS
+  ENDCLASS
+
+***Element: END

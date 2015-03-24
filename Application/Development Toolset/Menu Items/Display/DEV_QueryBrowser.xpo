@@ -1,0 +1,24 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FTM
+
+; Microsoft Dynamics AX MENUITEM : DEV_QueryBrowser unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  MENUITEM #DEV_QueryBrowser
+    Type: 1
+    PROPERTIES
+      Name                #DEV_QueryBrowser
+      Label               #Query browser
+      HelpText            #Browses selected query data and XML
+      ObjectType          #Class
+      Object              #DEV_QueryBrowser
+      Origin              #{ACAF8296-D09A-4758-9632-4FDC6711C581}
+    ENDPROPERTIES
+    
+  ENDMENUITEM
+  
+
+***Element: END

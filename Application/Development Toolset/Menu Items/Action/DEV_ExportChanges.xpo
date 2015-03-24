@@ -1,0 +1,26 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FTM
+
+; Microsoft Dynamics AX MENUITEM : DEV_ExportChanges unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  MENUITEM #DEV_ExportChanges
+    Type: 3
+    PROPERTIES
+      Name                #DEV_ExportChanges
+      Label               #Export changes
+      HelpText            #Export changes within date range
+      ObjectType          #Class
+      Object              #DEV_ExportChanges
+      NormalImage         #899
+      ImageLocation       #EmbeddedResource
+      Origin              #{40B79E70-D405-41E9-84B0-9406518B499E}
+    ENDPROPERTIES
+    
+  ENDMENUITEM
+  
+
+***Element: END

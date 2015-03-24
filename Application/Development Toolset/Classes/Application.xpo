@@ -1,0 +1,44 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: Application unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #Application
+    PROPERTIES
+      Name                #Application
+      Extends             #xApplication
+      RunOn               #Server
+      Origin              #{2D0BF001-0000-1000-542F-0F4B7A636174}
+      LegacyId            #61441
+    ENDPROPERTIES
+    
+    METHODS
+    ENDMETHODS
+    EVENTS
+      EVENT #onTtsNotifyAbort
+      ENDEVENT
+      EVENT #onTtsNotifyPostBegin
+      ENDEVENT
+      EVENT #onTtsNotifyPreCommit
+      ENDEVENT
+      METHOD #startupPost
+        EVENTHANDLERS
+          EVENTHANDLER #DEV_Global
+            PROPERTIES
+              CalledWhen          #Post
+              Class               #DEV_Global
+              Method              #handleApplicationStartupPostPost
+              AOTlink             #\Classes\DEV_Global\handleApplicationStartupPostPost
+            ENDPROPERTIES
+            
+          ENDEVENTHANDLER
+        ENDEVENTHANDLERS
+      ENDMETHOD
+    ENDEVENTS
+  ENDCLASS
+
+***Element: END

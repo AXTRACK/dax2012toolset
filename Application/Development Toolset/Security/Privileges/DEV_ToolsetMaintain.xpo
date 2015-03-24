@@ -1,0 +1,234 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: SPV
+
+; Microsoft Dynamics AX PRIVILEGE : DEV_ToolsetMaintain unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  PRIVILEGE #DEV_ToolsetMaintain
+    PROPERTIES
+      Name                #DEV_ToolsetMaintain
+      Label               #Maintain development toolset
+      Origin              #{17EA00E3-635B-477B-89F3-2A2EB03E4FAF}
+    ENDPROPERTIES
+    
+    ENTRYPOINTS #Entry Points
+      ENTRYPOINT #DEV_Breakpoints
+        PROPERTIES
+          Name                #DEV_Breakpoints
+          ObjectType          #MenuItemAction
+          ObjectName          #DEV_Breakpoints
+          AccessLevel         #Delete
+        ENDPROPERTIES
+        
+      ENDENTRYPOINT
+      
+    ENTRYPOINT #DEV_CreateNewProject
+      PROPERTIES
+        Name                #DEV_CreateNewProject
+        ObjectType          #MenuItemAction
+        ObjectName          #DEV_CreateNewProject
+        AccessLevel         #Delete
+      ENDPROPERTIES
+      
+    ENDENTRYPOINT
+    
+  ENTRYPOINT #DEV_ExportChanges
+    PROPERTIES
+      Name                #DEV_ExportChanges
+      ObjectType          #MenuItemAction
+      ObjectName          #DEV_ExportChanges
+      AccessLevel         #Delete
+    ENDPROPERTIES
+    
+  ENDENTRYPOINT
+  
+ENTRYPOINT #DEV_HKManager
+  PROPERTIES
+    Name                #DEV_HKManager
+    ObjectType          #MenuItemAction
+    ObjectName          #DEV_HKManager
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #DEV_HKProject
+  PROPERTIES
+    Name                #DEV_HKProject
+    ObjectType          #MenuItemAction
+    ObjectName          #DEV_HKProject
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #DEV_Maintain
+  PROPERTIES
+    Name                #DEV_Maintain
+    ObjectType          #MenuItemAction
+    ObjectName          #DEV_Maintain
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #DEV_Projects
+  PROPERTIES
+    Name                #DEV_Projects
+    ObjectType          #MenuItemDisplay
+    ObjectName          #DEV_Projects
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #DEV_QueryBrowser
+  PROPERTIES
+    Name                #DEV_QueryBrowser
+    ObjectType          #MenuItemDisplay
+    ObjectName          #DEV_QueryBrowser
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #DEV_StartupForm
+  PROPERTIES
+    Name                #DEV_StartupForm
+    ObjectType          #MenuItemDisplay
+    ObjectName          #DEV_StartupForm
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #DEV_TableMethodsGenerator
+  PROPERTIES
+    Name                #DEV_TableMethodsGenerator
+    ObjectType          #MenuItemAction
+    ObjectName          #DEV_TableMethodsGenerator
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #DEV_Toolbar
+  PROPERTIES
+    Name                #DEV_Toolbar
+    ObjectType          #MenuItemDisplay
+    ObjectName          #DEV_Toolbar
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #DEV_UserSetup
+  PROPERTIES
+    Name                #DEV_UserSetup
+    ObjectType          #MenuItemAction
+    ObjectName          #DEV_UserSetup
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #DEV_WebSafeColors
+  PROPERTIES
+    Name                #DEV_WebSafeColors
+    ObjectType          #MenuItemDisplay
+    ObjectName          #DEV_WebSafeColors
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENTRYPOINT #DEV_xRefSearch
+  PROPERTIES
+    Name                #DEV_xRefSearch
+    ObjectType          #MenuItemDisplay
+    ObjectName          #DEV_xRefSearch
+    AccessLevel         #Delete
+  ENDPROPERTIES
+  
+ENDENTRYPOINT
+
+ENDENTRYPOINTS
+
+PERMISSIONSET #Permissions
+  PROPERTIES
+  ENDPROPERTIES
+  
+  TABLES #Tables
+    TABLE #DEV_FormDiggerTmpData
+      PROPERTIES
+        Table               #DEV_FormDiggerTmpData
+        EffectiveAccess     #Delete
+      ENDPROPERTIES
+      
+    ENDTABLE
+    
+  TABLE #DEV_HKSetup
+    PROPERTIES
+      Table               #DEV_HKSetup
+      EffectiveAccess     #Delete
+    ENDPROPERTIES
+    
+  ENDTABLE
+  
+TABLE #DEV_Projects
+  PROPERTIES
+    Table               #DEV_Projects
+    EffectiveAccess     #Delete
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #DEV_StartupForm
+  PROPERTIES
+    Table               #DEV_StartupForm
+    EffectiveAccess     #Delete
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #DEV_UserParameters
+  PROPERTIES
+    Table               #DEV_UserParameters
+    EffectiveAccess     #Delete
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #DEV_xRefElements
+  PROPERTIES
+    Table               #DEV_xRefElements
+    EffectiveAccess     #Delete
+  ENDPROPERTIES
+  
+ENDTABLE
+
+TABLE #xRefNames
+  PROPERTIES
+    Table               #xRefNames
+    EffectiveAccess     #Delete
+  ENDPROPERTIES
+  
+ENDTABLE
+
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+FORMS #Forms
+ENDFORMS
+
+ENDPERMISSIONSET
+
+ENDPRIVILEGE
+
+
+***Element: END

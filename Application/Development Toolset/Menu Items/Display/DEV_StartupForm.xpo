@@ -1,0 +1,26 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FTM
+
+; Microsoft Dynamics AX MENUITEM : DEV_StartupForm unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  MENUITEM #DEV_StartupForm
+    Type: 1
+    PROPERTIES
+      Name                #DEV_StartupForm
+      Label               #Startup
+      HelpText            #Run the object specified in the setup for selected user.
+      Object              #DEV_StartupForm
+      SecurityKey         #BasicSetup
+      NormalImage         #12617
+      ImageLocation       #EmbeddedResource
+      Origin              #{52DD36DC-3BAC-43F1-A146-5D60621D7106}
+    ENDPROPERTIES
+    
+  ENDMENUITEM
+  
+
+***Element: END

@@ -1,6 +1,6 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <VCSParameters>
-  <Project value="My Project" />
+  <Project value="VAN" />
   <BestPractice>
     <AcceptCompileErrors value="Yes" />
     <AcceptCompileWarnings value="Yes" />
@@ -9,6 +9,9 @@
     <RunTitleCaseUpdate value="No" />
     <CheckInTestProject value="" />
   </BestPractice>
+  <LabelFile>
+    <DefaultLabelFile value="" />
+  </LabelFile>
   <UnwantedObjectTypes />
   <UnwantedObjectNames>
     <ObjectName value="&lt;\_" />
@@ -34,6 +37,8 @@
     <ObjectName value="&lt;Workflow:d+" />
   </UnwantedObjectNames>
   <AdditionalFolders />
-  <Models />
+  <Models>
+    <Model folder="Development Toolset" description="Development Toolset" aldlocation="" />
+  </Models>
   <PluginSettings />
 </VCSParameters>

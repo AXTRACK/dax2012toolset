@@ -19,7 +19,7 @@ FORM #SysCompareForm
       #{
       #    // >> DEV:MXK >>
       #    xSysLastValue::putValue([AutoStart.value(),
-      #                            ExpendTree.value(),
+      #                            ExpandTree.value(),
       #                            HideOption.value(),
       #                            LayerOption.selection(),
       #                            CustomLayer1.selection(),
@@ -62,7 +62,7 @@ FORM #SysCompareForm
       #    lastValues = xSysLastValue::getValue('', curUserId(), UtilElementType::Class, this.name());
       #
       #    AutoStart.value(conPeek(lastValues, 1));
-      #    ExpendTree.value(conPeek(lastValues, 2));
+      #    ExpandTree.value(conPeek(lastValues, 2));
       #    HideOption.value(conPeek(lastValues, 3));
       #    LayerOption.selection(conPeek(lastValues, 4));
       #    CustomLayer1.selection(conPeek(lastValues, 5));
@@ -208,7 +208,7 @@ FORM #SysCompareForm
             #            Criteria.optionValue(0);
             #            Criteria.caption(ComboBox1.valueStr() + ' vs ' + ComboBox2.valueStr());
             #        }
-            #        if (ExpendTree.value())
+            #        if (ExpandTree.value())
             #        {
             #            SysFormTreeControl::expandTree(Tree, Tree.getRoot());
             #        }
@@ -225,7 +225,7 @@ FORM #SysCompareForm
         PROPERTIES
           Name                #AutoStart
           AutoDeclaration     #Yes
-          ElementPosition     #1561806288
+          ElementPosition     #1317774053
           HierarchyParent     #AdvancedTab
           Label               #Autostart
         ENDPROPERTIES
@@ -237,7 +237,7 @@ FORM #SysCompareForm
       CONTROL CHECKBOX
         PROPERTIES
           Name                #CaseSensitive
-          ElementPosition     #1366580502
+          ElementPosition     #1220161161
           HierarchyParent     #AdvancedTab
           Label               #@SYS29119
         ENDPROPERTIES
@@ -248,11 +248,11 @@ FORM #SysCompareForm
       
       CONTROL CHECKBOX
         PROPERTIES
-          Name                #ExpendTree
+          Name                #ExpandTree
           AutoDeclaration     #Yes
-          ElementPosition     #1659419181
+          ElementPosition     #1439790170
           HierarchyParent     #AdvancedTab
-          Label               #Expend tree
+          Label               #@SYS22914
         ENDPROPERTIES
         
         METHODS
@@ -263,7 +263,7 @@ FORM #SysCompareForm
         PROPERTIES
           Name                #HideOption
           AutoDeclaration     #Yes
-          ElementPosition     #1757032074
+          ElementPosition     #1561806288
           HierarchyParent     #AdvancedTab
           Label               #Hide options
         ENDPROPERTIES
@@ -275,7 +275,7 @@ FORM #SysCompareForm
       CONTROL CHECKBOX
         PROPERTIES
           Name                #LineNumbers
-          ElementPosition     #1464193395
+          ElementPosition     #1268967607
           HierarchyParent     #AdvancedTab
           Label               #@SYS50868
         ENDPROPERTIES
@@ -288,7 +288,7 @@ FORM #SysCompareForm
         PROPERTIES
           Name                #SuppressName
           Visible             #No
-          ElementPosition     #1171354716
+          ElementPosition     #1122548269
           HierarchyParent     #AdvancedTab
           Value               #1
           Label               #@SYS50867
@@ -301,7 +301,7 @@ FORM #SysCompareForm
       CONTROL CHECKBOX
         PROPERTIES
           Name                #SuppressWhiteSpace
-          ElementPosition     #1268967609
+          ElementPosition     #1171354715
           HierarchyParent     #AdvancedTab
           Value               #1
           Label               #@SYS29108
@@ -315,7 +315,7 @@ FORM #SysCompareForm
         PROPERTIES
           Name                #CustomLayer1
           AutoDeclaration     #Yes
-          ElementPosition     #1952257860
+          ElementPosition     #2040719543
           HierarchyParent     #AdvancedTab
           Label               #@SYS97216
           EnumType            #UtilEntryLevel
@@ -329,7 +329,7 @@ FORM #SysCompareForm
         PROPERTIES
           Name                #CustomLayer2
           AutoDeclaration     #Yes
-          ElementPosition     #2049870753
+          ElementPosition     #2094101594
           HierarchyParent     #AdvancedTab
           Label               #@SYS97216
           EnumType            #UtilEntryLevel
@@ -343,7 +343,7 @@ FORM #SysCompareForm
         PROPERTIES
           Name                #LayerOption
           AutoDeclaration     #Yes
-          ElementPosition     #1854644967
+          ElementPosition     #1987337492
           HierarchyParent     #AdvancedTab
           EnumType            #DEV_CompareMode
         ENDPROPERTIES

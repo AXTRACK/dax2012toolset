@@ -85,7 +85,7 @@ Formatversion: 1
         #    // >> DEV:MXK >>
         #    FormGroupControl            criteriaGroup;
         #    FormCheckBoxControl         autoStartControl;
-        #    FormCheckBoxControl         expendTreeControl;
+        #    FormCheckBoxControl         expandTreeControl;
         #    FormCheckBoxControl         hideOptionsControl;
         #    FormComboBoxControl         layerComboControl;
         #    FormComboBoxControl         customLayer1ComboControl;
@@ -206,7 +206,7 @@ Formatversion: 1
         #        // >> DEV:MXK >>
         #        criteriaGroup               = formDesign.controlName('Criteria');
         #        autoStartControl            = formDesign.controlName('AutoStart');
-        #        expendTreeControl           = formDesign.controlName('ExpendTree');
+        #        expandTreeControl           = formDesign.controlName('ExpandTree');
         #        hideOptionsControl          = formDesign.controlName('HideOption');
         #        layerComboControl           = formDesign.controlName('LayerOption');
         #        customLayer1ComboControl    = formDesign.controlName('CustomLayer1');
@@ -424,7 +424,7 @@ Formatversion: 1
         #
         #    this.buildTree();
         #    // >> DEV:MXK >>
-        #    if (expendTreeControl.value())
+        #    if (expandTreeControl.value())
         #    {
         #        SysFormTreeControl::expandTree(tree, tree.getRoot());
         #    }

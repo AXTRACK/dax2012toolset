@@ -79,6 +79,7 @@ FORM #DEV_xRefIcons
           #    QueryBuildRange         qbrLabel;
           #    QueryBuildRange         qbrImgRes;
           #    QueryBuildRange         qbrEmbedded;
+          #    QueryBuildRange         qbrType;
           #
           #    qbds        = this.queryBuildDataSource();
           #    qbrLabel    = SysQuery::findOrCreateRange(this.queryBuildDataSource(), fieldNum(DEV_xRefElements, Label));
@@ -109,6 +110,9 @@ FORM #DEV_xRefIcons
           #    {
           #        qbds.clearRange(qbrLabel.field());
           #    }
+          #
+          #    qbrType  = SysQuery::findOrCreateRange(qbds, fieldNum(DEV_xRefElements, Type));
+          #    qbrType.value(SysQuery::value(UtilElementType::Resource));
           #
           #    super();
           #
@@ -254,7 +258,7 @@ FORM #DEV_xRefIcons
         PROPERTIES
           Name                #CheckBoxEmbedded
           AutoDeclaration     #Yes
-          ElementPosition     #1431655764
+          ElementPosition     #1288490187
           HierarchyParent     #TopGroup
           Label               #@SYS89263
         ENDPROPERTIES
@@ -284,7 +288,7 @@ FORM #DEV_xRefIcons
           Name                #ElementType
           AllowEdit           #No
           Skip                #Yes
-          ElementPosition     #715827882
+          ElementPosition     #572662304
           HierarchyParent     #TopGroup
           Selection           #21
           Label               #@SYS40518
@@ -314,7 +318,7 @@ FORM #DEV_xRefIcons
           Name                #TotalFound
           AutoDeclaration     #Yes
           Left                #Auto (right)
-          ElementPosition     #1789569705
+          ElementPosition     #1717986916
           HierarchyParent     #TopGroup
           Text                #
         ENDPROPERTIES
@@ -384,7 +388,7 @@ FORM #DEV_xRefIcons
         PROPERTIES
           Name                #SearchString
           AutoDeclaration     #Yes
-          ElementPosition     #1073741823
+          ElementPosition     #858993458
           HierarchyParent     #TopGroup
           Label               #Search
         ENDPROPERTIES

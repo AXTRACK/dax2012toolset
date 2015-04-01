@@ -14,10 +14,32 @@ FORM #xRefReferencesUsedByTypedTree
   ENDPROPERTIES
   
   METHODS
+    SOURCE #classDeclaration
+      #/*
+      #    A tree control shows the other methods the method override or are overridden by, explicit as implicit.
+      #    User can navigate this tree to see other potential calls to the method.
+      #*/
+      #final class FormRun extends ObjectRun
+      #{
+      #    TreeNode  treeNode;
+      #
+      #    SysFormSplitter_X formSplitter;
+      #    SysTypeHierarchy  hierarchy;
+      #    Map               refMap;   // DEV:MXK
+      #}
+    ENDSOURCE
     SOURCE #run
       #void run()
       #{
       #    #TreeNodeSysNodeType
+      #    // >> DEV:MXK >>
+      #    XRefReferences                  xRefReferencesLocal;
+      #    int                             i, j;
+      #    DictEnum                        dictEnum;
+      #
+      #    dictEnum    = new DictEnum(enumNum(XRefReference));
+      #    refMap      = new Map(Types::Integer, Types::Integer); // Remap enum index
+      #    // << DEV:MXK <<
       #
       #    if (treeNode &&
       #        ((treeNode.treeNodeType().isUtilElement() && treeNode.utilElement().RecordType == UtilElementType::ClassInstanceMethod) ||
@@ -38,10 +60,33 @@ FORM #xRefReferencesUsedByTypedTree
       #    super();
       #
       #    // >> DEV:MXK >>
+      #    select firstOnly xRefReferencesLocal
+      #        where       xRefReferencesLocal.referencePathRecId  ==  xRefNames.xRefPathRecId
+      #                &&  xRefReferencesLocal.line                >   0;
+      #
+      #    DEV_Methods.enabled(xRefReferencesLocal.RecId != 0);
+      #
+      #    for (i = 0; i < dictEnum.values(); i++)
+      #    {
+      #        select firstOnly xRefReferencesLocal
+      #            where       xRefReferencesLocal.referencePathRecId  == xRefNames.xRefPathRecId
+      #                    &&  xRefReferencesLocal.Reference           == dictEnum.index2Value(i);
+      #
+      #        if (!xRefReferencesLocal)
+      #        {
+      #            DEV_ReferenceFilter.delete(dictEnum.value2Symbol(i));
+      #            j++; // Index shift increment
+      #        }
+      #
+      #        refMap.insert(i, i + j); // Maping index shift
+      #    }
+      #
+      #    DEV_ReferenceFilter.setFocus();
+      #
       #    DEV_Global::showHint('Quick filters are available now.\n' +
       #                        'Create project with all referenced objects.\n' +
       #                        'Set breakpoints on the selected lines.\n' +
-      #                        'Use mouse double click on the path field to expend node in AOT.',
+      #                        'Use mouse double click on the path field to expand node in AOT.',
       #                        this.name(),
       #                        'Cross references');
       #    // << DEV:MXK <<
@@ -67,6 +112,21 @@ FORM #xRefReferencesUsedByTypedTree
         ENDFIELDLIST
       ENDOBJECTPOOL
       METHODS
+        SOURCE #active
+          #// >> DEV:MXK >>
+          #public int active()
+          #{
+          #    int ret;
+          #
+          #    ret = super();
+          #
+          #    EditButton.enabled(XRefReferences.line);
+          #    DEV_SetBreakpoint.enabled(XRefReferences.line);
+          #
+          #    return ret;
+          #}
+          #// << DEV:MXK <<
+        ENDSOURCE
         SOURCE #write
           #public void write()
           #{
@@ -80,6 +140,9 @@ FORM #xRefReferencesUsedByTypedTree
           #    QueryBuildDataSource            qbds = this.queryBuildDataSource();
           #    QueryBuildRange                 qbrReference;
           #    QueryBuildRange                 qbrSourceLine;
+          #    DictEnum                        dictEnum;
+          #
+          #    dictEnum = new DictEnum(enumNum(XRefReference));
           #
           #    qbrReference    = SysQuery::findOrCreateRange(qbds, fieldNum(XRefReferences, Reference));
           #    qbrSourceLine   = SysQuery::findOrCreateRange(qbds, fieldNum(XRefReferences, line));
@@ -95,7 +158,11 @@ FORM #xRefReferencesUsedByTypedTree
           #
           #    if (DEV_Filter.value())
           #    {
-          #        switch (DEV_ReferenceFilter.selection())
+          #        /*info(strFmt('%1 %2 %3', DEV_ReferenceFilter.selection(),
+          #                                refMap.lookup(DEV_ReferenceFilter.selection()),
+          #                                dictEnum.value2Symbol(refMap.lookup(DEV_ReferenceFilter.selection()))));*/
+          #
+          #        switch (refMap.lookup(DEV_ReferenceFilter.selection()))
           #        {
           #            case XRefReference::Definition:
           #                qbrReference.value(SysQuery::value(XRefReference::Definition));
@@ -133,7 +200,8 @@ FORM #xRefReferencesUsedByTypedTree
           #    {
           #        DEV_Filter.value(NoYes::No);
           #        DEV_Methods.value(NoYes::No);
-          #        XRefReferences_ds.executeQuery();
+          #        qbds.clearRanges();
+          #        super();
           #    }
           #}
           #// << DEV:MXK <<
@@ -281,11 +349,25 @@ FORM #xRefReferencesUsedByTypedTree
         ENDMETHODS
       ENDCONTROL 
       
+      CONTROL MENUBUTTON
+        PROPERTIES
+          Name                #MorphXtools
+          HelpText            #@SYS68574
+          ElementPosition     #1265481434
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS28637
+          MultiSelect         #Yes
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
       CONTROL BUTTON
         PROPERTIES
           Name                #DEV_CreateProject
           HelpText            #Creates project with all found elements.
-          ElementPosition     #1744830462
+          ElementPosition     #1840700268
           HierarchyParent     #ButtonGroup
           Text                #Create project
           MultiSelect         #Yes
@@ -370,8 +452,9 @@ FORM #xRefReferencesUsedByTypedTree
       CONTROL BUTTON
         PROPERTIES
           Name                #DEV_SetBreakpoint
+          AutoDeclaration     #Yes
           HelpText            #Sets a breakpoint for the selected line.
-          ElementPosition     #1342177278
+          ElementPosition     #1648960656
           HierarchyParent     #ButtonGroup
           Text                #Set breakpoint
           MultiSelect         #Yes
@@ -402,6 +485,21 @@ FORM #xRefReferencesUsedByTypedTree
             #}
             #// << DEV:MXK <<
           ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #EditButton
+          AutoDeclaration     #Yes
+          HelpText            #@SYS1300
+          ElementPosition     #1457221045
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS16569
+          MultiSelect         #Yes
+        ENDPROPERTIES
+        
+        METHODS
         ENDMETHODS
       ENDCONTROL 
       

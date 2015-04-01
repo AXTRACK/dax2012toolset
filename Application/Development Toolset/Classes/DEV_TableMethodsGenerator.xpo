@@ -428,6 +428,13 @@ Formatversion: 1
         #    SysContextMenu              sysContextMenu;
         #    TreeNode                    treeNode;
         #    DEV_TableMethodsGenerator   generator;
+        #    // >> DEV:MXK >>
+        #    SysVersionControlSystem     sysVersionControlSystem = versionControl.parmSysVersionControlSystem();
+        #    SysVersionControllable      sysVersionControllable;
+        #
+        #    boolean                     vcEnabled   = SysVersionControlParameters::isVCSEnabled();
+        #    boolean                     checkout;
+        #    // << DEV:MXK <<
         #
         #    setPrefix('Table methods generator');
         #
@@ -442,6 +449,30 @@ Formatversion: 1
         #        {
         #            while (treeNode)
         #            {
+        #                // >> DEV:MXK >>
+        #                if (vcEnabled)
+        #                {
+        #                    sysVersionControllable = SysTreeNode::newTreeNode(treeNode);
+        #
+        #                    if (    !sysVersionControllable
+        #                        ||  !sysVersionControlSystem.allowCreate(sysVersionControllable))
+        #                    {
+        #                        checkout = checkout ? checkout : Box::confirm('One or more tables need to check out. Proceed?');
+        #
+        #                        if (checkout)
+        #                        {
+        #                            versionControl.checkOut(treeNode);
+        #                        }
+        #                        else
+        #                        {
+        #                            warning(strFmt('Table %1 skipped', treeNode.treeNodeName()));
+        #                            treeNode = sysContextMenu.next();
+        #                            continue;
+        #                        }
+        #                    }
+        #                }
+        #                // << DEV:MXK <<
+        #
         #                try
         #                {
         #                    generator.generate();

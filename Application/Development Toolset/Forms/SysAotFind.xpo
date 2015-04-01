@@ -89,9 +89,9 @@ FORM #SysAotFind
       #}
       #
     ENDSOURCE
-    SOURCE #DEV_ExpendSelectedItem
+    SOURCE #DEV_ExpandSelectedItem
       #// >> DEV:MXK >>
-      #public void DEV_ExpendSelectedItem()
+      #public void DEV_ExpandSelectedItem()
       #{
       #    int                     itemIdx;
       #    FormListItem            selectedItem;
@@ -394,7 +394,7 @@ FORM #SysAotFind
       #
       #    DEV_Global::showHint('New options are avilable like match case or search the whole word.\n' +
       #                        'From the search results you can create a project or set breakpoints on the selected lines.\n' +
-      #                        'Most development forms that display AOT path can expend this path by mouse double click.',
+      #                        'Most development forms that display AOT path can expand this path by mouse double click.',
       #                        this.name(),
       #                        'Find');
       #    // << DEV:MXK <<
@@ -524,7 +524,7 @@ FORM #SysAotFind
       #        if ((p1==#TaskEnter) && (resultListView.name() == this.selectedControl().name()))
       #        {
       #            // >> DEV:MXK >>
-      #            element.DEV_ExpendSelectedItem();
+      #            element.DEV_ExpandSelectedItem();
       #            // << DEV:MXK <<
       #            // We don't allow you to edit System Documentation nodes
       #            if (subStr(initialTopNode.treeNodePath(),0,strLen(#SystemDocPath)) != #SystemDocPath)
@@ -603,7 +603,7 @@ FORM #SysAotFind
         PROPERTIES
           Name                #DEV_CreateProject
           HelpText            #Creates project with all found elements.
-          ElementPosition     #1861152493
+          ElementPosition     #1840700268
           HierarchyParent     #ButtonGroup
           Text                #Create project
           MultiSelect         #Yes
@@ -702,7 +702,7 @@ FORM #SysAotFind
         PROPERTIES
           Name                #DEV_SetBreakpoint
           HelpText            #Sets a breakpoint for the selected line.
-          ElementPosition     #1574821340
+          ElementPosition     #1533916890
           HierarchyParent     #ButtonGroup
           Text                #Set breakpoint
           MultiSelect         #Yes
@@ -797,7 +797,7 @@ FORM #SysAotFind
           Name                #FindNow
           AutoDeclaration     #Yes
           HelpText            #@SYS76776
-          ElementPosition     #644245092
+          ElementPosition     #613566756
           HierarchyParent     #ButtonGroup
           Text                #@SYS26822
           DefaultButton       #Yes
@@ -830,7 +830,7 @@ FORM #SysAotFind
           AutoDeclaration     #Yes
           Visible             #No
           HelpText            #@SYS58500
-          ElementPosition     #966367638
+          ElementPosition     #1227133512
           HierarchyParent     #ButtonGroup
           Text                #@SYS26823
         ENDPROPERTIES
@@ -900,7 +900,7 @@ FORM #SysAotFind
             #    #AOT
             #
             #    // >> DEV:MXK >>
-            #    element.DEV_ExpendSelectedItem();
+            #    element.DEV_ExpandSelectedItem();
             #    // << DEV:MXK <<
             #
             #    // We don't allow you to edit System Documentation nodes

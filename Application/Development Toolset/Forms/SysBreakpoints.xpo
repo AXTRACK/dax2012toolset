@@ -85,7 +85,7 @@ FORM #SysBreakpoints
           AutoDeclaration     #Yes
           HelpText            #@SYS27402
           SecurityKey         #SysDevelopment
-          ElementPosition     #1975684954
+          ElementPosition     #1908874351
           HierarchyParent     #ButtonGroup
           Text                #@SYS309329
           DefaultButton       #Yes
@@ -159,7 +159,7 @@ FORM #SysBreakpoints
         PROPERTIES
           Name                #DEV_CreateProject
           HelpText            #Creates project with all found elements.
-          ElementPosition     #2061584300
+          ElementPosition     #2028178998
           HierarchyParent     #ButtonGroup
           Text                #Create project
           MultiSelect         #Yes
@@ -318,7 +318,7 @@ FORM #SysBreakpoints
           AutoDeclaration     #Yes
           HelpText            #@SYS70469
           SecurityKey         #SysDevelopment
-          ElementPosition     #858993458
+          ElementPosition     #536870910
           HierarchyParent     #ButtonGroup
           Text                #@SYS453
           DefaultButton       #Yes
@@ -442,7 +442,7 @@ FORM #SysBreakpoints
         PROPERTIES
           Name                #DEV_Breakpoints
           AutoDeclaration     #Yes
-          ElementPosition     #1889785608
+          ElementPosition     #1789569704
           HierarchyParent     #ButtonGroup
           Text                #@SYS25246
           ButtonDisplay       #Text & Image left
@@ -469,7 +469,7 @@ FORM #SysBreakpoints
       CONTROL SEPARATOR
         PROPERTIES
           Name                #DEV_Separator
-          ElementPosition     #1803886262
+          ElementPosition     #1753778310
           HierarchyParent     #ButtonGroup
         ENDPROPERTIES
         

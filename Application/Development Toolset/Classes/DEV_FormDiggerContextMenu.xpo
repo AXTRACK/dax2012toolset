@@ -224,7 +224,7 @@ Formatversion: 1
         #    if (formDiggerTmpData.CtrlName)
         #        ret++;
         #
-        #    if (formDiggerTmpData.DataSourceTable)
+        #    if (formDiggerTmpData.FieldMethodName && formDiggerTmpData.DataSourceTable)
         #    {
         #        ret++;
         #
@@ -615,10 +615,12 @@ Formatversion: 1
         #                                false, false, 0, #OpenTable);
         #
         #        if (baseTable)
+        #        {
         #            popupMenu.insertItem(   strFmt( "%1 (%2)",
         #                                        baseTable,
         #                                        tableId2pname(tableName2id(baseTable))),
         #                                    false, false, 0, #OpenBaseTable);
+        #        }
         #
         #        if (formDiggerTmpData.DataSourceTable)
         #        {
@@ -887,12 +889,13 @@ Formatversion: 1
         #    dictEnum = new DictEnum(enumName2Id(formDiggerTmpData.Enum));
         #
         #    this.copyToClipboard('');
-        #
+        #    this.copyToClipboard('\tswitch()', true);
+        #    this.copyToClipboard('\t{', true);
         #    for (counter = 0; counter < dictEnum.values(); counter++)
         #    {
         #        if (WinAPI::isControlButtonDown())
         #        {
-        #            this.copyToClipboard(strFmt('\t\tcase %1::%2:\n\t\t\tbreak;', formDiggerTmpData.Enum, dictEnum.index2Symbol(counter)), true);
+        #            this.copyToClipboard(strFmt('\t\tcase %1::%2:\n\n\t\t\tbreak;\n', formDiggerTmpData.Enum, dictEnum.index2Symbol(counter)), true);
         #        }
         #        else if (WinAPI::isShiftButtonDown())
         #        {
@@ -903,6 +906,7 @@ Formatversion: 1
         #            this.copyToClipboard(strFmt('%1::%2', formDiggerTmpData.Enum, dictEnum.index2Symbol(counter)), true);
         #        }
         #    }
+        #    this.copyToClipboard('\t}', true);
         #}
         #// << DEV:MXK <<
       ENDSOURCE
@@ -1082,7 +1086,9 @@ Formatversion: 1
         #        else if (formDiggerTmpData.IsMethod)
         #        {
         #            treeNode = this.findMethodNode();
-        #            treeNode.AOTedit();
+        #
+        #            if (SysTreeNode::canEdit(treeNode))
+        #                treeNode.AOTedit();
         #        }
         #        else
         #        {

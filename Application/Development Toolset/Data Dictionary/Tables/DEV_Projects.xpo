@@ -276,6 +276,20 @@ Formatversion: 1
     ENDDELETEACTIONS
     
     METHODS
+      SOURCE #getTreeNodePath
+        #public TreeNodePath getTreeNodePath()
+        #{
+        #    TreeNodePath        ret;
+        #    ProjectNode         projectNode;
+        #
+        #    projectNode = SysTreeNode::getSharedProject().AOTfindChild(this.Name);
+        #
+        #    if (projectNode)
+        #        ret = projectNode.treeNodePath();
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
       SOURCE #initValue
         #public void initValue()
         #{

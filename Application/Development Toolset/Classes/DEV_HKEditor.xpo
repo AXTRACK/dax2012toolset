@@ -627,7 +627,8 @@ Formatversion: 1
         #
         #    if (treeNode)
         #    {
-        #        if (strStartsWith(treeNode.treeNodePath(), #MacrosPath + #AOTDelimiter))
+        #        if (    strStartsWith(treeNode.treeNodePath(), #MacrosPath + #AOTDelimiter)
+        #            &&  SysTreeNode::canEdit(treeNode))
         #        {
         #            treeNode.AOTedit();
         #        }

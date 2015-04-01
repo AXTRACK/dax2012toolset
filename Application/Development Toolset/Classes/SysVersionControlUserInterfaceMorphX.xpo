@@ -1,0 +1,130 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysVersionControlUserInterfaceMorphX unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysVersionControlUserInterfaceMorphX
+    PROPERTIES
+      Name                #SysVersionControlUserInterfaceMorphX
+      Origin              #{2D230000-0000-1000-E3C1-AB7066559CB5}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #promptForFolder
+        #/// <summary>
+        #/// Prompts the user for the folder on which to operate during a task.
+        #/// </summary>
+        #/// <param name="_additionalFolders">
+        #/// The additional folders that should be included in the prompt.
+        #/// </param>
+        #/// <param name="_selectMultiple">
+        #/// A Boolean value that indicates whether multiple folders can be selected; optional.
+        #/// </param>
+        #/// <param name="_includeLabels">
+        #/// A Boolean value that indicates whether the folder for labels should be included in the prompt;
+        #/// optional.
+        #/// </param>
+        #/// <param name="_controllable">
+        #/// A <c>SysVersionControllable</c> interface; optional.
+        #/// </param>
+        #/// <returns>
+        #/// The folders that are selected by the user.
+        #/// </returns>
+        #/// <remarks>
+        #///  <list type="bullet">
+        #///   <item>
+        #///   <description>Synchronization of repository</description>
+        #///   </item>
+        #///   <item>
+        #///    <description>
+        #///    Add the <c>SysVersionControllable</c> field interface to version control
+        #///    </description>
+        #///   </item>
+        #///  </list>
+        #///   The <paramref name="_selectMultiple" />
+        #///   parameter is only used for a synchronization of repository tasks. It is not possible to add a
+        #///  single
+        #///  <c>
+        #///  SysVersionControllable
+        #///  </c>
+        #///   interface to multiple folders in one operation.
+        #/// </remarks>
+        #public Set promptForFolder(Map _additionalFolders,
+        #    boolean _selectMultiple = false,
+        #    boolean _includeLabels = false,
+        #    SysVersionControllable _controllable = null)
+        #{
+        #    container       selections;
+        #    container       selection;
+        #    MapEnumerator   enum;
+        #    Map             selectionMap;
+        #    int             i;
+        #    boolean         ok;
+        #    container       selectedId;
+        #    Set             result = new Set(Types::String);
+        #
+        #    if (_additionalFolders.elements() > 1 || _selectMultiple)
+        #    {
+        #        selectionMap = new Map(Types::Integer, Types::String);
+        #        enum = _additionalFolders.getEnumerator();
+        #        i = 1;
+        #        while (enum.moveNext())
+        #        {
+        #            selections += [SysListSelect::packChoice((_includeLabels ? ' ' : '') +enum.currentKey()+'\n'+enum.currentValue(), i, strfmt('%1', currentAOLayer())==enum.currentKey())];
+        #            selectionMap.insert(i, enum.currentKey());
+        #            i++;
+        #        }
+        #        if(_includeLabels)
+        #        {
+        #            selections += [SysListSelect::packChoice(#LabelsFolder+'\n'+"@SYS98539", i, false)];
+        #            selectionMap.insert(i, #LabelsFolder);
+        #        }
+        #        if(_selectMultiple)
+        #        {
+        #            // Due to model import import cannot be enforced we only allow selecting one folder at a time.
+        #            // >> DEV:MXK >>
+        #            //selection = selectSingle("@SYS98531", "@SYS98532", selections, ["@SYS80257","@SYP4312253"]);
+        #            selection = selectMultiple("@SYS98531", "@SYS98532", selections, ["@SYS80257","@SYP4312253"]);
+        #            // << DEV:MXK <<
+        #        }
+        #        else
+        #        {
+        #            if (_controllable != null)
+        #            {
+        #                selection = selectSingle("@SYS88005", strfmt("@SYS109675", _controllable.versionControlItemPath()), selections, ["@SYS80257","@SYP4312253"]);
+        #            }
+        #            else
+        #            {
+        #                selection = selectSingle("@SYS88005", "@SYS88007", selections, ["@SYS80257","@SYP4312253"]);
+        #            }
+        #        }
+        #
+        #        [ok, selectedId] = selection;
+        #        if (ok && conpeek(selectedId, 1))
+        #        {
+        #            for(i=1; i<=conlen(selectedId); i++)
+        #                result.add(selectionMap.lookup(conpeek(selectedId,i)));
+        #            return result;
+        #        }
+        #    }
+        #    else
+        #    {
+        #        enum = _additionalFolders.getEnumerator();
+        #        if (enum.moveNext())
+        #        {
+        #            result.add(enum.currentKey());
+        #            return result;
+        #        }
+        #    }
+        #
+        #    throw error("@SYS70800");
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

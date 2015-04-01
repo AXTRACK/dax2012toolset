@@ -1,0 +1,186 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysTreeNode unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysTreeNode
+    PROPERTIES
+      Name                #SysTreeNode
+      Extends             #SysVersionControllableBase
+      Origin              #{2D0B0423-0000-1000-08FA-71D18165654E}
+      LegacyId            #1059
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #allowCheckIn
+        #public boolean allowCheckIn(SysVersionControlSettings _settings)
+        #{
+        #    SysCompilationResultProvider compilerOutput;
+        #    SysVersionControlUserInterfaceProvider uiProvider;
+        #    TmpCompilerOutput   tmpCompilerOutput;
+        #    Args                args;
+        #    SysBPParameters     bpParameters;
+        #    boolean             ret = !SysTreeNode::isUnwanted(treeNode);
+        #    SysSourceNameWash   sysSourceNameWash;
+        #    TreeNodeTraverser   traverser;
+        #    TreeNode            child;
+        #    int                 line;
+        #
+        #    if (_settings.parmRunTitleCaseUpdate())
+        #    {
+        #        line = infologLine();
+        #        sysSourceNameWash = new SysSourceNameWash();
+        #
+        #        traverser = new TreeNodeTraverser(treeNode);
+        #        while (traverser.next())
+        #        {
+        #            child = traverser.currentNode();
+        #
+        #            if (SysTreeNode::hasSource(child) &&
+        #                !SysTreeNode::isSourceText(child))
+        #            {
+        #                sysSourceNameWash.replaceNode(child);
+        #            }
+        #        }
+        #        treeNode.AOTsave();
+        #        infolog.clear(line);
+        #    }
+        #
+        #    compilerOutput = infolog.compilerOutput() as SysCompilationResultProvider;
+        #
+        #    if (compilerOutput)
+        #    {
+        #        uiProvider = versioncontrol.parmUserInterfaceProvider();
+        #
+        #        if (_settings.parmGateCompileErrors() != SysVersionControlGateSetting::Accept ||
+        #            _settings.parmGateCompileWarnings() != SysVersionControlGateSetting::Accept ||
+        #            _settings.parmGateCompileToDos() != SysVersionControlGateSetting::Accept)
+        #        {
+        #            SysCompilerOutput::setCompilerTarget(SysCompilerTarget::CompilerDialog);
+        #            // >> DEV:MXK >>
+        #            //xUserInfo::compilerWarningLevel(CompilerWarningLevel::Level4);
+        #            if (xUserInfo::compilerWarningLevel() < CompilerWarningLevel::Level3)
+        #                xUserInfo::compilerWarningLevel(CompilerWarningLevel::Level3);
+        #            // << DEV:MXK <<
+        #            SysCompilerOutput::updateParm();
+        #
+        #            treeNode.AOTcompile();
+        #
+        #            if (_settings.parmGateCompileErrors() != SysVersionControlGateSetting::Accept &&
+        #                compilerOutput.errorCount())
+        #            {
+        #                tmpCompilerOutput = compilerOutput.compilerOutput();
+        #
+        #                select firstonly tmpCompilerOutput
+        #                    where tmpCompilerOutput.TreeNodePath like SysCompilerOutput::buildLikePath(treeNode.treeNodePath())
+        #                       && tmpCompilerOutput.SysCompilerSeverity == SysCompilerSeverity::Error
+        #                       && tmpCompilerOutput.SysCompilerOutputTab == SysCompilerOutputTab::Error;
+        #
+        #                if (tmpCompilerOutput)
+        #                {
+        #                    if (_settings.parmGateCompileErrors() == SysVersionControlGateSetting::Prompt)
+        #                    {
+        #                        warning(strFmt("@SYS86011",treeNode.treeNodePath()));
+        #                    }
+        #                    else
+        #                    {
+        #                        ret = checkFailed(strFmt("@SYS86011",treeNode.treeNodePath()));
+        #                    }
+        #                }
+        #            }
+        #            if (_settings.parmGateCompileWarnings() != SysVersionControlGateSetting::Accept &&
+        #                compilerOutput.warningCount())
+        #            {
+        #                tmpCompilerOutput = compilerOutput.compilerOutput();
+        #
+        #                select firstonly tmpCompilerOutput
+        #                    where tmpCompilerOutput.TreeNodePath like SysCompilerOutput::buildLikePath(treeNode.treeNodePath())
+        #                       && (tmpCompilerOutput.SysCompilerSeverity == SysCompilerSeverity::WarningLevel1
+        #                        || tmpCompilerOutput.SysCompilerSeverity == SysCompilerSeverity::WarningLevel2
+        #                        || tmpCompilerOutput.SysCompilerSeverity == SysCompilerSeverity::WarningLevel3)
+        #                       && tmpCompilerOutput.SysCompilerOutputTab == SysCompilerOutputTab::Error;
+        #
+        #                if (tmpCompilerOutput)
+        #                {
+        #                    if (_settings.parmGateCompileWarnings() == SysVersionControlGateSetting::Prompt)
+        #                    {
+        #                        warning(strFmt("@SYS86012",treeNode.treeNodePath()));
+        #                    }
+        #                    else
+        #                    {
+        #                        ret = checkFailed(strFmt("@SYS86012",treeNode.treeNodePath()));
+        #                    }
+        #                }
+        #            }
+        #            if (_settings.parmGateCompileToDos() != SysVersionControlGateSetting::Accept &&
+        #                compilerOutput.toDoCount())
+        #            {
+        #                tmpCompilerOutput = compilerOutput.compilerOutput();
+        #
+        #                select firstonly tmpCompilerOutput
+        #                    where tmpCompilerOutput.TreeNodePath like SysCompilerOutput::buildLikePath(treeNode.treeNodePath())
+        #                       && tmpCompilerOutput.SysCompilerOutputTab == SysCompilerOutputTab::ToDo;
+        #
+        #                if (tmpCompilerOutput)
+        #                {
+        #                    if (_settings.parmGateCompileToDos() == SysVersionControlGateSetting::Prompt)
+        #                    {
+        #                        warning(strFmt("@SYS86013",treeNode.treeNodePath()));
+        #                    }
+        #                    else
+        #                    {
+        #                        ret = checkFailed(strFmt("@SYS86013",treeNode.treeNodePath()));
+        #                    }
+        #                }
+        #            }
+        #        }
+        #
+        #        if (_settings.parmGateBestPracticeErrors() != SysVersionControlGateSetting::Accept)
+        #        {
+        #            bpParameters.initValue();
+        #            bpParameters.WarningLevel = SysBPWarningLevel::Error;
+        #
+        #            args = new Args();
+        #            args.object(treeNode);
+        #            args.record(bpParameters);
+        #
+        #            SysBPCheck::main(args);
+        #
+        #            if (compilerOutput.bestPracticesCount())
+        #            {
+        #                tmpCompilerOutput = compilerOutput.compilerOutput();
+        #
+        #                select firstonly tmpCompilerOutput
+        #                    where tmpCompilerOutput.TreeNodePath like SysCompilerOutput::buildLikePath(treeNode.treeNodePath())
+        #                       && tmpCompilerOutput.SysCompilerOutputTab == SysCompilerOutputTab::BestPractices;
+        #
+        #                if (tmpCompilerOutput)
+        #                {
+        #                    if (_settings.parmGateBestPracticeErrors() == SysVersionControlGateSetting::Prompt)
+        #                    {
+        #                        warning(strFmt("@SYS86014",treeNode.treeNodePath()));
+        #                    }
+        #                    else
+        #                    {
+        #                        ret = checkFailed(strFmt("@SYS86014",treeNode.treeNodePath()));
+        #                    }
+        #                }
+        #            }
+        #        }
+        #    }
+        #    else
+        #    {
+        #        throw error(strFmt("@SYS111250", this.name()));
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

@@ -30,6 +30,10 @@ FORM #DEV_HKSetup
       #    JmgClockVisualization       clockVis;
       #
       #    Binary                      custColor;
+      #
+      #    boolean                     isAbout;
+      #    boolean                     isCredits;
+      #    boolean                     isLicense;
       #}
     ENDSOURCE
     SOURCE #addImage
@@ -304,14 +308,20 @@ FORM #DEV_HKSetup
       #void setAboutText()
       #{
       #    str         s;
-      #
-      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>Development toolset';
-      #    s += ' is an enhanced build of multiple utilities created by a group of independant developers. The';
-      #    s += ' main purpose of this build is to allow easy setup and configuration of those';
-      #    s += ' and provide a better development experience in the Microsoft Dynamics AX environment.';
-      #    s += ' The groups of users who will benefit from this build would be developers, consultans, architects etc.';
+      #    //https://dax2012toolset.codeplex.com/
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>Development toolset (DT)';
+      #    s += ' is an enhanced compilation of various tools and tweaks. DT contains multiple tweaks for';
+      #    s += ' the majority of standard development tools available in AX.';
+      #    s += ' It is designed to be used in both standalone and shared development environments';
+      #    s += ' allowing personalised setup for each developer and giving additional control for DEV_Admin user.';
       #    s += ' In order to access this tools you would need to have a Developer rights in AX.';
       #    s += ' The major utilities included in this build are listed below.</p>';
+      #
+      #    s += ' <p class=MsoNormal><span lang=EN-US style=\'mso-ansi-language:EN-US\'>';
+      #    s += ' The purpose of DT is to provide a better development experience in a Microsoft Dynamics AX single';
+      #    s += ' or shared environment with a minimum code changes and maximum flexibility. The groups of users';
+      #    s += ' who would benefit the most from the DT are those having development access. However other users';
+      #    s += ' also might benefit from DT in the day-to-day job.</p>';
       #
       #    // 1 - FormDigger
       #    s += ' <p class=MsoNormal align=center style=\'text-align:center\'><b style=\'mso-bidi-font-weight:';
@@ -573,9 +583,6 @@ FORM #DEV_HKSetup
       #        adminParameters = DEV_UserParameters::findOrCreate(#DEV_AdminUser);
       #    }
       #
-      #    //info(strFmt('%1 == %2', curUserId(), #DEV_AdminUser));
-      #    //info(strFmt('%1', (isAdminUser || !adminParameters.EnvAdminControlled)));
-      #
       #    GroupEnvHighlight_EnvAdminControlled.visible(   isAdminUser);
       #    GroupEnvironment_EnvironmentName.enabled(       isAdminUser || !adminParameters.EnvAdminControlled);
       #    GroupEnvHighlight_EnvMainCaption.enabled(       isAdminUser || !adminParameters.EnvAdminControlled);
@@ -734,7 +741,7 @@ FORM #DEV_HKSetup
       #
       #    s += '<p class=MsoNormal align=center style=\'text-align:center\'><b style=\'mso-bidi-font-weight:';
       #    s += 'normal\'><span lang=EN-US style=\'font-size:11.0pt;line-height:115%;mso-ansi-language:';
-      #    s += 'EN-US\'><a href=\'\'>Microsoft Dynamics AX 2012 Development toolset';
+      #    s += 'EN-US\'><a href=https://dax2012toolset.codeplex.com>Microsoft Dynamics AX 2012 Development toolset';
       #    s += '</a></span></b><span lang=EN-US style=\'mso-ansi-language:EN-US\'><u1:p></u1:p></span></p>';
       #
       #    s += 'This license governs use of the accompanying software. If you use the software, you accept this license. ';
@@ -1121,7 +1128,7 @@ FORM #DEV_HKSetup
       CONTROL GROUP
         PROPERTIES
           Name                #AboutBody
-          ElementPosition     #1610612733
+          ElementPosition     #1610612734
           HierarchyParent     #AboutTab
           Style               #TOCTopicSimple
         ENDPROPERTIES
@@ -1151,7 +1158,7 @@ FORM #DEV_HKSetup
       CONTROL GROUP
         PROPERTIES
           Name                #CreditsBody
-          ElementPosition     #1610612733
+          ElementPosition     #1610612734
           HierarchyParent     #CreaditsTab
           Style               #TOCTopicSimple
         ENDPROPERTIES
@@ -1277,6 +1284,21 @@ FORM #DEV_HKSetup
       
       CONTROL GROUP
         PROPERTIES
+          Name                #GroupMaintenance
+          Width               #Column width
+          ElementPosition     #1431655764
+          HierarchyParent     #TabPageMaintenance
+          Style               #TOCTopicFastTabs
+          DataSource          #DEV_UserParameters
+          DataGroup           #Maintenance
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
           Name                #GroupMiscellaneous
           ElementPosition     #1717986916
           HierarchyParent     #GroupGeneral
@@ -1371,7 +1393,7 @@ FORM #DEV_HKSetup
       CONTROL GROUP
         PROPERTIES
           Name                #LicenseBody
-          ElementPosition     #1610612733
+          ElementPosition     #1610612734
           HierarchyParent     #LicenseTab
           Style               #TOCTopicSimple
         ENDPROPERTIES
@@ -1429,7 +1451,7 @@ FORM #DEV_HKSetup
           Name                #Tab
           Width               #Column width
           Height              #Column height
-          ElementPosition     #954437176
+          ElementPosition     #1014089499
           Style               #VerticalTabs
         ENDPROPERTIES
         
@@ -1447,9 +1469,16 @@ FORM #DEV_HKSetup
         
         METHODS
           SOURCE #pageActivated
+            #// >> DEV:MXK >>
             #public void pageActivated()
             #{
             #    super();
+            #
+            #    if (!isAbout)
+            #    {
+            #        WebBrowserAbout.Navigate("https://dax2012toolset.codeplex.com/");
+            #        isAbout = true;
+            #    }
             #
             #    if (!clockVis)
             #    {
@@ -1457,6 +1486,7 @@ FORM #DEV_HKSetup
             #        clockVis.parmShowSeconds(true);
             #    }
             #}
+            #// << DEV:MXK <<
           ENDSOURCE
         ENDMETHODS
       ENDCONTROL 
@@ -1464,12 +1494,26 @@ FORM #DEV_HKSetup
       CONTROL TABPAGE
         PROPERTIES
           Name                #CreaditsTab
-          ElementPosition     #1807465400
+          ElementPosition     #1783604471
           HierarchyParent     #Tab
           Caption             #Credits
         ENDPROPERTIES
         
         METHODS
+          SOURCE #pageActivated
+            #// >> DEV:MXK >>
+            #public void pageActivated()
+            #{
+            #    super();
+            #
+            #    /*if (!isCredits)
+            #    {
+            #        WebBrowserCredits.Navigate("https://dax2012toolset.codeplex.com/wikipage?title=Credits");
+            #        isCredits = true;
+            #    */
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
         ENDMETHODS
       ENDCONTROL 
       
@@ -1488,12 +1532,26 @@ FORM #DEV_HKSetup
       CONTROL TABPAGE
         PROPERTIES
           Name                #LicenseTab
-          ElementPosition     #1977474522
+          ElementPosition     #1965544058
           HierarchyParent     #Tab
           Caption             #License
         ENDPROPERTIES
         
         METHODS
+          SOURCE #pageActivated
+            #// >> DEV:MXK >>
+            #public void pageActivated()
+            #{
+            #    super();
+            #
+            #    /*if (!isLicense)
+            #    {
+            #        WebBrowserLicense.Navigate("https://dax2012toolset.codeplex.com/license");
+            #        isLicense = true;
+            #    }*/
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
         ENDMETHODS
       ENDCONTROL 
       
@@ -1543,6 +1601,19 @@ FORM #DEV_HKSetup
       
       CONTROL TABPAGE
         PROPERTIES
+          Name                #TabPageMaintenance
+          ElementPosition     #1610612734
+          HierarchyParent     #ParametersFastTab
+          Caption             #@SYS73307
+          FastTabExpanded     #Yes
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
           Name                #TabPagePath
           ElementPosition     #1431655764
           HierarchyParent     #ParametersFastTab
@@ -1578,6 +1649,74 @@ FORM #DEV_HKSetup
         
         METHODS
         ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIVEX
+        PROPERTIES
+          Name                #WebBrowserAbout
+          AllowEdit           #No
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1073741822
+          HierarchyParent     #AboutBody
+          Caption             #Microsoft Web Browser
+          ClassName           #{8856F961-340A-11D0-A96B-00C04FD705A2}
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+        BINARY 0
+          
+        ENDBINARY
+        BINARY 1
+          00
+        ENDBINARY
+      ENDCONTROL 
+      
+      CONTROL ACTIVEX
+        PROPERTIES
+          Name                #WebBrowserCredits
+          Visible             #No
+          AllowEdit           #No
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1073741822
+          HierarchyParent     #CreditsBody
+          Caption             #Microsoft Web Browser
+          ClassName           #{8856F961-340A-11D0-A96B-00C04FD705A2}
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+        BINARY 0
+          
+        ENDBINARY
+        BINARY 1
+          00
+        ENDBINARY
+      ENDCONTROL 
+      
+      CONTROL ACTIVEX
+        PROPERTIES
+          Name                #WebBrowserLicense
+          Visible             #No
+          AllowEdit           #No
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1073741822
+          HierarchyParent     #LicenseBody
+          Caption             #Microsoft Web Browser
+          ClassName           #{8856F961-340A-11D0-A96B-00C04FD705A2}
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+        BINARY 0
+          
+        ENDBINARY
+        BINARY 1
+          00
+        ENDBINARY
       ENDCONTROL 
       
       CONTROL BUTTON
@@ -1638,17 +1777,17 @@ FORM #DEV_HKSetup
             #        {
             #            case DEV_HKActionType::AOTAction:
             #                    node = TreeNode::findNode(#ClassesPath + #AOTDelimiter + #HKAOT + #AOTDelimiter + HKSetup.ActionElementName);
-            #                    if (node)
+            #                    if (node && SysTreeNode::canEdit(node))
             #                        node.AOTedit();
             #                    break;
             #            case DEV_HKActionType::EditorAction:
             #                    node = TreeNode::findNode(#ClassesPath + #AOTDelimiter + #HKEditor + #AOTDelimiter + HKSetup.ActionElementName);
-            #                    if (node)
+            #                    if (node && SysTreeNode::canEdit(node))
             #                        node.AOTedit();
             #                    break;
             #            case DEV_HKActionType::EditorScript:
             #                    node = TreeNode::findNode(#ClassesPath + #AOTDelimiter + #EditorScripts + #AOTDelimiter + HKSetup.ActionElementName);
-            #                    if (node)
+            #                    if (node && SysTreeNode::canEdit(node))
             #                        node.AOTedit();
             #                    break;
             #            case DEV_HKActionType::OpenForm:
@@ -1673,7 +1812,7 @@ FORM #DEV_HKSetup
             #                    break;
             #            case DEV_HKActionType::Common:
             #                    node = TreeNode::findNode(#ClassesPath + #AOTDelimiter + #HKCommon + #AOTDelimiter + HKSetup.ActionElementName);
-            #                    if (node)
+            #                    if (node && SysTreeNode::canEdit(node))
             #                        node.AOTedit();
             #                    break;
             #            default:
@@ -2005,9 +2144,10 @@ FORM #DEV_HKSetup
       CONTROL HTML
         PROPERTIES
           Name                #AboutHTML
+          Visible             #No
           Width               #Column width
           Height              #Column height
-          ElementPosition     #1431655764
+          ElementPosition     #1610612733
           HierarchyParent     #AboutBody
         ENDPROPERTIES
         
@@ -2026,7 +2166,7 @@ FORM #DEV_HKSetup
           Name                #CreaditsHTML
           Width               #Column width
           Height              #Column height
-          ElementPosition     #1431655764
+          ElementPosition     #1610612733
           HierarchyParent     #CreditsBody
         ENDPROPERTIES
         
@@ -2045,7 +2185,7 @@ FORM #DEV_HKSetup
           Name                #LicenseHTML
           Width               #Column width
           Height              #Column height
-          ElementPosition     #1431655764
+          ElementPosition     #1610612733
           HierarchyParent     #LicenseBody
         ENDPROPERTIES
         
@@ -2148,11 +2288,11 @@ FORM #DEV_HKSetup
       
       CONTROL MENUITEMBUTTON
         PROPERTIES
-          Name                #DEV_xRefSearch
+          Name                #DEV_xRefElements
           ElementPosition     #1073741823
           HierarchyParent     #OpenButtonGroup
           ButtonDisplay       #Text & Image left
-          MenuItemName        #DEV_xRefSearch
+          MenuItemName        #DEV_xRefElements
         ENDPROPERTIES
         
         METHODS
@@ -2239,7 +2379,7 @@ FORM #DEV_HKSetup
           Name                #CreditsStaticText
           ElementPosition     #1431655764
           HierarchyParent     #CreditsTitle
-          Text                #Credits and Thanks
+          Text                #Credits
           Style               #MainInstruction
         ENDPROPERTIES
         
@@ -2521,6 +2661,19 @@ FORM #DEV_HKSetup
           HierarchyParent     #GroupShortComments
           DataSource          #DEV_UserParameters
           DataField           #ShortCommentStartFmt
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupXppCompile_XppcompileallParm
+          ElementPosition     #1431655764
+          HierarchyParent     #GroupMaintenance
+          DataSource          #DEV_UserParameters
+          DataField           #XppcompileallParm
         ENDPROPERTIES
         
         METHODS

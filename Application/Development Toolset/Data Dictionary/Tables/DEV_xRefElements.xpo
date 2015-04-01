@@ -11,7 +11,7 @@ Formatversion: 1
     EnforceFKRelation 1
     PROPERTIES
       Name                #DEV_xRefElements
-      Label               #@SYS115382
+      Label               #Element-reference
       FormRef             #DEV_xRefSearch
       TitleField1         #Label
       TitleField2         #ImageRes
@@ -55,7 +55,6 @@ Formatversion: 1
           Name                #Embedded
           AllowEditOnCreate   #No
           AllowEdit           #No
-          Visible             #No
           Table               #DEV_xRefElements
           Origin              #{CECE2113-14AA-4BB6-91B1-6DF81A67289C}
           ExtendedDataType    #NoYesId
@@ -111,10 +110,24 @@ Formatversion: 1
           StringSize          #255
         ENDPROPERTIES
         
+      FIELD #LanguageId
+        STRING
+        PROPERTIES
+          Name                #LanguageId
+          Mandatory           #Yes
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #DEV_xRefElements
+          Origin              #{7103A7D0-031C-46BC-AF6A-DB2DD4F34A17}
+          ExtendedDataType    #LanguageId
+          StringSize          #7
+        ENDPROPERTIES
+        
       FIELD #Name
         STRING
         PROPERTIES
           Name                #Name
+          Label               #@SYS31438
           AllowEditOnCreate   #No
           AllowEdit           #No
           Table               #DEV_xRefElements
@@ -131,7 +144,7 @@ Formatversion: 1
           AllowEdit           #No
           Table               #DEV_xRefElements
           Origin              #{CA6B1BEF-44A2-4E67-AC9F-0640CDC80E2D}
-          EnumType            #UtilElementType
+          EnumType            #DEV_xRefType
         ENDPROPERTIES
         
     ENDFIELDS
@@ -231,16 +244,73 @@ Formatversion: 1
         #Type
       ENDINDEXFIELDS
       
+      #NameIdx
+      PROPERTIES
+        Name                #NameIdx
+        Origin              #{2688A5DD-FEFD-460D-ADC6-79E827F801E2}
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #Name
+      ENDINDEXFIELDS
+      
     ENDINDICES
     FULLTEXTINDICES
     ENDFULLTEXTINDICES
     REFERENCES
+      REFERENCE #LanguageTable
+        PROPERTIES
+          Name                #LanguageTable
+          Table               #LanguageTable
+          UseDefaultRoleNames #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #LanguageId
+            RelatedField        #LanguageId
+          ENDPROPERTIES
+          
+          REFERENCETYPE EXTERNFIXED
+          PROPERTIES
+            Value               #1
+            Table               #LanguageTable
+            RelatedField        #LabelFile
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
     ENDREFERENCES
     
     DELETEACTIONS
     ENDDELETEACTIONS
     
     METHODS
+      SOURCE #initValue
+        #// >> DEV:MXK >>
+        #public void initValue()
+        #{
+        #    super();
+        #
+        #    this.LanguageId = xUserInfo::find().language;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #tableRows
+        #// >> DEV:MXK >>
+        #display int tableRows()
+        #{
+        #    int     ret;
+        #
+        #    if (    this.Type       == DEV_xRefType::Tables
+        #        &&  this.ImageRes   == TableType::Regular)
+        #        ret = DEV_Global::countTableRows(tableName2id(this.Name));
+        #
+        #    return ret;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
     ENDMETHODS
   ENDTABLE
   

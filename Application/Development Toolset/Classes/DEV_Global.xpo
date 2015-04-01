@@ -170,6 +170,106 @@ Formatversion: 1
         #// << DEV:MXK <<
         #
       ENDSOURCE
+      SOURCE #countDistinct
+        #public static server int countDistinct( TableId     _tableId,
+        #                                        FieldId     _countFieldId,
+        #                                        container   _whereCon   = conNull())
+        #{
+        #    str                             sql;
+        #    Connection                      userConnection;
+        #    SqlStatementExecutePermission   permission;
+        #    Statement                       stmt;
+        #    ResultSet                       sqlres;
+        #    SqlSystem                       sqlSystem   = new SqlSystem();
+        #    DictTable                       dictTable   = new DictTable(_tableId);
+        #    int                             whereLen    = conLen(_whereCon);
+        #    int                             i;
+        #    boolean                         isWhere;
+        #
+        #    //Setup the connection needed to send the command to SQL Server.
+        #    userConnection  = new Connection();
+        #    stmt            = userConnection.createStatement();
+        #
+        #    //BP Deviation Documented
+        #    sql = 'SELECT count(DISTINCT %1) FROM %2';
+        #
+        #    if (dictTable.dataPerPartition())
+        #    {
+        #        sql += ' WHERE %3 = %4';
+        #        isWhere = true;
+        #    }
+        #
+        #    if (dictTable.dataPrCompany())
+        #    {
+        #        sql += isWhere ? ' AND %5 = %6' : ' WHERE %5 = %6';
+        #        isWhere = true;
+        #    }
+        #
+        #    if (whereLen)
+        #    {
+        #        sql += isWhere ? ' AND' : ' WHERE';
+        #    }
+        #
+        #    sql = strFmt(sql,
+        #                 ReleaseUpdateDB::backendFieldName(_tableId, _countFieldId),
+        #                 ReleaseUpdateDB::backendTableName(_tableId),
+        #                 ReleaseUpdateDB::backendFieldName(_tableId, fieldNum(Common, Partition)),
+        #                 getcurrentpartitionrecid(),
+        #                 ReleaseUpdateDB::backendFieldName(_tableId, fieldNum(Common, DataAreaId)),
+        #                 sqlSystem.sqlLiteral(curext()));
+        #
+        #    for (i = 1; i <= whereLen; i+=2)
+        #    {
+        #        sql += strFmt(  ((i == 1) ? ' %' : ' AND %') + int2str(i) +' = %' + int2str(i + 1),
+        #                        ReleaseUpdateDB::backendFieldName(_tableId, conPeek(_whereCon, i)),
+        #                        sqlSystem.sqlLiteral(conPeek(_whereCon, i + 1)));
+        #    }
+        #
+        #    permission = new SqlStatementExecutePermission(sql);
+        #    permission.assert();
+        #
+        #    //BP Deviation Documented
+        #    sqlres = stmt.executeQuery(sql);
+        #    CodeAccessPermission::revertAssert();
+        #
+        #    //Select queries record
+        #    sqlres.next();
+        #
+        #    return sqlres.getInt(1);
+        #}
+      ENDSOURCE
+      SOURCE #countTableRows
+        #public static server int countTableRows(TableId _tableId)
+        #{
+        #    str                             sql;
+        #    Connection                      userConnection;
+        #    SqlStatementExecutePermission   permission;
+        #    Statement                       stmt;
+        #    ResultSet                       sqlres;
+        #
+        #    //Setup the connection needed to send the command to SQL Server.
+        #    userConnection  = new Connection();
+        #    stmt            = userConnection.createStatement();
+        #
+        #    //BP Deviation Documented
+        #    sql =       'SELECT SUM (row_count) '
+        #            +   'FROM sys.dm_db_partition_stats '
+        #            +   'WHERE object_id = OBJECT_ID(\'' + ReleaseUpdateDB::backendTableName(_tableId) +'\') '
+        #            +   'AND (index_id = 0 or index_id = 1);';
+        #
+        #    permission = new SqlStatementExecutePermission(sql);
+        #    permission.assert();
+        #
+        #    //BP Deviation Documented
+        #    sqlres = stmt.executeQuery(sql);
+        #    CodeAccessPermission::revertAssert();
+        #
+        #    //Select queries record
+        #    sqlres.next();
+        #
+        #    return sqlres.getInt(1);
+        #}
+      ENDSOURCE
       SOURCE #createProject
         #public static SysProjectFilterRunBase createProject(SharedProjectName       _projectName,
         #                                                    ProjectSharedPrivate    _projectType = ProjectSharedPrivate::ProjPrivate)
@@ -212,6 +312,14 @@ Formatversion: 1
         #
         #    return ret;
         #}
+      ENDSOURCE
+      SOURCE #directoryServer
+        #// >> DEV:MXK >>
+        #public static server FilePath directoryServer(DirectoryType _directoryType)
+        #{
+        #    return XInfo::directory(_directoryType);
+        #}
+        #// << DEV:MXK <<
       ENDSOURCE
       SOURCE #editorPath
         #// >> DEV:MXK >>
@@ -349,14 +457,6 @@ Formatversion: 1
         #    }
         #
         #    return imageRes;
-        #}
-        #// << DEV:MXK <<
-      ENDSOURCE
-      SOURCE #getServerBinPath
-        #// >> DEV:MXK >>
-        #public static server FilePath getServerBinPath()
-        #{
-        #    return XInfo::directory(DirectoryType::Bin);
         #}
         #// << DEV:MXK <<
       ENDSOURCE
@@ -520,26 +620,33 @@ Formatversion: 1
         #// >> DEV:MXK >>
         #public static void lookupEmbeddedImg(ImageRes _imageRes)
         #{
-        #    Args                args = new Args(formstr(DEV_xRefIcons));
+        #    Args                args = new Args(formstr(DEV_xRefElements));
         #    FormRun             xRefIconsFormRun;
-        #    FormStringControl   fsc;
-        #    FormCheckBoxControl fcbc;
+        #    FormStringControl   fstrc;
+        #    FormCheckBoxControl fchbc;
+        #    FormComboBoxControl fcobc;
         #
         #    xRefIconsFormRun = classFactory.formRunClass(args);
         #    xRefIconsFormRun.init();
         #    xRefIconsFormRun.run();
         #
         #    // Set option for the Embedded
-        #    fcbc = xRefIconsFormRun.design().controlName(identifierStr(CheckBoxEmbedded));
-        #    fcbc.setFocus();
-        #    fcbc.checked(true);
-        #    fcbc.clicked();
+        #    fcobc = xRefIconsFormRun.design().controlName(identifierStr(ElementType));
+        #    fcobc.setFocus();
+        #    fcobc.selection(DEV_xRefType::Resources);
+        #    fcobc.selectionChange();
+        #
+        #    // Set option for the Embedded
+        #    fchbc = xRefIconsFormRun.design().controlName(identifierStr(CheckBoxEmbedded));
+        #    fchbc.setFocus();
+        #    fchbc.checked(true);
+        #    fchbc.clicked();
         #
         #    // Set the image number and search
-        #    fsc = xRefIconsFormRun.design().controlName(identifierStr(SearchString));
-        #    fsc.setFocus();
-        #    fsc.pasteText(strFmt('%1', _imageRes));
-        #    fsc.modified();
+        #    fstrc = xRefIconsFormRun.design().controlName(identifierStr(SearchString));
+        #    fstrc.setFocus();
+        #    fstrc.pasteText(strFmt('%1', _imageRes));
+        #    fstrc.modified();
         #
         #    xRefIconsFormRun.detach();
         #}
@@ -717,6 +824,62 @@ Formatversion: 1
         #                            _information,
         #                            _owner);
         #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #startWatch
+        #// >> DEV:MXK >>
+        #static public server void startWatch(int _idx = 1)
+        #{
+        #    System.Diagnostics.Stopwatch        watch;
+        #
+        #    watch = new System.Diagnostics.Stopwatch();
+        #    watch.Start();
+        #
+        #    if (appl.globalCache().isSet(identifierStr(Stopwatch), _idx))
+        #    {
+        #        appl.globalCache().remove(identifierStr(Stopwatch), _idx);
+        #        info('Old watch has been reset.');
+        #    }
+        #
+        #    appl.globalCache().set(identifierStr(Stopwatch), _idx, watch);
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #stopWatch
+        #// >> DEV:MXK >>
+        #static public server str stopWatch( TempStr _txt        = 'Elapsed time',
+        #                                    int     _idx        = 1,
+        #                                    boolean _skipInfo   = false)
+        #{
+        #    System.Diagnostics.Stopwatch        watch;
+        #    System.TimeSpan                     elapsed;
+        #    str                                 ret;
+        #
+        #    if (appl.globalCache().isSet(identifierStr(Stopwatch), _idx))
+        #    {
+        #        watch = appl.globalCache().get(identifierStr(Stopwatch), _idx);
+        #        appl.globalCache().remove(identifierStr(Stopwatch), _idx);
+        #    }
+        #
+        #    if (watch && watch.get_IsRunning())
+        #    {
+        #        watch.Stop();
+        #        elapsed = watch.get_Elapsed();
+        #
+        #        ret = CLRInterop::getAnyTypeForObject(elapsed.ToString());
+        #
+        #        if (!_skipInfo)
+        #        {
+        #            info(strFmt('%1: %2', _txt, ret));
+        #        }
+        #    }
+        #    else
+        #    {
+        #        info('Watch is not running.');
+        #    }
+        #
+        #    return ret;
         #}
         #// << DEV:MXK <<
       ENDSOURCE

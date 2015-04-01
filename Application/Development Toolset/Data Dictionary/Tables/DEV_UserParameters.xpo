@@ -407,6 +407,18 @@ Formatversion: 1
           EnumType            #NoYes
         ENDPROPERTIES
         
+      FIELD #XppcompileallParm
+        STRING
+        PROPERTIES
+          Name                #XppcompileallParm
+          Label               #Compile parameter
+          HelpText            #Used in compile via AXBuild maintenance job
+          Table               #DEV_UserParameters
+          Origin              #{D20957C4-B03E-47E3-BD2A-E55272A21E34}
+          ExtendedDataType    #ParmTxt
+          StringSize          #30
+        ENDPROPERTIES
+        
     ENDFIELDS
     GROUPS
       GROUP #AutoSummary
@@ -503,6 +515,16 @@ Formatversion: 1
           #ImpExpPathAdminDefault
           #ExportFilePath
           #ImportFilePath
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Maintenance
+        PROPERTIES
+          Name                #Maintenance
+          Label               #@SYS73307
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #XppcompileallParm
         ENDGROUPFIELDS
       ENDGROUP
       GROUP #Miscellaneous
@@ -621,7 +643,9 @@ Formatversion: 1
         #    this.HKEnabled                  = isDev;
         #    this.HideHKButtons              = true;
         #
-        #    this.ProjectPrefix          = #ProjectPrefix;
+        #    this.ProjectPrefix              = adminParameters.ProjectPrefix ? adminParameters.ProjectPrefix : #ProjectPrefix;
+        #
+        #    this.XppcompileallParm          = '/s=01 /v';
         #
         #    // Set project comment format
         #    if (adminParameters.CommentAdminControlled)

@@ -815,7 +815,7 @@ Formatversion: 1
         #public static boolean validateVSAssemblies()
         #{
         #    UtilElements    utilElements;
-        #    FilePath        folderPath  = DEV_Global::getServerBinPath() + #VSAssemblies + #FilePathDelimiter;
+        #    FilePath        folderPath  = DEV_Global::directoryServer(DirectoryType::Bin) + #VSAssemblies + #FilePathDelimiter;
         #    ResourceNode    resourceNode;
         #    boolean         ret = true;
         #

@@ -37,6 +37,7 @@ Formatversion: 1
         #    NoYesId             compileAll;
         #    NoYesId             compileCIL;
         #    NoYesId             updateCrossRef;
+        #    NoYesId             updateElementRef;
         #    NoYesId             syncDB;
         #    NoYesId             flushCache;
         #    NoYesId             maintainIndexes;
@@ -45,6 +46,7 @@ Formatversion: 1
         #    DialogField         dlgCompileAll;
         #    DialogField         dlgCompileCIL;
         #    DialogField         dlgUpdateCrossRef;
+        #    DialogField         dlgUpdateElementRef;
         #    DialogField         dlgSyncDB;
         #    DialogField         dlgFlushCache;
         #    DialogField         dlgMaintainIndexes;
@@ -54,6 +56,7 @@ Formatversion: 1
         #        compileAll,
         #        compileCIL,
         #        updateCrossRef,
+        #        updateElementRef,
         #        syncDB,
         #        flushCache,
         #        maintainIndexes
@@ -67,18 +70,44 @@ Formatversion: 1
         #// >> DEV:MXK >>
         #private void compileAll()
         #{
+        #    #WinAPI
+        #    #define.AXBuild('axbuild.exe')
+        #    #define.AxCompileAll('AxCompileAll.html')
+        #
+        #    FilePath        axbuildPath = DEV_Global::directoryServer(DirectoryType::Bin) + #AXBuild;
+        #    FilePath        logPath     = DEV_Global::directoryServer(DirectoryType::Log) + #AxCompileAll;
+        #    boolean         compileOK;
+        #
         #    setprefix("@SYS53249");
         #
-        #    // Compile All
-        #    infolog.messageWin().activate();
+        #    if (WinAPI::fileExists(axbuildPath))
+        #    {
+        #        compileOK = WinAPI::shellExecute(   #AXBuild,
+        #                                            'xppcompileall ' + DEV_UserParameters::find().XppcompileallParm,
+        #                                            DEV_Global::directoryServer(DirectoryType::Bin),
+        #                                            #ShellExeOpen,
+        #                                            #SW_SHOWNORMAL,
+        #                                            true);
         #
-        #    SysCompileAll::flushClient();
-        #    SysCompileAll::compile();
+        #        if (compileOK && WinAPI::fileExists(logPath))
+        #        {
+        #            WinAPI::shellExecute(logPath);
+        #        }
+        #    }
         #
-        #    SysCheckList::finished(classnum(SysCheckListItem_Compile));
-        #    SysCheckList::finished(classnum(SysCheckListItem_CompileUpgrade));
-        #    SysCheckList::finished(className2Id(classStr(SysCheckListItem_CompileServ)));
-        #    SysCheckList::finished(classnum(SysCheckListItem_SysUpdateCodeCompilInit));
+        #    if (!compileOK)
+        #    {
+        #        // Compile All
+        #        infolog.messageWin().activate();
+        #
+        #        SysCompileAll::flushClient();
+        #        SysCompileAll::compile();
+        #
+        #        SysCheckList::finished(classnum(SysCheckListItem_Compile));
+        #        SysCheckList::finished(classnum(SysCheckListItem_CompileUpgrade));
+        #        SysCheckList::finished(className2Id(classStr(SysCheckListItem_CompileServ)));
+        #        SysCheckList::finished(classnum(SysCheckListItem_SysUpdateCodeCompilInit));
+        #    }
         #// << DEV:MXK <<
         #}
       ENDSOURCE
@@ -129,6 +158,7 @@ Formatversion: 1
         #    dlgCompileAll       = dialog.addField(extendedTypeStr(NoYesId), "@SYS53249"); // Compile application
         #    dlgCompileCIL       = dialog.addField(extendedTypeStr(NoYesId), "@SYS329556"); // Generate CIL from X++
         #    dlgUpdateCrossRef   = dialog.addField(extendedTypeStr(NoYesId), 'Update cross-references');
+        #    dlgUpdateElementRef = dialog.addField(extendedTypeStr(NoYesId), 'Update element-references');
         #    dlgSyncDB           = dialog.addField(extendedTypeStr(NoYesId), "@SYS22807"); // Synchronise database
         #    dlgMaintainIndexes  = dialog.addField(extendedTypeStr(NoYesId), 'Maintain indexes', 'Synch DB & update indexes.');
         #
@@ -166,12 +196,13 @@ Formatversion: 1
         #// >> DEV:MXK >>
         #public boolean getFromDialog()
         #{
-        #    compileAll      = dlgCompileAll.value();
-        #    compileCIL      = dlgCompileCIL.value();
-        #    updateCrossRef  = dlgUpdateCrossRef.value();
-        #    syncDB          = dlgSyncDB.value();
-        #    flushCache      = dlgFlushCache.value();
-        #    maintainIndexes = dlgMaintainIndexes.value();
+        #    compileAll          = dlgCompileAll.value();
+        #    compileCIL          = dlgCompileCIL.value();
+        #    updateCrossRef      = dlgUpdateCrossRef.value();
+        #    updateElementRef    = dlgUpdateElementRef.value();
+        #    syncDB              = dlgSyncDB.value();
+        #    flushCache          = dlgFlushCache.value();
+        #    maintainIndexes     = dlgMaintainIndexes.value();
         #
         #    return true;
         #// << DEV:MXK <<
@@ -214,6 +245,7 @@ Formatversion: 1
         #    dlgCompileAll.value(compileAll);
         #    dlgCompileCIL.value(compileCIL);
         #    dlgUpdateCrossRef.value(updateCrossRef);
+        #    dlgUpdateElementRef.value(updateElementRef);
         #    dlgSyncDB.value(syncDB);
         #    dlgFlushCache.value(flushCache);
         #    dlgMaintainIndexes.value(maintainIndexes);
@@ -237,9 +269,17 @@ Formatversion: 1
         #        this.compileAll();
         #    }
         #
+        #    // Update Cross-reference
         #    if (updateCrossRef)
         #    {
         #        this.updateCrossRef();
+        #        DEV_Maintain::updateProjectCrossRef();
+        #    }
+        #
+        #    // Update Element-reference
+        #    if (updateElementRef)
+        #    {
+        #        this.updateElementRef();
         #    }
         #
         #    // Generate IL code
@@ -264,6 +304,7 @@ Formatversion: 1
         #}
       ENDSOURCE
       SOURCE #selectNoneAll_clicked
+        #// >> DEV:MXK >>
         #public void selectNoneAll_clicked()
         #{
         #    Object  control = dialog.formRun().controlCallingMethod();
@@ -275,6 +316,7 @@ Formatversion: 1
         #        dlgCompileAll.value(NoYes::Yes);
         #        dlgCompileCIL.value(NoYes::Yes);
         #        dlgUpdateCrossRef.value(NoYes::Yes);
+        #        dlgUpdateElementRef.value(NoYes::Yes);
         #        dlgSyncDB.value(NoYes::Yes);
         #        dlgFlushCache.value(NoYes::Yes);
         #        dlgMaintainIndexes.value(NoYes::Yes);
@@ -285,12 +327,14 @@ Formatversion: 1
         #        dlgCompileAll.value(NoYes::No);
         #        dlgCompileCIL.value(NoYes::No);
         #        dlgUpdateCrossRef.value(NoYes::No);
+        #        dlgUpdateElementRef.value(NoYes::No);
         #        dlgSyncDB.value(NoYes::No);
         #        dlgFlushCache.value(NoYes::No);
         #        dlgMaintainIndexes.value(NoYes::No);
         #        control.label("@SYS152644");
         #    }
         #}
+        #// << DEV:MXK <<
       ENDSOURCE
       SOURCE #unpack
         #// >> DEV:MXK >>
@@ -344,6 +388,14 @@ Formatversion: 1
         #// << DEV:MXK <<
         #}
       ENDSOURCE
+      SOURCE #updateElementRef
+        #// >> DEV:MXK >>
+        #private void updateElementRef()
+        #{
+        #    DEV_xRefElementsUpdate::main(new Args());
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
       SOURCE #construct
         #// >> DEV:MXK >>
         #public static DEV_Maintain construct()
@@ -354,7 +406,7 @@ Formatversion: 1
       ENDSOURCE
       SOURCE #getRefKind
         #// >> DEV:MXK >>
-        #public static xRefKind getRefKind(TreeNode _treeNode)
+        #public static server xRefKind getRefKind(TreeNode _treeNode)
         #{
         #    xRefKind        ret;
         #
@@ -620,6 +672,7 @@ Formatversion: 1
         #}
       ENDSOURCE
       SOURCE #maintainIndexes
+        #// >> DEV:MXK >>
         #static server void maintainIndexes()
         #{
         #    UserConnection                  userConnection;
@@ -630,7 +683,7 @@ Formatversion: 1
         #    @"
         #    USE %1
         #
-        #    SET nocount ON;
+        #    SET NOCOUNT ON;
         #
         #    DECLARE @objectid INT;
         #    DECLARE @indexid INT;
@@ -643,9 +696,13 @@ Formatversion: 1
         #    DECLARE @frag FLOAT;
         #    DECLARE @command NVARCHAR(4000);
         #
+        #    -- Drop the temporary table.
+        #    IF OBJECT_ID('tempdb..#work_to_do') IS NOT NULL
+        #        DROP TABLE #work_to_do;
+        #
         #    -- Conditionally select tables and indexes from the sys.dm_db_index_physical_stats function
         #    -- and convert object and index IDs to names.
-        #    SELECT OBJECT_ID                    AS objectid,
+        #    SELECT OBJECT_ID                     AS objectid,
         #            INDEX_ID                     AS indexid,
         #            PARTITION_NUMBER             AS partitionnum,
         #            AVG_FRAGMENTATION_IN_PERCENT AS frag
@@ -712,7 +769,8 @@ Formatversion: 1
         #    DEALLOCATE partitions;
         #
         #    -- Drop the temporary table.
-        #    DROP TABLE #work_to_do;";
+        #    IF OBJECT_ID('tempdb..#work_to_do') IS NOT NULL
+        #        DROP TABLE #work_to_do;";
         #
         #    try
         #    {
@@ -739,15 +797,59 @@ Formatversion: 1
         #        throw error(funcName());
         #    }
         #}
+        #// << DEV:MXK <<
       ENDSOURCE
       SOURCE #updateProjectCrossRef
         #// >> DEV:MXK >>
-        #public static void updateProjectCrossRef()
+        #public static server void updateProjectCrossRef()
         #{
         #    TreeNode        tnRoot, tnProject;
         #    ProjectNode     projectNode;
-        #
         #    xRefPaths       refPaths;
+        #
+        #    void updateProjectNodes(TreeNode        _prentProject,
+        #                            xRefPathRecId   _xRefPathRecId = 0)
+        #    {
+        #        #TreeNodeSysNodeType
+        #
+        #        TreeNode            treeNode;
+        #        TreeNodeIterator    rootNodeIterator;
+        #
+        #        xRefReferences      refReferences;
+        #        xRefPaths           refPathsRef;
+        #
+        #        xRefPathRecId       xRefNameRecId;
+        #
+        #        rootNodeIterator = _prentProject.AOTiterator();
+        #
+        #        treeNode = rootNodeIterator.next();
+        #
+        #        while (treeNode)
+        #        {
+        #            if (treeNode.treeNodeType().id() == #NT_PROJECT_GROUP)
+        #            {
+        #                updateProjectNodes(treeNode, _xRefPathRecId);
+        #            }
+        #            else
+        #            {
+        #                refPathsRef     = xRefPaths::findOrInsert(treeNode.treeNodePath());
+        #                xRefNameRecId   = xRefNames::findOrInsert(DEV_Maintain::getRefKind(treeNode), '', treeNode.treeNodeName(), 0).RecId;
+        #
+        #                if (!xRefReferences::find(xRefNameRecId, _xRefPathRecId, XRefReference::Declaration))
+        #                {
+        #                    refReferences.initValue();
+        #                    refReferences.xRefNameRecId        = xRefNameRecId;
+        #                    refReferences.xRefPathRecId        = _xRefPathRecId;
+        #                    refReferences.referencePathRecId   = refPathsRef.RecId;
+        #                    refReferences.Reference            = XRefReference::Declaration;
+        #                    refReferences.insert();
+        #                }
+        #            }
+        #
+        #            treeNode.treeNodeRelease();
+        #            treeNode = rootNodeIterator.next();
+        #        }
+        #    }
         #
         #    tnRoot = SysTreeNode::getSharedProject();
         #
@@ -762,7 +864,7 @@ Formatversion: 1
         #            if (TreeNode::findNode(tnProject.treeNodePath()))
         #            {
         #                refPaths = xRefPaths::findOrInsert(tnProject.treeNodePath());
-        #                DEV_Maintain::updateProjectNodes(projectNode.loadForInspection(), refPaths.RecId);
+        #                updateProjectNodes(projectNode.loadForInspection(), refPaths.RecId);
         #            }
         #
         #            tnProject = tnProject.AOTnextSibling();
@@ -771,51 +873,6 @@ Formatversion: 1
         #
         #    info('Project references updated successfully.');
         #// << DEV:MXK <<
-        #}
-      ENDSOURCE
-      SOURCE #updateProjectNodes
-        #public static void updateProjectNodes(  TreeNode        _prentProject,
-        #                                        xRefPathRecId   _xRefPathRecId = 0)
-        #{
-        #    #TreeNodeSysNodeType
-        #
-        #    TreeNode            treeNode;
-        #    TreeNodeIterator    rootNodeIterator;
-        #
-        #    xRefReferences      refReferences;
-        #    xRefPaths           refPathsRef;
-        #
-        #    xRefPathRecId       xRefNameRecId;
-        #
-        #    rootNodeIterator = _prentProject.AOTiterator();
-        #
-        #    treeNode = rootNodeIterator.next();
-        #
-        #    while (treeNode)
-        #    {
-        #        if (treeNode.treeNodeType().id() == #NT_PROJECT_GROUP)
-        #        {
-        #            DEV_Maintain::updateProjectNodes(treeNode, _xRefPathRecId);
-        #        }
-        #        else
-        #        {
-        #            refPathsRef     = xRefPaths::findOrInsert(treeNode.treeNodePath());
-        #            xRefNameRecId   = xRefNames::findOrInsert(DEV_Maintain::getRefKind(treeNode), '', treeNode.treeNodeName(), 0).RecId;
-        #
-        #            if (!xRefReferences::find(xRefNameRecId, _xRefPathRecId, XRefReference::Declaration))
-        #            {
-        #                refReferences.initValue();
-        #                refReferences.xRefNameRecId        = xRefNameRecId;
-        #                refReferences.xRefPathRecId        = _xRefPathRecId;
-        #                refReferences.referencePathRecId   = refPathsRef.RecId;
-        #                refReferences.Reference            = XRefReference::Declaration;
-        #                refReferences.insert();
-        #            }
-        #        }
-        #
-        #        treeNode.treeNodeRelease();
-        #        treeNode = rootNodeIterator.next();
-        #    }
         #}
       ENDSOURCE
     ENDMETHODS

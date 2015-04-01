@@ -145,11 +145,11 @@ ENTRYPOINT #DEV_WebSafeColors
   
 ENDENTRYPOINT
 
-ENTRYPOINT #DEV_xRefSearch
+ENTRYPOINT #DEV_xRefElements
   PROPERTIES
-    Name                #DEV_xRefSearch
+    Name                #DEV_xRefElements
     ObjectType          #MenuItemDisplay
-    ObjectName          #DEV_xRefSearch
+    ObjectName          #DEV_xRefElements
     AccessLevel         #Delete
   ENDPROPERTIES
   

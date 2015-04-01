@@ -484,7 +484,7 @@ FORM #SysTableBrowser
           Width               #260
           Height              #Column height
           VerticalSpacing     #0
-          ElementPosition     #613566756
+          ElementPosition     #715827882
           HierarchyParent     #GroupRightSide
           FrameType           #Raised 3D
           Columns             #2
@@ -522,7 +522,7 @@ FORM #SysTableBrowser
       CONTROL GROUP
         PROPERTIES
           Name                #GroupExecute
-          ElementPosition     #1073741822
+          ElementPosition     #1610612733
           HierarchyParent     #Group
           FrameType           #None
         ENDPROPERTIES
@@ -537,7 +537,7 @@ FORM #SysTableBrowser
           Width               #260
           Height              #Column height
           VerticalSpacing     #0
-          ElementPosition     #1227133512
+          ElementPosition     #1431655764
           HierarchyParent     #GroupRightSide
           FrameType           #Raised 3D
           Columns             #3
@@ -558,7 +558,7 @@ FORM #SysTableBrowser
           Name                #GroupFunctions
           Width               #260
           VerticalSpacing     #0
-          ElementPosition     #1840700268
+          ElementPosition     #1908874352
           HierarchyParent     #GroupRightSide
           FrameType           #Raised 3D
           TopMargin           #3
@@ -579,7 +579,7 @@ FORM #SysTableBrowser
           Name                #GroupOptions
           Width               #260
           VerticalSpacing     #0
-          ElementPosition     #1533916890
+          ElementPosition     #1670265058
           HierarchyParent     #GroupRightSide
           FrameType           #Raised 3D
           TopMargin           #3
@@ -1248,7 +1248,7 @@ FORM #SysTableBrowser
           Height              #350
           VerticalSpacing     #0
           HelpText            #Double click on the field to navigate.
-          ElementPosition     #920350134
+          ElementPosition     #1073741823
           HierarchyParent     #GroupRightSide
           HasButtons          #No
           HasLines            #No

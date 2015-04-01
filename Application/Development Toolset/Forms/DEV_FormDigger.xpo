@@ -1002,7 +1002,7 @@ FORM #DEV_FormDigger
         PROPERTIES
           Name                #editFixNewWindow
           HelpText            #Fix open new window for single elements.
-          ElementPosition     #1288490187
+          ElementPosition     #1610612733
           HierarchyParent     #ParametersGroup
           Label               #Fix open new window
           DataMethod          #editFixNewWindow
@@ -1016,7 +1016,7 @@ FORM #DEV_FormDigger
         PROPERTIES
           Name                #editShowInvisibleFields
           HelpText            #Show hidden controls.
-          ElementPosition     #858993458
+          ElementPosition     #1073741822
           HierarchyParent     #ParametersGroup
           Label               #Show hidden controls
           DataMethod          #editShowInvisibleFields
@@ -1098,7 +1098,7 @@ FORM #DEV_FormDigger
       CONTROL STRINGEDIT
         PROPERTIES
           Name                #editpathDelimiter
-          ElementPosition     #1717986916
+          ElementPosition     #1879048189
           HierarchyParent     #ParametersGroup
           Text                #>
           Label               #@SYS22503
@@ -1147,7 +1147,7 @@ FORM #DEV_FormDigger
       CONTROL STRINGEDIT
         PROPERTIES
           Name                #FormDiggerTmpData_DataSourceTable
-          ElementPosition     #976128930
+          ElementPosition     #1171354716
           HierarchyParent     #Grid
           DataSource          #FormDiggerTmpData
           DataField           #DataSourceTable
@@ -1270,7 +1270,7 @@ FORM #DEV_FormDigger
       CONTROL STRINGEDIT
         PROPERTIES
           Name                #FormDiggerTmpData_FieldMethodName
-          ElementPosition     #585677358
+          ElementPosition     #780903144
           HierarchyParent     #Grid
           DataSource          #FormDiggerTmpData
           DataField           #FieldMethodName
@@ -1312,7 +1312,7 @@ FORM #DEV_FormDigger
         PROPERTIES
           Name                #FormDiggerTmpData_Name_Column1
           AutoDeclaration     #Yes
-          ElementPosition     #390451572
+          ElementPosition     #520602096
           HierarchyParent     #Grid
           DataSource          #FormDiggerTmpData
           DataField           #Name
@@ -1335,7 +1335,7 @@ FORM #DEV_FormDigger
         PROPERTIES
           Name                #FormDiggerTmpData_Name_Column2
           AutoDeclaration     #Yes
-          ElementPosition     #780903144
+          ElementPosition     #976128930
           HierarchyParent     #Grid
           DataSource          #FormDiggerTmpData
           DataField           #Name
@@ -1397,7 +1397,7 @@ FORM #DEV_FormDigger
           Width               #5
           Height              #16
           Skip                #Yes
-          ElementPosition     #1171354716
+          ElementPosition     #1268967609
           HierarchyParent     #Grid
           Imagemode           #Center
           BackStyle           #Transparent

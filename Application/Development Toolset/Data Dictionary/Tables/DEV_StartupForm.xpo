@@ -189,6 +189,80 @@ Formatversion: 1
         #    return ret;
         #}
       ENDSOURCE
+      SOURCE #exist
+        #/// <summary>
+        #///    Determines whether the specified record in the <c>DEV_StartupForm</c> table exists.
+        #/// </summary>
+        #/// <param name="_recId">
+        #///    The record ID of the <c>DEV_StartupForm</c> record.
+        #/// </param>
+        #/// <returns>
+        #///    true if the specified record exists; otherwise, false.
+        #/// </returns>
+        #public static boolean exist(
+        #    UserId          _userId,
+        #    TreeNodePath    _treeNodePath,
+        #    ComputerName    _computerName,
+        #    DataAreaId      _company)
+        #{
+        #    DEV_StartupForm    startupForm;
+        #
+        #    select firstOnly RecId from startupForm
+        #        where        startupForm.UserId         == _userId
+        #                &&    startupForm.TreeNodePath  == _treeNodePath
+        #                &&    startupForm.ComputerName  == _computerName
+        #                &&    startupForm.Company       == _company;
+        #
+        #    return startupForm.RecId != 0;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #find
+        #/// <summary>
+        #///    Finds the specified record in the <c>DEV_StartupForm</c> table.
+        #/// </summary>
+        #/// <param name="_recId">
+        #///    The record ID of the <c>DEV_StartupForm</c> record to find.
+        #/// </param>
+        #/// <param name="_forupdate">
+        #///    A boolean value that indicates whether to read the record for update; optional.
+        #/// </param>
+        #/// <param name="_concurrencyModel">
+        #///    The concurrency model option to use when reading the record; optional.
+        #/// </param>
+        #/// <returns>
+        #///    The specified record in the <c>DEV_StartupForm</c> table; otherwise, an empty record.
+        #/// </returns>
+        #public static DEV_StartupForm find(
+        #    UserId              _userId,
+        #    TreeNodePath        _treeNodePath,
+        #    ComputerName        _computerName,
+        #    DataAreaId          _company,
+        #    boolean             _forUpdate = false,
+        #    ConcurrencyModel    _concurrencyModel = ConcurrencyModel::Auto)
+        #{
+        #    DEV_StartupForm    startupForm;
+        #
+        #    if (_forUpdate)
+        #    {
+        #        startupForm.selectForUpdate(_forUpdate);
+        #
+        #        if (_concurrencyModel != ConcurrencyModel::Auto)
+        #        {
+        #            startupForm.concurrencyModel(_concurrencyModel);
+        #        }
+        #    }
+        #
+        #    select firstOnly startupForm
+        #        where        startupForm.UserId         == _userId
+        #                &&    startupForm.TreeNodePath  == _treeNodePath
+        #                &&    startupForm.ComputerName  == _computerName
+        #                &&    startupForm.Company       == _company;
+        #
+        #    return startupForm;
+        #}
+        #
+      ENDSOURCE
       SOURCE #startupApplRun
         #public static void startupApplRun(  boolean _onCompanyChange    = false,
         #                                    UserId  _userId             = curUserId())

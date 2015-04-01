@@ -103,6 +103,12 @@ Formatversion: 1
           FILETYPE 0
           UTILTYPE 40
           NODETYPE 209
+          NAME #DEV_xRefType
+        ENDNODE
+        BEGINNODE
+          FILETYPE 0
+          UTILTYPE 40
+          NODETYPE 209
           NAME #DEV_CompareMode
         ENDNODE
         BEGINNODE
@@ -305,7 +311,7 @@ Formatversion: 1
         FILETYPE 0
         UTILTYPE 45
         NODETYPE 329
-        NAME #DEV_xRefIconSearch
+        NAME #DEV_xRefElementsUpdate
       ENDNODE
       BEGINNODE
         FILETYPE 0
@@ -359,7 +365,25 @@ Formatversion: 1
         FILETYPE 0
         UTILTYPE 45
         NODETYPE 329
+        NAME #SysStartupCmdCompileAll
+      ENDNODE
+      BEGINNODE
+        FILETYPE 0
+        UTILTYPE 45
+        NODETYPE 329
+        NAME #SysStartupCmdCompilePartial
+      ENDNODE
+      BEGINNODE
+        FILETYPE 0
+        UTILTYPE 45
+        NODETYPE 329
         NAME #SysTableBrowser
+      ENDNODE
+      BEGINNODE
+        FILETYPE 0
+        UTILTYPE 45
+        NODETYPE 329
+        NAME #SysTreeNode
       ENDNODE
       BEGINNODE
         FILETYPE 0
@@ -384,6 +408,12 @@ Formatversion: 1
         UTILTYPE 45
         NODETYPE 329
         NAME #xppSource
+      ENDNODE
+      BEGINNODE
+        FILETYPE 0
+        UTILTYPE 45
+        NODETYPE 329
+        NAME #SysVersionControlUserInterfaceMorphX
       ENDNODE
       BEGINNODE
         FILETYPE 0
@@ -459,7 +489,7 @@ Formatversion: 1
         FILETYPE 0
         UTILTYPE 11
         NODETYPE 201
-        NAME #DEV_xRefIcons
+        NAME #DEV_xRefElements
       ENDNODE
       BEGINNODE
         FILETYPE 0
@@ -549,31 +579,7 @@ Formatversion: 1
           FILETYPE 0
           UTILTYPE 128
           NODETYPE 1531
-          NAME #DEV_WindowsInput
-        ENDNODE
-        BEGINNODE
-          FILETYPE 0
-          UTILTYPE 128
-          NODETYPE 1531
-          NAME #DEV_OutliningExtension
-        ENDNODE
-        BEGINNODE
-          FILETYPE 0
-          UTILTYPE 128
-          NODETYPE 1531
-          NAME #DEV_HighlightWordExtension
-        ENDNODE
-        BEGINNODE
-          FILETYPE 0
-          UTILTYPE 128
-          NODETYPE 1531
-          NAME #DEV_EditorExtensionSettingsForm
-        ENDNODE
-        BEGINNODE
-          FILETYPE 0
-          UTILTYPE 128
-          NODETYPE 1531
-          NAME #DEV_EditorExtensionSettings
+          NAME #DEV_BraceMatchingExtension
         ENDNODE
         BEGINNODE
           FILETYPE 0
@@ -585,7 +591,31 @@ Formatversion: 1
           FILETYPE 0
           UTILTYPE 128
           NODETYPE 1531
-          NAME #DEV_BraceMatchingExtension
+          NAME #DEV_EditorExtensionSettings
+        ENDNODE
+        BEGINNODE
+          FILETYPE 0
+          UTILTYPE 128
+          NODETYPE 1531
+          NAME #DEV_EditorExtensionSettingsForm
+        ENDNODE
+        BEGINNODE
+          FILETYPE 0
+          UTILTYPE 128
+          NODETYPE 1531
+          NAME #DEV_HighlightWordExtension
+        ENDNODE
+        BEGINNODE
+          FILETYPE 0
+          UTILTYPE 128
+          NODETYPE 1531
+          NAME #DEV_OutliningExtension
+        ENDNODE
+        BEGINNODE
+          FILETYPE 0
+          UTILTYPE 128
+          NODETYPE 1531
+          NAME #DEV_WindowsInput
         ENDNODE
         ENDGROUP
         
@@ -669,7 +699,7 @@ Formatversion: 1
           FILETYPE 0
           UTILTYPE 1
           NODETYPE 296
-          NAME #DEV_xRefSearch
+          NAME #DEV_xRefElements
         ENDNODE
         ENDGROUP
         

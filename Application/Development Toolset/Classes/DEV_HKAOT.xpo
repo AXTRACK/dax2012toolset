@@ -109,7 +109,7 @@ Formatversion: 1
         #    str                 properties;
         #
         #    Map                 pathMap     = new Map(Types::String, Types::String);
-        #    Set                 expendSet   = new Set(Types::String);
+        #    Set                 expandSet   = new Set(Types::String);
         #    Set                 editSet     = new Set(Types::String);
         #    Map                 runMap      = new Map(Types::String, Types::Container);
         #    int                 i;
@@ -133,7 +133,7 @@ Formatversion: 1
         #            pathMap.insert(treeNodeTarget.treeNodePath(), _type + ": " + treeNodeTarget.AOTname());
         #
         #            if (_expand)
-        #                expendSet.add(treeNodeTarget.treeNodePath());
+        #                expandSet.add(treeNodeTarget.treeNodePath());
         #
         #            if (_edit)
         #                editSet.add(treeNodeTarget.treeNodePath());
@@ -384,7 +384,7 @@ Formatversion: 1
         #            return;
         #        }
         #
-        #        if (expendSet.in(treeNodeTarget.treeNodePath()))
+        #        if (expandSet.in(treeNodeTarget.treeNodePath()))
         #        {
         #            DEV_AOTNodeExpander::expandNode(treeNodeTarget);
         #        }
@@ -393,7 +393,8 @@ Formatversion: 1
         #            treeNodeTarget.AOTnewWindow();
         #        }
         #
-        #        if (editSet.in(treeNodeTarget.treeNodePath()))
+        #        if (    editSet.in(treeNodeTarget.treeNodePath())
+        #            &&  SysTreeNode::canEdit(treeNodeTarget))
         #        {
         #            treeNodeTarget.AOTedit();
         #        }

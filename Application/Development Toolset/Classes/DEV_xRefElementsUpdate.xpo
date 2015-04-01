@@ -1,0 +1,528 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DEV_xRefElementsUpdate unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DEV_xRefElementsUpdate
+    PROPERTIES
+      Name                #DEV_xRefElementsUpdate
+      Origin              #{F67D8D09-880B-4B50-A770-1CD3B92D36B1}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #addBaseEnums
+        #// >> DEV:MXK >>
+        #public void addBaseEnums()
+        #{
+        #    DEV_xRefType            type            = DEV_xRefType::BaseEnums;
+        #
+        #    void add(str _path)
+        #    {
+        #        DEV_xRefElements        xRefElements;
+        #        TreeNode                treeNode;
+        #        TreeNodeIterator        tnIterator;
+        #        DictEnum                dictEnum;
+        #        int                     i;
+        #
+        #        tnIterator  = TreeNode::findNode(_path).AOTIterator();
+        #        treeNode    = tnIterator.next();
+        #
+        #        while (treeNode)
+        #        {
+        #            dictEnum = new DictEnum(enumName2Id(treeNode.TreeNodeName()));
+        #
+        #            for (i = 0; i < dictEnum.values(); i++)
+        #            {
+        #                xRefElements.clear();
+        #                xRefElements.initValue();
+        #                xRefElements.Type           = type;
+        #                xRefElements.Name           = dictEnum.name();
+        #                xRefElements.Label          = dictEnum.label();
+        #                xRefElements.HelpText       = dictEnum.help();
+        #                xRefElements.ElementName    = dictEnum.value2Name(i);
+        #                xRefElements.ElementLabel   = dictEnum.value2Symbol(i);
+        #                xRefElements.FullPath       = _path + #AOTDelimiter + dictEnum.name() + #AOTDelimiter + dictEnum.value2Name(i);
+        #                xRefElements.insert();
+        #            }
+        #            treeNode = tnIterator.next();
+        #        }
+        #    }
+        #
+        #    ttsBegin;
+        #
+        #    this.cleanup(type);
+        #
+        #    add(#BaseEnumsPath);
+        #
+        #    add(#SystemEnumsPath);
+        #
+        #    ttsCommit;
+        #
+        #    info(strFmt('@SYS32646', type));
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #addEDT
+        #// >> DEV:MXK >>
+        #public void addEDT()
+        #{
+        #    DEV_xRefType            type            = DEV_xRefType::EDT;
+        #
+        #    void add(str _path)
+        #    {
+        #        DEV_xRefElements        xRefElements;
+        #        TreeNode                treeNode;
+        #        TreeNodeIterator        tnIterator;
+        #        Dictionary              dictionary  = new Dictionary();
+        #        DictType                dictType;
+        #
+        #        tnIterator  = TreeNode::findNode(_path).AOTIterator();
+        #        treeNode    = tnIterator.next();
+        #
+        #        while (treeNode)
+        #        {
+        #            dictType = dictionary.typeObject(extendedTypeName2Id(treeNode.treeNodeName()));
+        #
+        #            if (dictType)
+        #            {
+        #                xRefElements.clear();
+        #                xRefElements.initValue();
+        #                xRefElements.Type           = type;
+        #                xRefElements.Name           = dictType.name();
+        #                xRefElements.Label          = dictType.label();
+        #                xRefElements.HelpText       = dictType.help();
+        #                xRefElements.ElementName    = extendedTypeId2name(dictType.extend());
+        #                xRefElements.ElementLabel   = enumId2Name(dictType.enumId());
+        #                xRefElements.ImageRes       = dictType.stringLen();
+        #                xRefElements.FullPath       = _path + #AOTDelimiter + dictType.name();
+        #                xRefElements.insert();
+        #            }
+        #            treeNode = tnIterator.next();
+        #        }
+        #    }
+        #
+        #    ttsBegin;
+        #
+        #    this.cleanup(type);
+        #
+        #    add(#ExtendedDataTypesPath);
+        #
+        #    add(#SystemTypesPath);
+        #
+        #    ttsCommit;
+        #
+        #    info(strFmt('@SYS32646', type));
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #addMenuItems
+        #// >> DEV:MXK >>
+        #public void addMenuItems(SysDictMenu _dictMenu, DEV_xRefType _type)
+        #{
+        #    DEV_xRefElements        xRefElements;
+        #    UtilElementType         utilElementType;
+        #    SysMenuEnumerator       menuEnum;
+        #    MenuFunction            menuFunction;
+        #
+        #    ttsBegin;
+        #
+        #    this.cleanup(_type);
+        #
+        #    menuEnum    = _dictMenu.getEnumerator();
+        #
+        #    while (menuEnum.moveNext())
+        #    {
+        #        _dictMenu       = menuEnum.current();
+        #        menuFunction    = _dictMenu.menuItem();
+        #        utilElementType = menuFunction.objectType();
+        #
+        #        if (_dictMenu.isMenuItem())
+        #        {
+        #            xRefElements.clear();
+        #            xRefElements.initValue();
+        #            xRefElements.Type           = _type;
+        #            xRefElements.Name           = _dictMenu.name();
+        #            xRefElements.Label          = _dictMenu.label();
+        #            xRefElements.HelpText       = _dictMenu.helpText();
+        #            xRefElements.ImageRes       = utilElementType;
+        #            xRefElements.ElementName    = enumId2Name(menuFunction.enumTypeParameter());
+        #            xRefElements.ElementLabel   = menuFunction.object();
+        #            xRefElements.FullPath       = _dictMenu.treeNodePath();
+        #
+        #            /*if (    utilElementType
+        #                &&  xUtilElements::exist(utilElementType, menuFunction.object()))
+        #            {
+        #                xRefElements.ElementLabel   =  xUtilElements::getNodePath(xUtilElements::find(utilElementType, menuFunction.object()));
+        #            }*/
+        #
+        #            xRefElements.insert();
+        #        }
+        #    }
+        #
+        #    ttsCommit;
+        #
+        #    info(strFmt('@SYS32646', _type));
+        #}
+        #// << DEV:MXK <<
+        #
+      ENDSOURCE
+      SOURCE #addResources
+        #public void addResources()
+        #{
+        #    #Define.MaxNumOfResources(60000)
+        #    DEV_xRefType            type            = DEV_xRefType::Resources;
+        #    DEV_xRefElements        xRefElements;
+        #    int                     i;
+        #
+        #    ttsBegin;
+        #
+        #    this.cleanup(type);
+        #
+        #    this.processPath(#MenuItemsDisplayPath,   false);
+        #    this.processPath(#MenuItemsOutputPath,    false);
+        #    this.processPath(#MenuItemsActionPath,    false);
+        #    this.processPath(#FormsPath,              true);
+        #
+        #    for (i = 1; i < #MaxNumOfResources; i++)
+        #    {
+        #        if (Image::validResource(i))
+        #        {
+        #            xRefElements.clear();
+        #            xRefElements.initValue();
+        #            xRefElements.Type           = type;
+        #            xRefElements.ImageRes       = i;
+        #            xRefElements.Embedded       = NoYes::Yes;
+        #            xRefElements.insert();
+        #        }
+        #    }
+        #
+        #    ttsCommit;
+        #
+        #    info(strFmt('@SYS32646', type));
+        #}
+      ENDSOURCE
+      SOURCE #addTables
+        #// >> DEV:MXK >>
+        #public void addTables()
+        #{
+        #    DEV_xRefType            type            = DEV_xRefType::Tables;
+        #
+        #    void add(str _path)
+        #    {
+        #        DEV_xRefElements        xRefElements;
+        #        TreeNode                treeNode;
+        #        TreeNodeIterator        tnIterator;
+        #        SysDictTable            sysDictTable;
+        #
+        #        tnIterator  = TreeNode::findNode(_path).AOTIterator();
+        #        treeNode    = tnIterator.next();
+        #
+        #        while (treeNode)
+        #        {
+        #            sysDictTable = new SysDictTable(tableName2Id(treeNode.treeNodeName()));
+        #
+        #            if (sysDictTable)
+        #            {
+        #                xRefElements.clear();
+        #                xRefElements.initValue();
+        #                xRefElements.Type           = type;
+        #                xRefElements.Name           = sysDictTable.name();
+        #                xRefElements.Label          = sysDictTable.label();
+        #                xRefElements.HelpText       = sysDictTable.developerDocumentation();
+        #                xRefElements.ElementName    = tableId2name(sysDictTable.extends());
+        #                xRefElements.ElementLabel   = findProperty(treeNode.AOTgetProperties(), #PropertyFormRef);
+        #                xRefElements.ImageRes       = sysDictTable.tableType();
+        #                xRefElements.Embedded       = sysDictTable.dataPrCompany();
+        #                xRefElements.FullPath       = _path + #AOTDelimiter + sysDictTable.name();
+        #                xRefElements.insert();
+        #            }
+        #            treeNode = tnIterator.next();
+        #        }
+        #    }
+        #
+        #    ttsBegin;
+        #
+        #    this.cleanup(type);
+        #
+        #    add(#TablesPath);
+        #
+        #    add(#SystemTablesPath);
+        #
+        #    ttsCommit;
+        #
+        #    info(strFmt('@SYS32646', type));
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class DEV_xRefElementsUpdate
+        #{
+        #    #AOT
+        #    #Properties
+        #
+        #    LanguageId      languageId;
+        #}
+      ENDSOURCE
+      SOURCE #cleanup
+        #// >> DEV:MXK >>
+        #private void cleanup(DEV_xRefType _type)
+        #{
+        #    DEV_xRefElements        xRefElements;
+        #
+        #    delete_from xRefElements
+        #        where       xRefElements.Type       == _type
+        #                &&  xRefElements.LanguageId == languageId;
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+      SOURCE #getLabel
+        #private str getLabel(TreeNode node, boolean _helpText = false)
+        #{
+        #    str             res;
+        #    TreeNode        tmpNode;
+        #    str             menuItemType;
+        #
+        #    if (_helpText)
+        #    {
+        #        if(!res)
+        #            res = this.labelIdToLabel(findProperty(node.AOTgetProperties(), #PropertyHelpText));
+        #
+        #        if(!res)
+        #            res = this.labelIdToLabel(findProperty(node.AOTgetProperties(), #PropertyHelp));
+        #    }
+        #    else
+        #    {
+        #        res = this.labelIdToLabel(findProperty(node.AOTgetProperties(), #PropertyLabel));
+        #
+        #        if (!res && findProperty(node.AOTgetProperties(), #PropertyCaption))
+        #        {
+        #            res = this.labelIdToLabel(findProperty(node.AOTgetProperties(), #PropertyCaption));
+        #        }
+        #
+        #        if (!res && findProperty(node.AOTgetProperties(), #PropertyText))
+        #        {
+        #            res = this.labelIdToLabel(findProperty(node.AOTgetProperties(), #PropertyText));
+        #        }
+        #    }
+        #
+        #    if (!res && findProperty(node.AOTgetProperties(), #PropertyExtendedDataType))
+        #    {
+        #        tmpNode = TreeNode::findNode(#ExtendedDataTypesPath + '\\' + findProperty(node.AOTgetProperties(), #PropertyExtendedDataType));
+        #        if (tmpNode)
+        #        {
+        #            res = this.getLabel(tmpNode, _helpText);
+        #        }
+        #    }
+        #
+        #    if (!res && findProperty(node.AOTgetProperties(), #PropertyExtends))
+        #    {
+        #        tmpNode = TreeNode::findNode(#ExtendedDataTypesPath + '\\' + findProperty(node.AOTgetProperties(), #PropertyExtends));
+        #        if (tmpNode)
+        #        {
+        #            res = this.getLabel(tmpNode, _helpText);
+        #        }
+        #    }
+        #
+        #    if (!res && findProperty(node.AOTgetProperties(), #PropertyEnumtype))
+        #    {
+        #        tmpNode = TreeNode::findNode(#BaseEnumsPath + '\\' + findProperty(node.AOTgetProperties(), #PropertyEnumtype));
+        #        if (tmpNode)
+        #        {
+        #            res = this.getLabel(tmpNode, _helpText);
+        #        }
+        #    }
+        #
+        #    if (!res && findProperty(node.AOTgetProperties(), #PropertyMenuItemName))
+        #    {
+        #        menuItemType = findProperty(node.AOTgetProperties(), #PropertyMenuItemType);
+        #        if (!menuItemType)
+        #        {
+        #            menuItemType = enum2str(MenuItemType::Display);
+        #        }
+        #
+        #        tmpNode = TreeNode::findNode(#MenuItemsPath + '\\' + menuItemType + '\\' + findProperty(node.AOTgetProperties(), #PropertyMenuItemName));
+        #        if (tmpNode)
+        #            res = this.getLabel(tmpNode, _helpText);
+        #    }
+        #
+        #    return res;
+        #}
+      ENDSOURCE
+      SOURCE #labelIdToLabel
+        #str labelIdToLabel(str label, str replaceWithIfEmpty = "")
+        #{
+        #    if(subStr(label, 1, 1) == '@')
+        #    {
+        #        return new Label(infolog.language()).extractString(label);
+        #    }
+        #
+        #    if(!label)
+        #    {
+        #        return replaceWithIfEmpty;
+        #    }
+        #    else
+        #    {
+        #        return label;
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #public void new()
+        #{
+        #    languageId = xUserInfo::find().language;
+        #}
+      ENDSOURCE
+      SOURCE #processForm
+        #private void processForm(TreeNode _formTreeNode)
+        #{
+        #    TreeNode    tmpNode;
+        #    str         type;
+        #
+        #    tmpNode = TreeNode::findNode(strFmt(#FormControlPath, _formTreeNode.AOTname(), ''));
+        #    tmpNode = tmpNode.AOTfirstChild();
+        #
+        #    if (!tmpNode)
+        #        return;
+        #
+        #    while(tmpNode)
+        #    {
+        #        type = findProperty(tmpNode.AOTgetProperties(), #PropertyType);
+        #
+        #        if (    type == enum2str(FormControlType::ButtonGroup)
+        #            ||  type == enum2str(FormControlType::Button)
+        #            ||  type == enum2str(FormControlType::MenuFunctionButton)
+        #            ||  type == enum2str(FormControlType::MenuButton))
+        #        {
+        #            this.processRes(tmpNode);
+        #        }
+        #
+        #        tmpNode = tmpNode.AOTNextSibling();
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #processPath
+        #private void processPath(str _path, boolean _isForm)
+        #{
+        #    treeNode        tmpNode;
+        #    XInfo           xInfo = new XInfo();
+        #    boolean         foundFirst;
+        #
+        #    tmpNode = TreeNode::findNode(_path);
+        #    tmpNode = tmpNode.AOTfirstChild();
+        #
+        #    while (true)
+        #    {
+        #        tmpNode = tmpNode.AOTnextSibling();
+        #
+        #        if(!tmpNode) break;
+        #
+        #        if (_isForm)
+        #        {
+        #            this.processForm(tmpNode);
+        #        }
+        #        else
+        #        {
+        #            this.processRes(tmpNode);
+        #        }
+        #
+        #        foundFirst = true;
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #processRes
+        #private void processRes(TreeNode _treeNode)
+        #{
+        #    str                 resType;
+        #    int                 resId;
+        #    DEV_xRefElements    xRefElements;
+        #
+        #    if (!hasProperty(_treeNode.AOTgetProperties(), #PropertyImageLocation))
+        #        return;
+        #
+        #    resType = _treeNode.AOTgetProperty(#PropertyImageLocation);
+        #    if (resType == enum2str(SysImageLocation::EmbeddedResource))
+        #    {
+        #        resId = _treeNode.AOTgetProperty(#PropertyNormalImage);
+        #
+        #        if (resId)
+        #        {
+        #            xRefElements.clear();
+        #            xRefElements.initValue();
+        #            xRefElements.FullPath   = _treeNode.treeNodePath();
+        #            xRefElements.Label      = this.getLabel(_treeNode);
+        #            xRefElements.HelpText   = this.getLabel(_treeNode, true);
+        #            xRefElements.ImageRes   = resId;
+        #            xRefElements.Type       = DEV_xRefType::Resources;
+        #
+        #            if (    xRefElements.Label
+        #                && !strFind(xRefElements.Label, '@', 1, 100))
+        #            {
+        #                xRefElements.insert();
+        #            }
+        #        }
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #construct
+        #public static DEV_xRefElementsUpdate construct()
+        #{
+        #    return new DEV_xRefElementsUpdate();
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #// >> DEV:MXK >>
+        #public static void main(Args args)
+        #{
+        #    DEV_xRefElementsUpdate              xRefElementsUpdate = DEV_xRefElementsUpdate::construct();
+        #
+        #    switch (args.parmEnum())
+        #    {
+        #        case DEV_xRefType::Tables:
+        #            xRefElementsUpdate.addTables();
+        #            break;
+        #
+        #        case DEV_xRefType::EDT:
+        #            xRefElementsUpdate.addEDT();
+        #            break;
+        #
+        #        case DEV_xRefType::BaseEnums:
+        #            xRefElementsUpdate.addBaseEnums();
+        #            break;
+        #
+        #        case DEV_xRefType::Action:
+        #            xRefElementsUpdate.addMenuItems(SysDictMenu::newAction(), DEV_xRefType::Action);
+        #            break;
+        #
+        #        case DEV_xRefType::Display:
+        #            xRefElementsUpdate.addMenuItems(SysDictMenu::newDisplay(), DEV_xRefType::Display);
+        #            break;
+        #
+        #        case DEV_xRefType::Output:
+        #            xRefElementsUpdate.addMenuItems(SysDictMenu::newOutput(), DEV_xRefType::Output);
+        #            break;
+        #
+        #        case DEV_xRefType::Resources:
+        #            xRefElementsUpdate.addResources();
+        #            break;
+        #
+        #        default:
+        #            xRefElementsUpdate.addTables();
+        #            xRefElementsUpdate.addEDT();
+        #            xRefElementsUpdate.addBaseEnums();
+        #            xRefElementsUpdate.addMenuItems(SysDictMenu::newAction(), DEV_xRefType::Action);
+        #            xRefElementsUpdate.addMenuItems(SysDictMenu::newDisplay(), DEV_xRefType::Display);
+        #            xRefElementsUpdate.addMenuItems(SysDictMenu::newOutput(), DEV_xRefType::Output);
+        #            xRefElementsUpdate.addResources();
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

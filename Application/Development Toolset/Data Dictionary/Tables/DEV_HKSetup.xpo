@@ -567,7 +567,7 @@ Formatversion: 1
         #                            DEV_HKKey::LWIN,
         #                            DEV_HKActionType::EditorAction,
         #                            staticMethodStr(DEV_HKEditor, newWindow),
-        #                            'Expend curent method in new AOT window');
+        #                            'Expand curent method in new AOT window');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
         #                            DEV_HKKey::B,
@@ -630,6 +630,13 @@ Formatversion: 1
         #                            DEV_HKActionType::OpenForm,
         #                            formStr(DEV_Projects),
         #                            'Manage projects form');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::Shift,
+        #                            DEV_HKKey::F10,
+        #                            DEV_HKActionType::OpenForm,
+        #                            formStr(DEV_StartupForm),
+        #                            'Startup form');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
         #                            DEV_HKKey::Shift,

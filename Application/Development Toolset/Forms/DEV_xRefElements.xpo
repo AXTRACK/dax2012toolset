@@ -1,0 +1,695 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #DEV_xRefElements
+  PROPERTIES
+    Name                #DEV_xRefElements
+    Origin              #{F80764DB-A7FF-453D-81DD-8F3DC2E70E5A}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #public class FormRun extends ObjectRun
+      #{
+      #    ImageList           imageList;
+      #    Map                 resIdMap;
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #public void init()
+      #{
+      #    super();
+      #
+      #    element.setControls();
+      #}
+    ENDSOURCE
+    SOURCE #initResources
+      #public void initResources()
+      #{
+      #    Image               image = new Image();
+      #    DEV_xRefElements    xRefElements;
+      #    int                 i = 0;
+      #
+      #    if (resIdMap && resIdMap.elements())
+      #        return;
+      #
+      #    resIdMap    = new Map(Types::Integer, Types::Integer);
+      #    imageList   = new ImageList(ImageList::iconWidth(), ImageList::iconHeight());
+      #
+      #    while select ImageRes from xRefElements
+      #        group by ImageRes
+      #        where xRefElements.Type == DEV_xRefType::Resources
+      #    {
+      #        if(Image::validResource(xRefElements.ImageRes))
+      #        {
+      #            resIdMap.insert(xRefElements.ImageRes, i);
+      #            image.loadResource(xRefElements.ImageRes);
+      #            imageList.add(image);
+      #
+      #            i++;
+      #        }
+      #    }
+      #
+      #    xRefImage.imageList(imageList);
+      #}
+    ENDSOURCE
+    SOURCE #setControls
+      #// >> DEV:MXK >>
+      #public void setControls()
+      #{
+      #    DEV_xRefElements_Name.visible(true);
+      #    DEV_xRefElements_ElementName.visible(true);
+      #    DEV_xRefElements_ElementLabel.visible(true);
+      #
+      #    tableRows.visible(false);
+      #
+      #    CheckBoxEmbedded.visible(false);
+      #    CheckBoxEmbedded.showLabel(false);
+      #    xRefImage.visible(false);
+      #    EmbImage.visible(false);
+      #
+      #    DEV_xRefElements_ElementName.label("@SYS94528");    // Element name
+      #    DEV_xRefElements_ElementLabel.label("@SYS25058");   // Label
+      #
+      #    DEV_xRefElements_ds.queryBuildDataSource().addSortIndex(indexNum(DEV_xRefElements, NameIdx));
+      #
+      #    element.design().caption(strFmt('%1: %2', 'Element-reference', enum2Symbol(enumNum(DEV_xRefType), ElementType.selection())));
+      #
+      #    switch (ElementType.selection())
+      #    {
+      #        case DEV_xRefType::Tables:
+      #            tableRows.visible(true);
+      #            DEV_xRefElements_ElementName.label("@SYS73887");    // Extends
+      #            DEV_xRefElements_ElementLabel.label("@SYS72439");   // Form reference
+      #            DEV_xRefElements_ImageRes.label("@SYS99314");       // Table type
+      #            break;
+      #
+      #        case DEV_xRefType::EDT:
+      #            DEV_xRefElements_ImageRes.label("@SYS99319");       // String size
+      #            DEV_xRefElements_ElementLabel.label("@SYS106481");  // Enum
+      #            break;
+      #
+      #        case DEV_xRefType::BaseEnums:
+      #            break;
+      #
+      #        case DEV_xRefType::Display:
+      #        case DEV_xRefType::Output:
+      #        case DEV_xRefType::Action:
+      #            DEV_xRefElements_ImageRes.label("@SYS57479");       // Object type
+      #            DEV_xRefElements_ElementName.label("@SYS106481");   // Enum
+      #            DEV_xRefElements_ElementLabel.label("@SYS63179");   // Object name
+      #            break;
+      #
+      #        case DEV_xRefType::Resources:
+      #            element.initResources();
+      #            DEV_xRefElements_ImageRes.label("@SYS115378");      // Resource ID
+      #            DEV_xRefElements_Name.visible(false);
+      #            DEV_xRefElements_ElementName.visible(false);
+      #            DEV_xRefElements_ElementLabel.visible(false);
+      #            CheckBoxEmbedded.visible(true);
+      #            CheckBoxEmbedded.showLabel(true);
+      #            EmbImage.visible(CheckBoxEmbedded.checked());
+      #            xRefImage.visible(!CheckBoxEmbedded.checked());
+      #            DEV_xRes_Label.visible(!CheckBoxEmbedded.checked());
+      #            DEV_xRes_HelpText.visible(!CheckBoxEmbedded.checked());
+      #            DEV_xRes_FullPath.visible(!CheckBoxEmbedded.checked());
+      #            DEV_xRefElements_ds.queryBuildDataSource().addSortIndex(indexNum(DEV_xRefElements, ImageResIdx));
+      #            break;
+      #    }
+      #}
+      #// << DEV:MXK <<
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #DEV_xRefElements
+          Table               #DEV_xRefElements
+          AllowEdit           #No
+          AllowCreate         #No
+          AllowDelete         #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #executeQuery
+          #// >> DEV:MXK >>
+          #public void executeQuery()
+          #{
+          #    QueryBuildDataSource    qbds;
+          #    QueryBuildRange         qbrLabel;
+          #    QueryBuildRange         qbrImgRes;
+          #    QueryBuildRange         qbrEmbedded;
+          #    QueryBuildRange         qbrType;
+          #
+          #    qbds        = this.queryBuildDataSource();
+          #
+          #    qbrType     = SysQuery::findOrCreateRange(qbds, fieldNum(DEV_xRefElements, Type));
+          #    qbrEmbedded = SysQuery::findOrCreateRange(qbds, fieldNum(DEV_xRefElements, Embedded));
+          #    qbrLabel    = SysQuery::findOrCreateRange(qbds, fieldNum(DEV_xRefElements, Label));
+          #    qbrImgRes   = SysQuery::findOrCreateRange(qbds, fieldNum(DEV_xRefElements, ImageRes));
+          #
+          #    qbrType.value(SysQuery::value(ElementType.selection()));
+          #    qbrType.status(RangeStatus::Hidden);
+          #
+          #    if (DEV_xRefElements.Type == DEV_xRefType::Resources)
+          #    {
+          #        qbrEmbedded.value(SysQuery::value(CheckBoxEmbedded.checked() ? NoYes::Yes : NoYes::No));
+          #        qbrEmbedded.status(RangeStatus::Hidden);
+          #    }
+          #
+          #    if (SearchString.text())
+          #    {
+          #        if (CheckBoxEmbedded.checked())
+          #        {
+          #            qbds.clearRange(qbrLabel.field());
+          #            qbrImgRes.value(SysQuery::value(SearchString.text()));
+          #            qbrImgRes.status(RangeStatus::Hidden);
+          #        }
+          #        else
+          #        {
+          #            qbds.clearRange(qbrImgRes.field());
+          #            qbrLabel.value(strFmt('((%1 like "%2") || (%3 like "%2") || (%4 like "%2") || (%5 like "%2")) || (%6 like "%2")) || (%7 like "%2"))',
+          #                    fieldStr(DEV_xRefElements, Label),
+          #                    '*' + SearchString.text() + '*',
+          #                    fieldStr(DEV_xRefElements, HelpText),
+          #                    fieldStr(DEV_xRefElements, FullPath),
+          #                    fieldStr(DEV_xRefElements, Name),
+          #                    fieldStr(DEV_xRefElements, ElementName),
+          #                    fieldStr(DEV_xRefElements, ElementLabel)));
+          #        }
+          #    }
+          #    else
+          #    {
+          #        qbds.clearRange(qbrLabel.field());
+          #    }
+          #
+          #    super();
+          #
+          #    TotalFound.text(strFmt('Found in total: %1', SysQuery::countTotal(DEV_xRefElements_qr)));
+          #}
+          #// << DEV:MXK <<
+        ENDSOURCE
+        SOURCE #getCurImage
+          #display ImageRes getCurImage(DEV_xRefElements _xRefElements)
+          #{
+          #    ImageRes        ret = 0;
+          #
+          #    if (    _xRefElements.Type == DEV_xRefType::Resources
+          #        &&  Image::validResource(_xRefElements.ImageRes))
+          #    {
+          #        ret = resIdMap.lookup(_xRefElements.ImageRes);
+          #    }
+          #
+          #    return ret;
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #Element-reference
+      HideToolbar         #Yes
+      SetCompany          #No
+      StatusBarStyle      #Simple
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroup
+          Height              #Column height
+          ElementPosition     #1610612733
+          HierarchyParent     #GridGroup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #RefGrid
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1073741822
+          HierarchyParent     #GridGroup
+          DataSource          #DEV_xRefElements
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GridGroup
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          FrameType           #None
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #TopGroup
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #715827882
+          FrameType           #None
+          Columns             #5
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #UpdateRef
+          AutoDeclaration     #Yes
+          Enabled             #No
+          HelpText            #Update references
+          ElementPosition     #1431655764
+          HierarchyParent     #ButtonGroup
+          Text                #Update
+          NormalImage         #12338
+          ImageLocation       #EmbeddedResource
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    Args        args = new Args();
+            #
+            #    // This operation may take several minutes.
+            #    if (Box::okCancel("@SYS315452", DialogButton::Cancel) == DialogButton::Ok)
+            #    {
+            #        args = new Args();
+            #        args.parmEnum(ElementType.selection());
+            #        DEV_xRefElementsUpdate::main(args);
+            #        DEV_xRefElements_ds.executeQuery();
+            #    }
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #CheckBoxEmbedded
+          AutoDeclaration     #Yes
+          ElementPosition     #1288490187
+          HierarchyParent     #TopGroup
+          Label               #@SYS89263
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #public void clicked()
+            #{
+            #    super();
+            #
+            #    element.setControls();
+            #    DEV_xRefElements_ds.executeQuery();
+            #    SearchString.setFocus();
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #ElementType
+          AutoDeclaration     #Yes
+          Skip                #Yes
+          ElementPosition     #572662304
+          HierarchyParent     #TopGroup
+          EnumType            #DEV_xRefType
+          ComboType           #List
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #selectionChange
+            #// >> DEV:MXK >>
+            #public int selectionChange()
+            #{
+            #    int ret;
+            #
+            #    ret = super();
+            #
+            #    UpdateRef.enabled(true);
+            #    element.setControls();
+            #    DEV_xRefElements_ds.executeQuery();
+            #    SearchString.setFocus();
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL INTEDIT
+        PROPERTIES
+          Name                #DEV_xRefElements_ImageRes
+          AutoDeclaration     #Yes
+          ElementPosition     #984263335
+          HierarchyParent     #RefGrid
+          ShowZero            #No
+          DataSource          #DEV_xRefElements
+          DataField           #ImageRes
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL INTEDIT
+        PROPERTIES
+          Name                #tableRows
+          AutoDeclaration     #Yes
+          ElementPosition     #357913940
+          HierarchyParent     #RefGrid
+          ShowZero            #No
+          Label               #@SYS2929
+          DataSource          #DEV_xRefElements
+          DataMethod          #tableRows
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #TotalFound
+          AutoDeclaration     #Yes
+          Left                #Auto (right)
+          ElementPosition     #1717986916
+          HierarchyParent     #TopGroup
+          Text                #
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #DEV_xRefElements_ElementLabel
+          AutoDeclaration     #Yes
+          ElementPosition     #1789569700
+          HierarchyParent     #RefGrid
+          DataSource          #DEV_xRefElements
+          DataField           #ElementLabel
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #DEV_xRefElements_ElementName
+          AutoDeclaration     #Yes
+          ElementPosition     #1700091215
+          HierarchyParent     #RefGrid
+          DataSource          #DEV_xRefElements
+          DataField           #ElementName
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #DEV_xRefElements_Name
+          AutoDeclaration     #Yes
+          ElementPosition     #1163220305
+          HierarchyParent     #RefGrid
+          DataSource          #DEV_xRefElements
+          DataField           #Name
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #DEV_xRes_FullPath
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #1879048185
+          HierarchyParent     #RefGrid
+          DataSource          #DEV_xRefElements
+          DataField           #FullPath
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #mouseDblClick
+            #// >> DEV:MXK >>
+            #public int mouseDblClick(int _x, int _y, int _button, boolean _Ctrl, boolean _Shift)
+            #{
+            #    int ret;
+            #
+            #    ret = super(_x, _y, _button, _Ctrl, _Shift);
+            #
+            #    DEV_AOTNodeExpander::expandNode(null, DEV_xRefElements.FullPath);
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #DEV_xRes_HelpText
+          AutoDeclaration     #Yes
+          ElementPosition     #1610612730
+          HierarchyParent     #RefGrid
+          DataSource          #DEV_xRefElements
+          DataField           #HelpText
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #DEV_xRes_Label
+          AutoDeclaration     #Yes
+          ElementPosition     #1342177275
+          HierarchyParent     #RefGrid
+          DataSource          #DEV_xRefElements
+          DataField           #Label
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SearchString
+          AutoDeclaration     #Yes
+          ElementPosition     #858993458
+          HierarchyParent     #TopGroup
+          Label               #Search
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    DEV_xRefElements_ds.executeQuery();
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL WINDOW
+        PROPERTIES
+          Name                #EmbImage
+          AutoDeclaration     #Yes
+          Visible             #No
+          AllowEdit           #No
+          Width               #40
+          Height              #40
+          Skip                #Yes
+          AlignControl        #No
+          ElementPosition     #805306365
+          HierarchyParent     #RefGrid
+          BackStyle           #Transparent
+          Label               #@SYS58650
+          DataSource          #DEV_xRefElements
+          DataField           #ImageRes
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL WINDOW
+        PROPERTIES
+          Name                #xRefImage
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          Width               #40
+          Height              #40
+          Skip                #Yes
+          AlignControl        #No
+          ElementPosition     #536870910
+          HierarchyParent     #RefGrid
+          BackStyle           #Transparent
+          DataSource          #DEV_xRefElements
+          DataMethod          #getCurImage
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: END

@@ -1,0 +1,72 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: DBE
+
+; Microsoft Dynamics AX Enumtype : DEV_xRefType unloaded
+; --------------------------------------------------------------------------------
+  ENUMTYPEVERSION 1
+  
+  ENUMTYPE #DEV_xRefType
+    PROPERTIES
+      Name                #DEV_xRefType
+      Label               #@SYS40518
+      UseEnumValue        #Yes
+      Origin              #{C69DF4DD-49D0-4615-B47C-E9F992EF3900}
+    ENDPROPERTIES
+    
+    TYPEELEMENTS
+      #Tables
+      PROPERTIES
+        Name                #Tables
+        Label               #Tables
+        EnumValue           #1
+      ENDPROPERTIES
+      
+      #EDT
+      PROPERTIES
+        Name                #EDT
+        Label               #EDT
+        EnumValue           #2
+      ENDPROPERTIES
+      
+      #BaseEnums
+      PROPERTIES
+        Name                #BaseEnums
+        Label               #BaseEnums
+        EnumValue           #3
+      ENDPROPERTIES
+      
+      #Display
+      PROPERTIES
+        Name                #Display
+        Label               #Display
+        EnumValue           #4
+      ENDPROPERTIES
+      
+      #Output
+      PROPERTIES
+        Name                #Output
+        Label               #Output
+        EnumValue           #5
+      ENDPROPERTIES
+      
+      #Action
+      PROPERTIES
+        Name                #Action
+        Label               #Action
+        EnumValue           #6
+      ENDPROPERTIES
+      
+      #Resources
+      PROPERTIES
+        Name                #Resources
+        Label               #Resources
+        EnumValue           #7
+      ENDPROPERTIES
+      
+    ENDTYPEELEMENTS
+  ENDENUMTYPE
+  
+
+***Element: END

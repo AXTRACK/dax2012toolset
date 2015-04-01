@@ -2612,7 +2612,7 @@ FORM #DEV_Toolbar
           AutoDeclaration     #Yes
           VerticalSpacing     #0
           SecurityKey         #AdminInquiries
-          ElementPosition     #1288490187
+          ElementPosition     #1073741823
           HierarchyParent     #FormsGrp
           Text                #@SYS105729
           ButtonDisplay       #Image only
@@ -2652,7 +2652,7 @@ FORM #DEV_Toolbar
           Name                #separatorBtn1
           Width               #3
           Enabled             #No
-          ElementPosition     #1994091957
+          ElementPosition     #1968526670
           HierarchyParent     #ButtonsGrp
           Text                #|
           ButtonDisplay       #Image only
@@ -2679,7 +2679,7 @@ FORM #DEV_Toolbar
           Name                #separatorBtn2
           Width               #3
           Enabled             #No
-          ElementPosition     #1717986916
+          ElementPosition     #1789569705
           HierarchyParent     #FormsGrp
           Text                #|
           ButtonDisplay       #Image only
@@ -2813,7 +2813,7 @@ FORM #DEV_Toolbar
           AutoDeclaration     #Yes
           VerticalSpacing     #0
           SecurityKey         #AdminDaily
-          ElementPosition     #858993458
+          ElementPosition     #715827882
           HierarchyParent     #FormsGrp
           Text                #User online
           ButtonDisplay       #Image only
@@ -2853,7 +2853,7 @@ FORM #DEV_Toolbar
           Name                #copyBut
           AutoDeclaration     #Yes
           HelpText            #Copy selected pathes to clipboard
-          ElementPosition     #920350134
+          ElementPosition     #1073741820
           HierarchyParent     #ButtonsGrp
           ButtonDisplay       #Image only
           NormalImage         #1023
@@ -2887,7 +2887,7 @@ FORM #DEV_Toolbar
         PROPERTIES
           Name                #DEV_WebSafeColors
           HelpText            #Allows to select color and copy related code to clipboard
-          ElementPosition     #1840700268
+          ElementPosition     #1908874346
           HierarchyParent     #ButtonsGrp
           ButtonDisplay       #Image only
           NormalImage         #7714
@@ -2914,15 +2914,15 @@ FORM #DEV_Toolbar
       
       CONTROL MENUITEMBUTTON
         PROPERTIES
-          Name                #DEV_xRefSearch
-          HelpText            #Serach for an icon references in the entry points
-          ElementPosition     #1687308579
+          Name                #DEV_xRefElements
+          HelpText            #Open form with an element references
+          ElementPosition     #1819395861
           HierarchyParent     #ButtonsGrp
           ButtonDisplay       #Image only
           NormalImage         #11337
           ImageLocation       #EmbeddedResource
           Border              #Flat
-          MenuItemName        #DEV_xRefSearch
+          MenuItemName        #DEV_xRefElements
         ENDPROPERTIES
         
         METHODS
@@ -2946,7 +2946,7 @@ FORM #DEV_Toolbar
           Name                #openApplicationObjectBut
           AutoDeclaration     #Yes
           HelpText            #Opens application object related to current treenode
-          ElementPosition     #1380525201
+          ElementPosition     #1610612730
           HierarchyParent     #ButtonsGrp
           ButtonDisplay       #Image only
           NormalImage         #1014
@@ -2981,7 +2981,7 @@ FORM #DEV_Toolbar
           Name                #SysSecRoleEntryPointDeveloper
           AutoDeclaration     #Yes
           HelpText            #@SDT246
-          ElementPosition     #1533916890
+          ElementPosition     #1729917376
           HierarchyParent     #ButtonsGrp
           ButtonDisplay       #Image only
           NormalImage         #908
@@ -3024,7 +3024,7 @@ FORM #DEV_Toolbar
           Name                #SysTreeHierarchyBrowser
           AutoDeclaration     #Yes
           VerticalSpacing     #0
-          ElementPosition     #460175067
+          ElementPosition     #536870910
           HierarchyParent     #ButtonsGrp
           Text                #Hierarchy
           ButtonDisplay       #Image only
@@ -3065,7 +3065,7 @@ FORM #DEV_Toolbar
         PROPERTIES
           Name                #tableBrowserBut
           AutoDeclaration     #Yes
-          ElementPosition     #1227133512
+          ElementPosition     #1431655760
           HierarchyParent     #ButtonsGrp
           ButtonDisplay       #Image only
           NormalImage         #2622
@@ -3102,7 +3102,7 @@ FORM #DEV_Toolbar
           Name                #tileHorizontalBut
           AutoDeclaration     #Yes
           HelpText            #Places two windows side-by-side
-          ElementPosition     #306783378
+          ElementPosition     #357913940
           HierarchyParent     #ButtonsGrp
           Text                #Align windows
           ButtonDisplay       #Image only
@@ -3138,7 +3138,7 @@ FORM #DEV_Toolbar
           Name                #toggleSqlBut
           AutoDeclaration     #Yes
           HelpText            #Toggle SQL tracer
-          ElementPosition     #1073741823
+          ElementPosition     #1252698790
           HierarchyParent     #ButtonsGrp
           ButtonDisplay       #Image only
           NormalImage         #7639
@@ -3174,7 +3174,7 @@ FORM #DEV_Toolbar
           Name                #whereOverridenBut
           AutoDeclaration     #Yes
           HelpText            #Where selected method is overriden
-          ElementPosition     #766958445
+          ElementPosition     #894784850
           HierarchyParent     #ButtonsGrp
           Text                #Where overriden
           ButtonDisplay       #Image only
@@ -3209,7 +3209,7 @@ FORM #DEV_Toolbar
         PROPERTIES
           Name                #XRefReferencesUsedBy
           AutoDeclaration     #Yes
-          ElementPosition     #613566756
+          ElementPosition     #715827880
           HierarchyParent     #ButtonsGrp
           Text                #Where used
           ButtonDisplay       #Image only

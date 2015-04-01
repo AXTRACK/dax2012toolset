@@ -220,6 +220,25 @@ FORM #DEV_Projects
         ENDFIELDLIST
       ENDOBJECTPOOL
       METHODS
+        SOURCE #active
+          #public int active()
+          #{
+          #    int ret;
+          #
+          #    ret = super();
+          #
+          #    if (DEV_StartupForm::exist(curUserId(), DEV_Projects.getTreeNodePath(), WinAPI::getComputerName(), ''))
+          #    {
+          #        AddStartupForm.text('Remove startup');
+          #    }
+          #    else
+          #    {
+          #        AddStartupForm.text('Add startup');
+          #    }
+          #
+          #    return ret;
+          #}
+        ENDSOURCE
         SOURCE #displayOption
           #public void displayOption(Common _record, FormRowDisplayOption _options)
           #{
@@ -229,37 +248,16 @@ FORM #DEV_Projects
           #
           #    if (projectTable.Name == DEV_Global::getStartupProject())
           #    {
-          #        _options.backColor(WinAPI::rgb2int(192, 255, 192));
+          #        _options.backColor(WinAPI::RGB2int(192, 255, 192));
+          #    }
+          #    else if (DEV_StartupForm::exist(curUserId(), projectTable.getTreeNodePath(), WinAPI::getComputerName(), ''))
+          #    {
+          #        _options.backColor(WinAPI::RGB2int(153, 204, 255));
           #    }
           #    else
           #    {
-          #        _options.backColor(WinAPI::rgb2int(255, 255, 255));
+          #        _options.backColor(WinAPI::RGB2int(255, 255, 255));
           #    }
-          #    /*switch (projectTable.Status)
-          #    {
-          #        case DEV_PMProjStatus::Created:
-          #            _options.backColor(WinAPI::rgb2int(192, 192, 192));
-          #        break;
-          #
-          #        case DEV_PMProjStatus::Scheduled:
-          #            _options.backColor(WinAPI::rgb2int(192, 192, 192));
-          #        break;
-          #
-          #        case DEV_PMProjStatus::InProcess:
-          #            _options.backColor(WinAPI::rgb2int(255, 192, 192));
-          #        break;
-          #
-          #        case DEV_PMProjStatus::Test:
-          #            _options.backColor(WinAPI::rgb2int(192, 255, 192));
-          #        break;
-          #
-          #        case DEV_PMProjStatus::Completed:
-          #            _options.backColor(WinAPI::rgb2int(255, 255, 255));
-          #        break;
-          #
-          #        default:
-          #            _options.backColor(WinAPI::rgb2int(255, 255, 255));
-          #    }*/
           #}
         ENDSOURCE
         SOURCE #executeQuery
@@ -356,8 +354,10 @@ FORM #DEV_Projects
       
       CONTROL BUTTONGROUP
         PROPERTIES
-          Name                #ButtonGroup
-          ElementPosition     #1717986916
+          Name                #ButtonGroupAttach
+          ElementPosition     #1908874352
+          HierarchyParent     #ActionPaneTab
+          Caption             #@SYS316708
         ENDPROPERTIES
         
         METHODS
@@ -379,7 +379,7 @@ FORM #DEV_Projects
       CONTROL BUTTONGROUP
         PROPERTIES
           Name                #ButtonGroupExport
-          ElementPosition     #1789569705
+          ElementPosition     #1670265058
           HierarchyParent     #ActionPaneTab
           Caption             #@SYS26056
         ENDPROPERTIES
@@ -393,7 +393,7 @@ FORM #DEV_Projects
           Name                #ButtonGroupProjects
           ElementPosition     #715827882
           HierarchyParent     #ActionPaneTab
-          Caption             #@SYS50498
+          Caption             #@SYS118440
         ENDPROPERTIES
         
         METHODS
@@ -432,7 +432,7 @@ FORM #DEV_Projects
           Name                #Filters
           Width               #Column width
           ElementPosition     #858993458
-          FrameType           #None
+          FrameType           #Raised 3D
           Columns             #3
           ArrangeGuide        
             ARRAY INDEX Columns 
@@ -503,6 +503,48 @@ FORM #DEV_Projects
       
       CONTROL BUTTON
         PROPERTIES
+          Name                #AddStartupForm
+          AutoDeclaration     #Yes
+          HelpText            #Create startup entry in startup form.
+          ElementPosition     #1879048189
+          HierarchyParent     #ButtonGroupCreate
+          Text                #@SYS26960
+          ButtonDisplay       #Text & Image left
+          NormalImage         #12617
+          ImageLocation       #EmbeddedResource
+          MultiSelect         #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    DEV_StartupForm         startupForm;
+            #
+            #    if (DEV_StartupForm::exist(curUserId(), DEV_Projects.getTreeNodePath(), WinAPI::getComputerName(), ''))
+            #    {
+            #        ttsBegin;
+            #        DEV_StartupForm::find(curUserId(), DEV_Projects.getTreeNodePath(), WinAPI::getComputerName(), '', true).delete();
+            #        ttsCommit;
+            #    }
+            #    else
+            #    {
+            #        ttsBegin;
+            #        startupForm.initValue();
+            #        startupForm.TreeNodePath = DEV_Projects.getTreeNodePath();
+            #        startupForm.insert();
+            #        ttsCommit;
+            #    }
+            #
+            #    DEV_Projects_ds.research(true);
+            #}
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
           Name                #ExportSelected
           HelpText            #Export selected projects
           ElementPosition     #1073741822
@@ -512,6 +554,7 @@ FORM #DEV_Projects
           NormalImage         #11157
           ImageLocation       #EmbeddedResource
           MultiSelect         #Yes
+          Big                 #Yes
         ENDPROPERTIES
         
         METHODS
@@ -581,18 +624,12 @@ FORM #DEV_Projects
           SOURCE #clicked
             #void clicked()
             #{
-            #    ProjectNode         projNode;
-            #    TreeNode            projTreeNode;
+            #    TreeNode            treeNode;
             #
-            #    super();
+            #    treeNode = TreeNode::findNode(DEV_Projects.getTreeNodePath());
             #
-            #    projTreeNode    = SysTreeNode::getSharedProject();
-            #    projNode        = projTreeNode.AOTfindChild(DEV_Projects.Name);
-            #
-            #    if (projNode)
-            #    {
-            #        projNode.AOTrun();
-            #    }
+            #    if (treeNode)
+            #        treeNode.AOTrun();
             #}
           ENDSOURCE
         ENDMETHODS
@@ -605,7 +642,7 @@ FORM #DEV_Projects
           HelpText            #Open project in AOT
           ElementPosition     #1073741822
           HierarchyParent     #ButtonGroupStartup
-          Text                #@SYS80095
+          Text                #@SYS9282
           ButtonDisplay       #Text & Image left
           NormalImage         #12383
           ImageLocation       #EmbeddedResource
@@ -658,7 +695,7 @@ FORM #DEV_Projects
           HelpText            #Set as default project
           ElementPosition     #1610612733
           HierarchyParent     #ButtonGroupStartup
-          Text                #Set startup
+          Text                #@SYP4313619
           ButtonDisplay       #Text & Image left
           NormalImage         #10484
           ImageLocation       #EmbeddedResource
@@ -668,21 +705,16 @@ FORM #DEV_Projects
           SOURCE #clicked
             #void clicked()
             #{
-            #    UserInfo        userInfo;
+            #    UserInfo        userInfo = xUserInfo::find(true);
             #
             #    ttsBegin;
-            #
-            #    select firstOnly forUpdate userInfo
-            #        where userInfo.id == curUserId();
-            #
             #    userInfo.startupProject = DEV_Projects.Name;
-            #
             #    userInfo.update();
-            #
             #    ttsCommit;
             #
             #    OpenStartup.enabled(DEV_Global::getStartupProject() != '');
             #
+            #    DEV_Projects_ds.research(true);
             #}
           ENDSOURCE
         ENDMETHODS
@@ -753,12 +785,44 @@ FORM #DEV_Projects
         ENDMETHODS
       ENDCONTROL 
       
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #AttachCommandButton
+          DisplayTarget       #Client
+          ElementPosition     #1610612733
+          HierarchyParent     #ButtonGroupAttach
+          Text                #@SYS316708
+          ButtonDisplay       #Text & Image left
+          NormalImage         #10442
+          ImageLocation       #EmbeddedResource
+          Command             #2853
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #ExportCommandButton
+          ElementPosition     #1879048189
+          HierarchyParent     #ButtonGroupExport
+          ButtonDisplay       #Text & Image left
+          NormalImage         #10156
+          ImageLocation       #EmbeddedResource
+          Command             #4436
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
       CONTROL MENUITEMBUTTON
         PROPERTIES
           Name                #DEV_CreateNewProject
           ElementPosition     #1073741822
           HierarchyParent     #ButtonGroupCreate
-          Text                #@SYS50124
+          Text                #@SYS80304
           ButtonDisplay       #Text & Image left
           MultiSelect         #Yes
           Big                 #Yes
@@ -772,7 +836,7 @@ FORM #DEV_Projects
             #{
             #    super();
             #
-            #    DEV_Projects_ds.executeQuery();
+            #    DEV_Projects_ds.research(true);
             #}
           ENDSOURCE
         ENDMETHODS

@@ -49,7 +49,7 @@ Formatversion: 1
       ENDMENUITEM
       MENUITEM
         PROPERTIES
-          Name                #Icon used by
+          Name                #*DEV_xRefSearch*
           MenuItemName        #DEV_xRefSearch
         ENDPROPERTIES
         

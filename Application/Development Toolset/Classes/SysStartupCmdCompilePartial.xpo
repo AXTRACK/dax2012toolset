@@ -1,0 +1,50 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysStartupCmdCompilePartial unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysStartupCmdCompilePartial
+    PROPERTIES
+      Name                #SysStartupCmdCompilePartial
+      Extends             #SysStartupCmd
+      Origin              #{CDF1BDF5-9C11-4312-904F-7A8360715661}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #infoRun
+        #void infoRun()
+        #{
+        #    boolean origXRef = xUserInfo::debugInfo_XReferences();
+        #    boolean runXReference = false;
+        #    ;
+        #    switch (parm)
+        #    {
+        #        case '+':
+        #            xUserInfo::debugInfo_XReferences(true);
+        #            runXReference = true;
+        #            break;
+        #
+        #        case '-':
+        #            xUserInfo::debugInfo_XReferences(false);
+        #            break;
+        #    }
+        #    // >> DEV:MXK >>
+        #    //xUserInfo::compilerWarningLevel(CompilerWarningLevel::Level4);
+        #    if (xUserInfo::compilerWarningLevel() < CompilerWarningLevel::Level3)
+        #        xUserInfo::compilerWarningLevel(CompilerWarningLevel::Level3);
+        #    // << DEV:MXK <<
+        #    SysCompilePartial::compile(runXReference);
+        #    xUserInfo::debugInfo_XReferences(origXRef);
+        #    SysCompilerOutput::exportLog();
+        #
+        #    this.shutDown();
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

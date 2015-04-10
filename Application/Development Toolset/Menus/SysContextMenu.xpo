@@ -88,6 +88,22 @@ Formatversion: 1
       
     ENDMENUITEM
     SEPARATOR
+    MENUITEM
+      PROPERTIES
+        Name                #*APLSysUtilClipboardCopy*
+        MenuItemType        #Action
+        MenuItemName        #APLSysUtilClipboardCopy
+      ENDPROPERTIES
+      
+    ENDMENUITEM
+    MENUITEM
+      PROPERTIES
+        Name                #*APLSysUtilClipboardPaste*
+        MenuItemType        #Action
+        MenuItemName        #APLSysUtilClipboardPaste
+      ENDPROPERTIES
+      
+    ENDMENUITEM
     MENU #@SYS24666
       PROPERTIES
         Name                #@SYS24666
@@ -171,6 +187,13 @@ Formatversion: 1
           Name                #Apply changes
           MenuItemType        #Action
           MenuItemName        #SysSecSecurityApply
+        ENDPROPERTIES
+        
+      ENDMENUITEM
+      MENUITEM
+        PROPERTIES
+          Name                #*SysSecRoleEntryPointDeveloper*
+          MenuItemName        #SysSecRoleEntryPointDeveloper
         ENDPROPERTIES
         
       ENDMENUITEM

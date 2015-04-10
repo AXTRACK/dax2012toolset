@@ -177,11 +177,12 @@ Formatversion: 1
       SOURCE #validateWrite
         #public boolean validateWrite()
         #{
-        #    boolean ret;
+        #    TreeNode    treeNode = TreeNode::findNode(this.TreeNodePath);
+        #    boolean     ret;
         #
         #    ret = super();
         #
-        #    if (!TreeNode::findNode(this.TreeNodePath))
+        #    if (!treeNode || !treeNode.treeNodeType() || !treeNode.treeNodeType().isUtilElement())
         #    {
         #        ret = checkFailed(strFmt("@SYS324296", this.TreeNodePath)); // Tree %1 node path is invalid.
         #    }
@@ -263,19 +264,10 @@ Formatversion: 1
         #}
         #
       ENDSOURCE
-      SOURCE #startupApplRun
-        #public static void startupApplRun(  boolean _onCompanyChange    = false,
-        #                                    UserId  _userId             = curUserId())
+      SOURCE #run
+        #public static void run(UserId _userId = curUserId(), boolean _client = true, boolean _workspace = true)
         #{
-        #    #TreeNodeSysNodeType
-        #    #define.Main('Main')
-        #
-        #    DEV_StartupForm                 startupForm;
-        #    TreeNode                        treeNode;
-        #    Args                            args            = new Args();
-        #    FormRun                         formRun;
-        #    DictClass                       dictClass;
-        #    SysDictClass                    sdc;
+        #    DEV_StartupForm         startupForm;
         #
         #    while select startupForm
         #        where       startupForm.UserId  == _userId
@@ -283,92 +275,13 @@ Formatversion: 1
         #                &&  (   startupForm.Company == curext()
         #                    ||  startupForm.Company == '')
         #    {
-        #        treeNode = infolog.findNode(startupForm.TreeNodePath);
-        #
-        #        if (treeNode)
+        #        if (    startupForm.ComputerName
+        #            &&  startupForm.ComputerName != WinAPI::getComputerName())
         #        {
-        #            if (startupForm.ComputerName &&
-        #                (   (startupForm.ComputerName != WinAPI::getComputerName())
-        #                &&   startupForm.ComputerName != '*'))
-        #            {
-        #                continue;
-        #            }
-        #
-        #            switch (treeNode.treeNodeType().id())
-        #            {
-        #                case #NT_FUNCITEM:
-        #                    treeNode.AOTrun();
-        #                break;
-        #
-        #                case #NT_FORM:
-        #                    args.name(treeNode.treeNodeName());
-        #                    formRun = classfactory.formRunClass(args);
-        #                    formRun.init();
-        #                    formRun.run();
-        #                    formRun.wait();
-        #                    formRun.detach();
-        #                break;
-        #
-        #                case #NT_CLASS:
-        #                    dictClass = new DictClass(className2Id(treeNode.treeNodeName()));
-        #
-        #                    if (dictClass)
-        #                    {
-        #                        sdc = new SysDictClass(className2Id(treeNode.treeNodeName()));
-        #
-        #                        if (sdc.hasStaticMethod(#Main))
-        #                        {
-        #                            dictClass.callStatic(#Main);
-        #                        }
-        #                    }
-        #                break;
-        #
-        #                default:
-        #            }
-        #        }
-        #    }
-        #}
-        #
-      ENDSOURCE
-      SOURCE #startupInfoRun
-        #public static void startupInfoRun(  boolean _onCompanyChange    = false,
-        #                                    UserId  _userId             = curUserId())
-        #{
-        #    #AOT
-        #
-        #    DEV_StartupForm                 startupForm;
-        #    ProjectListNode                 parentTreenode;
-        #    ProjectNode                     projectNode;
-        #    TreeNode                        treeNode;
-        #    container                       con;
-        #
-        #    while select startupForm
-        #        where       startupForm.UserId  == _userId
-        #                &&  startupForm.Enabled == NoYes::Yes
-        #                &&  (   startupForm.Company == curext()
-        #                    ||  startupForm.Company == '')
-        #    {
-        #        con = str2con(startupForm.TreeNodePath, '\\');
-        #
-        #        if (conLen(con) < 3)
         #            continue;
-        #
-        #        if (subStr(startupForm.TreeNodePath, 1, strLen(#ProjectSharedPath)) == #ProjectSharedPath)
-        #        {
-        #            parentTreenode  = SysTreeNode::getSharedProject();
-        #            projectNode     = parentTreenode.AOTfindChild(conPeek(con, 4));
-        #            treeNode        = projectNode.getRunNode();
-        #        }
-        #        else if (subStr(startupForm.TreeNodePath, 1, strLen(#ProjectPrivatePath)) == #ProjectPrivatePath)
-        #        {
-        #            parentTreenode  = SysTreeNode::getPrivateProject();
-        #            projectNode     = parentTreenode.AOTfindChild(conPeek(con, 4));
-        #            treeNode        = projectNode.getRunNode();
-        #            projectNode.AOTrun();
         #        }
         #
-        #        if (treeNode)
-        #            treeNode.AOTnewWindow();
+        #        DEV_Global::runTreeNode(startupForm.TreeNodePath, _client, _workspace);
         #    }
         #}
         #

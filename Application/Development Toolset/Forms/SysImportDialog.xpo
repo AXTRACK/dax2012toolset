@@ -174,7 +174,8 @@ FORM #SysImportDialog
       #    sysImportElements = new SysImportElements();
       #
       #    // Set the filename.
-      #    sysImportElements.newFile(this.getFileName());
+      #    if (fileName.text())
+      #        sysImportElements.newFile(this.getFileName());
       #    //<< DEV:MXK <<
       #
       #    this.unLock();

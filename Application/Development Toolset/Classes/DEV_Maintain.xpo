@@ -297,8 +297,9 @@ Formatversion: 1
         #    if (maintainIndexes)
         #    {
         #        DEV_Maintain::maintainIndexes();
-        #        WinAPI::shellExecute(strFmt('"%1" %2', DEV_Global::clientPath(),
-        #                            '-StartupCmd=Synchronize -lazyclassloading -lazytableloading -minimize'));
+        #        this.dbSynchronize();
+        #        /*WinAPI::shellExecute(strFmt('"%1" %2', DEV_Global::clientPath(),
+        #                            '-StartupCmd=Synchronize -lazyclassloading -lazytableloading -minimize'));*/
         #    }
         #// << DEV:MXK <<
         #}
@@ -786,6 +787,8 @@ Formatversion: 1
         #        new SqlStatementExecutePermission(sqlStatement).assert();
         #        statement.executeUpdate(sqlStatement);
         #        CodeAccessPermission::revertAssert();
+        #
+        #        info('Index maintenance task completed.');
         #    }
         #    catch
         #    {

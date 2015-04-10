@@ -359,6 +359,12 @@ Formatversion: 1
         FILETYPE 0
         UTILTYPE 45
         NODETYPE 329
+        NAME #SysQueryBuilder
+      ENDNODE
+      BEGINNODE
+        FILETYPE 0
+        UTILTYPE 45
+        NODETYPE 329
         NAME #SysSetupFormRun
       ENDNODE
       BEGINNODE

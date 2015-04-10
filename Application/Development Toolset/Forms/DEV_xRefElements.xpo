@@ -59,23 +59,33 @@ FORM #DEV_xRefElements
       #    xRefImage.imageList(imageList);
       #}
     ENDSOURCE
+    SOURCE #run
+      #public void run()
+      #{
+      #    super();
+      #
+      #    ElementType.setFocus();
+      #    ElementType.lookup();
+      #}
+    ENDSOURCE
     SOURCE #setControls
       #// >> DEV:MXK >>
       #public void setControls()
       #{
-      #    DEV_xRefElements_Name.visible(true);
-      #    DEV_xRefElements_ElementName.visible(true);
-      #    DEV_xRefElements_ElementLabel.visible(true);
+      #    Name.visible(true);
+      #    ElementName.visible(true);
+      #    ElementLabel.visible(true);
       #
       #    tableRows.visible(false);
+      #    Embedded.visible(false);
       #
       #    CheckBoxEmbedded.visible(false);
       #    CheckBoxEmbedded.showLabel(false);
       #    xRefImage.visible(false);
       #    EmbImage.visible(false);
       #
-      #    DEV_xRefElements_ElementName.label("@SYS94528");    // Element name
-      #    DEV_xRefElements_ElementLabel.label("@SYS25058");   // Label
+      #    ElementName.label("@SYS94528");    // Element name
+      #    ElementLabel.label("@SYS25058");   // Label
       #
       #    DEV_xRefElements_ds.queryBuildDataSource().addSortIndex(indexNum(DEV_xRefElements, NameIdx));
       #
@@ -85,14 +95,16 @@ FORM #DEV_xRefElements
       #    {
       #        case DEV_xRefType::Tables:
       #            tableRows.visible(true);
-      #            DEV_xRefElements_ElementName.label("@SYS73887");    // Extends
-      #            DEV_xRefElements_ElementLabel.label("@SYS72439");   // Form reference
-      #            DEV_xRefElements_ImageRes.label("@SYS99314");       // Table type
+      #            Embedded.visible(true);
+      #            Embedded.label("@SYS71476");        // Data per company
+      #            ElementName.label("@SYS73887");     // Extends
+      #            ElementLabel.label("@SYS72439");    // Form reference
+      #            ImageRes.label("@SYS99314");        // Table type
       #            break;
       #
       #        case DEV_xRefType::EDT:
-      #            DEV_xRefElements_ImageRes.label("@SYS99319");       // String size
-      #            DEV_xRefElements_ElementLabel.label("@SYS106481");  // Enum
+      #            ImageRes.label("@SYS99319");        // String size
+      #            ElementLabel.label("@SYS106481");   // Enum
       #            break;
       #
       #        case DEV_xRefType::BaseEnums:
@@ -101,24 +113,24 @@ FORM #DEV_xRefElements
       #        case DEV_xRefType::Display:
       #        case DEV_xRefType::Output:
       #        case DEV_xRefType::Action:
-      #            DEV_xRefElements_ImageRes.label("@SYS57479");       // Object type
-      #            DEV_xRefElements_ElementName.label("@SYS106481");   // Enum
-      #            DEV_xRefElements_ElementLabel.label("@SYS63179");   // Object name
+      #            ImageRes.label("@SYS57479");        // Object type
+      #            ElementName.label("@SYS106481");    // Enum
+      #            ElementLabel.label("@SYS63179");    // Object name
       #            break;
       #
       #        case DEV_xRefType::Resources:
       #            element.initResources();
-      #            DEV_xRefElements_ImageRes.label("@SYS115378");      // Resource ID
-      #            DEV_xRefElements_Name.visible(false);
-      #            DEV_xRefElements_ElementName.visible(false);
-      #            DEV_xRefElements_ElementLabel.visible(false);
+      #            ImageRes.label("@SYS115378");       // Resource ID
+      #            Name.visible(false);
+      #            ElementName.visible(false);
+      #            ElementLabel.visible(false);
       #            CheckBoxEmbedded.visible(true);
       #            CheckBoxEmbedded.showLabel(true);
       #            EmbImage.visible(CheckBoxEmbedded.checked());
       #            xRefImage.visible(!CheckBoxEmbedded.checked());
-      #            DEV_xRes_Label.visible(!CheckBoxEmbedded.checked());
-      #            DEV_xRes_HelpText.visible(!CheckBoxEmbedded.checked());
-      #            DEV_xRes_FullPath.visible(!CheckBoxEmbedded.checked());
+      #            Label.visible(!CheckBoxEmbedded.checked());
+      #            HelpText.visible(!CheckBoxEmbedded.checked());
+      #            FullPath.visible(!CheckBoxEmbedded.checked());
       #            DEV_xRefElements_ds.queryBuildDataSource().addSortIndex(indexNum(DEV_xRefElements, ImageResIdx));
       #            break;
       #    }
@@ -307,6 +319,92 @@ FORM #DEV_xRefElements
       
       CONTROL BUTTON
         PROPERTIES
+          Name                #CreateProject
+          HelpText            #Creates project with all found elements.
+          ElementPosition     #1789569705
+          HierarchyParent     #ButtonGroup
+          Text                #Create project
+          MultiSelect         #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #// BP Deviation Documented
+            #void clicked()
+            #{
+            #    #TreeNodeSysNodeType
+            #    #define.ProjectName('DEV_xRefElements')
+            #
+            #    DEV_xRefElements            xRefElements;
+            #    Set                         treeNodeLocalPaths;
+            #    SetEnumerator               treeNodeLocalPathEnumerator;
+            #
+            #    SysProjectFilterRunBase     projectFilter;
+            #    UtilElements                utilElements;
+            #
+            #    Dialog                      dialog;
+            #    DialogField                 dialogField;
+            #
+            #    treeNodeLocalPaths = new Set(Types::String);
+            #
+            #    xRefElements = DEV_xRefElements_ds.getFirst();
+            #
+            #    while (xRefElements)
+            #    {
+            #        treeNodeLocalPaths.add(xRefElements.FullPath);
+            #        xRefElements = DEV_xRefElements_ds.getNext();
+            #    }
+            #
+            #    if (treeNodeLocalPaths.elements() == 0)
+            #    {
+            #        info('No AOT objects to include into Project.');
+            #        return;
+            #    }
+            #
+            #    dialog      = new dialog("@SYS53207"); // Create project
+            #    dialogField = dialog.addFieldValue(extendedTypeStr(ProjectName), #ProjectName);
+            #
+            #    if (dialog.run())
+            #    {
+            #        startLengthyOperation();
+            #
+            #        treeNodeLocalPathEnumerator = treeNodeLocalPaths.getEnumerator();
+            #        while (treeNodeLocalPathEnumerator.moveNext())
+            #        {
+            #            utilElements = xUtilElements::findTreeNode(
+            #                treeNode::findNode(
+            #                    SysTreeNode::applObjectPath(
+            #                    treeNodeLocalPathEnumerator.current())),
+            #                false);
+            #
+            #            if (!projectFilter)
+            #                projectFilter = DEV_Global::createProject(any2str(dialogField.value()));
+            #
+            #            if (    utilElements.RecordType == UtilElementType::SharedProject
+            #                ||  utilElements.RecordType == UtilElementType::PrivateProject
+            #                ||  utilElements.RecordType == UtilElementType::ClassInternalHeader
+            #                ||  utilElements.RecordType == UtilElementType::TableInternalHeader
+            #                || !projectFilter.doUtilElements(utilElements))
+            #            {
+            #                info(strfmt("@SYS316339", strfmt('%1 %2', utilElements.RecordType, utilElements.Name)));
+            #            }
+            #        }
+            #
+            #        projectFilter.write();
+            #
+            #        info(strFmt('Project created: %1', projectFilter.parmProjectNode().name()));
+            #
+            #        endLengthyOperation();
+            #    }
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
           Name                #UpdateRef
           AutoDeclaration     #Yes
           Enabled             #No
@@ -364,6 +462,21 @@ FORM #DEV_xRefElements
         ENDMETHODS
       ENDCONTROL 
       
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #Embedded
+          AutoDeclaration     #Yes
+          ElementPosition     #447392425
+          HierarchyParent     #RefGrid
+          BackgroundColor     #Window background
+          DataSource          #DEV_xRefElements
+          DataField           #Embedded
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
       CONTROL COMBOBOX
         PROPERTIES
           Name                #ElementType
@@ -398,9 +511,9 @@ FORM #DEV_xRefElements
       
       CONTROL INTEDIT
         PROPERTIES
-          Name                #DEV_xRefElements_ImageRes
+          Name                #ImageRes
           AutoDeclaration     #Yes
-          ElementPosition     #984263335
+          ElementPosition     #973078525
           HierarchyParent     #RefGrid
           ShowZero            #No
           DataSource          #DEV_xRefElements
@@ -443,9 +556,9 @@ FORM #DEV_xRefElements
       
       CONTROL STRINGEDIT
         PROPERTIES
-          Name                #DEV_xRefElements_ElementLabel
+          Name                #ElementLabel
           AutoDeclaration     #Yes
-          ElementPosition     #1789569700
+          ElementPosition     #1811939325
           HierarchyParent     #RefGrid
           DataSource          #DEV_xRefElements
           DataField           #ElementLabel
@@ -457,9 +570,9 @@ FORM #DEV_xRefElements
       
       CONTROL STRINGEDIT
         PROPERTIES
-          Name                #DEV_xRefElements_ElementName
+          Name                #ElementName
           AutoDeclaration     #Yes
-          ElementPosition     #1700091215
+          ElementPosition     #1644167165
           HierarchyParent     #RefGrid
           DataSource          #DEV_xRefElements
           DataField           #ElementName
@@ -471,24 +584,10 @@ FORM #DEV_xRefElements
       
       CONTROL STRINGEDIT
         PROPERTIES
-          Name                #DEV_xRefElements_Name
-          AutoDeclaration     #Yes
-          ElementPosition     #1163220305
-          HierarchyParent     #RefGrid
-          DataSource          #DEV_xRefElements
-          DataField           #Name
-        ENDPROPERTIES
-        
-        METHODS
-        ENDMETHODS
-      ENDCONTROL 
-      
-      CONTROL STRINGEDIT
-        PROPERTIES
-          Name                #DEV_xRes_FullPath
+          Name                #FullPath
           AutoDeclaration     #Yes
           Width               #Column width
-          ElementPosition     #1879048185
+          ElementPosition     #1979711485
           HierarchyParent     #RefGrid
           DataSource          #DEV_xRefElements
           DataField           #FullPath
@@ -514,9 +613,9 @@ FORM #DEV_xRefElements
       
       CONTROL STRINGEDIT
         PROPERTIES
-          Name                #DEV_xRes_HelpText
+          Name                #HelpText
           AutoDeclaration     #Yes
-          ElementPosition     #1610612730
+          ElementPosition     #1476395005
           HierarchyParent     #RefGrid
           DataSource          #DEV_xRefElements
           DataField           #HelpText
@@ -528,12 +627,26 @@ FORM #DEV_xRefElements
       
       CONTROL STRINGEDIT
         PROPERTIES
-          Name                #DEV_xRes_Label
+          Name                #Label
           AutoDeclaration     #Yes
-          ElementPosition     #1342177275
+          ElementPosition     #1308622845
           HierarchyParent     #RefGrid
           DataSource          #DEV_xRefElements
           DataField           #Label
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Name
+          AutoDeclaration     #Yes
+          ElementPosition     #1140850685
+          HierarchyParent     #RefGrid
+          DataSource          #DEV_xRefElements
+          DataField           #Name
         ENDPROPERTIES
         
         METHODS

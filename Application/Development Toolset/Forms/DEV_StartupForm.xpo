@@ -23,6 +23,7 @@ FORM #DEV_StartupForm
       #// << DEV:MXK <<
     ENDSOURCE
     SOURCE #init
+      #// >> DEV:MXK >>
       #public void init()
       #{
       #    super();
@@ -33,6 +34,7 @@ FORM #DEV_StartupForm
       #        DEV_StartupForm_ds.object(fieldNum(DEV_StartupForm, TreeNodePath)).allowEdit(false);
       #    }
       #}
+      #// << DEV:MXK <<
     ENDSOURCE
   ENDMETHODS
   OBJECTBANK
@@ -52,6 +54,7 @@ FORM #DEV_StartupForm
       ENDOBJECTPOOL
       METHODS
         SOURCE #executeQuery
+          #// >> DEV:MXK >>
           #public void executeQuery()
           #{
           #    QueryBuildDataSource                    qbds;
@@ -71,6 +74,7 @@ FORM #DEV_StartupForm
           #
           #    super();
           #}
+          #// << DEV:MXK <<
         ENDSOURCE
       ENDMETHODS
     ENDDATASOURCE
@@ -179,12 +183,14 @@ FORM #DEV_StartupForm
         
         METHODS
           SOURCE #clicked
+            #// >> DEV:MXK >>
             #void clicked()
             #{
             #    showAll = !showAll;
             #    DEV_StartupForm_ds.executeQuery();
             #    AllUesersButton.normalImage(showAll ? '12414' : '10844');
             #}
+            #// << DEV:MXK <<
           ENDSOURCE
         ENDMETHODS
       ENDCONTROL 
@@ -203,83 +209,12 @@ FORM #DEV_StartupForm
         
         METHODS
           SOURCE #clicked
+            #// >> DEV:MXK >>
             #void clicked()
             #{
-            #    #TreeNodeSysNodeType
-            #    #AOT
-            #    #define.Main('Main')
-            #
-            #    TreeNode                        treeNode;
-            #    Args                            args            = new Args();
-            #    FormRun                         formRun;
-            #    DictClass                       dictClass;
-            #    SysDictClass                    sdc;
-            #    container                       con;
-            #
-            #    con = str2con(DEV_StartupForm.TreeNodePath, '\\');
-            #
-            #    if (subStr(DEV_StartupForm.TreeNodePath, 1, strLen(#ProjectSharedPath)) == #ProjectSharedPath)
-            #    {
-            #        treeNode = SysTreeNode::getSharedProject();
-            #
-            #        if (strLen(DEV_StartupForm.TreeNodePath) > strLen(#ProjectSharedPath))
-            #        {
-            #            treeNode = infolog.projectRootNode().AOTfindChild(conPeek(con, 3));
-            #        }
-            #    }
-            #    else if (subStr(DEV_StartupForm.TreeNodePath, 1, strLen(#ProjectPrivatePath)) == #ProjectPrivatePath)
-            #    {
-            #        treeNode = SysTreeNode::getPrivateProject();
-            #
-            #        if (strLen(DEV_StartupForm.TreeNodePath) > strLen(#ProjectPrivatePath))
-            #        {
-            #            treeNode = infolog.projectRootNode().AOTfindChild(conPeek(con, 3));
-            #        }
-            #    }
-            #
-            #    if (treeNode)
-            #    {
-            #        treeNode.AOTnewWindow();
-            #        return;
-            #    }
-            #
-            #    treeNode = infolog.findNode(DEV_StartupForm.TreeNodePath);
-            #
-            #    if (treeNode)
-            #    {
-            #        switch (treeNode.treeNodeType().id())
-            #        {
-            #            case #NT_FUNCITEM:
-            #                treeNode.AOTrun();
-            #            break;
-            #
-            #            case #NT_FORM:
-            #                args.name(treeNode.treeNodeName());
-            #                formRun = classfactory.formRunClass(args);
-            #                formRun.init();
-            #                formRun.run();
-            #                formRun.wait();
-            #                formRun.detach();
-            #            break;
-            #
-            #            case #NT_CLASS:
-            #                dictClass = new DictClass(className2Id(treeNode.treeNodeName()));
-            #
-            #                if (dictClass)
-            #                {
-            #                    sdc = new SysDictClass(className2Id(treeNode.treeNodeName()));
-            #
-            #                    if (sdc.hasStaticMethod(#Main))
-            #                    {
-            #                        dictClass.callStatic(#Main);
-            #                    }
-            #                }
-            #            break;
-            #
-            #            default:
-            #        }
-            #    }
+            #    DEV_Global::runTreeNode(DEV_StartupForm.TreeNodePath);
             #}
+            #// << DEV:MXK <<
           ENDSOURCE
         ENDMETHODS
       ENDCONTROL 

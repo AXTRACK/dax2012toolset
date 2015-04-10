@@ -271,9 +271,9 @@ Formatversion: 1
         #    EditorScripts   editorScripts;
         #
         #    // >> DEV:MXK >>
-        #    if (appl.globalCache().isSet(classStr(EditorScripts), 1))
+        #    if (infolog.globalCache().isSet(classStr(EditorScripts), 1))
         #    {
-        #        editor = appl.globalCache().get(classStr(EditorScripts), 1);
+        #        editor = infolog.globalCache().get(classStr(EditorScripts), 1);
         #
         #        if (editor == null)
         #            return;
@@ -308,7 +308,7 @@ Formatversion: 1
         #            throw error (Error::wrongUseOfFunction(funcname()));
         #        }
         #
-        #        appl.globalCache().remove(classStr(EditorScripts), 1); // DEV:MXK
+        #        infolog.globalCache().remove(classStr(EditorScripts), 1); // DEV:MXK
         #    }
         #}
       ENDSOURCE
@@ -333,25 +333,13 @@ Formatversion: 1
       SOURCE #runRunClass
         #void runRunClass()
         #{
-        #    TreeNode            classNode;
-        #
-        #    classNode = TreeNode::findNode(strFmt("%1%2%3", #ClassesPath, #AOTDelimiter, hkSetupBuf.ActionElementName));
-        #
-        #    if (classNode)
-        #    {
-        #        classNode.AOTrun();
-        #    }
+        #    DEV_Global::runTreeNode(#ClassesPath + #AOTDelimiter + hkSetupBuf.ActionElementName);
         #}
       ENDSOURCE
       SOURCE #runRunJob
         #void runRunJob()
         #{
-        #    TreeNode jobNode;
-        #
-        #    jobNode = TreeNode::findNode(strFmt("%1%2%3", #JobsPath, #AOTDelimiter, hkSetupBuf.ActionElementName));
-        #
-        #    if (jobNode)
-        #        jobNode.AOTrun();
+        #    DEV_Global::runTreeNode(#JobsPath + #AOTDelimiter + hkSetupBuf.ActionElementName);
         #}
       ENDSOURCE
       SOURCE #runScript
@@ -545,7 +533,7 @@ Formatversion: 1
         #{
         #    Editor      editor = _args.getArgNum(1);
         #
-        #    appl.globalCache().set(classStr(EditorScripts), 1, editor);
+        #    infolog.globalCache().set(classStr(EditorScripts), 1, editor);
         #}
         #// << DEV:MXK <<
       ENDSOURCE

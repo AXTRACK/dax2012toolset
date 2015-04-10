@@ -83,8 +83,8 @@ Formatversion: 1
         #{
         #    #var
         #
+        #    WinAPI::sendMessageEx(_hWnd, #WM_SYSCOMMAND, #SC_RESTORE, 0);
         #    [x1, y1] = DEV_WinAPI::getSystemMetrics();
-        #    //info(con2Str([x1, y1]));
         #    WinAPI::setWindowPos(_hwnd, 0, 0, x1, y1 - 25, true);
         #}
       ENDSOURCE
@@ -154,7 +154,7 @@ Formatversion: 1
         #    SysSQLSystemInfo        systemInfo      = SysSQLSystemInfo::construct();
         #    int                     i;
         #
-        #    if (isDeveloper() && !WinAPI::isShiftButtonDown())
+        #    if (isDeveloper())
         #    {
         #        if (DEV_Global::isDevWorkspace())
         #        {
@@ -165,14 +165,17 @@ Formatversion: 1
         #            }
         #
         #            DEV_Global::setStatusBar();
-        #            DEV_HKCommon::fitWorkspaceWindow(hWnd);
-        #            DEV_StartupForm::startupInfoRun();
+        #
+        #            if (parameters.FitDevWorkspace)
+        #                DEV_HKCommon::fitWorkspaceWindow(hWnd);
         #        }
         #        else if (   parameters.OpenDevWorkspace
         #                &&  conLen(infolog.getWorkspaceList()) == 1)
         #        {
         #            infolog.createDevelopmentWorkspaceWindow();
         #        }
+        #
+        #        DEV_StartupForm::run(curUserId(), false);
         #    }
         #
         #    if (parameters.EnvMainCaption && parameters.EnvName)
@@ -556,26 +559,7 @@ Formatversion: 1
       SOURCE #openDefaultProject
         #public static void openDefaultProject()
         #{
-        #    ProjectListNode projectListNode;
-        #    ProjectNode     projectNode;
-        #    UserInfo        userInfo;
-        #
-        #    select firstonly startupProject from userInfo
-        #        where userInfo.Id == curuserid();
-        #
-        #    projectListNode = infolog.projectRootNode().AOTfirstChild();    // private projects
-        #    projectNode     = projectListNode.AOTfindChild(userInfo.startupProject);
-        #
-        #    if (!projectNode)
-        #    {
-        #        projectListNode = projectListNode.AOTnextSibling();         // shared projects
-        #        projectNode     = projectListNode.AOTfindChild(userInfo.startupProject);
-        #    }
-        #
-        #    if (projectNode)
-        #    {
-        #        projectNode.AOTrun();
-        #    }
+        #    DEV_Global::openDefaultProject();
         #}
       ENDSOURCE
       SOURCE #rightSideCentre

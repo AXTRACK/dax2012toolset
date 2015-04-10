@@ -17,8 +17,12 @@ Formatversion: 1
       SOURCE #classDeclaration
         #class DEV_Global
         #{
+        #    #AOT
+        #    #TreeNodeSysNodeType
         #    #WinAPI
+        #
         #    #DEV_Toolset
+        #    #define.Main('Main')
         #}
       ENDSOURCE
       SOURCE #array2con
@@ -475,7 +479,7 @@ Formatversion: 1
         #// >> DEV:MXK >>
         #public static void handleApplicationStartupPostPost(XppPrePostArgs _args)
         #{
-        #    DEV_StartupForm::startupApplRun();
+        #    DEV_StartupForm::run(curUserId(), true, false);
         #}
         #// << DEV:MXK <<
       ENDSOURCE
@@ -583,9 +587,9 @@ Formatversion: 1
         #{
         #    HWND        propertiesWindow;
         #
-        #    if (appl.globalCache().isSet(identifierStr(propertiesWindow), 0))
+        #    if (infolog.globalCache().isSet(identifierStr(propertiesWindow), 0))
         #    {
-        #        propertiesWindow = appl.globalCache().get(identifierStr(propertiesWindow), 0);
+        #        propertiesWindow = infolog.globalCache().get(identifierStr(propertiesWindow), 0);
         #    }
         #
         #    return _hwnd == propertiesWindow;
@@ -652,6 +656,34 @@ Formatversion: 1
         #}
         #// << DEV:MXK <<
       ENDSOURCE
+      SOURCE #openDefaultProject
+        #// >> DEV:MXK >>
+        #public static void openDefaultProject()
+        #{
+        #    ProjectListNode     projectListNode;
+        #    ProjectNode         projectNode;
+        #    UserInfo            userInfo;
+        #    UtilElementName     startupProject = DEV_Global::getStartupProject();
+        #
+        #    if (userInfo.startupProject)
+        #    {
+        #        projectListNode = infolog.projectRootNode().AOTfirstChild();    // private projects
+        #        projectNode     = projectListNode.AOTfindChild(userInfo.startupProject);
+        #
+        #        if (!projectNode)
+        #        {
+        #            projectListNode = projectListNode.AOTnextSibling();         // shared projects
+        #            projectNode     = projectListNode.AOTfindChild(userInfo.startupProject);
+        #        }
+        #
+        #        if (projectNode)
+        #        {
+        #            projectNode.AOTrun();
+        #        }
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
       SOURCE #random
         #// >> DEV:MXK >>
         #public static int random(   int _minValue = 0,
@@ -709,6 +741,44 @@ Formatversion: 1
         #        }
         #    }
         #}
+      ENDSOURCE
+      SOURCE #runTreeNode
+        #// >> DEV:MXK >>
+        #public static client void runTreeNode(TreeNodePath _treeNodepath, boolean _client = true, boolean _workspace = true)
+        #{
+        #    TreeNode        treeNode = TreeNode::findNode(_treeNodepath);
+        #    MenuFunction    mf;
+        #    if (!treeNode || !treeNode.treeNodeType() || !treeNode.treeNodeType().isUtilElement())
+        #        return;
+        #
+        #    if (    _workspace
+        #        &&  (   treeNode.utilElement().recordType   == UtilElementType::SharedProject
+        #            ||  treeNode.utilElement().recordType   == UtilElementType::PrivateProject))
+        #    {
+        #        if (isDeveloper())
+        #            treeNode.AOTrun();
+        #    }
+        #    else if (_client)
+        #    {
+        #        switch (treeNode.treeNodeType().id())
+        #        {
+        #            case #NT_FUNCITEM:
+        #                if (hasMenuItemAccess(treeNode.AOTname(), SysDictMenu::menuItemType(treeNode.utilElement().recordType)))
+        #                    treeNode.AOTrun();
+        #                break;
+        #
+        #            case #NT_FORM:
+        #            case #NT_CLASS:
+        #            case #NT_XALCODE:
+        #                if (isDeveloper())
+        #                    treeNode.AOTrun();
+        #                break;
+        #
+        #            default:
+        #        }
+        #    }
+        #}
+        #// << DEV:MXK <<
       ENDSOURCE
       SOURCE #sendAlert
         #// >> DEV:MXK >>

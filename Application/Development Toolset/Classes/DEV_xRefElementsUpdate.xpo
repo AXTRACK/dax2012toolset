@@ -35,7 +35,7 @@ Formatversion: 1
         #        {
         #            dictEnum = new DictEnum(enumName2Id(treeNode.TreeNodeName()));
         #
-        #            for (i = 0; i < dictEnum.values(); i++)
+        #            for (i = 0; i < treeNode.AOTchildNodeCount(); i++)
         #            {
         #                xRefElements.clear();
         #                xRefElements.initValue();
@@ -43,11 +43,13 @@ Formatversion: 1
         #                xRefElements.Name           = dictEnum.name();
         #                xRefElements.Label          = dictEnum.label();
         #                xRefElements.HelpText       = dictEnum.help();
-        #                xRefElements.ElementName    = dictEnum.value2Name(i);
-        #                xRefElements.ElementLabel   = dictEnum.value2Symbol(i);
-        #                xRefElements.FullPath       = _path + #AOTDelimiter + dictEnum.name() + #AOTDelimiter + dictEnum.value2Name(i);
+        #                xRefElements.ElementName    = dictEnum.index2Symbol(i);
+        #                xRefElements.ElementLabel   = dictEnum.index2Label(i);
+        #                xRefElements.ImageRes       = dictEnum.index2Value(i);
+        #                xRefElements.FullPath       = _path + #AOTDelimiter + dictEnum.name() + #AOTDelimiter + dictEnum.index2Symbol(i);
         #                xRefElements.insert();
         #            }
+        #
         #            treeNode = tnIterator.next();
         #        }
         #    }
@@ -102,6 +104,7 @@ Formatversion: 1
         #                xRefElements.FullPath       = _path + #AOTDelimiter + dictType.name();
         #                xRefElements.insert();
         #            }
+        #
         #            treeNode = tnIterator.next();
         #        }
         #    }

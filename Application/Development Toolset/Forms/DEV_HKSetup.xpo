@@ -1959,6 +1959,19 @@ FORM #DEV_HKSetup
       
       CONTROL CHECKBOX
         PROPERTIES
+          Name                #GroupMiscellaneous_FitDevWorkspace
+          ElementPosition     #477218588
+          HierarchyParent     #GroupMiscellaneous
+          DataSource          #DEV_UserParameters
+          DataField           #FitDevWorkspace
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
           Name                #GroupMiscellaneous_HideHKButtons
           ElementPosition     #1789569705
           HierarchyParent     #GroupMiscellaneous
@@ -2338,6 +2351,21 @@ FORM #DEV_HKSetup
           NormalImage         #11291
           ImageLocation       #EmbeddedResource
           MenuItemName        #SysLastValue
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #SysSqlAdmin
+          ElementPosition     #1968526675
+          HierarchyParent     #SystemButtonGroup
+          ButtonDisplay       #Text & Image left
+          NormalImage         #814
+          ImageLocation       #EmbeddedResource
+          MenuItemName        #SysSqlAdmin
         ENDPROPERTIES
         
         METHODS

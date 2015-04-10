@@ -49,8 +49,8 @@ Formatversion: 1
       ENDMENUITEM
       MENUITEM
         PROPERTIES
-          Name                #*DEV_xRefSearch*
-          MenuItemName        #DEV_xRefSearch
+          Name                #Element-reference
+          MenuItemName        #DEV_xRefElements
         ENDPROPERTIES
         
       ENDMENUITEM

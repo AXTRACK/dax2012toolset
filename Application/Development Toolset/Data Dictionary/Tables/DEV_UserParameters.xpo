@@ -226,12 +226,24 @@ Formatversion: 1
           EnumType            #NoYes
         ENDPROPERTIES
         
+      FIELD #FitDevWorkspace
+        ENUM
+        PROPERTIES
+          Name                #FitDevWorkspace
+          Label               #Fit window
+          HelpText            #If enabled a Development workspace window will fit the desktop.
+          Table               #DEV_UserParameters
+          Origin              #{795E6F15-834A-4F9C-80B8-1875614B35E3}
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
       FIELD #HideHKButtons
         ENUM
         PROPERTIES
           Name                #HideHKButtons
           Label               #Hide HK buttons
-          HelpText            #If enabled will hide all buttons with enabled hotkeys.
+          HelpText            #If enabled will hide Toolbar buttons with a hotkeys.
           Table               #DEV_UserParameters
           Origin              #{529A8E95-4525-4E9F-85B2-9B639FA239B1}
           ExtendedDataType    #NoYesId
@@ -535,6 +547,7 @@ Formatversion: 1
         
         GROUPFIELDS
           #OpenDevWorkspace
+          #FitDevWorkspace
           #DisableOnError
           #HideHKButtons
           #DisableHints

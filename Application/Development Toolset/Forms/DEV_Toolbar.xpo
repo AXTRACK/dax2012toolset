@@ -715,9 +715,9 @@ FORM #DEV_Toolbar
       #    DEV_WinAPI::closeWindow(_hwnd);
       #
       #    // >> DEV:MXK >>
-      #    if (appl.globalCache().isSet(classStr(EditorScripts), _hwnd))
+      #    if (infolog.globalCache().isSet(classStr(EditorScripts), _hwnd))
       #    {
-      #        appl.globalCache().remove(classStr(EditorScripts), _hwnd);
+      #        infolog.globalCache().remove(classStr(EditorScripts), _hwnd);
       #    }
       #    // << DEV:MXK <<
       #}
@@ -745,6 +745,7 @@ FORM #DEV_Toolbar
       #{
       #    System.Exception laste;
       #    // >> DEV: MXK >>
+      #    PropertiesWindow    properties;
       #    boolean             isSecDevTool;
       #    boolean             showButtons = true;
       #
@@ -787,13 +788,17 @@ FORM #DEV_Toolbar
       #    }
       #
       #    // >> DEV:MXK >>
-      #    xInfo::getPropertiesWindow().Activate(PropWindowDisplayState::Show);
-      #    propertiesWindow = DEV_WinAPI::getTopWindow(DEV_WinAPI::mdiClient());
-      #    xInfo::getPropertiesWindow().Activate(PropWindowDisplayState::Hide);
+      #    properties          = xInfo::getPropertiesWindow();
+      #    if (properties)
+      #    {
+      #        properties.Activate(PropWindowDisplayState::Show);
+      #        propertiesWindow    = DEV_WinAPI::getTopWindow(DEV_WinAPI::mdiClient());
+      #        properties.Activate(PropWindowDisplayState::Hide);
+      #    }
       #
       #    if (propertiesWindow)
       #    {
-      #        appl.globalCache().set(identifierStr(propertiesWindow), 0, propertiesWindow);
+      #        infolog.globalCache().set(identifierStr(propertiesWindow), 0, propertiesWindow);
       #    }
       #
       #    tileHorizontalBut.visible(showButtons);

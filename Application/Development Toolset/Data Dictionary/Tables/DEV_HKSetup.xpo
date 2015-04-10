@@ -361,8 +361,8 @@ Formatversion: 1
         #                            staticMethodStr(DEV_HKAOT, copy2clipboard),
         #                            'Copy selected elements name\'s to clipboard');
         #
-        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
-        #                            DEV_HKKey::Alt,
+        #    hkSetup.insertHotKey(   DEV_HKKey::Alt,
+        #                            DEV_HKKey::Ctrl,
         #                            DEV_HKKey::C,
         #                            DEV_HKActionType::AOTAction,
         #                            staticMethodStr(DEV_HKAOT, copy2clipboard),
@@ -403,8 +403,8 @@ Formatversion: 1
         #                            staticMethodStr(DEV_HKAOT, aot2project),
         #                            'Add selected elements to project');
         #
-        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
-        #                            DEV_HKKey::Alt,
+        #    hkSetup.insertHotKey(   DEV_HKKey::Alt,
+        #                            DEV_HKKey::Ctrl,
         #                            DEV_HKKey::F,
         #                            DEV_HKActionType::AOTAction,
         #                            staticMethodStr(DEV_HKAOT, findSelected),
@@ -631,9 +631,9 @@ Formatversion: 1
         #                            formStr(DEV_Projects),
         #                            'Manage projects form');
         #
-        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
-        #                            DEV_HKKey::Shift,
+        #    hkSetup.insertHotKey(   DEV_HKKey::Alt,
         #                            DEV_HKKey::F10,
+        #                            DEV_HKKey::None,
         #                            DEV_HKActionType::OpenForm,
         #                            formStr(DEV_StartupForm),
         #                            'Startup form');
@@ -651,6 +651,48 @@ Formatversion: 1
         #                            DEV_HKActionType::OpenForm,
         #                            formStr(SysImportDialog),
         #                            'Import .xpo file form');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Alt,
+        #                            DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::X,
+        #                            DEV_HKActionType::OpenForm,
+        #                            formStr(DEV_xRefElements),
+        #                            'Element-reference form');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::Shift,
+        #                            DEV_HKKey::M,
+        #                            DEV_HKActionType::RunClass,
+        #                            classStr(DEV_Maintain),
+        #                            'Application maintenance');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::Shift,
+        #                            DEV_HKKey::B,
+        #                            DEV_HKActionType::RunClass,
+        #                            classStr(DEV_Breakpoints),
+        #                            'Turn on\\off info breakpoints');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::Shift,
+        #                            DEV_HKKey::U,
+        #                            DEV_HKActionType::OpenForm,
+        #                            formStr(SysUsersOnline),
+        #                            'Online users');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::Shift,
+        #                            DEV_HKKey::J,
+        #                            DEV_HKActionType::OpenForm,
+        #                            formStr(BatchJob),
+        #                            'Batch jobs');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::Shift,
+        #                            DEV_HKKey::L,
+        #                            DEV_HKActionType::OpenForm,
+        #                            formStr(DEV_WebSafeColors),
+        #                            'Pick color code');
         #}
       ENDSOURCE
       SOURCE #lookupAction

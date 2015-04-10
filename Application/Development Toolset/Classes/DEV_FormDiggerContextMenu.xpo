@@ -157,7 +157,7 @@ Formatversion: 1
         #{
         #    if (isDeveloper && !DEV_UserParameters::findOrCreate().DisableHints)
         #    {
-        #        _popupMenu.insertItem('COPY', false, true);
+        #        _popupMenu.insertItem('COPY (Ctrl, Shift)', false, true);
         #        _popupMenu.insertBreak();
         #    }
         #
@@ -885,28 +885,40 @@ Formatversion: 1
         #{
         #    DictEnum        dictEnum;
         #    Counter         counter;
+        #    boolean         isShift     = WinAPI::isShiftButtonDown();
+        #    boolean         isControl   = WinAPI::isControlButtonDown();
+        #
+        #    void addLoop()
+        #    {
+        #        for (counter = 0; counter < dictEnum.values(); counter++)
+        #            this.copyToClipboard(   isShift     ?   strFmt('\t\tcase %1::%2:\t// %3\n\n\t\t\tbreak;\n',
+        #                                                            formDiggerTmpData.Enum,
+        #                                                            dictEnum.index2Symbol(counter),
+        #                                                            dictEnum.index2Label(counter)) :
+        #                                    isControl   ?   strFmt('%1::%2\t// %3',
+        #                                                            formDiggerTmpData.Enum,
+        #                                                            dictEnum.index2Symbol(counter),
+        #                                                            dictEnum.index2Label(counter)) :
+        #                                                    strFmt('%1::%2',
+        #                                                            formDiggerTmpData.Enum,
+        #                                                            dictEnum.index2Symbol(counter)),
+        #                                    true);
+        #    }
         #
         #    dictEnum = new DictEnum(enumName2Id(formDiggerTmpData.Enum));
         #
         #    this.copyToClipboard('');
-        #    this.copyToClipboard('\tswitch()', true);
-        #    this.copyToClipboard('\t{', true);
-        #    for (counter = 0; counter < dictEnum.values(); counter++)
+        #
+        #    if (isShift)
         #    {
-        #        if (WinAPI::isControlButtonDown())
-        #        {
-        #            this.copyToClipboard(strFmt('\t\tcase %1::%2:\n\n\t\t\tbreak;\n', formDiggerTmpData.Enum, dictEnum.index2Symbol(counter)), true);
-        #        }
-        #        else if (WinAPI::isShiftButtonDown())
-        #        {
-        #            this.copyToClipboard(strFmt('%1::%2 // %3', formDiggerTmpData.Enum, dictEnum.index2Symbol(counter), dictEnum.index2Label(counter)), true);
-        #        }
-        #        else
-        #        {
-        #            this.copyToClipboard(strFmt('%1::%2', formDiggerTmpData.Enum, dictEnum.index2Symbol(counter)), true);
-        #        }
+        #        this.copyToClipboard('\tswitch()', true);
+        #        this.copyToClipboard('\t{', true);
         #    }
-        #    this.copyToClipboard('\t}', true);
+        #
+        #    addLoop();
+        #
+        #    if (isShift)
+        #        this.copyToClipboard('\t}', true);
         #}
         #// << DEV:MXK <<
       ENDSOURCE

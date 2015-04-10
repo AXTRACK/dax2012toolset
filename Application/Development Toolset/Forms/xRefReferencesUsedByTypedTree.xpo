@@ -47,7 +47,7 @@ FORM #xRefReferencesUsedByTypedTree
       #    {
       #        tree.linesAtRoot(true);
       #        hierarchy = SysTypeHierarchy::newFormTreeControl(tree);
-      #        infolog.globalCache().set(formstr(xRefReferencesUsedByTypedTree), 0, new ObjectIdent(this));
+      #        infolog.globalCache().set(formStr(xRefReferencesUsedByTypedTree), 0, new ObjectIdent(this));
       #        hierarchy.onItemCreated += eventHandler(xRefUpdate::setIcon);
       #        this.setupSimpleChart();
       #    }

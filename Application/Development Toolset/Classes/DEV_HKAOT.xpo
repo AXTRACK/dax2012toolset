@@ -164,7 +164,16 @@ Formatversion: 1
         #
         #    properties = treeNode.AOTgetProperties();
         #
-        #    find(#PropertyForm);
+        #    if (findProperty(properties, #PropertyForm) == 'SysQueryForm')
+        #    {
+        #        treeNodeTarget = TreeNode::findNode(strFmt(#QueryPath, treeNode.treeNodeName()));
+        #
+        #        if (treeNodeTarget)
+        #            pickAdd("@SYS13579", true); // Query
+        #    }
+        #    else
+        #        find(#PropertyForm);
+        #
         #    find(#PropertyFormHelp, '', #FormNamePath);
         #    find(#PropertyFormRef);
         #    find(#PropertyListPageRef);

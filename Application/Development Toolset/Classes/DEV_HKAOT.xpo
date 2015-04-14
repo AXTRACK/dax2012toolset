@@ -25,6 +25,27 @@ Formatversion: 1
         #    #define.showTooltip(false)
         #}
       ENDSOURCE
+      SOURCE #addAutostart
+        #// >> DEV:MXK >>
+        #static void addAutostart()
+        #{
+        #    DEV_StartupForm     startupForm;
+        #    TreeNode            treeNode = new LastAotSelection().first();
+        #
+        #    if (treeNode)
+        #    {
+        #        startupForm.initValue();
+        #        startupForm.TreeNodePath = treeNode.treeNodePath();
+        #
+        #        if (!DEV_StartupForm::exist(startupForm.UserId, startupForm.TreeNodePath, startupForm.ComputerName, startupForm.Company))
+        #        {
+        #            startupForm.Enabled = Box::confirm('Enable new startup entry?');
+        #            startupForm.insert();
+        #        }
+        #    }
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
       SOURCE #aot2compare
         #// >> DEV:MXK >>
         #static void aot2compare()
@@ -313,6 +334,8 @@ Formatversion: 1
         #        pathMap.insert(treeNodeTargetPath, strFmt('Image: %1', findProperty(properties, #PropertyNormalImage)));
         #    }
         #
+        #    find(#PropertyLinkedPermissionType, #PropertyLinkedPermissionObject);
+        #
         #    switch (treeNode.treeNodeType().id())
         #    {
         #        // SSRS Report
@@ -555,32 +578,33 @@ Formatversion: 1
         #// << DEV:MXK <<
       ENDSOURCE
       SOURCE #findSSRSReport
-        #// >> DEV:MXK >>
         #static TreeNodePath findSSRSReport(str _ssrsReportNameToFind)
         #{
         #    #SysManagedCode
         #    #define.Report_ReferencesAttrib('Include')
         #    #define.ProjectContent("Project Content")
         #
-        #    TreeNode            projectsRootNode = TreeNode::findNode(#VSProjectsAXModelPath);
-        #    TreeNodeIterator    iter = projectsRootNode.AOTiterator();
-        #    TreeNode            projectType = iter.next();
-        #    VSProjectNode       project = null;
+        #    TreeNode            projectsRootNode    = TreeNode::findNode(#VSProjectsAXModelPath);
+        #    TreeNodeIterator    iter                = projectsRootNode.AOTiterator();
+        #    TreeNode            projectType         = iter.next();
+        #    VSProjectNode       project             = null;
         #    str                 projectPath;
         #    TreeNode            projectContentNode;
-        #    str                 aotName, projectContent;
+        #    str                 aotName,
+        #                        projectContent;
         #    XmlDocument         projectDoc;
         #
         #    XmlNode             projectRefNode;
         #    XmlNode             xmlAttribute;
-        #    str                 ssrsReportAotName, ssrsReportAotNameUpper;
+        #    str                 ssrsReportAotName,
+        #                        ssrsReportAotNameUpper;
         #    str                 xpath;
         #    XmlNodeList         reportReferences;
         #    int                 nodeIndex;
-        #    int                 basePathLen = strLen(#SSRSReportsPath + #AOTDelimiter);
+        #    int                 basePathLen         = strLen(#SSRSReportsPath + #AOTDelimiter);
         #    XmlNamespaceManager nsmgr;
-        #    str                 namespaceUri = #MSBuildURL;
-        #    str                 nsPrefix = 'cs';
+        #    str                 namespaceUri        = #MSBuildURL;
+        #    str                 nsPrefix            = 'cs';
         #
         #    boolean             found = false;
         #
@@ -664,7 +688,6 @@ Formatversion: 1
         #    }
         #
         #    return projectPath;
-        #// << DEV:MXK <<
         #}
       ENDSOURCE
       SOURCE #findTreeNode
@@ -750,7 +773,6 @@ Formatversion: 1
         #        case #PropertyForm:
         #            ret = #FormNamePath;
         #            break;
-        #
         #        case #PropertyMappingTable:
         #        case #PropertyTable:
         #        case #PropertyReferenceTable:
@@ -758,33 +780,26 @@ Formatversion: 1
         #        case #PropertyExtends: // Used only for Table
         #            ret = #TableNamePath;
         #            break;
-        #
         #        case #PropertyEnumTypeParameter:
         #            ret = #BaseEnumsNamePath;
         #            break;
-        #
         #        case #PropertyExtendedDataType:
         #            ret = #ExtendedDataTypesNamePath;
         #            break;
-        #
         #        case #PropertyQuery:
         #            ret = #QueryPath;
         #            break;
-        #
         #        case #PropertyView:
         #            ret = #ViewNamePath;
         #            break;
-        #
         #        case #PropertyMenuItemType:
         #            ret = #MenuItemsNamePath;
         #            break;
-        #
         #        case #PropertyMenuItemName:
         #        case #PropertyFormRef:
         #        case #PropertyDocumentMenuItem:
         #            ret = #MenuItemsDisplayNamePath;
         #            break;
-        #
         #        case #PropertyActionMenuItem:
         #        case #PropertyCancelMenuItem:
         #        case #PropertySubmitToWorkflowMenuItem:
@@ -792,7 +807,6 @@ Formatversion: 1
         #        case #PropertyResubmitMenuItem:
         #            ret = #MenuItemsActionNamePath;
         #            break;
-        #
         #        case #PropertyDocumentWebMenuItem:
         #        case #PropertyResubmitWebMenuItem:
         #        case #PropertySubmitToWorkflowWebMenuItem:
@@ -802,11 +816,9 @@ Formatversion: 1
         #        case #PropertyRecallWebMenuItem:
         #            ret = #WebMenuItemsActionPath + '\\%1';
         #            break;
-        #
         #        case #PropertyService:
         #            ret = #ServicePath;
         #            break;
-        #
         #        case #PropertyClass:
         #        case #PropertyProviderClass:
         #        case #PropertyPresenceClass:
@@ -815,99 +827,78 @@ Formatversion: 1
         #        case #PropertyStartedEventHandler:
         #            ret = #ClassNamePath;
         #            break;
-        #
         #        case #PropertyReport:
         #            ret = #ReportNamePath;
         #            break;
-        #
         #        case #PropertyCue:
         #            ret = #CuesPath + '\\%1';
         #            break;
-        #
+        #        case #PropertyLinkedPermissionType:
+        #            ret = #SSRSReportsPath + '\\%1';
+        #            break;
         #        case #PropertyObjectType:
         #            switch (_propVal1)
         #            {
         #                case enum2Value(MenuItemObjectType::Class):
         #                    ret = #ClassNamePath;
         #                    break;
-        #
         #                case enum2Value(MenuItemObjectType::CueGroup):
         #                    ret = #CueGroupsPath + '\\%1';
         #                    break;
-        #
         #                case enum2Value(MenuItemObjectType::Form):
         #                    ret = #FormNamePath;
         #                    break;
-        #
         #                case enum2Value(MenuItemObjectType::FormPart):
         #                    ret = #FormPartsPath + '\\%1';
         #                    break;
-        #
         #                case enum2Value(MenuItemObjectType::InfoPart):
         #                    ret = #InfoPartsPath + '\\%1';
         #                    break;
-        #
         #                case enum2Value(MenuItemObjectType::Job):
         #                    ret = #JobPath;
         #                    break;
-        #
         #                case enum2Value(MenuItemObjectType::Query):
         #                    ret = #QueryPath;
         #                    break;
-        #
         #                case enum2Value(MenuItemObjectType::Report):
         #                    ret = #ReportsPath + '\\%1';
         #                    break;
-        #
         #                case enum2Value(MenuItemObjectType::SQLReportLibraryReport):
         #                    ret = #ReportLibrariesPath + '\\%1';
         #                    break;
-        #
         #                case enum2Value(MenuItemObjectType::SSRSReport):
         #                    ret = #ReportNamePath;
         #                    break;
-        #
         #                case enum2Value(MenuItemObjectType::WebControl):
         #                    ret = #WebControlsPath + '\\%1';
         #                    break;
-        #
         #                case enum2Value(MenuItemObjectType::WebForm):
         #                    ret = #WebFormsPath + '\\%1';
         #                    break;
-        #
-        #                //
-        #
         #                case enum2Value(EntryPointType::MenuItemAction):
         #                    ret = #MenuItemsActionNamePath;
         #                    break;
-        #
         #                case enum2Value(EntryPointType::MenuItemDisplay):
         #                    ret = #MenuItemsDisplayNamePath;
         #                    break;
-        #
         #                case enum2Value(EntryPointType::MenuItemOutput):
         #                    ret = #MenuItemsOutputNamePath;
         #                    break;
-        #
         #                case enum2Value(EntryPointType::ServiceOperation):
         #                    ret = #ServicePath;
         #                    break;
-        #
         #                case enum2Value(EntryPointType::WebActionItem):
         #                    ret = #WebMenuItemsActionPath + '\\%1';
         #                    break;
-        #
         #                case enum2Value(EntryPointType::WebManagedContent):
         #                    ret = #WebContentItemsManagedPath + '\\%1';
         #                    break;
-        #
         #                case enum2Value(EntryPointType::WebUrlItem):
         #                    ret = #WebMenuItemsUrlPath + '\\%1';
         #                    break;
         #            }
         #            break;
         #    }
-        #
         #    return ret;
         #// << DEV:MXK <<
         #}

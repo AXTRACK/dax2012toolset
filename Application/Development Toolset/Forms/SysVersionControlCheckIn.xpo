@@ -23,6 +23,64 @@ FORM #SysVersionControlCheckIn
   
   DESIGN
     CONTAINER
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #AddToList
+          AutoDeclaration     #Yes
+          HelpText            #@SYS341271
+          ElementPosition     #1610612733
+          HierarchyParent     #ItemQueryGroup
+          Text                #@SYS341270
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    SysVersionControlWorkItemId idToAdd;
+            #
+            #    super();
+            #
+            #    idToAdd = workItemIdToAdd.value();
+            #
+            #    if (tmpWorkItems.containsItemById(idToAdd))
+            #    {
+            #        //warning("@SYS341268"); // DEV:MXK
+            #    }
+            #    else
+            #    {
+            #        element.addWorkItemById(idToAdd);
+            #    }
+            #
+            #    // >> DEV:MXK >>
+            #    SysVersionControlTmpWorkItems.Selected = NoYes::Yes;
+            #    SysVersionControlTmpWorkItems.update();
+            #    WorkItemIdToAdd.setFocus();
+            #    // << DEV:MXK <<
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL INTEDIT #WorkItemIdToAdd
+        METHODS
+          SOURCE #modified
+            #// >> DEV:MXK >>
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    AddToList.clicked();
+            #
+            #    return ret;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
       CONTROL STRINGEDIT
         PROPERTIES
           Name                #Overview_ItemPath

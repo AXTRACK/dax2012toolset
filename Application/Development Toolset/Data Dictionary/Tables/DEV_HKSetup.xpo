@@ -352,70 +352,77 @@ Formatversion: 1
         #                            DEV_HKKey::None,
         #                            DEV_HKActionType::AOTAction,
         #                            staticMethodStr(DEV_HKAOT, tableBrowser),
-        #                            'Browse selected table, dtasource or view');
+        #                            'Browse table\\datasource\\view');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
         #                            DEV_HKKey::C,
         #                            DEV_HKKey::None,
         #                            DEV_HKActionType::AOTAction,
         #                            staticMethodStr(DEV_HKAOT, copy2clipboard),
-        #                            'Copy selected elements name\'s to clipboard');
+        #                            'Copy element name to clipboard');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Alt,
         #                            DEV_HKKey::Ctrl,
         #                            DEV_HKKey::C,
         #                            DEV_HKActionType::AOTAction,
         #                            staticMethodStr(DEV_HKAOT, copy2clipboard),
-        #                            'Copy selected elements name\'s to clipboard');
+        #                            'Copy element name to clipboard');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
         #                            DEV_HKKey::Shift,
         #                            DEV_HKKey::C,
         #                            DEV_HKActionType::AOTAction,
         #                            staticMethodStr(DEV_HKAOT, copyPath2clipboard),
-        #                            'Copy selected elements full path\'s to clipboard');
+        #                            'Copy element path to clipboard');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
         #                            DEV_HKKey::B,
         #                            DEV_HKKey::None,
         #                            DEV_HKActionType::AOTAction,
         #                            staticMethodStr(DEV_HKAOT, checkBestPractice),
-        #                            'Check best practices on selected elements');
+        #                            'Check best practice');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
         #                            DEV_HKKey::X,
         #                            DEV_HKKey::None,
         #                            DEV_HKActionType::AOTAction,
         #                            staticMethodStr(DEV_HKAOT, aot2xRef),
-        #                            'Cross reference for selected element');
+        #                            'Cross reference for element');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Ins,
         #                            DEV_HKKey::None,
         #                            DEV_HKKey::None,
         #                            DEV_HKActionType::AOTAction,
         #                            staticMethodStr(DEV_HKAOT, aotJump),
-        #                            'Navigate to related objects e.g. EDT, Enum etc.');
+        #                            'Open linked objects e.g. EDT, Enum etc.');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
         #                            DEV_HKKey::K,
         #                            DEV_HKKey::None,
         #                            DEV_HKActionType::AOTAction,
         #                            staticMethodStr(DEV_HKAOT, aot2project),
-        #                            'Add selected elements to project');
+        #                            'Add node to project');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Alt,
         #                            DEV_HKKey::Ctrl,
         #                            DEV_HKKey::F,
         #                            DEV_HKActionType::AOTAction,
         #                            staticMethodStr(DEV_HKAOT, findSelected),
-        #                            'Find selected element name on parent');
+        #                            'Search node name inside parent');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
         #                            DEV_HKKey::Shift,
         #                            DEV_HKKey::LWIN,
         #                            DEV_HKActionType::AOTAction,
         #                            staticMethodStr(DEV_HKAOT, newWindow),
-        #                            'Open last selected object in new AOT window');
+        #                            'Open last selected object');
+        #
+        #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
+        #                            DEV_HKKey::I,
+        #                            DEV_HKKey::None,
+        #                            DEV_HKActionType::AOTAction,
+        #                            staticMethodStr(DEV_HKAOT, addAutostart),
+        #                            'Add node to Startup');
         #}
       ENDSOURCE
       SOURCE #insertCommonHK
@@ -622,42 +629,42 @@ Formatversion: 1
         #                            DEV_HKKey::None,
         #                            DEV_HKActionType::RunClass,
         #                            classStr(DEV_HKManager),
-        #                            'Development toolset parameters form');
+        #                            'Development toolset parameters');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
         #                            DEV_HKKey::F10,
         #                            DEV_HKKey::None,
         #                            DEV_HKActionType::OpenForm,
         #                            formStr(DEV_Projects),
-        #                            'Manage projects form');
+        #                            'Projects');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Alt,
         #                            DEV_HKKey::F10,
         #                            DEV_HKKey::None,
         #                            DEV_HKActionType::OpenForm,
         #                            formStr(DEV_StartupForm),
-        #                            'Startup form');
+        #                            'Startup');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
         #                            DEV_HKKey::Shift,
         #                            DEV_HKKey::N,
         #                            DEV_HKActionType::RunClass,
         #                            classStr(DEV_CreateNewProject),
-        #                            'Create new project dialog');
+        #                            'Create new project');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
         #                            DEV_HKKey::Shift,
         #                            DEV_HKKey::I,
         #                            DEV_HKActionType::OpenForm,
         #                            formStr(SysImportDialog),
-        #                            'Import .xpo file form');
+        #                            'Import XPO');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Alt,
         #                            DEV_HKKey::Ctrl,
         #                            DEV_HKKey::X,
         #                            DEV_HKActionType::OpenForm,
         #                            formStr(DEV_xRefElements),
-        #                            'Element-reference form');
+        #                            'Cross-reference');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
         #                            DEV_HKKey::Shift,
@@ -671,7 +678,7 @@ Formatversion: 1
         #                            DEV_HKKey::B,
         #                            DEV_HKActionType::RunClass,
         #                            classStr(DEV_Breakpoints),
-        #                            'Turn on\\off info breakpoints');
+        #                            'Toggle info breakpoints');
         #
         #    hkSetup.insertHotKey(   DEV_HKKey::Ctrl,
         #                            DEV_HKKey::Shift,

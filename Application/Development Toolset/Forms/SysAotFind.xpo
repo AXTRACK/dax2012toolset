@@ -14,6 +14,64 @@ FORM #SysAotFind
   ENDPROPERTIES
   
   METHODS
+    SOURCE #classDeclaration
+      #class FormRun extends ObjectRun
+      #{
+      #    SysTreeSearch           sysTreeSearch;              // calling class if started from AOT directly (requiring special handling)
+      #    SysContextMenu          initialSysContextMenu;      // providing the set of nodes to search
+      #    ListIterator            contextNodeListIterator;    // persistent view of the context, while searching
+      #    TreeNode                initialTopNode;
+      #
+      #    SysTreeNodeSearch       sysTreeNodeSearch;          // search backend
+      #
+      #    ImageListAppl_Aot       imageListAppl;
+      #
+      #    int                     idx;
+      #    int                     timeUpdated;                // in seconds
+      #    int                     startTime;                  // for timing of the search process
+      #
+      #    TmpPropertySelection    selectedProperties;         // reduced set, only the selected ones, for performance
+      #
+      #    FormListColumn          sourceColumn;
+      #
+      #    Counter                 counterHits;
+      #    Counter                 counterNoOfFinds;           // The first time has to be handled special,
+      #    boolean                 firstFind;                  // since multiple nodes could have been selected
+      #    SysUtilScanSource       sysUtilScanSource;
+      #    TreeNodeTraverser       treeNodeTraverser;
+      #    TreeNode                contextNode;
+      #    boolean                 timeOutMode;                // true while searching
+      #    int                     searchDepth;                // increased (/decreased) by evry new search loop. Zero: No active search
+      #    int                     maxColumnIdx;
+      #
+      #    boolean                 helpToShow;                 // are there any outstanding help to show?
+      #
+      #    UtilElements            applObjectCache;            // cache for last selected utilElement (..)
+      #
+      #    TreeNode                treeNodeToBeReleased;
+      #    TreeNode                applObjectNodeToBeReleased;
+      #
+      #    DocNode                 lastEditTreeNodeWithSource; // last node
+      #    int                     lastEditLine;               // & position for delayed edit (focus optimized)
+      #    boolean                 useFilterMethod;
+      #    boolean                 propertiesWindowHidden;
+      #    boolean                 includeProxyNodes;
+      #
+      #    #define.NumberOfPredefinedColumns(10)
+      #    #define.OffsetForPropertyColumns(4)
+      #    // >> DEV:MXK >>
+      #    #KeyPressed
+      #    #WinAPI
+      #    #define.TooltipSearchOption ('F2 toggles search option.')
+      #    #define.TooltipMatchCase    ('F3 toggles Match case option.')
+      #    #define.TooltipMatchWord    ('F4 toggles Match word option.')
+      #    #define.TooltipFind         ('F5 start the search.')
+      #    #define.TooltipClear        ('F6 clear search criteria.')
+      #    #define.TooltipSourceCode   ('F8 toggles Source code option.')
+      #    #define.TooltipBreakpoint   ('F9 sets the breakpoint for the selected lines.')
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
     SOURCE #addSourceLines
       #void addSourceLines(DocNode _treeNodeWithSource)
       #{
@@ -301,7 +359,16 @@ FORM #SysAotFind
       #    super();
       #
       #    // >> DEV:MXK  >>
-      #    DEV_Search.text("@SYS25613");
+      #    this.installMessageProc(#WM_KEYDOWN, Named.hWnd(), identifierstr(onEventKeyDown));
+      #    this.installMessageProc(#WM_KEYDOWN, ContainingText.hWnd(), identifierstr(onEventKeyDown));
+      #    this.installMessageProc(#WM_KEYDOWN, DEV_Search.hWnd(), identifierstr(onEventKeyDown));
+      #    this.installMessageProc(#WM_KEYDOWN, DEV_MatchCase.hWnd(), identifierstr(onEventKeyDown));
+      #    this.installMessageProc(#WM_KEYDOWN, DEV_MatchWholeWord.hWnd(), identifierstr(onEventKeyDown));
+      #    this.installMessageProc(#WM_KEYDOWN, ShowSource.hWnd(), identifierstr(onEventKeyDown));
+      #    this.installMessageProc(#WM_KEYDOWN, ResultListView.hWnd(), identifierstr(onEventKeyDown));
+      #    this.installMessageProc(#WM_KEYDOWN, DEV_SetBreakpoint.hWnd(), identifierstr(onEventKeyDown));
+      #
+      #    DEV_Search.text("@SYS25613"); // Methods
       #
       #    if (    textBuffer.fromClipboard()
       #        &&  textBuffer.size() <= 200
@@ -349,6 +416,48 @@ FORM #SysAotFind
       #    useFilterMethod = true;
       #    maxColumnIdx = #NumberOfPredefinedColumns;
       #}
+    ENDSOURCE
+    SOURCE #onEventKeyDown
+      #// >> DEV:MXK >>
+      #void onEventKeyDown(anyType _a     = '',
+      #                    anyType _b     = '',
+      #                    anyType _vkKey = '',
+      #                    anyType _d     = '',
+      #                    anyType _e     = '',
+      #                    anyType _f     = '')
+      #{
+      #    switch (_vkKey)
+      #    {
+      #        case #F2:
+      #            DEV_Search.selection(!DEV_Search.selection());
+      #            DEV_Search.selectionChange();
+      #            break;
+      #        case #F3:
+      #            DEV_MatchCase.value(!DEV_MatchCase.value());
+      #            DEV_MatchCase.modified();
+      #            break;
+      #        case #F4:
+      #            DEV_MatchWholeWord.value(!DEV_MatchWholeWord.value());
+      #            DEV_MatchWholeWord.modified();
+      #            break;
+      #        case #F5:
+      #            FindNow.clicked();
+      #            break;
+      #        case #F6:
+      #            Named.text('');
+      #            ContainingText.text('');
+      #            ContainingText.setFocus();
+      #            break;
+      #        case #F8:
+      #            ShowSource.value(!ShowSource.value());
+      #            ShowSource.modified();
+      #            break;
+      #        case #F9:
+      #            DEV_SetBreakpoint.clicked();
+      #            break;
+      #    }
+      #}
+      #// << DEV:MXK <<
     ENDSOURCE
     SOURCE #reportProgress
       #void reportProgress(str _nodeBeingSearched)
@@ -701,8 +810,9 @@ FORM #SysAotFind
       CONTROL BUTTON
         PROPERTIES
           Name                #DEV_SetBreakpoint
+          AutoDeclaration     #Yes
           HelpText            #Sets a breakpoint for the selected line.
-          ElementPosition     #1533916890
+          ElementPosition     #1564595227
           HierarchyParent     #ButtonGroup
           Text                #Set breakpoint
           MultiSelect         #Yes
@@ -789,6 +899,18 @@ FORM #SysAotFind
             #}
             #// << DEV:MXK <<
           ENDSOURCE
+          SOURCE #toolTip
+            #// >> DEV:MXK >>
+            #public str toolTip()
+            #{
+            #    str ret;
+            #
+            #    ret = super();
+            #
+            #    return #TooltipBreakpoint;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
         ENDMETHODS
       ENDCONTROL 
       
@@ -851,6 +973,18 @@ FORM #SysAotFind
         ENDPROPERTIES
         
         METHODS
+          SOURCE #toolTip
+            #// >> DEV:MXK >>
+            #public str toolTip()
+            #{
+            #    str ret;
+            #
+            #    ret = super();
+            #
+            #    return #TooltipMatchCase;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
         ENDMETHODS
       ENDCONTROL 
       
@@ -866,6 +1000,18 @@ FORM #SysAotFind
         ENDPROPERTIES
         
         METHODS
+          SOURCE #toolTip
+            #// >> DEV:MXK >>
+            #public str toolTip()
+            #{
+            #    str ret;
+            #
+            #    ret = super();
+            #
+            #    return #TooltipMatchWord;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
         ENDMETHODS
       ENDCONTROL 
       
@@ -998,6 +1144,62 @@ FORM #SysAotFind
             #
             #    return ret;
             #}
+          ENDSOURCE
+          SOURCE #toolTip
+            #// >> DEV:MXK >>
+            #public str toolTip()
+            #{
+            #    str ret;
+            #
+            #    ret = super();
+            #
+            #    return #TooltipSearchOption;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT #ContainingText
+        METHODS
+          SOURCE #toolTip
+            #// >> DEV:MXK >>
+            #public str toolTip()
+            #{
+            #    str ret;
+            #
+            #    ret = super();
+            #
+            #    return #TooltipFind;
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Named
+          AutoDeclaration     #Yes
+          Width               #Column width
+          HelpText            #@SYS4290
+          ElementPosition     #1118481064
+          HierarchyParent     #TabPageName
+          Label               #@SYS26819
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #toolTip
+            #// >> DEV:MXK >>
+            #public str toolTip()
+            #{
+            #    str ret;
+            #
+            #    ret = super();
+            #
+            #    return #TooltipFind;
+            #}
+            #// << DEV:MXK <<
           ENDSOURCE
         ENDMETHODS
       ENDCONTROL 

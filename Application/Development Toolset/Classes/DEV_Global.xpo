@@ -577,7 +577,7 @@ Formatversion: 1
         #// >> DEV:MXK >>
         #static boolean isProjectTitle(HWND _hwnd, str _title = WinAPI::getWindowText(_hwnd))
         #{
-        #    return strStartsWith(_title, #ProjectTitle) || strStartsWith(_title, 'Upgrade project');
+        #    return strStartsWith(_title, #ProjectTitle) || strStartsWith(_title, "@SYS104870");
         #}
         #// << DEV:MXK <<
       ENDSOURCE
@@ -662,18 +662,17 @@ Formatversion: 1
         #{
         #    ProjectListNode     projectListNode;
         #    ProjectNode         projectNode;
-        #    UserInfo            userInfo;
         #    UtilElementName     startupProject = DEV_Global::getStartupProject();
         #
-        #    if (userInfo.startupProject)
+        #    if (startupProject)
         #    {
         #        projectListNode = infolog.projectRootNode().AOTfirstChild();    // private projects
-        #        projectNode     = projectListNode.AOTfindChild(userInfo.startupProject);
+        #        projectNode     = projectListNode.AOTfindChild(startupProject);
         #
         #        if (!projectNode)
         #        {
         #            projectListNode = projectListNode.AOTnextSibling();         // shared projects
-        #            projectNode     = projectListNode.AOTfindChild(userInfo.startupProject);
+        #            projectNode     = projectListNode.AOTfindChild(startupProject);
         #        }
         #
         #        if (projectNode)

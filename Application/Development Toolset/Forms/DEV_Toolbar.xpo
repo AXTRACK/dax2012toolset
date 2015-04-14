@@ -63,7 +63,6 @@ FORM #DEV_Toolbar
       #
       #    HWND                            propertiesWindow;
       #    Set                             breakpointSet;
-      #    //Set                             recentProjSet;
       #    Map                             recentProjMap;
       #
       #    boolean                         isButtons;
@@ -79,7 +78,8 @@ FORM #DEV_Toolbar
       #        isButtons,
       #        isSearchText,
       #        isFormsMenu,
-      #        isExtensions
+      #        isExtensions/*,
+      #        recentProjMap*/
       #    #endmacro
       #    // << DEV:MXK <<
       #}
@@ -186,19 +186,24 @@ FORM #DEV_Toolbar
       #        // << DEV:MXK <<
       #        [title, image] = this.parseTitle(text);
       #        // >> DEV:MXK >>
-      #        if (hwnd == propertiesWindow)
+      #        if (DEV_Global::isProjectTitle(0, title))
       #        {
-      #            image = 855;
+      #            image   = #ImageProject;
+      #            title   = subStr(title, strLen(#ProjectTitle) + 2, strLen(title));
+      #        }
+      #        else if (hwnd == propertiesWindow)
+      #        {
+      #            image = #ImageReportShapeControl;
       #            title = '';
       #        }
       #        else if (DEV_Global::isEditor(0, title))
       #        {
       #            image = (image == #ImageMacros) ? image : 408;
-      #            title = subStr(title, 1, strLen(title) - 9);
+      #            title = subStr(title, 1, strLen(title) - strLen(#EditorSuffix));
       #        }
       #        else if (DEV_Global::isUsedByTitle(0, title))
       #        {
-      #            image = 3077;
+      #            image = #IMAGE_NODE_OLAP_PRIVATEDIM;
       #            title = subStr(title, strScan(title, ':', 1, maxInt()) + 2, maxInt());
       #        }
       #        else if (DEV_Global::isImportTitle(0, title))
@@ -208,8 +213,8 @@ FORM #DEV_Toolbar
       #        }
       #        else if (DEV_Global::isTableBrowser(0, title))
       #        {
-      #            image = 2622;
-      #            title = subStr(title, 16, strLen(title) - 15);
+      #            image = #ImageFormTable;
+      #            title = subStr(title, strLen(#TableBrowserTitle) + 2, strLen(title) - strLen(#TableBrowserTitle));
       #        }
       #        else if (DEV_Global::isFindTitle(0, title))
       #        {
@@ -249,23 +254,23 @@ FORM #DEV_Toolbar
       #            {
       #                DEV_HKCommon::rightSideEditor(hwnd);
       #            }
-      #            /*else if (image == 409) // Find
-      #            {
-      #                DEV_HKCommon::leftSideFind(hwnd);
-      #            }*/
-      #            else if (image == 878) // Comparison
+      #            else if (image == #ImageEDTArrayElements) // Comparison
       #            {
       #                DEV_HKCommon::leftSideCentre(hwnd);
       #            }
-      #            else if (image == 3077) // Used by
+      #            else if (image == #IMAGE_NODE_OLAP_PRIVATEDIM) // Used by
       #            {
       #                DEV_HKCommon::leftSideCentre(hwnd);
       #            }
-      #            else if (image == 927) // Message Window
+      #            else if (image == #ImageInfo) // Message Window
       #            {
       #                this.hwnd_close(hwnd);
       #            }
-      #            /*else if (image == 1078) // Compiler Output
+      #            /*else if (image == 409) // Find
+      #            {
+      #                DEV_HKCommon::leftSideFind(hwnd);
+      #            }
+      #            else if (image == 1078) // Compiler Output
       #            {
       #                DEV_HKCommon::rightSideCompiler();
       #            }*/
@@ -492,7 +497,7 @@ FORM #DEV_Toolbar
       #            if (treeNode)
       #            {
       #                recentProjMap.insert(treeNode.treeNodePath(), 0);
-      #                //recentProjSet.add(treeNode.treeNodePath());
+      #                treeNode.treeNodeRelease();
       #            }
       #        }
       #        // << DEV:MXK <<
@@ -754,7 +759,6 @@ FORM #DEV_Toolbar
       #    xSysLastValue::getLast(this);
       #
       #    breakpointSet   = DEV_Breakpoints::initPathSet();
-      #    //recentProjSet   = new Set(Types::String);   // TreeNodePath
       #    recentProjMap   = new Map(Types::String, Types::Integer);
       #
       #    isSecDevTool    = TreeNode::findNode(#MenuItemsDisplayPath + #AOTDelimiter + 'SysSecRoleEntryPointDeveloper') != null;
@@ -809,6 +813,8 @@ FORM #DEV_Toolbar
       #    toggleSqlBut.visible(showButtons);
       #    tableBrowserBut.visible(showButtons);
       #    openApplicationObjectBut.visible(showButtons);
+      #    DEV_xRefElements.visible(showButtons);
+      #    DEV_WebSafeColors.visible(showButtons);
       #    SysSecRoleEntryPointDeveloper.visible(isSecDevTool);
       #
       #    ButtonsGrp.visible(isButtons);
@@ -911,11 +917,12 @@ FORM #DEV_Toolbar
       #        [#PieChartStyleTemplatesPath, #ImageSSRSReportPiechartStyleTemplate],
       #        [#XyChartStyleTemplatePath, #ImageSSRSReportXYChartStyleTemplate],
       #        [#DocSetsPath, #imageHelpFiles],
-      #        ['Project ', #ImageProject],
       #        ['Test project ', #ImageSysTestProject],
       #        // >> DEV:MXK >>
+      #        ['Upgrade project ', #ImageSysUpgradeProject],
+      #        //['Project ', #ImageProject],
       #        ['Comparison:', 878],
-      #        ['Message window', 927],
+      #        ['Message window', #ImageInfo],
       #        ['\\Projects', #ImageProjects]
       #        // << DEV:MXK <<
       #        ];
@@ -1358,7 +1365,6 @@ FORM #DEV_Toolbar
       #    TreeNode        treeNode;
       #    int             i, j;
       #    int             size = items.get_Count();
-      #    //SetEnumerator   se;
       #    MapEnumerator   me;
       #
       #    if (button == System.Windows.Input.MouseButton::Right)
@@ -1386,7 +1392,6 @@ FORM #DEV_Toolbar
       #            popupMenu.insertItem('Recent projects', false, true);
       #            popupMenu.insertBreak();
       #
-      #            //se = recentProjSet.getEnumerator();
       #            me = recentProjMap.getEnumerator();
       #            i = 100;
       #            while (me.moveNext())
@@ -1403,7 +1408,6 @@ FORM #DEV_Toolbar
       #            if (i == 300)
       #            {
       #                recentProjMap   = new Map(Types::String, Types::Integer);
-      #                //recentProjSet = new Set(Types::String);
       #            }
       #            else if (i > 100)
       #            {
@@ -2891,8 +2895,9 @@ FORM #DEV_Toolbar
       CONTROL MENUITEMBUTTON
         PROPERTIES
           Name                #DEV_WebSafeColors
+          AutoDeclaration     #Yes
           HelpText            #Allows to select color and copy related code to clipboard
-          ElementPosition     #1908874346
+          ElementPosition     #1888990238
           HierarchyParent     #ButtonsGrp
           ButtonDisplay       #Image only
           NormalImage         #7714
@@ -2920,8 +2925,9 @@ FORM #DEV_Toolbar
       CONTROL MENUITEMBUTTON
         PROPERTIES
           Name                #DEV_xRefElements
+          AutoDeclaration     #Yes
           HelpText            #Open form with an element references
-          ElementPosition     #1819395861
+          ElementPosition     #1809453807
           HierarchyParent     #ButtonsGrp
           ButtonDisplay       #Image only
           NormalImage         #11337

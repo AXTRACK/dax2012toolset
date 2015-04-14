@@ -1,0 +1,25 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FTM
+
+; Microsoft Dynamics AX MENUITEM : DEV_xRefElements unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  MENUITEM #DEV_xRefElements
+    Type: 1
+    PROPERTIES
+      Name                #DEV_xRefElements
+      Label               #Element-reference
+      HelpText            #Open form with an element references
+      Object              #DEV_xRefElements
+      NormalImage         #11337
+      ImageLocation       #EmbeddedResource
+      Origin              #{84112B9B-1B5F-4713-BF5D-7E4ECEF78CFB}
+    ENDPROPERTIES
+    
+  ENDMENUITEM
+  
+
+***Element: END

@@ -1,0 +1,91 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #SysOperationTemplateForm
+  PROPERTIES
+    Name                #SysOperationTemplateForm
+    Origin              #{93768880-585B-4D62-8643-3D60D2803AE3}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #run
+      #public void run()
+      #{
+      #    this.setFormCaption();
+      #
+      #    super();
+      #
+      #    this.dialog().mainFormGroup(dialogStartGrp);
+      #    this.dialog().curFormGroup(dialogStartGrp);
+      #
+      #    // >> DEV:MXK >>
+      #    if (isDeveloper())
+      #    {
+      #        DEV_OutputItemButton.text(this.controller().parmArgs().menuItemName());
+      #        DEV_OutputItemButton.visible(true);
+      #    }
+      #    // << DEV:MXK <<
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+  ENDOBJECTBANK
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    CONTAINER
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #DEV_OutputItemButton
+          AutoDeclaration     #Yes
+          Visible             #No
+          ElementPosition     #715827880
+          HierarchyParent     #BottomButtonGrp
+          ButtonDisplay       #Text & Image left
+          NormalImage         #406
+          ImageLocation       #EmbeddedResource
+          Underline           #Yes
+          Style               #Link
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #// >> DEV:MXK >>
+            #void clicked()
+            #{
+            #    TreeNode            treeNode;
+            #    TreeNodePath        treeNodePath;
+            #
+            #    treeNodePath    = SysDictMenu::newMenuItem(element.controller().parmArgs().menuItemName(), MenuItemType::Output).treeNodePath();
+            #    treeNode        = TreeNode::findNode(treeNodePath);
+            #
+            #    if (treeNode)
+            #        treeNode.AOTnewWindow();
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+  ENDPERMISSIONS
+  
+ENDFORM
+
+
+***Element: END

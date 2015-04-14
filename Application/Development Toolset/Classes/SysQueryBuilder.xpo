@@ -1,0 +1,261 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysQueryBuilder unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysQueryBuilder
+    PROPERTIES
+      Name                #SysQueryBuilder
+      Origin              #{2D0F06BC-0000-1000-49E5-6FD19063F5F2}
+      LegacyId            #1724
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #buildContext
+        #public DataSourceNumber buildContext(HWND hwnd, SysDataSourceId _sysDataSourceId, boolean _canDeleteElement, TmpSysQuery _tmpSysQuery, TmpSysQueryCompanyRange _tmpCompanyRange)
+        #{
+        #    PopupMenu               popupMenu = new PopupMenu(hwnd);
+        #    int                     i;
+        #    QueryBuildDataSource    dataSource;
+        #    DataSourceNumber        ret;
+        #    ;
+        #    if (valid)
+        #    {
+        #        dataSource      = sysQueryForm.query().dataSourceUniqueId(_sysDataSourceId);
+        #
+        #        popupMenu   = this.buildPopupMenu(dataSource.table(), popupMenu, _canDeleteElement);
+        #        if (popupMenu)
+        #        {
+        #            i = popupMenu.draw();
+        #
+        #            if (i != -1)
+        #            {
+        #                // >> DEV:MXK >>
+        #                if (i == showTableName)
+        #                {
+        #                    if (infolog.globalCache().get(classStr(SysQueryBuilder), 0))
+        #                        infolog.globalCache().set(classStr(SysQueryBuilder), 0, false);
+        #                    else
+        #                        infolog.globalCache().set(classStr(SysQueryBuilder), 0, true);
+        #
+        #                    ret = -1;
+        #                }
+        #                else
+        #                // << DEV:MXK <<
+        #                ret = this.newDatasource(dataSource, _tmpSysQuery, _tmpCompanyRange, i);
+        #            }
+        #        }
+        #    }
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #buildPopupMenu
+        #/// <summary>
+        #///    This method builds the relation popup menu for a data source in the tree structure of the
+        #///    <c>SysQueryForm</c> class.
+        #/// </summary>
+        #/// <param name="_tableId">
+        #///    Table id.
+        #/// </param>
+        #/// <param name="_popupMenu">
+        #///    The popup menu object.
+        #/// </param>
+        #/// <param name="_canDelete">
+        #///    A Boolean value that indicates whether the data source in the tree structure of the
+        #///    <c>SysQueryForm</c> class can be deleted.
+        #/// </param>
+        #/// <returns>
+        #///    The popup menu shown in the <c>SysQueryForm</c> tree structure for the input table.
+        #/// </returns>
+        #private PopupMenu buildPopupMenu(tableId _tableId, PopupMenu _popupMenu, boolean _canDelete)
+        #{
+        #    PopupMenu relations = new PopupMenu(_popupMenu.hwnd(), _popupMenu);
+        #    PopupMenu oneRel    = new PopupMenu(_popupMenu.hwnd(), relations, 20);
+        #    PopupMenu manyRel   = new PopupMenu(_popupMenu.hwnd(), relations, 20);
+        #
+        #    SysDictTable        orgDictTable;
+        #    SysDictTable        derivedTable;
+        #    tableId             originalTableId = _tableId;
+        #    Set                 oneSet = new Set(Types::Integer);
+        #    Set                 manySet = new Set(Types::Integer);
+        #    ListEnumerator      derivedTables;
+        #
+        #    valid = this.checkXRef(_tableId);
+        #
+        #    if (valid)
+        #    {
+        #        startLengthyOperation();
+        #
+        #        //build popup menu for tables up in the hierarchy
+        #        do
+        #        {
+        #            orgDictTable = new SysDictTable(_tableId);
+        #            this.buildPopupMenuItem(orgDictTable, oneSet, manySet, oneRel, manyRel);
+        #            _tableId = orgDictTable.supportInheritance()? orgDictTable.extends(): 0;
+        #        }
+        #        while (_tableId != 0);
+        #
+        #
+        #        //build popup menu for tables down in the hierarchy
+        #        orgDictTable = new SysDictTable(originalTableId);
+        #        derivedTables = orgDictTable.extendedBy().getEnumerator();
+        #        while(derivedTables.moveNext())
+        #        {
+        #            derivedTable = new SysDictTable(derivedTables.current());
+        #            this.buildPopupMenuItem(derivedTable, oneSet, manySet, oneRel, manyRel);
+        #        }
+        #
+        #        _popupMenu.insertPopupMenu(#one2Many, oneRel);
+        #        _popupMenu.insertPopupMenu(#many2One, manyRel);
+        #
+        #        if (_canDelete)
+        #        {
+        #            deleteIdx = _popupMenu.insertItem("@SYS14425");
+        #        }
+        #
+        #        // >> DEV:MXK >>
+        #        _popupMenu.insertBreak();
+        #        showTableName = _popupMenu.insertItem("@SYS26825", infolog.globalCache().get(classStr(SysQueryBuilder), 0)); // Table name
+        #        // << DEV:MXK <<
+        #    }
+        #    return _popupMenu;
+        #}
+      ENDSOURCE
+      SOURCE #buildRelation
+        #/// <summary>
+        #///    Updates the relations set of the input table and builds a relation popup menu for that table in the
+        #///    <c>SysQueryForm</c> class.
+        #/// </summary>
+        #/// <param name="_container">
+        #///    A container that contains the relations of the table to be added to the current relations set.
+        #/// </param>
+        #/// <param name="_relTableSet">
+        #///    The current relations set of the table.
+        #/// </param>
+        #/// <param name="_orgDictTable">
+        #///    The table with the relations set to update.
+        #/// </param>
+        #/// <param name="_popupMenu">
+        #///    The popup menu object to update.
+        #/// </param>
+        #/// <param name="_isOne2Many">
+        #///    boolean to trach one to many relations
+        #/// </param>
+        #/// <returns>
+        #///    The popup menu object.
+        #/// </returns>
+        #private PopupMenu buildRelation(container _container, Set _relTableSet, SysDictTable _orgDictTable, PopupMenu _popupMenu, boolean _isOne2Many = true)
+        #{
+        #    int             i, j;
+        #    int             relationId;
+        #    str             relationText;
+        #    tableId         relationTableId;
+        #    container       relationPack;
+        #    SysDictTable    dictTable;
+        #    DictField       dictField;
+        #    DictRelation    dictRelation;
+        #    Map             map         = new Map(Types::String, Types::Container);
+        #    MapEnumerator   mapEnum;
+        #    int             item;
+        #
+        #    for (i = conlen(_container); i > 0; i--)
+        #    {
+        #        [relationTableId, relationPack] = conpeek(_container, i);
+        #        dictTable               = new SysDictTable(relationTableId);
+        #
+        #        //hide table with invalid country codes
+        #        if (!SysQueryForm::hasValidCountryCode(dictTable.id()))
+        #            continue;
+        #
+        #        for (j = conlen(relationPack); j > 0; j--)
+        #        {
+        #            relationId = conpeek(relationPack, j);
+        #
+        #            if (relationId > 0)
+        #            {
+        #                dictField   = dictTable.fieldObject(relationId);
+        #
+        #                if (!dictField)
+        #                {
+        #                    dictRelation = new DictRelation(dictTable.id());
+        #                    dictRelation.loadTableRelation(_orgDictTable.id());
+        #
+        #                    dictField   = _orgDictTable.fieldObject(dictRelation.lineExternTableValue(1));
+        #                }
+        #
+        #                relationText = ' (' + dictField.label() + ')';
+        #            }
+        #            else
+        #            {
+        #                if ( _relTableSet.in(relationTableId) )
+        #                    continue;
+        #                _relTableSet.add(relationTableId);
+        #                relationText = '';
+        #            }
+        #
+        #            // >> DEV:MXK >>
+        #            //map.insert(strfmt('%1%2',dictTable.getLabelOrName(),relationText), [dictTable.id(), relationId]);
+        #            if (infolog.globalCache().get(classStr(SysQueryBuilder), 0))
+        #            {
+        #                map.insert( strfmt('%1%2%3',
+        #                                dictTable.name(),
+        #                                dictTable.name() == dictTable.getLabelOrName() ? '' : ' [' + dictTable.getLabelOrName() + ']',
+        #                                relationText),
+        #                            [dictTable.id(), relationId]);
+        #            }
+        #            else
+        #            {
+        #                map.insert(strfmt('%1%2',dictTable.getLabelOrName(),relationText), [dictTable.id(), relationId]);
+        #            }
+        #            // << DEV:MXK <<
+        #        }
+        #    }
+        #
+        #    mapEnum = new MapEnumerator(map);
+        #    while (mapEnum.moveNext())
+        #    {
+        #        item = _popupMenu.insertItem(mapEnum.currentKey());
+        #        if (_isOne2Many)
+        #        {
+        #            sucId_One2Many.insert(item, mapEnum.currentValue());
+        #        }
+        #        else
+        #        {
+        #            sucId_Many2One.insert(item, mapEnum.currentValue());
+        #        }
+        #    }
+        #
+        #    return _popupMenu;
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #// This is a framework class. Customizing this class may cause problems with future upgrades to the software.
+        #public class SysQueryBuilder
+        #{
+        #    #resAppl
+        #
+        #    SysQueryForm    sysQueryForm;
+        #
+        #    Map             sucId_One2Many;
+        #    Map             sucId_Many2One;
+        #    Map             annotation;
+        #
+        #    int             deleteIdx;
+        #    // >> DEV:MXK >>
+        #    int             showTableName;
+        #    // << DEV:MXK <<
+        #
+        #    boolean         valid ;
+        #
+        #    #define.One2Many('1:n')
+        #    #define.Many2One('n:1')
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END

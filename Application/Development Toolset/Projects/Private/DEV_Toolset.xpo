@@ -537,6 +537,12 @@ Formatversion: 1
         FILETYPE 0
         UTILTYPE 11
         NODETYPE 201
+        NAME #SysOperationTemplateForm
+      ENDNODE
+      BEGINNODE
+        FILETYPE 0
+        UTILTYPE 11
+        NODETYPE 201
         NAME #SysTableBrowser
       ENDNODE
       BEGINNODE

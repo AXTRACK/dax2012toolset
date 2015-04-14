@@ -28,11 +28,13 @@ FORM #SysTableBrowser
       #    #ResAppl
       #    #WinAPI
       #
-      #    #define.TooltipFilterByName('F2 toggles filtering by name\\label. F8 clears all filters.')
-      #    #define.TooltipFilterByType('F3 toggles filtering by type.')
-      #    #define.TooltipFilterMandatory('F4 toggles filtering by mandatory property.')
-      #    #define.TooltipFilterLabels('F6 toggles between name and label display.')
-      #    #define.TooltipOpenTable('Open currect table in AOT')
+      #    #define.TooltipStartHint        ('Start type-in to filter fields in tree.')
+      #    #define.TooltipFilterByName     ('F2 toggles grid filtering.')
+      #    #define.TooltipFilterByType     ('F3 toggles filtering by type.')
+      #    #define.TooltipFilterMandatory  ('F4 toggles filtering by mandatory property.')
+      #    #define.TooltipFilterLabels     ('F6 toggles between name and label display.')
+      #    #define.TooltipClearFilters     ('F8 clear filters.')
+      #    #define.TooltipOpenTable        ('Open current table in AOT')
       #
       #    SysTableBrowser                     callerClass;
       #
@@ -229,7 +231,12 @@ FORM #SysTableBrowser
       #    ExecuteSQLPreset.add('SELECT');
       #    ExecuteSQLPreset.add('UPDATE');
       #    ExecuteSQLPreset.add('DELETE');
+      #
       #    this.installMessageProc(#WM_KEYDOWN, FilterName.hWnd(), identifierstr(onEventKeyDown));
+      #    this.installMessageProc(#WM_KEYDOWN, ShowMandatoryFields.hWnd(), identifierstr(onEventKeyDown));
+      #    this.installMessageProc(#WM_KEYDOWN, ShowIndexedFields.hWnd(), identifierstr(onEventKeyDown));
+      #    this.installMessageProc(#WM_KEYDOWN, ShowLabels.hWnd(), identifierstr(onEventKeyDown));
+      #    this.installMessageProc(#WM_KEYDOWN, Tree.hWnd(), identifierstr(onEventKeyDown));
       #
       #    allFields       = callerClass.getAllFields();
       #    imgListAOT      = new ImageListAppl_Aot();
@@ -1215,6 +1222,20 @@ FORM #SysTableBrowser
             #    element.setTimeOut(identifierStr(filterOnTyping), 100);
             #
             #    element.setButtons();
+            #}
+            #// << DEV:MXK <<
+          ENDSOURCE
+          SOURCE #toolTip
+            #// >> DEV:MXK >>
+            #public str toolTip()
+            #{
+            #    str ret;
+            #
+            #    ret = super();
+            #
+            #    ret = FilterName.valueStr() ? #TooltipClearFilters : #TooltipStartHint;
+            #
+            #    return ret;
             #}
             #// << DEV:MXK <<
           ENDSOURCE

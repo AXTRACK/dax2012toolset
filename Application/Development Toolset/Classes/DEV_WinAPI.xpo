@@ -130,6 +130,18 @@ Formatversion: 1
         #// >> DEV:MXK <<
         #}
       ENDSOURCE
+      SOURCE #getAOTWidth
+        #// >> DEV:MXK >>
+        #public static int getAOTWidth()
+        #{
+        #    int                                 x1, y1, x2, y2;
+        #
+        #    [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #
+        #    return ((x2 - x1) / ((x2 - x1) div #AOTWidth));
+        #}
+        #// << DEV:MXK <<
+      ENDSOURCE
       SOURCE #getAsyncKeyState
         #// >> DEV:MXK >>
         #public client static boolean getAsyncKeyState(int _key1 = 0, int _key2 = 0, int _key3 = 0)
@@ -360,6 +372,16 @@ Formatversion: 1
         #
         #    DLLFunction.returns(ExtTypes::DWord);
         #    return DLLFunction.call();
+        #}
+      ENDSOURCE
+      SOURCE #getMaxPos
+        #public static int getMaxPos()
+        #{
+        #    int                                 x1, y1, x2, y2;
+        #    int                                 ret;
+        #    [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #
+        #    return ((x2 - x1) / (DEV_WinAPI::isTwoDisplays() ? 2 :1)) div #AOTWidth;
         #}
       ENDSOURCE
       SOURCE #getMaxSize

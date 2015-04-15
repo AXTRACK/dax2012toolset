@@ -162,7 +162,7 @@ FORM #SysImportDialog
       #    {
       #        if (DEV_UserParameters::exist() && DEV_UserParameters::find().WMEnabled)
       #        {
-      #            WinApi::setWindowPos(this.hWnd(), #AOTWidth, 0, (x2 - x1)/2, y2 - y1 - 40);
+      #            WinApi::setWindowPos(this.hWnd(), DEV_WinAPI::getAOTWidth(), 0, (x2 - x1) / 2, y2 - y1 - 40);
       #            element.design().width(600);
       #            element.design().height(y2 - y1 - 40);
       #        }

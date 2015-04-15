@@ -30,6 +30,7 @@ Formatversion: 1
         #        int                                 mid;
         #        boolean                             is2d    = DEV_WinAPI::isTwoDisplays();
         #        int                                 delta   = DEV_WinAPI::getDelta();
+        #        int                                 AOTWidth;
         #
         #        if (    DEV_UserParameters::find().WMEnabled == NoYes::No
         #            &&  DEV_Global::isDevWorkspace())
@@ -312,15 +313,17 @@ Formatversion: 1
         #{
         #    #var
         #
+        #    AOTWidth = DEV_WinAPI::getAOTWidth();
+        #
         #    if (_hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
         #    {
         #        WinAPI::sendMessageEx(_hWnd, #WM_SYSCOMMAND, #SC_RESTORE, 0);
         #
         #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
-        #        WinAPI::setWindowPos(_hWnd, 0, 0, #AOTWidth, y2 - y1);
+        #        WinAPI::setWindowPos(_hWnd, 0, 0, AOTWidth, y2 - y1);
         #
         #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
-        #        WinAPI::setWindowPos(_hWnd, 0, 0, #AOTWidth, y2 - y1);
+        #        WinAPI::setWindowPos(_hWnd, 0, 0, AOTWidth, y2 - y1);
         #    }
         #// << DEV:MXK <<
         #}
@@ -331,15 +334,17 @@ Formatversion: 1
         #{
         #    #var
         #
+        #    AOTWidth = DEV_WinAPI::getAOTWidth();
+        #
         #    if (_hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
         #    {
         #        WinAPI::sendMessageEx(_hWnd, #WM_SYSCOMMAND, #SC_RESTORE, 0);
         #
         #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
-        #        WinAPI::setWindowPos(_hWnd, #AOTWidth, 0, #AOTWidth, y2 - y1);
+        #        WinAPI::setWindowPos(_hWnd, AOTWidth, 0, AOTWidth, y2 - y1);
         #
         #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
-        #        WinAPI::setWindowPos(_hWnd, #AOTWidth, 0, #AOTWidth, y2 - y1);
+        #        WinAPI::setWindowPos(_hWnd, AOTWidth, 0, AOTWidth, y2 - y1);
         #    }
         #// << DEV:MXK <<
         #}
@@ -350,15 +355,17 @@ Formatversion: 1
         #{
         #    #var
         #
+        #    AOTWidth = DEV_WinAPI::getAOTWidth();
+        #
         #    if (_hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
         #    {
         #        [x1, y1, x2, y2] = DEV_WinAPI::prepareToSide(_hWnd);
-        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - #AOTWidth + delta, 0, #AOTWidth, y2 - y1);
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - AOTWidth + delta, 0, AOTWidth, y2 - y1);
         #
         #        delta = DEV_WinAPI::getDelta();
         #
         #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
-        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - #AOTWidth + delta, 0, #AOTWidth, y2 - y1);
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - AOTWidth + delta, 0, AOTWidth, y2 - y1);
         #    }
         #// << DEV:MXK <<
         #}
@@ -369,15 +376,17 @@ Formatversion: 1
         #{
         #    #var
         #
+        #    AOTWidth = DEV_WinAPI::getAOTWidth();
+        #
         #    if (_hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
         #    {
         #        [x1, y1, x2, y2] = DEV_WinAPI::prepareToSide(_hWnd);
-        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - 2 * #AOTWidth + delta, 0, #AOTWidth, y2 - y1);
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - 2 * AOTWidth + delta, 0, AOTWidth, y2 - y1);
         #
         #        delta = DEV_WinAPI::getDelta();
         #
         #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
-        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - 2 * #AOTWidth + delta, 0, #AOTWidth, y2 - y1);
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - 2 * AOTWidth + delta, 0, AOTWidth, y2 - y1);
         #    }
         #// << DEV:MXK <<
         #}
@@ -562,6 +571,28 @@ Formatversion: 1
         #    DEV_Global::openDefaultProject();
         #}
       ENDSOURCE
+      SOURCE #posAOTWindow
+        #// >> DEV:MXK >>
+        #public static void posAOTWindow(int     _pos,
+        #                                HWND    _hWnd = WinAPI::FindWindowEx(DEV_WinAPI::mdiClient(), 0, '', ''))
+        #{
+        #    #var
+        #
+        #    AOTWidth = DEV_WinAPI::getAOTWidth();
+        #
+        #    if (_hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
+        #    {
+        #        WinAPI::sendMessageEx(_hWnd, #WM_SYSCOMMAND, #SC_RESTORE, 0);
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, _pos * AOTWidth, 0, AOTWidth, y2 - y1);
+        #
+        #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
+        #        WinAPI::setWindowPos(_hWnd, _pos * AOTWidth, 0, AOTWidth, y2 - y1);
+        #    }
+        #// << DEV:MXK <<
+        #}
+      ENDSOURCE
       SOURCE #rightSideCentre
         #// >> DEV:MXK >>
         #// Positioning window to the right side of the screen in the center
@@ -648,15 +679,17 @@ Formatversion: 1
         #{
         #    #var
         #
+        #    AOTWidth = DEV_WinAPI::getAOTWidth();
+        #
         #    if (_hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
         #    {
         #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
-        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - (is2d ? 0 : #AOTWidth) + delta, 0, #AOTWidth, y2 - y1);
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - (is2d ? 0 : AOTWidth) + delta, 0, AOTWidth, y2 - y1);
         #
         #        delta = DEV_WinAPI::getDelta();
         #
         #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
-        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - (is2d ? 0 : #AOTWidth) + delta, 0, #AOTWidth, y2 - y1);
+        #        WinAPI::setWindowPos(_hWnd, (x2 - x1) / (is2d ? 2 : 1) - (is2d ? 0 : AOTWidth) + delta, 0, AOTWidth, y2 - y1);
         #    }
         #// << DEV:MXK <<
         #}
@@ -667,13 +700,15 @@ Formatversion: 1
         #{
         #    #var
         #
+        #    AOTWidth = DEV_WinAPI::getAOTWidth();
+        #
         #    if (_hWnd && DEV_WinAPI::isWindowVisible(_hWnd))
         #    {
         #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
-        #        WinAPI::setWindowPos(_hWnd, x2 - #AOTWidth, 0, #AOTWidth, y2 - y1);
+        #        WinAPI::setWindowPos(_hWnd, x2 - AOTWidth, 0, AOTWidth, y2 - y1);
         #
         #        [x1, y1, x2, y2] = DEV_WinAPI::getClientRect();
-        #        WinAPI::setWindowPos(_hWnd, x2 - #AOTWidth, 0, #AOTWidth, y2 - y1);
+        #        WinAPI::setWindowPos(_hWnd, x2 - AOTWidth, 0, AOTWidth, y2 - y1);
         #    }
         #// << DEV:MXK <<
         #}

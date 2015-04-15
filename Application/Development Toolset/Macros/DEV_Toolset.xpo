@@ -19,7 +19,7 @@ Formatversion: 1
     #    #define.VSAssemblies('VSAssemblies')
     #
     #// === Windows Management
-    #    #define.AOTWidth(420)
+    #    #define.AOTWidth(400)
     #    #define.EditorSuffix        (' - ' + "@SYS26985")   // Editor
     #    #define.UsedByTitle         ("@SYS28579")           // Used by
     #    #define.ImportTitle         ("@SYS105127")          // Import

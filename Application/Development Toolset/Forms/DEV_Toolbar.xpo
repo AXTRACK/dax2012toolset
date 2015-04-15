@@ -61,9 +61,17 @@ FORM #DEV_Toolbar
       #    // >> DEV:MXK >>
       #    #DEV_Toolset
       #
+      #    DEV_UserParameters              parameters;
+      #
       #    HWND                            propertiesWindow;
       #    Set                             breakpointSet;
       #    Map                             recentProjMap;
+      #    Map                             projPosMap; // HWND, ScreenPos ([0, 1..n - 2] where n = clientRect div #AOTWidth)
+      #    int                             projPos;
+      #    Map                             AOTPosMap;  // HWND, ScreenPos ([m, m + 1..n] where m = 0 if one monitor and n if two, n = clientRect div #AOTWidth)
+      #    int                             AOTPos;
+      #    int                             projMaxPos;
+      #    int                             AOTMaxPos;
       #
       #    boolean                         isButtons;
       #    boolean                         isSearchText;
@@ -178,18 +186,28 @@ FORM #DEV_Toolbar
       #    {
       #        [hwnd, text] = conPeek(_created, i);
       #        // >> DEV:MXK >>
-      #        if (    DEV_UserParameters::findOrCreate().EnvFormCaption
+      #        if (    parameters.EnvFormCaption
       #            &&  subStr(text, 1, strLen(DEV_Global::curEnv()) + 1) == DEV_Global::curEnv())
       #        {
       #            text = subStr(text, strLen(DEV_Global::curEnv()) + 5, strLen(text));
       #        }
       #        // << DEV:MXK <<
+      #
       #        [title, image] = this.parseTitle(text);
+      #
       #        // >> DEV:MXK >>
       #        if (DEV_Global::isProjectTitle(0, title))
       #        {
       #            image   = #ImageProject;
       #            title   = subStr(title, strLen(#ProjectTitle) + 2, strLen(title));
+      #
+      #            if (parameters.WMEnabled)
+      #            {
+      #                DEV_HKCommon::posAOTWindow(projPos, hwnd);
+      #                //projPosMap.insert(hwnd, projPos);
+      #                //info(strFmt('Proj %1, %2', hwnd, projPos));
+      #                projPos = (projPos >= projMaxPos) ? 0 : projPos + 1;
+      #            }
       #        }
       #        else if (hwnd == propertiesWindow)
       #        {
@@ -229,6 +247,14 @@ FORM #DEV_Toolbar
       #        else if (DEV_Global::isAOT(0, title))
       #        {
       #            title = 'AOT';
+      #
+      #            if (parameters.WMEnabled)
+      #            {
+      #                DEV_HKCommon::posAOTWindow(AOTPos, hwnd);
+      #                //AOTPosMap.insert(hwnd, AOTPos);
+      #                //info(strFmt('AOT %1, %2', hwnd, AOTPos));
+      #                AOTPos = (AOTPos >= AOTMaxPos) ? (DEV_WinAPI::isTwoDisplays() ? DEV_WinAPI::getMaxPos() : 0) : AOTPos + 1;
+      #            }
       #        }
       #        // << DEV:MXK <<
       #
@@ -236,37 +262,37 @@ FORM #DEV_Toolbar
       #        tabs.insert(hwnd, tab);
       #
       #        // >> DEV:MXK >>
-      #        if (DEV_UserParameters::exist() && DEV_UserParameters::find().WMEnabled)
+      #        if (parameters.WMEnabled)
       #        {
-      #            if (hwnd == propertiesWindow)
+      #            if (hwnd == propertiesWindow)                   // Properties
       #            {
       #                DEV_HKCommon::leftSideRight(hwnd);
       #            }
-      #            else if (DEV_Global::isProjectRoot(0, text))
+      #            else if (DEV_Global::isProjectRoot(0, text))    // Projects
       #            {
       #                DEV_HKCommon::leftSideRight(hwnd);
       #            }
-      #            else if (DEV_Global::isProjectTitle(0, text))
-      #            {
-      #                DEV_HKCommon::leftSideLeft(hwnd);
-      #            }
-      #            else if (DEV_Global::isEditor(0, text))
+      #            else if (DEV_Global::isEditor(0, text))         // Editor
       #            {
       #                DEV_HKCommon::rightSideEditor(hwnd);
       #            }
-      #            else if (image == #ImageEDTArrayElements) // Comparison
+      #            else if (image == #ImageEDTArrayElements)       // Comparison
       #            {
       #                DEV_HKCommon::leftSideCentre(hwnd);
       #            }
-      #            else if (image == #IMAGE_NODE_OLAP_PRIVATEDIM) // Used by
+      #            else if (image == #IMAGE_NODE_OLAP_PRIVATEDIM)  // Used by
       #            {
       #                DEV_HKCommon::leftSideCentre(hwnd);
       #            }
-      #            else if (image == #ImageInfo) // Message Window
+      #            else if (image == #ImageInfo)                   // Message Window
       #            {
       #                this.hwnd_close(hwnd);
       #            }
-      #            /*else if (image == 409) // Find
+      #            /*else if (DEV_Global::isProjectTitle(0, text))
+      #            {
+      #                DEV_HKCommon::leftSideLeft(hwnd);
+      #            }
+      #            else if (image == 409) // Find
       #            {
       #                DEV_HKCommon::leftSideFind(hwnd);
       #            }
@@ -489,7 +515,7 @@ FORM #DEV_Toolbar
       #        inSelectionChange = false;
       #        tabs.remove(hwnd);
       #        // >> DEV:MXK >>
-      #        if (strStartsWith(text, 'Project '))
+      #        if (DEV_Global::isProjectTitle(0, text))
       #        {
       #            treeNode = TreeNode::findNode(#ProjectSharedPath + #AOTDelimiter + conPeek(str2con(text, ' '), 2));
       #            treeNode = treeNode ? treeNode : TreeNode::findNode(#ProjectPrivatePath + #AOTDelimiter + conPeek(str2con(text, ' '), 2));
@@ -754,14 +780,22 @@ FORM #DEV_Toolbar
       #    boolean             isSecDevTool;
       #    boolean             showButtons = true;
       #
-      #    DEV_UserParameters  parameters = DEV_UserParameters::findOrCreate();
-      #
       #    xSysLastValue::getLast(this);
+      #
+      #    parameters      = DEV_UserParameters::findOrCreate();
       #
       #    breakpointSet   = DEV_Breakpoints::initPathSet();
       #    recentProjMap   = new Map(Types::String, Types::Integer);
       #
+      #    //projPosMap      = new Map(Types::Integer, Types::Integer);
+      #    projPos         = 0;
+      #    projMaxPos      = DEV_WinAPI::getMaxPos() - 2;
+      #    //AOTPosMap       = new Map(Types::Integer, Types::Integer);
+      #    AOTPos          = DEV_WinAPI::isTwoDisplays() ? DEV_WinAPI::getMaxPos() : 0;
+      #    AOTMaxPos       = DEV_WinAPI::isTwoDisplays() ? (2 * DEV_WinAPI::getMaxPos()) - 1 : DEV_WinAPI::getMaxPos() - 1;
+      #
       #    isSecDevTool    = TreeNode::findNode(#MenuItemsDisplayPath + #AOTDelimiter + 'SysSecRoleEntryPointDeveloper') != null;
+      #
       #    if (parameters.HKEnabled)
       #        showButtons = !parameters.HideHKButtons;
       #    // << DEV: MXK <<
@@ -3259,6 +3293,7 @@ FORM #DEV_Toolbar
           ElementPosition     #1227133512
           HierarchyParent     #Toolbar
           DisplayLength       #20
+          BackgroundColor     #Dyn Background blue
           ShowLabel           #No
         ENDPROPERTIES
         

@@ -1,0 +1,207 @@
+<div class="wikidoc">
+<p><strong><span style="font-size:18pt">Project Description</span></strong></p>
+<p><strong><span style="font-size:12pt">Dynamics AX 2012 Development toolset</span></strong><span style="font-size:12pt">&nbsp;(DT) is an enhanced compilation of various tools and tweaks. Below you can find a list of the original tools used with detailed description.
+ DT contains multiple tweaks for most standard development tools available in AX. It is designed to be used in both standalone and shared development environments allowing personalised setup for each developer and giving additional control for
+<strong>DEV_Admin</strong> user.</span></p>
+<p><strong><span style="font-size:18pt">Purpose</span></strong></p>
+<p><span style="font-size:12pt">The purpose of DT is to provide a better development experience in a Microsoft Dynamics AX single or shared environment with a minimum code changes and maximum flexibility. The groups of users who would benefit the most from
+ the DT are those having development access. However other users also might benefit from DT in the day-to-day job.</span></p>
+<p><strong><span style="font-size:18pt">Compatibility</span></strong></p>
+<p><span style="font-size:12pt">Expect compatibility with all AX 2012 releases.</span></p>
+<p><strong><span style="font-size:18pt">Installation requirements</span></strong></p>
+<p><span style="font-size:12pt">To fully install DT a write access for AOS and Client folders required.<br>
+You can either deploy dll files from the resources nodes or compile new one from C Sharp projects.</span></p>
+<p><strong><span style="font-size:18pt">Installation</span></strong></p>
+<p><span style="font-size:12pt">1. For AX 2012 R2 the model file is available for cus layer. Use&nbsp;<strong>AXUtil.exe</strong> or
+<strong>AX 2012 Management shell</strong> to install.&nbsp;Otherwise apply xpo file. Be careful when importing system&nbsp;classes&nbsp;<strong>Application</strong>,&nbsp;<strong>Info</strong>&nbsp;and
+<strong>SysSetupFormRun</strong>.&nbsp;Import those after all other objects are imported and all conflicts resolved.<br>
+<br>
+2. Deploy dll files. Those are not critical part of the installation but will be used by Editor and Editor HK. Either&nbsp;deploy prebuild from the resources or manually deploy&nbsp;each C Sharp Project.<br>
+<br>
+To deploy dll files from the resources:&nbsp;<br>
+- For Editor extensions click<em> Form 'Development toolset parameters' &gt; Action pane 'General' &gt; Group 'Editor' &gt; Button 'Extensions'</em> you will be prompted to deploy missing files. Or manually export all DEV_EditorExtensions_* resources to
+<em>&quot;%ProgramFiles(x86)%\Microsoft Dynamics AX\60\Client\Bin\EditorComponents\&quot;.</em><br>
+- For DEV_WindowsInput.dll open <em>\Resources\DEV_WindowsInput</em> and export file to
+<em>&quot;%ProgramFiles%\Microsoft Dynamics AX\60\Server\%AXSERVER%\Bin\VSAssemblies\&quot;.</em><br>
+<br>
+To deploy C Sharp Projects:&nbsp;<br>
+Navigate to <em>Visual Studio Projects\C Sharp Projects\</em> select edit and deploy each&nbsp;DEV_* project.&nbsp;<br>
+</span><span style="font-size:8.5pt"><br>
+</span><span style="font-size:12pt">3. Restart AOS and compile private project DEV_Toolset.</span></p>
+<p><strong><span style="font-size:18pt">Initial configuration</span></strong></p>
+<p><span style="font-size:12pt">Some configuration options like environment name are controlled by DEV_Admin user which needs to be defined in macros. Some other options can be setup to be controlled by and DEV_Admin user.<br>
+<br>
+Open macros DEV_Toolset and define DEV_AdminUser for your environment by setting UserID. The default value is &ldquo;Admin&rdquo;.</span></p>
+<p><span style="font-size:12pt">Finish configuration by opening DT parameters form by pressing F10 in the Development workspace and setting required options. Project prefix parameter is used when &ldquo;Create new project&rdquo; form and Project management
+ form are used.<br>
+<br>
+</span></p>
+<p><strong><span style="font-size:18pt">Includes</span></strong></p>
+<table>
+<tbody>
+<tr>
+<td width="234">
+<p><span style="font-size:10pt">Form Digger and HK Framework</span></p>
+</td>
+<td width="189">
+<p><span style="font-size:10pt">by&nbsp;<strong>Evgeny Arlionak</strong></span></p>
+</td>
+<td width="193">
+<p><span style="font-size:10.0pt"><a href="http://earlionakru.blogspot.com/">earlionakru.blogspot.com</a></span></p>
+</td>
+</tr>
+<tr>
+<td width="234">
+<p><span style="font-size:10pt">Development toolbar </span></p>
+</td>
+<td width="189">
+<p><span style="font-size:10pt">by&nbsp;<strong>Max Belugin</strong></span></p>
+</td>
+<td width="193">
+<p><span style="font-size:10.0pt"><a href="http://axcoder.blogspot.com/">axcoder.blogspot.com</a></span></p>
+</td>
+</tr>
+<tr>
+<td width="234">
+<p><span style="font-size:10pt">Create project and Editor scripts</span></p>
+</td>
+<td width="189">
+<p><span style="font-size:10pt">by&nbsp;<strong>Ivan Kashperuk</strong></span></p>
+</td>
+<td width="193">
+<p><span style="font-size:10pt">&nbsp;</span><span style="font-size:10.0pt"><a href="http://kashperuk.blogspot.com/">kashperuk.blogspot.com</a></span></p>
+</td>
+</tr>
+<tr>
+<td width="234">
+<p><span style="font-size:10pt">Table browser extended</span></p>
+</td>
+<td width="189">
+<p><span style="font-size:10pt">by&nbsp;<strong>Ruslan Goncharov</strong></span></p>
+</td>
+<td width="193">
+<p><span style="font-size:10pt">&nbsp;</span><span style="font-size:10.0pt"><a href="http://rusgon.blogspot.co.uk/">rusgon.blogspot.co.uk</a></span></p>
+</td>
+</tr>
+<tr>
+<td width="234">
+<p><span style="font-size:10pt">Editor extensions</span></p>
+</td>
+<td width="189">
+<p><span style="font-size:10pt">by&nbsp;<strong>J. A. Estevan</strong></span></p>
+</td>
+<td width="193">
+<p><span style="font-size:10pt">&nbsp;</span><span style="font-size:10.0pt"><a href="http://jaestevan.com/">jaestevan.com</a></span></p>
+</td>
+</tr>
+<tr>
+<td width="234">
+<p><span style="font-size:10pt">Ideas and code</span></p>
+</td>
+<td width="189">
+<p><span style="font-size:10pt">by&nbsp;<strong>AXforum members</strong>&nbsp;</span></p>
+</td>
+<td width="193">
+<p><span style="font-size:10pt">&nbsp;</span><span style="font-size:10.0pt"><a href="http://axforum.info/">axforum.info</a></span></p>
+</td>
+</tr>
+<tr>
+<td width="234">
+<p><span style="font-size:10pt">Development tools &nbsp;&nbsp; </span></p>
+</td>
+<td width="189">
+<p><span style="font-size:10pt">by&nbsp;<strong>axaptapedia</strong></span></p>
+</td>
+<td width="193">
+<p><span style="font-size:10pt">&nbsp;</span><span style="font-size:10.0pt"><a href="http://www.axaptapedia.com/">www.axaptapedia.com</a></span></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong><span style="font-size:18pt">Screens</span></strong></p>
+<p><span style="font-size:12pt">DT Parameters. Default HK &quot;F10&quot; when in Development workspace</span></p>
+<p>&nbsp;</p>
+<p><img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1442685" alt="" width="801" height="1022"></p>
+<p><span style="font-size:12pt">Hotkey framework with default setup</span></p>
+<p>&nbsp;<img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1442682" alt="" width="763" height="978"></p>
+<p><span style="font-size:12pt">Microsoft Dynamics AX 2012 X&#43;&#43; Editor Extensions&nbsp;</span><span style="font-size:12.0pt"><a href="https://ax2012editorext.codeplex.com/"><span style="color:blue">https://ax2012editorext.codeplex.com</span></a></span><span style="font-size:12pt">&nbsp;Added
+ options</span></p>
+<p>&nbsp;<img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1441665" alt="" width="366" height="355"></p>
+<p><img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1441666" alt="" width="366" height="355"></p>
+<p><span style="font-size:12pt">Table browser<br>
+</span></p>
+<p>&nbsp;<img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1442680" alt="" width="791" height="558"></p>
+<p>&nbsp;</p>
+<p><span style="font-size:12pt"><img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1442384" alt="" width="670" height="561"></span></p>
+<p>&nbsp;Form's hotkeys:</p>
+<ul>
+<li>F2 toggles grid filtering. </li><li>F3 toggles filtering by type. </li><li>F4 toggles filtering by mandatory property. </li><li>F6 toggles between name and label display. </li><li>F8 clear filters. </li></ul>
+<p><span style="font-size:12pt">Compare form<br>
+</span></p>
+<p>&nbsp;<img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1441668" alt="" width="846" height="222"></p>
+<p><span style="font-size:12pt">Import form<br>
+</span></p>
+<p><span style="font-size:12pt"><img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1442684" alt="" width="614" height="381"><br>
+</span></p>
+<p><span style="font-size:12pt">Export form</span></p>
+<p><span style="font-size:12pt"><img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1441670" alt="" width="437" height="148"><br>
+<br>
+Find form</span></p>
+<p><span style="font-size:12pt"><img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1441671" alt="" width="853" height="277"><br>
+</span></p>
+<p>&nbsp;Form's hotkeys:</p>
+<p>&nbsp;</p>
+<ul>
+<li>F2 toggles search option. </li><li>F3 toggles Match case option. </li><li>F4 toggles Match word option. </li><li>F5 start the search. </li><li>F6 clear search criteria. </li><li>F8 toggles Source code option. </li><li>F9 sets the breakpoint for the selected lines.&nbsp; </li></ul>
+<p><span style="font-size:12pt">Breakpoints</span></p>
+<p><span style="font-size:12pt"><img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1441672" alt="" width="308" height="295"><br>
+<br>
+Autostart form. Autostart projects, forms, classes, menu items etc.<br>
+<br>
+<img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1441673" alt="" width="649" height="354"><br>
+</span></p>
+<p><span style="font-size:12pt">Projects form</span></p>
+<p><span style="font-size:12pt"><img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1442679" alt="" width="815" height="310"><br>
+<br>
+Development toolbar. Open from menu Tools &gt; Development toolbar<br>
+<br>
+<img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1441675" alt="" width="671" height="30"><br>
+</span></p>
+<p><span style="font-size:12pt">Maintenance job</span></p>
+<p><span style="font-size:12pt"><img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1442686" alt="" width="223" height="404"><br>
+<br>
+Form Digger Info example. Default HK &quot;ALT &#43; 1&quot; on required form control</span></p>
+<p><span style="font-size:12pt"><img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1442683" alt="" width="559" height="267"><br>
+</span></p>
+<p>&nbsp;</p>
+<p><span style="font-size:12pt"><img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1441678" alt="" width="616" height="223"></span></p>
+<p><span style="font-size:12pt">Form Digger Form example. Default HK &quot;ALT &#43; 2&quot; on any form control<br>
+<br>
+<img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1441690" alt="" width="800" height="257"><br>
+</span></p>
+<p><span style="font-size:12pt">Used by form</span></p>
+<p><img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1442677" alt="" width="879" height="228"></p>
+<p><span style="font-size:12pt">Element reference form</span></p>
+<p><span style="font-size:12pt"><img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1442678" alt="" width="822" height="213"></span></p>
+<p><span style="font-size:12pt">Jump by reference. Default HK &quot;INSERT&quot; on the AOT object<br>
+</span></p>
+<p>&nbsp;<img src="http://download-codeplex.sec.s-msft.com/Download?ProjectName=dax2012toolset&DownloadId=1441680" alt="" width="209" height="112"></p>
+<h2>Known issues</h2>
+<p>1. Compilation error in VS 2010 &quot;The OutputPath property is not set for project 'DEV_WindowsInput.csproj'&quot;</p>
+<ul>
+<li>This is causing no issue </li></ul>
+<p>2. Controls are not redrawing on the Development Toolbar after Security test workspace has been opened</p>
+<ul>
+<li>Workaround: Toolbar restart </li></ul>
+<p>3. Editor &quot;code format functionality&quot; not working properly</p>
+<ul>
+<li>Require fix </li></ul>
+<p>4.&nbsp;No custom labels created for this project. It is either using system labels whenever possible or using a hard-coded English text.</p>
+<ul>
+<li>No planned changes on this at the moment. </li></ul>
+<h2>Planned changes</h2>
+<p>1. Fix known issue where possible.</p>
+<p>2. Improve AOT jump by reference with new form.</p>
+<p>3. Add new feature in Find utility: search in within results</p>
+<p>4. Display hidden fields values in Table browser.</p>
+</div><div class="ClearBoth"></div>
